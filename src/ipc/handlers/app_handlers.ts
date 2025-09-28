@@ -235,26 +235,66 @@ async function ensureBackendDirectory(backendPath: string): Promise<void> {
   // Check if backend directory is empty or missing key files
   const backendFiles = fs.readdirSync(backendPath);
   if (backendFiles.length === 0) {
-    // Create a basic Python Flask backend structure
+    // Create a basic Python Flask backend structure with database support
     const requirementsTxt = `flask==2.3.3
 flask-cors==4.0.0
+flask-sqlalchemy==3.0.5
 python-dotenv==1.0.0
 `;
 
-    const appPy = `from flask import Flask, jsonify
+    const appPy = `from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__)
 CORS(app)
 
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Example model
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+# Create database tables
+with app.app_context():
+    db.create_all()
+
 @app.route('/')
 def hello():
-    return jsonify({"message": "Backend API is running!"})
+    return jsonify({"message": "Backend API with Database is running!"})
 
 @app.route('/api/health')
 def health():
     return jsonify({"status": "healthy"})
+
+@app.route('/api/items', methods=['GET'])
+def get_items():
+    items = Item.query.all()
+    return jsonify([item.to_dict() for item in items])
+
+@app.route('/api/items', methods=['POST'])
+def create_item():
+    data = request.get_json()
+    if not data or 'name' not in data:
+        return jsonify({"error": "Name is required"}), 400
+
+    new_item = Item(name=data['name'])
+    db.session.add(new_item)
+    db.session.commit()
+    return jsonify(new_item.to_dict()), 201
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
@@ -275,7 +315,7 @@ python app.py
       // Make start.sh executable
       await fsPromises.chmod(path.join(backendPath, 'start.sh'), 0o755);
 
-      logger.info(`Created basic Flask backend structure in ${backendPath}`);
+      logger.info(`Created basic Flask backend structure with database in ${backendPath}`);
     } catch (error) {
       logger.error(`Failed to create backend structure in ${backendPath}:`, error);
       throw error;
