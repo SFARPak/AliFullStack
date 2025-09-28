@@ -180,28 +180,16 @@ async function executeApp({
     proxyWorker.terminate();
     proxyWorker = null;
   }
-  const settings = readSettings();
-  const runtimeMode = settings.runtimeMode2 ?? "host";
 
-  if (runtimeMode === "docker") {
-    await executeAppInDocker({
-      appPath,
-      appId,
-      event,
-      isNeon,
-      installCommand,
-      startCommand,
-    });
-  } else {
-    await executeAppLocalNode({
-      appPath,
-      appId,
-      event,
-      isNeon,
-      installCommand,
-      startCommand,
-    });
-  }
+  // Always use host mode for app development - Docker is experimental and not suitable for development
+  await executeAppLocalNode({
+    appPath,
+    appId,
+    event,
+    isNeon,
+    installCommand,
+    startCommand,
+  });
 }
 
 async function ensureBackendDirectory(backendPath: string): Promise<void> {
@@ -1667,9 +1655,6 @@ export function registerAppHandlers() {
 
           // Remove node_modules if requested
           if (removeNodeModules) {
-            const settings = readSettings();
-            const runtimeMode = settings.runtimeMode2 ?? "host";
-
             const nodeModulesPath = path.join(appPath, "node_modules");
             logger.log(
               `Removing node_modules for app ${appId} at ${nodeModulesPath}`,
@@ -1682,24 +1667,6 @@ export function registerAppHandlers() {
               logger.log(`Successfully removed node_modules for app ${appId}`);
             } else {
               logger.log(`No node_modules directory found for app ${appId}`);
-            }
-
-            // If running in Docker mode, also remove container volumes so deps reinstall freshly
-            if (runtimeMode === "docker") {
-              logger.log(
-                `Docker mode detected for app ${appId}. Removing Docker volumes dyad-pnpm-${appId}...`,
-              );
-              try {
-                await removeDockerVolumesForApp(appId);
-                logger.log(
-                  `Removed Docker volumes for app ${appId} (dyad-pnpm-${appId}).`,
-                );
-              } catch (e) {
-                // Best-effort cleanup; log and continue
-                logger.warn(
-                  `Failed to remove Docker volumes for app ${appId}. Continuing: ${e}`,
-                );
-              }
             }
           }
 
@@ -2302,12 +2269,8 @@ function getCommand({
 }
 
 async function cleanUpPort(port: number) {
-  const settings = readSettings();
-  if (settings.runtimeMode2 === "docker") {
-    await stopDockerContainersOnPort(port);
-  } else {
-    await killProcessOnPort(port);
-  }
+  // Always use host mode cleanup since apps always run in host mode
+  await killProcessOnPort(port);
 }
 
 async function installDependencies(projectPath: string, framework: string) {
