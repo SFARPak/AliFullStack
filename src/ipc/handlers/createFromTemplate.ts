@@ -1484,6 +1484,7 @@ async function setupFlask(backendPath: string) {
 
   // Create app.py
   const appContent = `from flask import Flask
+import os
 
 app = Flask(__name__)
 
@@ -1496,7 +1497,8 @@ def get_items():
     return {'items': [{'id': 1, 'name': 'Sample Item'}]}
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
 `;
   await fs.writeFile(appPath, appContent);
 
@@ -1899,7 +1901,7 @@ export async function getStartCommandForFramework(framework: string): Promise<st
       return `uvicorn main:app --reload --host 0.0.0.0 --port ${fastapiPort}`;
     case "flask":
       const flaskPort = await findAvailablePort(5000);
-      return `python -c 'import os; os.environ.setdefault("FLASK_APP", "app.py"); os.system("flask run --host=0.0.0.0 --port=${flaskPort}")'`;
+      return `PORT=${flaskPort} bash -c 'if command -v python3 >/dev/null 2>&1; then python3 app.py; elif command -v python >/dev/null 2>&1; then python app.py; else echo "Python not found. Please install Python 3."; exit 1; fi'`;
     default:
       logger.warn(`Unknown framework for server start: ${framework}`);
       return "";
