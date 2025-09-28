@@ -109,10 +109,22 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
   let systemMessageType = type;
   let systemMessage = message;
 
-  // For backend server logs, enhance visibility
-  if (terminalType === "backend" && (message.includes("HTTP/") || message.includes("OPTIONS") || message.includes("GET") || message.includes("POST") || message.includes("PUT") || message.includes("DELETE"))) {
-    systemMessageType = "info"; // Use info type to make server logs stand out
-    systemMessage = `[${terminalType.toUpperCase()}] ${message}`;
+  // For backend server logs, enhance visibility - check for various server log patterns
+  if (terminalType === "backend") {
+    // Check for HTTP request logs from Flask/Django/FastAPI/Node.js servers
+    const isHttpRequestLog = (
+      // Flask/Django format: "INFO:     127.0.0.1:63021 - "OPTIONS /api/newsletters HTTP/1.1" 200 OK"
+      (message.includes("HTTP/") && (message.includes("OPTIONS") || message.includes("GET") || message.includes("POST") || message.includes("PUT") || message.includes("DELETE") || message.includes("PATCH"))) ||
+      // General server response patterns
+      (message.includes("HTTP/") || message.includes("status") || message.includes("OK") || message.includes("ERROR")) ||
+      // Server startup messages
+      (message.includes("Running on") || message.includes("Server running") || message.includes("listening on") || message.includes("started"))
+    );
+
+    if (isHttpRequestLog) {
+      systemMessageType = "info"; // Use info type to make server logs stand out
+      systemMessage = `[${terminalType.toUpperCase()}] ${message}`;
+    }
   }
 
   // Always send to system messages for visibility
