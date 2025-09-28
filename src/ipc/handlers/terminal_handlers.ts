@@ -114,7 +114,7 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
     // Check for HTTP request logs from Flask/Django/FastAPI/Node.js servers
     const isHttpRequestLog = (
       // Flask/Django format: 'INFO:     127.0.0.1:63021 - "OPTIONS /api/newsletters HTTP/1.1" 200 OK'
-      (message.includes('HTTP/') && /\s-\s"\w+\s.*HTTP\/\d\.\d+"\s\d+/.test(message)) ||
+      /\s-\s".*\sHTTP\/\d+\.\d+"\s\d+/.test(message) ||
       // General HTTP response patterns (fallback)
       (message.includes('HTTP/') && (message.includes('200') || message.includes('201') || message.includes('400') || message.includes('404') || message.includes('500'))) ||
       // Server startup messages
@@ -124,6 +124,7 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
     if (isHttpRequestLog) {
       systemMessageType = "info"; // Use info type to make server logs stand out
       systemMessage = `[${terminalType.toUpperCase()}] ${message}`;
+      console.log(`[System Messages] Detected HTTP request log: ${message}`);
     }
   }
 
