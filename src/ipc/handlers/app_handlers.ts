@@ -293,10 +293,38 @@ async function executeAppLocalNode({
     // Ensure frontend dependencies are installed
     try {
       logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
-      await installDependencies(frontendPath, "nodejs");
+
+      // Check if node_modules exists and has basic packages
+      const hasNodeModules = fs.existsSync(path.join(frontendPath, "node_modules"));
+      const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+
+      if (!hasVite) {
+        logger.info(`Frontend dependencies not found or incomplete, installing...`);
+        await installDependencies(frontendPath, "nodejs");
+
+        // Double-check that vite was installed
+        const viteInstalled = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+        if (!viteInstalled) {
+          logger.error(`Failed to install vite dependency in ${frontendPath}`);
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `❌ Failed to install frontend dependencies. Please run 'npm install' manually in the frontend directory.`,
+            appId,
+          });
+          return;
+        }
+        logger.info(`Frontend dependencies installed successfully`);
+      } else {
+        logger.info(`Frontend dependencies already installed, skipping installation`);
+      }
     } catch (error) {
-      logger.warn(`Failed to install frontend dependencies: ${error}`);
-      // Continue anyway - the dev server might still work
+      logger.error(`Failed to install frontend dependencies: ${error}`);
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `❌ Failed to install frontend dependencies: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install' manually in the frontend directory.`,
+        appId,
+      });
+      return;
     }
 
     // Determine backend framework for proper server command
@@ -370,6 +398,17 @@ async function executeAppLocalNode({
 
     // Start frontend server
     try {
+      // Double-check that we have the necessary dependencies before starting
+      const viteAvailable = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+      if (!viteAvailable) {
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `❌ Cannot start frontend server: vite package not found. Please ensure dependencies are installed.`,
+          appId,
+        });
+        return;
+      }
+
       const frontendCommand = `npx vite --port ${frontendPort} --host`;
       const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
@@ -435,6 +474,26 @@ async function executeAppLocalNode({
     workingDir = frontendPath;
     serverPort = await findAvailablePort(32100);
     modeMessage = `Running in frontend mode - Starting frontend server on port ${serverPort}...`;
+
+    // Ensure frontend dependencies are installed for frontend-only apps
+    try {
+      logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
+      const hasNodeModules = fs.existsSync(path.join(frontendPath, "node_modules"));
+      const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+
+      if (!hasVite) {
+        logger.info(`Frontend dependencies not found or incomplete, installing...`);
+        await installDependencies(frontendPath, "nodejs");
+      }
+    } catch (error) {
+      logger.error(`Failed to install frontend dependencies: ${error}`);
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `❌ Failed to install frontend dependencies: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install' manually in the frontend directory.`,
+        appId,
+      });
+      return;
+    }
   } else if (hasBackend && !hasFrontend) {
     // Only backend exists (backend-only app)
     workingDir = backendPath;
@@ -448,6 +507,26 @@ async function executeAppLocalNode({
     workingDir = frontendPath;
     serverPort = await findAvailablePort(32100);
     modeMessage = `Running in frontend mode - Starting frontend server on port ${serverPort}...`;
+
+    // Ensure frontend dependencies are installed for frontend apps
+    try {
+      logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
+      const hasNodeModules = fs.existsSync(path.join(frontendPath, "node_modules"));
+      const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+
+      if (!hasVite) {
+        logger.info(`Frontend dependencies not found or incomplete, installing...`);
+        await installDependencies(frontendPath, "nodejs");
+      }
+    } catch (error) {
+      logger.error(`Failed to install frontend dependencies: ${error}`);
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `❌ Failed to install frontend dependencies: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install' manually in the frontend directory.`,
+        appId,
+      });
+      return;
+    }
   } else if (hasBackend) {
     // Only backend exists
     workingDir = backendPath;
@@ -470,6 +549,16 @@ async function executeAppLocalNode({
 
   // For frontend, override with dynamic port and host binding for proxy access
   if (workingDir === frontendPath && serverPort > 0) {
+    // Double-check that we have the necessary dependencies before starting
+    const viteAvailable = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+    if (!viteAvailable) {
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `❌ Cannot start frontend server: vite package not found. Please ensure dependencies are installed.`,
+        appId,
+      });
+      return;
+    }
     command = `npx vite --port ${serverPort} --host`;
   }
 
@@ -2301,17 +2390,16 @@ async function installDependencies(projectPath: string, framework: string) {
         logger.info(`Successfully installed dependencies for ${framework}`);
         resolve();
       } else {
-        logger.warn(`Dependency installation failed for ${framework} (code: ${code}): ${installError}`);
-        // Don't reject here - we want to continue even if installation fails
-        // as the framework files are still created and user can install manually
-        resolve();
+        const errorMsg = `Dependency installation failed for ${framework} (code: ${code}): ${installError}`;
+        logger.error(errorMsg);
+        reject(new Error(errorMsg));
       }
     });
 
     installProcess.on("error", (err) => {
-      logger.error(`Failed to start dependency installation for ${framework}:`, err);
-      // Don't reject here for the same reason as above
-      resolve();
+      const errorMsg = `Failed to start dependency installation for ${framework}: ${err.message}`;
+      logger.error(errorMsg);
+      reject(new Error(errorMsg));
     });
   });
 }
