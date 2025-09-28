@@ -3,13 +3,14 @@ import log from "electron-log";
 
 const logger = log.scope("runShellCommand");
 
-export function runShellCommand(command: string): Promise<string | null> {
-  logger.log(`Running command: ${command}`);
+export function runShellCommand(command: string, cwd?: string): Promise<string | null> {
+  logger.log(`Running command: ${command}${cwd ? ` in ${cwd}` : ''}`);
   return new Promise((resolve) => {
     let output = "";
-    const process = spawn(command, {
+    const process = spawn(command, [], {
       shell: true,
       stdio: ["ignore", "pipe", "pipe"], // ignore stdin, pipe stdout/stderr
+      cwd: cwd, // Set working directory if provided
     });
 
     process.stdout?.on("data", (data) => {
