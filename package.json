@@ -1,7 +1,7 @@
 {
   "name": "alifullstack",
   "productName": "AliFullStack",
-  "version": "0.24.1",
+  "version": "0.24.4",
   "description": "Free, local, open-source AI app builder",
   "main": ".vite/build/main.js",
   "repository": {
