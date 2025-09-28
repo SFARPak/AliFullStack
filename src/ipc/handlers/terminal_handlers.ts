@@ -95,6 +95,8 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
     terminalOutputType = "error";
   } else if (type === "stdout") {
     terminalOutputType = "output";
+  } else if (type === "client-error") {
+    terminalOutputType = "error";
   }
 
   // Add to all target terminals

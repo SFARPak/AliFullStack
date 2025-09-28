@@ -1260,4 +1260,15 @@ export class IpcClient {
   public async roocodeAuthCallback(code: string, state: string): Promise<void> {
     return this.ipcRenderer.invoke("roocode:auth-callback", code, state);
   }
+
+  // Send client-side errors to terminal output
+  public logClientError(appId: number, error: any, context?: string): void {
+    this.ipcRenderer.invoke("log-client-error", {
+      appId,
+      error,
+      context,
+    }).catch((err) => {
+      console.error("Failed to log client error:", err);
+    });
+  }
 }

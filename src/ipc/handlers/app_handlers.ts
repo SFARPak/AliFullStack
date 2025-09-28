@@ -1168,6 +1168,21 @@ export function registerAppHandlers() {
     app.quit();
   });
 
+  // Handle client-side errors from frontend
+  handle("log-client-error", async (event, { appId, error, context }) => {
+    const errorMessage = `Frontend Error: ${error.message || error}\n${context || ''}`.trim();
+
+    // Log to system console
+    logger.error(`Client error from app ${appId}:`, error);
+
+    // Route to frontend terminal output
+    safeSend(event.sender, "app:output", {
+      type: "client-error",
+      message: errorMessage,
+      appId,
+    });
+  });
+
   handle(
     "create-app",
     async (
