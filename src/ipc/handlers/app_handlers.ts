@@ -53,6 +53,7 @@ import { storeDbTimestampAtCurrentVersion } from "../utils/neon_timestamp_utils"
 import { AppSearchResult } from "@/lib/schemas";
 import { CreateMissingFolderParams } from "../ipc_types";
 import { developmentOrchestrator } from "../utils/development_orchestrator";
+import { routeTerminalOutput } from "./terminal_handlers";
 import net from "net";
 
 const DEFAULT_COMMAND =
@@ -78,6 +79,12 @@ async function copyDir(
 
 const logger = log.scope("app_handlers");
 const handle = createLoggedHandler(logger);
+
+// Helper function to log to both electron-log and console
+function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
+  logger[level](message);
+  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
+}
 
 let proxyWorker: Worker | null = null;
 
@@ -213,7 +220,7 @@ flask-cors==4.0.0
 python-dotenv==1.0.0
 `;
 
-    const mainPy = `from flask import Flask, jsonify
+    const appPy = `from flask import Flask, jsonify
 from flask_cors import CORS
 import os
 
@@ -229,19 +236,19 @@ def health():
     return jsonify({"status": "healthy"})
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8000))
+    port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
 `;
 
     const startSh = `#!/bin/bash
 # Start script for backend server
 echo "Starting backend server..."
-python main.py
+python app.py
 `;
 
     try {
       await fsPromises.writeFile(path.join(backendPath, 'requirements.txt'), requirementsTxt, 'utf-8');
-      await fsPromises.writeFile(path.join(backendPath, 'main.py'), mainPy, 'utf-8');
+      await fsPromises.writeFile(path.join(backendPath, 'app.py'), appPy, 'utf-8');
       await fsPromises.writeFile(path.join(backendPath, 'start.sh'), startSh, 'utf-8');
 
       // Make start.sh executable
@@ -279,7 +286,7 @@ async function executeAppLocalNode({
 
   // For fullstack mode (both frontend and backend exist), start both servers
   if (hasFrontend && hasBackend) {
-    logger.info(`Fullstack mode detected - starting both frontend and backend servers for app ${appId}`);
+    logToConsole(`Fullstack mode detected - starting both frontend and backend servers for app ${appId}`, "info");
 
     // Find available ports for backend and frontend
     const backendPort = await findAvailablePort(8000);
@@ -361,7 +368,7 @@ async function executeAppLocalNode({
           appId,
         });
 
-        logger.info(`Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`);
+        logToConsole(`Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`, "info");
       }
     } catch (error) {
       logger.error(`Failed to start backend server for fullstack app ${appId}:`, error);
@@ -415,7 +422,7 @@ async function executeAppLocalNode({
           appId,
         });
 
-        logger.info(`Frontend server started for fullstack app ${appId} (PID: ${frontendProcess.pid})`);
+        logToConsole(`Frontend server started for fullstack app ${appId} (PID: ${frontendProcess.pid})`, "info");
       }
     } catch (error) {
       logger.error(`Failed to start frontend server for fullstack app ${appId}:`, error);
@@ -445,6 +452,9 @@ async function executeAppLocalNode({
     workingDir = backendPath;
     serverPort = await findAvailablePort(8000);
     modeMessage = `Running in backend mode - Starting backend server on port ${serverPort}...`;
+
+    // Ensure backend directory exists and has proper structure
+    await ensureBackendDirectory(backendPath);
   } else if (hasFrontend) {
     // Only frontend exists
     workingDir = frontendPath;
@@ -455,6 +465,9 @@ async function executeAppLocalNode({
     workingDir = backendPath;
     serverPort = await findAvailablePort(8000);
     modeMessage = `Running in backend mode - Starting backend server on port ${serverPort}...`;
+
+    // Ensure backend directory exists and has proper structure
+    await ensureBackendDirectory(backendPath);
   }
 
   if (modeMessage) {
@@ -551,8 +564,10 @@ function listenToProcess({
   // Log output
   spawnedProcess.stdout?.on("data", async (data) => {
     const rawMessage = util.stripVTControlCharacters(data.toString());
-    const prefix = terminalType ? `[${terminalType.toUpperCase()}] ` : "";
-    const message = prefix + rawMessage;
+    const message = rawMessage; // Remove prefix since addTerminalOutput handles it
+
+    // Always log to system console
+    logToConsole(`[App ${appId} - ${terminalType || 'main'} stdout] ${message}`);
 
     logger.debug(
       `App ${appId} (PID: ${spawnedProcess.pid}) stdout: ${message}`,
@@ -574,11 +589,7 @@ function listenToProcess({
         appId,
       });
     } else {
-      safeSend(event.sender, "app:output", {
-        type: "stdout",
-        message,
-        appId,
-      });
+      routeTerminalOutput(event, appId, terminalType || "main", "stdout", message);
 
       if (urlDetected) return;
 
@@ -624,6 +635,8 @@ function listenToProcess({
           }
 
           proxyWorker = await startProxy(detectedUrl, {
+            appId,
+            terminalType: terminalType || "frontend", // Pass the terminalType for routing
             onStarted: (proxyUrl) => {
               const originalUrl = new URL(detectedUrl);
               const proxyUrlObj = new URL(proxyUrl);
@@ -660,14 +673,14 @@ function listenToProcess({
 
   spawnedProcess.stderr?.on("data", (data) => {
     const message = util.stripVTControlCharacters(data.toString());
+    
+    // Always log to system console
+    logToConsole(`[App ${appId} - ${terminalType || 'main'} stderr] ${message}`, "error");
+
     logger.error(
       `App ${appId} (PID: ${spawnedProcess.pid}) stderr: ${message}`,
     );
-    safeSend(event.sender, "app:output", {
-      type: "stderr",
-      message,
-      appId,
-    });
+    routeTerminalOutput(event, appId, terminalType || "main", "stderr", message);
 
     // Auto-fix common dependency errors
     if (message.includes("Cannot find module") || message.includes("Failed to load PostCSS config")) {

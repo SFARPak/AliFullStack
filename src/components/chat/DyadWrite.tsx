@@ -41,6 +41,9 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const inProgress = state === "pending";
 
+  // Show partial content for aborted operations (if any content was received)
+  const hasPartialContent = aborted && children && String(children).trim().length > 0;
+
   const handleCancel = () => {
     setIsEditing(false);
   };
@@ -49,6 +52,9 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
     setIsEditing(true);
     setIsContentVisible(true);
   };
+
+  // Auto-show content for aborted operations with partial content
+  const shouldAutoShowContent = hasPartialContent && !isEditing;
   // Extract filename from path
   const fileName = path ? path.split("/").pop() : "";
 
@@ -80,7 +86,7 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
           {aborted && (
             <div className="flex items-center text-red-600 text-xs">
               <CircleX size={14} className="mr-1" />
-              <span>Did not finish</span>
+              <span>{hasPartialContent ? "Partially written" : "Did not finish"}</span>
             </div>
           )}
         </div>
@@ -112,9 +118,20 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
                   Edit
                 </button>
               )}
+              {!shouldAutoShowContent && children && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsContentVisible(!isContentVisible);
+                  }}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-2 py-1 rounded cursor-pointer"
+                >
+                  {isContentVisible ? "Hide" : "Show"} Content
+                </button>
+              )}
             </>
           )}
-          {isContentVisible ? (
+          {(isContentVisible || shouldAutoShowContent) ? (
             <ChevronsDownUp
               size={20}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -138,11 +155,16 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
           {description}
         </div>
       )}
-      {isContentVisible && (
+      {(isContentVisible || shouldAutoShowContent) && (
         <div
           className="text-xs cursor-text"
           onClick={(e) => e.stopPropagation()}
         >
+          {hasPartialContent && !isEditing && (
+            <div className="mb-2 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded text-orange-800 dark:text-orange-200 text-xs">
+              ⚠️ This file was partially written due to interruption. The content below may be incomplete.
+            </div>
+          )}
           {isEditing ? (
             <div className="h-96 min-h-96 border border-gray-200 dark:border-gray-700 rounded overflow-hidden">
               <FileEditor appId={appId ?? null} filePath={path} />

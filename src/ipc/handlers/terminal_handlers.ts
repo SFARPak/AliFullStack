@@ -1,9 +1,16 @@
 import { safeSend } from "../utils/safe_sender";
 import { frontendTerminalOutputAtom, backendTerminalOutputAtom, activeTerminalAtom } from "../../atoms/appAtoms";
 import { getDefaultStore } from "jotai";
+import { ipcMain } from "electron";
 import log from "electron-log";
 
 const logger = log.scope("terminal_handlers");
+
+// Helper function to log to both electron-log and console
+function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
+  logger[level](message);
+  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
+}
 
 export function registerTerminalHandlers() {
   // No IPC handlers needed - this module handles terminal output routing
@@ -65,5 +72,40 @@ export function addTerminalOutput(appId: number, terminal: "frontend" | "backend
     }
   }
 
-  logger.log(`Added ${type} output to ${terminal} terminal: ${message}`);
+  logToConsole(`Added ${type} output to ${terminal} terminal: ${message}`, "info");
+}
+
+// Function to add output to appropriate terminal based on terminalType (used by app handlers)
+export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: number, terminalType: "frontend" | "backend" | "main", type: "stdout" | "stderr", message: string) {
+  // Route to appropriate terminal - handle "main" type by routing to both frontend and backend terminals
+  let targetTerminals: ("frontend" | "backend")[] = [];
+
+  if (terminalType === "frontend") {
+    targetTerminals = ["frontend"];
+  } else if (terminalType === "backend") {
+    targetTerminals = ["backend"];
+  } else {
+    // For "main" type (fullstack mode), route to both terminals
+    targetTerminals = ["frontend", "backend"];
+  }
+
+  // Map our types to the terminal output types
+  let terminalOutputType: "command" | "output" | "success" | "error" = "output";
+  if (type === "stderr") {
+    terminalOutputType = "error";
+  } else if (type === "stdout") {
+    terminalOutputType = "output";
+  }
+
+  // Add to all target terminals
+  for (const terminal of targetTerminals) {
+    addTerminalOutput(appId, terminal, message, terminalOutputType);
+  }
+
+  // Also send to app:output for backward compatibility and UI display
+  safeSend(event.sender, "app:output", {
+    type,
+    message,
+    appId,
+  });
 }

@@ -45,6 +45,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: `cd testing/fake-llm-server && npm run build && npm start`,
     url: "http://localhost:3500/health",
+    reuseExistingServer: true, // Add this line to reuse the already running server
   },
 };
 

@@ -355,6 +355,10 @@ export async function processFullResponseActions(
                  fs.mkdirSync(cwd, { recursive: true });
                  logger.log(`Created backend directory: ${cwd} for Python command execution`);
                }
+               // Strip backend/ prefix from command if present
+               if (cleanCommand.startsWith("backend/")) {
+                 cleanCommand = cleanCommand.substring(8).trim();
+               }
              }
            } else if (isNodeCommand) {
              terminalType = "frontend";
@@ -364,6 +368,10 @@ export async function processFullResponseActions(
                if (!fs.existsSync(cwd)) {
                  fs.mkdirSync(cwd, { recursive: true });
                  logger.log(`Created frontend directory: ${cwd} for Node.js command execution`);
+               }
+               // Strip frontend/ prefix from command if present
+               if (cleanCommand.startsWith("frontend/")) {
+                 cleanCommand = cleanCommand.substring(9).trim();
                }
              }
            } else if (chatMode === "ask") {
@@ -377,6 +385,10 @@ export async function processFullResponseActions(
              // For backend mode, adjust cwd to backend directory if not already specified
              if (!cmdTag.cwd) {
                cwd = path.join(appPath, "backend");
+               // Strip backend/ prefix from command if present
+               if (cleanCommand.startsWith("backend/")) {
+                 cleanCommand = cleanCommand.substring(8).trim();
+               }
              }
            } else if (chatMode === "fullstack") {
              // For fullstack mode, check for Node.js commands first, then default to backend
@@ -384,6 +396,10 @@ export async function processFullResponseActions(
                terminalType = "frontend";
                if (!cmdTag.cwd) {
                  cwd = path.join(appPath, "frontend");
+                 // Strip frontend/ prefix from command if present
+                 if (cleanCommand.startsWith("frontend/")) {
+                   cleanCommand = cleanCommand.substring(9).trim();
+                 }
                }
              } else {
                terminalType = "backend";
@@ -393,6 +409,10 @@ export async function processFullResponseActions(
                  if (!fs.existsSync(cwd)) {
                    fs.mkdirSync(cwd, { recursive: true });
                    logger.log(`Created backend directory: ${cwd} for terminal command execution`);
+                 }
+                 // Strip backend/ prefix from command if present
+                 if (cleanCommand.startsWith("backend/")) {
+                   cleanCommand = cleanCommand.substring(8).trim();
                  }
                }
              }

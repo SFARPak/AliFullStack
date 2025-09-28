@@ -191,6 +191,7 @@ function parseCustomTags(content: string): ContentPiece[] {
     "dyad-codebase-context",
     "think",
     "dyad-command",
+    "run_terminal_cmd",
   ];
 
   const tagPattern = new RegExp(
@@ -422,6 +423,10 @@ function renderCustomTag(
 
     case "dyad-command":
       // Don't render anything for dyad-command
+      return null;
+
+    case "run_terminal_cmd":
+      // Don't render anything for run_terminal_cmd tags in chat stream
       return null;
 
     default:
