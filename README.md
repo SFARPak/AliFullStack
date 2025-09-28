@@ -8,7 +8,7 @@ Inspired by tools like *Lovable*, *v0.dev*, and *Bolt*, but with no lock-in or c
 
 ![AliFullStack Screenshot](https://github.com/user-attachments/assets/f6c83dfc-6ffd-4d32-93dd-4b9c46d17790)
 
-🌐 **Live Demo & Docs**: [alifullstack.alitech.io](https://alifullstack.alitech.io)
+<!-- 🌐 **Live Demo & Docs**: [alifullstack.alitech.io](https://alifullstack.alitech.io) -->
 
 ---
 
@@ -16,7 +16,7 @@ Inspired by tools like *Lovable*, *v0.dev*, and *Bolt*, but with no lock-in or c
 
 Help us grow! If you're excited about AI developer tools, autonomous coding, or local-first privacy-first software:
 
-👉 **[Give us a ⭐ on GitHub](https://github.com/your-repo-link-here)** — it really helps!
+👉 **[Give us a ⭐ on GitHub](https://github.com/SFARPak/AliFullStack)** — it really helps!
 
 ---
 
@@ -105,8 +105,8 @@ No sign-up. No cloud lock-in. Just download and build.
 
 Be part of a growing network of **AI tinkerers**, **indie hackers**, and **full-stack dreamers**:
 
-- 🧵 Reddit: [r/alifullstackbuilders](https://www.reddit.com/r/alifullstackbuilders/)
-- 🐦 Twitter/X: [@alifullstack](https://twitter.com/alifullstack) *(coming soon)*
+- 🧵 Reddit: [r/alifullstackbuilders](https://www.reddit.com/user/alifullstackbuilder/)
+- 🐦 Twitter/X: [@alifullstack](https://x.com/AliFullStackAI) *(coming soon)*
 - 🌐 Website: [alifullstack.alitech.io](https://alifullstack.alitech.io)
 
 ---

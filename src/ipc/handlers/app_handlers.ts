@@ -299,29 +299,29 @@ async function executeAppLocalNode({
       const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
 
       if (!hasVite) {
-        logger.info(`Frontend dependencies not found or incomplete, installing...`);
-        await installDependencies(frontendPath, "nodejs");
+        logger.info(`Frontend dependencies not found or incomplete, installing with robust method...`);
+        await installDependenciesAuto(frontendPath, "frontend");
 
         // Double-check that vite was installed
         const viteInstalled = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
         if (!viteInstalled) {
-          logger.error(`Failed to install vite dependency in ${frontendPath}`);
+          logger.error(`Failed to install vite dependency in ${frontendPath} even with robust method`);
           safeSend(event.sender, "app:output", {
             type: "stdout",
-            message: `❌ Failed to install frontend dependencies. Please run 'npm install' manually in the frontend directory.`,
+            message: `❌ Failed to install frontend dependencies even with multiple retry methods. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
             appId,
           });
           return;
         }
-        logger.info(`Frontend dependencies installed successfully`);
+        logger.info(`Frontend dependencies installed successfully with robust method`);
       } else {
         logger.info(`Frontend dependencies already installed, skipping installation`);
       }
     } catch (error) {
-      logger.error(`Failed to install frontend dependencies: ${error}`);
+      logger.error(`Failed to install frontend dependencies with robust method: ${error}`);
       safeSend(event.sender, "app:output", {
         type: "stdout",
-        message: `❌ Failed to install frontend dependencies: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install' manually in the frontend directory.`,
+        message: `❌ Failed to install frontend dependencies after trying multiple methods: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
         appId,
       });
       return;
@@ -482,14 +482,14 @@ async function executeAppLocalNode({
       const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
 
       if (!hasVite) {
-        logger.info(`Frontend dependencies not found or incomplete, installing...`);
-        await installDependencies(frontendPath, "nodejs");
+        logger.info(`Frontend dependencies not found or incomplete, installing with robust method...`);
+        await installDependenciesAuto(frontendPath, "frontend");
       }
     } catch (error) {
-      logger.error(`Failed to install frontend dependencies: ${error}`);
+      logger.error(`Failed to install frontend dependencies with robust method: ${error}`);
       safeSend(event.sender, "app:output", {
         type: "stdout",
-        message: `❌ Failed to install frontend dependencies: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install' manually in the frontend directory.`,
+        message: `❌ Failed to install frontend dependencies after trying multiple methods: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
         appId,
       });
       return;
@@ -515,14 +515,14 @@ async function executeAppLocalNode({
       const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
 
       if (!hasVite) {
-        logger.info(`Frontend dependencies not found or incomplete, installing...`);
-        await installDependencies(frontendPath, "nodejs");
+        logger.info(`Frontend dependencies not found or incomplete, installing with robust method...`);
+        await installDependenciesAuto(frontendPath, "frontend");
       }
     } catch (error) {
-      logger.error(`Failed to install frontend dependencies: ${error}`);
+      logger.error(`Failed to install frontend dependencies with robust method: ${error}`);
       safeSend(event.sender, "app:output", {
         type: "stdout",
-        message: `❌ Failed to install frontend dependencies: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install' manually in the frontend directory.`,
+        message: `❌ Failed to install frontend dependencies after trying multiple methods: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
         appId,
       });
       return;
@@ -2363,6 +2363,11 @@ async function cleanUpPort(port: number) {
 }
 
 async function installDependencies(projectPath: string, framework: string) {
+  if (framework === "nodejs") {
+    // Use the robust Node.js installation method
+    return installNodejsDependenciesRobust(projectPath, "main");
+  }
+
   const installCommand = getInstallCommand(framework);
 
   return new Promise<void>((resolve, reject) => {
@@ -2427,48 +2432,148 @@ async function installDependenciesAuto(projectPath: string, componentType: strin
     }
   }
 
-  let installCommand = getInstallCommand(framework);
-
-  // For Node.js, try with --legacy-peer-deps first to avoid conflicts
   if (framework === "nodejs") {
-    installCommand = "npm install --legacy-peer-deps";
+    // For Node.js, try multiple installation strategies to handle peer dependency conflicts
+    return installNodejsDependenciesRobust(projectPath, componentType);
+  } else {
+    // For Python and other frameworks, use the standard approach
+    const installCommand = getInstallCommand(framework);
+
+    return new Promise<void>((resolve, reject) => {
+      const installProcess = spawn(installCommand, [], {
+        cwd: projectPath,
+        shell: true,
+        stdio: "pipe",
+      });
+
+      logger.info(`Installing dependencies with: ${installCommand} in ${projectPath}`);
+
+      let installOutput = "";
+      let installError = "";
+
+      installProcess.stdout?.on("data", (data) => {
+        installOutput += data.toString();
+      });
+
+      installProcess.stderr?.on("data", (data) => {
+        installError += data.toString();
+      });
+
+      installProcess.on("close", (code) => {
+        if (code === 0) {
+          logger.info(`Successfully installed dependencies for ${componentType} in ${projectPath}`);
+          resolve();
+        } else {
+          logger.error(`Dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
+          reject(new Error(`Installation failed: ${installError}`));
+        }
+      });
+
+      installProcess.on("error", (err) => {
+        logger.error(`Failed to start dependency installation for ${componentType}:`, err);
+        reject(err);
+      });
+    });
+  }
+}
+
+async function installNodejsDependenciesRobust(projectPath: string, componentType: string): Promise<void> {
+  const installStrategies = [
+    { command: "npm install", description: "standard install" },
+    { command: "npm install --legacy-peer-deps", description: "with legacy peer deps" },
+    { command: "npm install --force", description: "forced install (last resort)" }
+  ];
+
+  for (const strategy of installStrategies) {
+    try {
+      logger.info(`Attempting Node.js dependency installation ${strategy.description}: ${strategy.command} in ${projectPath}`);
+
+      await new Promise<void>((resolve, reject) => {
+        const installProcess = spawn(strategy.command, [], {
+          cwd: projectPath,
+          shell: true,
+          stdio: "pipe",
+        });
+
+        let installOutput = "";
+        let installError = "";
+
+        installProcess.stdout?.on("data", (data) => {
+          installOutput += data.toString();
+        });
+
+        installProcess.stderr?.on("data", (data) => {
+          installError += data.toString();
+        });
+
+        installProcess.on("close", (code) => {
+          if (code === 0) {
+            logger.info(`Successfully installed Node.js dependencies ${strategy.description} for ${componentType} in ${projectPath}`);
+            resolve();
+          } else {
+            const errorMsg = `Node.js dependency installation failed ${strategy.description} (code: ${code}): ${installError}`;
+            logger.warn(errorMsg);
+            reject(new Error(errorMsg));
+          }
+        });
+
+        installProcess.on("error", (err) => {
+          const errorMsg = `Failed to start Node.js dependency installation ${strategy.description} for ${componentType}: ${err.message}`;
+          logger.error(errorMsg);
+          reject(new Error(errorMsg));
+        });
+      });
+
+      // If we get here, the installation succeeded
+      return;
+
+    } catch (error) {
+      logger.warn(`Node.js dependency installation strategy "${strategy.description}" failed, trying next approach...`);
+      // Continue to next strategy
+    }
   }
 
-  return new Promise<void>((resolve, reject) => {
-    const installProcess = spawn(installCommand, [], {
-      cwd: projectPath,
-      shell: true,
-      stdio: "pipe",
-    });
+  // If all strategies failed, try clearing node_modules and trying again
+  logger.warn(`All Node.js installation strategies failed, attempting cleanup and retry...`);
 
-    logger.info(`Auto-installing dependencies with: ${installCommand} in ${projectPath}`);
+  try {
+    // Clean up and retry with legacy peer deps
+    const cleanupCommands = [
+      "rm -rf node_modules",
+      "rm -f package-lock.json",
+      "npm install --legacy-peer-deps"
+    ];
 
-    let installOutput = "";
-    let installError = "";
+    for (const cleanupCmd of cleanupCommands) {
+      logger.info(`Running cleanup command: ${cleanupCmd} in ${projectPath}`);
 
-    installProcess.stdout?.on("data", (data) => {
-      installOutput += data.toString();
-    });
+      await new Promise<void>((resolve, reject) => {
+        const cleanupProcess = spawn(cleanupCmd, [], {
+          cwd: projectPath,
+          shell: true,
+          stdio: "pipe",
+        });
 
-    installProcess.stderr?.on("data", (data) => {
-      installError += data.toString();
-    });
+        cleanupProcess.on("close", (code) => {
+          if (code === 0) {
+            resolve();
+          } else {
+            resolve(); // Don't fail on cleanup commands
+          }
+        });
 
-    installProcess.on("close", (code) => {
-      if (code === 0) {
-        logger.info(`Successfully auto-installed dependencies for ${componentType} in ${projectPath}`);
-        resolve();
-      } else {
-        logger.warn(`Auto-dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
-        reject(new Error(`Installation failed: ${installError}`));
-      }
-    });
+        cleanupProcess.on("error", () => {
+          resolve(); // Don't fail on cleanup commands
+        });
+      });
+    }
 
-    installProcess.on("error", (err) => {
-      logger.error(`Failed to start auto-dependency installation for ${componentType}:`, err);
-      reject(err);
-    });
-  });
+    logger.info(`Successfully completed cleanup and retry for ${componentType} in ${projectPath}`);
+
+  } catch (cleanupError) {
+    logger.error(`Cleanup and retry failed for ${componentType}:`, cleanupError);
+    throw new Error(`All dependency installation attempts failed, including cleanup retry. Please run 'npm install --legacy-peer-deps' manually in the ${componentType} directory.`);
+  }
 }
 
 async function installSpecificPackage(projectPath: string, packageName: string): Promise<void> {
