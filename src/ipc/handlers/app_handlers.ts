@@ -53,9 +53,10 @@ import { storeDbTimestampAtCurrentVersion } from "../utils/neon_timestamp_utils"
 import { AppSearchResult } from "@/lib/schemas";
 import { CreateMissingFolderParams } from "../ipc_types";
 import { developmentOrchestrator } from "../utils/development_orchestrator";
+import net from "net";
 
 const DEFAULT_COMMAND =
-  "(node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/dyadComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && pnpm install && pnpm run dev --port 32100) || (node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/dyadComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && npm install --legacy-peer-deps && npm run dev -- --port 32100)";
+  "(node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/dyadComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && pnpm install && pnpm run dev --port 32100 --host) || (node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/dyadComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && npm install --legacy-peer-deps && npm run dev -- --port 32100 --host)";
 async function copyDir(
   source: string,
   destination: string,
@@ -83,6 +84,73 @@ let proxyWorker: Worker | null = null;
 // Needed, otherwise electron in MacOS/Linux will not be able
 // to find node/pnpm.
 fixPath();
+
+/**
+ * Check if a port is available
+ */
+async function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.listen(port, '127.0.0.1', () => {
+      server.close(() => resolve(true));
+    });
+    server.on('error', () => resolve(false));
+  });
+}
+
+/**
+ * Find an available port starting from the given port
+ */
+async function findAvailablePort(startPort: number): Promise<number> {
+  let port = startPort;
+  while (port < startPort + 100) { // Try up to 100 ports
+    if (await isPortAvailable(port)) {
+      return port;
+    }
+    port++;
+  }
+  throw new Error(`No available ports found starting from ${startPort}`);
+}
+
+async function detectPythonFramework(backendPath: string): Promise<string> {
+  // Check for common Python files
+  const pythonFiles = ['main.py', 'app.py', 'server.py', 'application.py'];
+  let detectedFramework = 'python'; // default
+
+  for (const file of pythonFiles) {
+    const filePath = path.join(backendPath, file);
+    if (fs.existsSync(filePath)) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+
+        // Check for FastAPI imports
+        if (content.includes('from fastapi import') || content.includes('import fastapi')) {
+          return 'fastapi';
+        }
+
+        // Check for Flask imports
+        if (content.includes('from flask import') || content.includes('import flask')) {
+          return 'flask';
+        }
+
+        // Check for Django imports
+        if (content.includes('from django') || content.includes('import django')) {
+          return 'django';
+        }
+
+        // Check for other frameworks
+        if (content.includes('from sanic import') || content.includes('import sanic')) {
+          return 'python'; // generic Python server
+        }
+
+      } catch (error) {
+        logger.warn(`Could not read ${file} for framework detection:`, error);
+      }
+    }
+  }
+
+  return detectedFramework;
+}
 
 async function executeApp({
   appPath,
@@ -213,8 +281,28 @@ async function executeAppLocalNode({
   if (hasFrontend && hasBackend) {
     logger.info(`Fullstack mode detected - starting both frontend and backend servers for app ${appId}`);
 
+    // Find available ports for backend and frontend
+    const backendPort = await findAvailablePort(8000);
+    const frontendPort = await findAvailablePort(32100);
+
+    // Send mode indication to UI
+    safeSend(event.sender, "app:output", {
+      type: "stdout",
+      message: `🚀 Running in fullstack development mode - Starting backend server on port ${backendPort} first...`,
+      appId,
+    });
+
     // Ensure backend directory exists and has proper structure
     await ensureBackendDirectory(backendPath);
+
+    // Ensure frontend dependencies are installed
+    try {
+      logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
+      await installDependencies(frontendPath, "nodejs");
+    } catch (error) {
+      logger.warn(`Failed to install frontend dependencies: ${error}`);
+      // Continue anyway - the dev server might still work
+    }
 
     // Determine backend framework for proper server command
     let backendFramework: string | null = null;
@@ -224,12 +312,9 @@ async function executeAppLocalNode({
       // Check for framework-specific files
       if (fs.existsSync(path.join(backendPath, "manage.py"))) {
         backendFramework = "django";
-      } else if (fs.existsSync(path.join(backendPath, "main.py"))) {
-        backendFramework = "fastapi";
-      } else if (fs.existsSync(path.join(backendPath, "app.py"))) {
-        backendFramework = "flask";
       } else {
-        backendFramework = "python";
+        // Read Python files to detect framework imports
+        backendFramework = await detectPythonFramework(backendPath);
       }
     }
 
@@ -263,20 +348,34 @@ async function executeAppLocalNode({
         listenToProcess({
           process: backendProcess,
           appId,
+          appPath,
           isNeon,
           event,
           terminalType: "backend",
+        });
+
+        // Send success message for backend server start
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `✅ Backend server started (PID: ${backendProcess.pid}, Port: ${backendPort})`,
+          appId,
         });
 
         logger.info(`Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`);
       }
     } catch (error) {
       logger.error(`Failed to start backend server for fullstack app ${appId}:`, error);
+      // Send error message to UI
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `❌ Failed to start backend server: ${error instanceof Error ? error.message : String(error)}`,
+        appId,
+      });
     }
 
     // Start frontend server
     try {
-      const frontendCommand = "npm run dev --port 32100";
+      const frontendCommand = `npx vite --port ${frontendPort} --host`;
       const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
@@ -296,15 +395,36 @@ async function executeAppLocalNode({
         listenToProcess({
           process: frontendProcess,
           appId,
+          appPath,
           isNeon,
           event,
           terminalType: "frontend",
+        });
+
+        // Send success message for frontend server start
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `✅ Frontend server started (PID: ${frontendProcess.pid}, Port: ${frontendPort})`,
+          appId,
+        });
+
+        // Send summary message
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `🎉 Fullstack development servers are now running! Backend (Port: ${backendPort}) and Frontend (Port: ${frontendPort}) are both active.`,
+          appId,
         });
 
         logger.info(`Frontend server started for fullstack app ${appId} (PID: ${frontendProcess.pid})`);
       }
     } catch (error) {
       logger.error(`Failed to start frontend server for fullstack app ${appId}:`, error);
+      // Send error message to UI
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `❌ Failed to start frontend server: ${error instanceof Error ? error.message : String(error)}`,
+        appId,
+      });
     }
 
     return;
@@ -312,22 +432,46 @@ async function executeAppLocalNode({
 
   // For single-server modes (frontend-only or backend-only)
   let workingDir = appPath; // Default to root for backward compatibility
+  let modeMessage = "";
+  let serverPort = 0;
 
   if (hasFrontend && !hasBackend) {
     // Only frontend exists (frontend-only app)
     workingDir = frontendPath;
+    serverPort = await findAvailablePort(32100);
+    modeMessage = `Running in frontend mode - Starting frontend server on port ${serverPort}...`;
   } else if (hasBackend && !hasFrontend) {
     // Only backend exists (backend-only app)
     workingDir = backendPath;
+    serverPort = await findAvailablePort(8000);
+    modeMessage = `Running in backend mode - Starting backend server on port ${serverPort}...`;
   } else if (hasFrontend) {
     // Only frontend exists
     workingDir = frontendPath;
+    serverPort = await findAvailablePort(32100);
+    modeMessage = `Running in frontend mode - Starting frontend server on port ${serverPort}...`;
   } else if (hasBackend) {
     // Only backend exists
     workingDir = backendPath;
+    serverPort = await findAvailablePort(8000);
+    modeMessage = `Running in backend mode - Starting backend server on port ${serverPort}...`;
   }
 
-  const command = getCommand({ installCommand, startCommand });
+  if (modeMessage) {
+    safeSend(event.sender, "app:output", {
+      type: "stdout",
+      message: `🚀 ${modeMessage}`,
+      appId,
+    });
+  }
+
+  let command = getCommand({ installCommand, startCommand });
+
+  // For frontend, override with dynamic port and host binding for proxy access
+  if (workingDir === frontendPath && serverPort > 0) {
+    command = `npx vite --port ${serverPort} --host`;
+  }
+
   const spawnedProcess = spawn(command, [], {
     cwd: workingDir,
     shell: true,
@@ -356,10 +500,19 @@ async function executeAppLocalNode({
     isDocker: false,
   });
 
+  // Send success message for single-server mode
+  const isBackend = workingDir === backendPath;
+  safeSend(event.sender, "app:output", {
+    type: "stdout",
+    message: `✅ ${isBackend ? "Backend" : "Frontend"} server started (PID: ${spawnedProcess.pid}, Port: ${serverPort})`,
+    appId,
+  });
+
   const terminalType = workingDir === backendPath ? "backend" : "frontend";
   listenToProcess({
     process: spawnedProcess,
     appId,
+    appPath,
     isNeon,
     event,
     terminalType,
@@ -369,64 +522,137 @@ async function executeAppLocalNode({
 function listenToProcess({
   process: spawnedProcess,
   appId,
+  appPath,
   isNeon,
   event,
   terminalType,
 }: {
   process: ChildProcess;
   appId: number;
+  appPath: string;
   isNeon: boolean;
   event: Electron.IpcMainInvokeEvent;
   terminalType?: "frontend" | "backend" | "main";
 }) {
+  let urlDetectionTimeout: NodeJS.Timeout | null = null;
+  let urlDetected = false;
+
+  // Start a timeout to inform the user if no URL is detected
+  urlDetectionTimeout = setTimeout(() => {
+    if (!urlDetected) {
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: "⏳ Waiting for server to start... If this takes too long, check your app's start command.",
+        appId,
+      });
+    }
+  }, 15000); // 15 seconds
+
   // Log output
   spawnedProcess.stdout?.on("data", async (data) => {
-    const message = util.stripVTControlCharacters(data.toString());
+    const rawMessage = util.stripVTControlCharacters(data.toString());
+    const prefix = terminalType ? `[${terminalType.toUpperCase()}] ` : "";
+    const message = prefix + rawMessage;
+
     logger.debug(
       `App ${appId} (PID: ${spawnedProcess.pid}) stdout: ${message}`,
     );
 
-    // This is a hacky heuristic to pick up when drizzle is asking for user
-    // to select from one of a few choices. We automatically pick the first
-    // option because it's usually a good default choice. We guard this with
-    // isNeon because: 1) only Neon apps (for the official Dyad templates) should
-    // get this template and 2) it's safer to do this with Neon apps because
-    // their databases have point in time restore built-in.
-    if (isNeon && message.includes("created or renamed from another")) {
+    if (isNeon && rawMessage.includes("created or renamed from another")) {
       spawnedProcess.stdin?.write(`\r\n`);
       logger.info(
         `App ${appId} (PID: ${spawnedProcess.pid}) wrote enter to stdin to automatically respond to drizzle push input`,
       );
     }
 
-    // Check if this is an interactive prompt requiring user input
     const inputRequestPattern = /\s*›\s*\([yY]\/[nN]\)\s*$/;
-    const isInputRequest = inputRequestPattern.test(message);
+    const isInputRequest = inputRequestPattern.test(rawMessage);
     if (isInputRequest) {
-      // Send special input-requested event for interactive prompts
       safeSend(event.sender, "app:output", {
         type: "input-requested",
         message,
         appId,
       });
     } else {
-      // Normal stdout handling
       safeSend(event.sender, "app:output", {
         type: "stdout",
         message,
         appId,
       });
 
-      const urlMatch = message.match(/(https?:\/\/localhost:\d+\/?)/);
-      if (urlMatch) {
-        proxyWorker = await startProxy(urlMatch[1], {
-          onStarted: (proxyUrl) => {
-            safeSend(event.sender, "app:output", {
-              type: "stdout",
-              message: `[AliFullStack-proxy-server]started=[${proxyUrl}] original=[${urlMatch[1]}]`,
-              appId,
-            });
-          },
+      if (urlDetected) return;
+
+      const urlPatterns = [
+        /(?:➜\s*Local:\s*)(https?:\/\/\S+:\d+)/i,
+        /(?:➜\s*Network:\s*)(https?:\/\/\S+:\d+)/i,
+        /(?:Local:\s*)(https?:\/\/\S+:\d+)/i,
+        /(?:Network:\s*)(https?:\/\/\S+:\d+)/i,
+        /(?:Uvicorn running on\s+)(https?:\/\/\S+:\d+)/i,
+        /(?:Running on\s+)(https?:\/\/\S+:\d+)/i,
+        /(?:Server running on\s+)(https?:\/\/\S+:\d+)/i,
+        /(?:listening on\s+)(https?:\/\/\S+:\d+)/i,
+        /(?:Server running at\s+)(https?:\/\/\S+:\d+)/i,
+        /(?:App listening at\s+)(https?:\/\/\S+:\d+)/i,
+        /Ready\sat\s(https?:\/\/\S+:\d+)/i,
+        /(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|(?:\d{1,3}\.){3}\d{1,3}):\d+(?:\/\S*)?)/i,
+        /(https?:\/\/\S+:\d+(?:\/\S*)?)/i,
+      ];
+
+      logger.debug(`[${terminalType || 'main'}] Checking for URLs in: ${rawMessage}`);
+
+      let detectedUrl = null;
+      for (const pattern of urlPatterns) {
+        const match = rawMessage.match(pattern);
+        if (match && match[1]) {
+          detectedUrl = match[1];
+          logger.info(`[${terminalType || 'main'}] URL detected from server log: ${detectedUrl} (pattern: ${pattern})`);
+          break;
+        }
+      }
+
+      const shouldCreatePreview = !terminalType || terminalType === "frontend";
+
+      if (detectedUrl && shouldCreatePreview) {
+        urlDetected = true;
+        if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
+
+        try {
+          if (proxyWorker) {
+            logger.info("Terminating existing proxy worker to create new one for frontend");
+            proxyWorker.terminate();
+            proxyWorker = null;
+          }
+
+          proxyWorker = await startProxy(detectedUrl, {
+            onStarted: (proxyUrl) => {
+              const originalUrl = new URL(detectedUrl);
+              const proxyUrlObj = new URL(proxyUrl);
+              const localPort = originalUrl.port;
+              const proxyPort = proxyUrlObj.port;
+
+              safeSend(event.sender, "app:output", {
+                type: "stdout",
+                message: `🚀 App preview available at http://localhost:${proxyPort} (proxied from local port ${localPort})`,
+                appId,
+              });
+            },
+          });
+
+        } catch (error) {
+          logger.error(`Failed to start proxy for URL ${detectedUrl}:`, error);
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `⚠️ Proxy failed, but server is running. Access directly at: ${detectedUrl}`,
+            appId,
+          });
+        }
+      } else if (detectedUrl && terminalType === "backend") {
+        urlDetected = true;
+        if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `🔗 Backend API server accessible at: ${detectedUrl}`,
+          appId,
         });
       }
     }
@@ -442,6 +668,62 @@ function listenToProcess({
       message,
       appId,
     });
+
+    // Auto-fix common dependency errors
+    if (message.includes("Cannot find module") || message.includes("Failed to load PostCSS config")) {
+      logger.info(`Detected missing dependency error for app ${appId}, attempting auto-fix`);
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `🔧 Detected missing dependencies, installing automatically...`,
+        appId,
+      });
+
+      // Determine which directory to install in based on terminalType
+      let installDir = appPath;
+      if (terminalType === "frontend" && fs.existsSync(path.join(appPath, "frontend"))) {
+        installDir = path.join(appPath, "frontend");
+      } else if (terminalType === "backend" && fs.existsSync(path.join(appPath, "backend"))) {
+        installDir = path.join(appPath, "backend");
+      }
+
+      // Special handling for PostCSS config errors - try installing tailwindcss specifically
+      let installPromise: Promise<void>;
+      if (message.includes("Failed to load PostCSS config") && message.includes("tailwindcss")) {
+        installPromise = installSpecificPackage(installDir, "tailwindcss");
+      } else {
+        installPromise = installDependenciesAuto(installDir, terminalType || "main");
+      }
+
+      // Install dependencies asynchronously
+      installPromise
+        .then(() => {
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `✅ Dependencies installed successfully. The app should now work properly.`,
+            appId,
+          });
+        })
+        .catch((error) => {
+          logger.warn(`Auto-installation failed, but continuing: ${error.message}`);
+          // Try a fallback installation
+          installDependenciesAutoFallback(installDir, terminalType || "main")
+            .then(() => {
+              safeSend(event.sender, "app:output", {
+                type: "stdout",
+                message: `✅ Dependencies installed with fallback method. The app should now work properly.`,
+                appId,
+              });
+            })
+            .catch((fallbackError) => {
+              logger.error(`Fallback installation also failed for app ${appId}:`, fallbackError);
+              safeSend(event.sender, "app:output", {
+                type: "stdout",
+                message: `⚠️ Automatic dependency installation failed. Please run 'npm install' manually in the ${terminalType || 'app'} directory and restart the app.`,
+                appId,
+              });
+            });
+        });
+    }
   });
 
   // Handle process exit/close
@@ -644,6 +926,7 @@ RUN npm install -g pnpm
   listenToProcess({
     process,
     appId,
+    appPath,
     isNeon,
     event,
   });
@@ -2053,6 +2336,154 @@ async function installDependencies(projectPath: string, framework: string) {
       logger.error(`Failed to start dependency installation for ${framework}:`, err);
       // Don't reject here for the same reason as above
       resolve();
+    });
+  });
+}
+
+async function installDependenciesAuto(projectPath: string, componentType: string): Promise<void> {
+  // Determine framework based on directory contents and component type
+  let framework = "nodejs"; // default
+
+  if (componentType === "backend") {
+    if (fs.existsSync(path.join(projectPath, "requirements.txt"))) {
+      framework = "python";
+    }
+  } else if (componentType === "frontend") {
+    if (fs.existsSync(path.join(projectPath, "package.json"))) {
+      framework = "nodejs";
+    }
+  }
+
+  // For main app directory, check both
+  if (componentType === "main") {
+    if (fs.existsSync(path.join(projectPath, "package.json"))) {
+      framework = "nodejs";
+    } else if (fs.existsSync(path.join(projectPath, "requirements.txt"))) {
+      framework = "python";
+    }
+  }
+
+  let installCommand = getInstallCommand(framework);
+
+  // For Node.js, try with --legacy-peer-deps first to avoid conflicts
+  if (framework === "nodejs") {
+    installCommand = "npm install --legacy-peer-deps";
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn(installCommand, [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+    });
+
+    logger.info(`Auto-installing dependencies with: ${installCommand} in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully auto-installed dependencies for ${componentType} in ${projectPath}`);
+        resolve();
+      } else {
+        logger.warn(`Auto-dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
+        reject(new Error(`Installation failed: ${installError}`));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      logger.error(`Failed to start auto-dependency installation for ${componentType}:`, err);
+      reject(err);
+    });
+  });
+}
+
+async function installSpecificPackage(projectPath: string, packageName: string): Promise<void> {
+  const installCommand = `npm install ${packageName}`;
+
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn(installCommand, [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+    });
+
+    logger.info(`Installing specific package: ${installCommand} in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully installed ${packageName} in ${projectPath}`);
+        resolve();
+      } else {
+        logger.warn(`Failed to install ${packageName} (code: ${code}): ${installError}`);
+        reject(new Error(`Installation failed: ${installError}`));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      logger.error(`Failed to start installation of ${packageName}:`, err);
+      reject(err);
+    });
+  });
+}
+
+async function installDependenciesAutoFallback(projectPath: string, componentType: string): Promise<void> {
+  // Fallback: try npm install --legacy-peer-deps
+  const installCommand = "npm install --legacy-peer-deps";
+
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn(installCommand, [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+    });
+
+    logger.info(`Fallback auto-installing dependencies with: ${installCommand} in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully fallback-installed dependencies for ${componentType} in ${projectPath}`);
+        resolve();
+      } else {
+        logger.warn(`Fallback dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
+        reject(new Error(`Fallback installation failed: ${installError}`));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      logger.error(`Failed to start fallback dependency installation for ${componentType}:`, err);
+      reject(err);
     });
   });
 }
