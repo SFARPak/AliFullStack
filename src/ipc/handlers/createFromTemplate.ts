@@ -2438,21 +2438,93 @@ async function initializeDatabaseForFramework(backendPath: string, framework: st
       break;
 
     case "fastapi":
-      // For FastAPI, the database tables are created automatically when the app starts
-      // due to the models.Base.metadata.create_all(bind=engine) call in main.py
-      logger.info(`FastAPI database will be initialized when server starts`);
+      // For FastAPI, run a Python script to create database tables
+      try {
+        logger.info(`Creating FastAPI database tables in ${backendPath}`);
+        // Create a temporary script to initialize the database
+        const initScript = `
+import os
+os.chdir('${backendPath.replace(/\\/g, '\\\\')}')
+
+from database import Base, engine
+from models import Item
+
+# Create all tables
+Base.metadata.create_all(bind=engine)
+print("FastAPI database tables created successfully")
+        `;
+        await fs.writeFile(path.join(backendPath, 'init_db.py'), initScript);
+
+        // Run the initialization script
+        await runCommandInDirectory(backendPath, "python init_db.py");
+
+        // Clean up the temporary script
+        await fs.unlink(path.join(backendPath, 'init_db.py')).catch(() => {});
+
+        logger.info(`FastAPI database initialized successfully`);
+      } catch (error) {
+        logger.warn(`Failed to initialize FastAPI database:`, error);
+        throw error;
+      }
       break;
 
     case "flask":
-      // For Flask, the database tables are created automatically when the app starts
-      // due to the db.create_all() call in app.py
-      logger.info(`Flask database will be initialized when server starts`);
+      // For Flask, run a Python script to create database tables
+      try {
+        logger.info(`Creating Flask database tables in ${backendPath}`);
+        // Create a temporary script to initialize the database
+        const initScript = `
+import os
+os.chdir('${backendPath.replace(/\\/g, '\\\\')}')
+
+from models import db
+from app import app
+
+# Create database tables within app context
+with app.app_context():
+    db.create_all()
+    print("Flask database tables created successfully")
+        `;
+        await fs.writeFile(path.join(backendPath, 'init_db.py'), initScript);
+
+        // Run the initialization script
+        await runCommandInDirectory(backendPath, "python init_db.py");
+
+        // Clean up the temporary script
+        await fs.unlink(path.join(backendPath, 'init_db.py')).catch(() => {});
+
+        logger.info(`Flask database initialized successfully`);
+      } catch (error) {
+        logger.warn(`Failed to initialize Flask database:`, error);
+        throw error;
+      }
       break;
 
     case "nodejs":
-      // For Node.js, the database tables are created automatically when the server starts
-      // due to the CREATE TABLE IF NOT EXISTS statement in db.js
-      logger.info(`Node.js SQLite database will be initialized when server starts`);
+      // For Node.js, run a Node.js script to create database tables
+      try {
+        logger.info(`Creating Node.js SQLite database tables in ${backendPath}`);
+        // Create a temporary script to initialize the database
+        const initScript = `
+const path = require('path');
+const { db } = require('./db');
+
+// The db.js file already creates tables on import, so we just need to verify
+console.log('Node.js SQLite database tables created successfully');
+        `;
+        await fs.writeFile(path.join(backendPath, 'init_db.js'), initScript);
+
+        // Run the initialization script
+        await runCommandInDirectory(backendPath, "node init_db.js");
+
+        // Clean up the temporary script
+        await fs.unlink(path.join(backendPath, 'init_db.js')).catch(() => {});
+
+        logger.info(`Node.js SQLite database initialized successfully`);
+      } catch (error) {
+        logger.warn(`Failed to initialize Node.js database:`, error);
+        throw error;
+      }
       break;
 
     default:
@@ -2460,7 +2532,7 @@ async function initializeDatabaseForFramework(backendPath: string, framework: st
   }
 }
 
-async function runCommandInDirectory(directory: string, command: string): Promise<void> {
+export async function runCommandInDirectory(directory: string, command: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const { spawn } = require('child_process');
     const process = spawn(command, [], {

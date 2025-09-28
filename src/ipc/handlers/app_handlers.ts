@@ -43,7 +43,7 @@ import { createLoggedHandler } from "./safe_handle";
 import { getLanguageModelProviders } from "../shared/language_model_helpers";
 import { startProxy } from "../utils/start_proxy_server";
 import { Worker } from "worker_threads";
-import { createFromTemplate, setupBackendFramework, getStartCommandForFramework } from "./createFromTemplate";
+import { createFromTemplate, setupBackendFramework, getStartCommandForFramework, runCommandInDirectory } from "./createFromTemplate";
 import { gitCommit } from "../utils/git_utils";
 import { safeSend } from "../utils/safe_sender";
 import { normalizePath } from "../../../shared/normalizePath";
@@ -232,7 +232,7 @@ async function ensureBackendDirectory(backendPath: string): Promise<void> {
     logger.info(`Created backend directory: ${backendPath}`);
   }
 
-  // Check if backend directory is empty or missing key files
+  // Check if backend directory has the necessary files but ensure database exists
   const backendFiles = fs.readdirSync(backendPath);
   if (backendFiles.length === 0) {
     // Create a basic Python Flask backend structure with database support
@@ -319,6 +319,45 @@ python app.py
     } catch (error) {
       logger.error(`Failed to create backend structure in ${backendPath}:`, error);
       throw error;
+    }
+  } else {
+    // Backend directory exists, but ensure database is initialized for existing backends
+    // This handles the case where backend was created during app creation but database needs to be ensured
+    const hasAppPy = backendFiles.includes('app.py');
+    const hasRequirements = backendFiles.includes('requirements.txt');
+
+    if (hasAppPy && hasRequirements) {
+      // Check if this is a Python backend that needs database initialization
+      const framework = await detectPythonFramework(backendPath);
+      if (framework === 'flask') {
+        // Ensure Flask database is initialized
+        try {
+          const initScript = `
+import os
+os.chdir('${backendPath.replace(/\\/g, '\\\\')}')
+
+from models import db
+from app import app
+
+# Create database tables within app context
+with app.app_context():
+    db.create_all()
+    print("Flask database tables verified/created successfully")
+          `;
+          await fsPromises.writeFile(path.join(backendPath, 'init_db.py'), initScript);
+
+          // Run the initialization script
+          await runCommandInDirectory(backendPath, "python init_db.py");
+
+          // Clean up the temporary script
+          await fsPromises.unlink(path.join(backendPath, 'init_db.py')).catch(() => {});
+
+          logger.info(`Ensured Flask database is initialized in ${backendPath}`);
+        } catch (error) {
+          logger.warn(`Failed to ensure Flask database initialization:`, error);
+          // Don't throw - database might already exist
+        }
+      }
     }
   }
 }
