@@ -12,7 +12,7 @@ const fs = require("fs");
 const path = require("path");
 
 /* ──────────────────────────── worker code ─────────────────────────────── */
-const LISTEN_HOST = "localhost";
+const LISTEN_HOST = "0.0.0.0";
 const LISTEN_PORT = workerData.port;
 let rememberedOrigin = null; // e.g. "http://localhost:5173"
 
@@ -56,12 +56,12 @@ try {
 }
 
 try {
-  const dyadShimPath = path.join(__dirname, "SFARPakim.js");
+  const dyadShimPath = path.join(__dirname, "dyad-shim.js");
   dyadShimContent = fs.readFileSync(dyadShimPath, "utf-8");
-  parentPort?.postMessage("[proxy-worker] SFARPakim.js loaded.");
+  parentPort?.postMessage("[proxy-worker] dyad-shim.js loaded.");
 } catch (error) {
   parentPort?.postMessage(
-    `[proxy-worker] Failed to read SFARPakim.js: ${error.message}`,
+    `[proxy-worker] Failed to read dyad-shim.js: ${error.message}`,
   );
 }
 
@@ -149,10 +149,14 @@ function buildTargetURL(clientReq) {
 /* ----------------------------------------------------------------------- */
 
 const server = http.createServer((clientReq, clientRes) => {
+  parentPort?.postMessage(`[proxy] Request: ${clientReq.method} ${clientReq.url}`);
+
   let target;
   try {
     target = buildTargetURL(clientReq);
+    parentPort?.postMessage(`[proxy] Forwarding to: ${target.href}`);
   } catch (err) {
+    parentPort?.postMessage(`[proxy] Error building target URL: ${err.message}`);
     clientRes.writeHead(400, { "content-type": "text/plain" });
     return void clientRes.end("Bad request: " + err.message);
   }
@@ -189,6 +193,8 @@ const server = http.createServer((clientReq, clientRes) => {
   };
 
   const upReq = lib.request(upOpts, (upRes) => {
+    parentPort?.postMessage(`[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`);
+
     const inject = needsInjection(target.pathname);
 
     if (!inject) {
@@ -215,6 +221,7 @@ const server = http.createServer((clientReq, clientRes) => {
         clientRes.writeHead(upRes.statusCode, hdrs);
         clientRes.end(patched);
       } catch (e) {
+        parentPort?.postMessage(`[proxy] Injection failed: ${e.message}`);
         clientRes.writeHead(500, { "content-type": "text/plain" });
         clientRes.end("Injection failed: " + e.message);
       }
@@ -223,6 +230,7 @@ const server = http.createServer((clientReq, clientRes) => {
 
   clientReq.pipe(upReq);
   upReq.on("error", (e) => {
+    parentPort?.postMessage(`[proxy] Upstream error: ${e.message} for ${target?.href || 'unknown'}`);
     clientRes.writeHead(502, { "content-type": "text/plain" });
     clientRes.end("Upstream error: " + e.message);
   });
