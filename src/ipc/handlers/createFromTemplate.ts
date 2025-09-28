@@ -1224,6 +1224,15 @@ export async function setupBackendFramework(backendPath: string, framework: stri
       // Continue even if installation fails
     }
 
+    // Initialize database for the framework
+    try {
+      logger.info(`Initializing database for ${framework} in ${backendPath}`);
+      await initializeDatabaseForFramework(backendPath, framework);
+    } catch (dbError) {
+      logger.warn(`Failed to initialize database for ${framework}:`, dbError);
+      // Continue even if database initialization fails
+    }
+
     // Auto-start the backend server after dependency installation
     try {
       logger.info(`Auto-starting ${framework} backend server in ${backendPath}`);
@@ -1244,9 +1253,10 @@ async function setupDjango(backendPath: string) {
   const settingsPath = path.join(backendPath, 'mysite', 'settings.py');
   const urlsPath = path.join(backendPath, 'mysite', 'urls.py');
   const viewsPath = path.join(backendPath, 'mysite', 'views.py');
+  const modelsPath = path.join(backendPath, 'mysite', 'models.py');
 
   // Create requirements.txt
-  await fs.writeFile(requirementsPath, 'Django==4.2.7\n');
+  await fs.writeFile(requirementsPath, 'Django==4.2.7\ndjango-cors-headers==4.3.1\n');
 
   // Create manage.py
   const manageContent = `#!/usr/bin/env python
@@ -1294,11 +1304,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'your-secret-key-here'
+SECRET_KEY = 'your-secret-key-here-change-in-production'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Allow all hosts for development
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -1307,17 +1317,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:32100",
+    "http://127.0.0.1:32100",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'mysite.urls'
 
@@ -1352,24 +1371,79 @@ STATIC_URL = 'static/'
 
   // Create urls.py
   const urlsContent = `from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.http import JsonResponse
 from . import views
+
+def api_health(request):
+    return JsonResponse({"status": "healthy", "database": "SQLite"})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
+    path('api/health/', api_health, name='api_health'),
+    path('api/items/', include('mysite.urls_items')),
 ]
 `;
   await fs.writeFile(urlsPath, urlsContent);
 
+  // Create models.py
+  const modelsContent = `from django.db import models
+
+class Item(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-created_at']
+`;
+  await fs.writeFile(modelsPath, modelsContent);
+
   // Create views.py
-  const viewsContent = `from django.http import HttpResponse
+  const viewsContent = `from django.http import JsonResponse
 from django.shortcuts import render
+from .models import Item
 
 def home(request):
-    return HttpResponse("Welcome to Django!")
+    return JsonResponse({"message": "Welcome to Django API!", "database": "SQLite configured"})
+
+# API Views for items
+def get_items(request):
+    items = Item.objects.all().values()
+    return JsonResponse(list(items), safe=False)
+
+def create_item(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        if name:
+            item = Item.objects.create(name=name, description=description)
+            return JsonResponse({
+                'id': item.id,
+                'name': item.name,
+                'description': item.description,
+                'created_at': item.created_at.isoformat(),
+            }, status=201)
+        return JsonResponse({'error': 'Name is required'}, status=400)
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
 `;
   await fs.writeFile(viewsPath, viewsContent);
+
+  // Create separate URLs for items API
+  const itemsUrlsPath = path.join(backendPath, 'mysite', 'urls_items.py');
+  const itemsUrlsContent = `from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.get_items, name='get_items'),
+    path('create/', views.create_item, name='create_item'),
+]`;
+  await fs.writeFile(itemsUrlsPath, itemsUrlsContent);
 
   // Create AI_RULES.md for Django backend development
   const aiRulesContent = `# Tech Stack
@@ -1411,24 +1485,175 @@ def home(request):
 async function setupFastAPI(backendPath: string) {
   const requirementsPath = path.join(backendPath, 'requirements.txt');
   const mainPath = path.join(backendPath, 'main.py');
+  const modelsPath = path.join(backendPath, 'models.py');
+  const databasePath = path.join(backendPath, 'database.py');
+  const crudPath = path.join(backendPath, 'crud.py');
 
   // Create requirements.txt
-  await fs.writeFile(requirementsPath, 'fastapi==0.104.1\nuvicorn==0.24.0\n');
+  await fs.writeFile(requirementsPath, 'fastapi==0.104.1\nuvicorn==0.24.0\nsqlalchemy==2.0.23\nalembic==1.12.1\n');
+
+  // Create database.py
+  const databaseContent = `from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+
+engine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+`;
+  await fs.writeFile(databasePath, databaseContent);
+
+  // Create models.py
+  const modelsContent = `from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy.sql import func
+from .database import Base
+
+class Item(Base):
+    __tablename__ = "items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+`;
+  await fs.writeFile(modelsPath, modelsContent);
+
+  // Create crud.py
+  const crudContent = `from sqlalchemy.orm import Session
+from . import models, schemas
+
+def get_items(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Item).offset(skip).limit(limit).all()
+
+def create_item(db: Session, item: schemas.ItemCreate):
+    db_item = models.Item(name=item.name, description=item.description)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+`;
+  await fs.writeFile(crudPath, crudContent);
+
+  // Create schemas.py
+  const schemasPath = path.join(backendPath, 'schemas.py');
+  const schemasContent = `from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class ItemBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+class ItemCreate(ItemBase):
+    pass
+
+class Item(ItemBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+`;
+  await fs.writeFile(schemasPath, schemasContent);
 
   // Create main.py
-  const mainContent = `from fastapi import FastAPI
+  const mainContent = `from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from . import crud, models, schemas
+from .database import SessionLocal, engine, get_db
+from fastapi.middleware.cors import CORSMiddleware
+import os
 
-app = FastAPI()
+# Create database tables
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="FastAPI with Database", description="A FastAPI app with SQLite database")
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:32100", "http://127.0.0.1:32100"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "FastAPI"}
+    return {"message": "FastAPI with Database is running!", "database": "SQLite configured"}
 
-@app.get("/api/items")
-async def read_items():
-    return [{"id": 1, "name": "Sample Item"}]
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "database": "SQLite"}
+
+@app.get("/api/items", response_model=list[schemas.Item])
+async def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = crud.get_items(db, skip=skip, limit=limit)
+    return items
+
+@app.post("/api/items", response_model=schemas.Item)
+async def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
+    return crud.create_item(db=db, item=item)
 `;
   await fs.writeFile(mainPath, mainContent);
+
+  // Create alembic configuration for migrations
+  const alembicIni = path.join(backendPath, 'alembic.ini');
+  const alembicContent = `[alembic]
+script_location = alembic
+sqlalchemy.url = sqlite:///./app.db
+
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARN
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+qualname =
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S
+`;
+  await fs.writeFile(alembicIni, alembicContent);
 
   // Create AI_RULES.md for FastAPI backend development
   const aiRulesContent = `# Tech Stack
@@ -1478,23 +1703,109 @@ async def read_items():
 async function setupFlask(backendPath: string) {
   const requirementsPath = path.join(backendPath, 'requirements.txt');
   const appPath = path.join(backendPath, 'app.py');
+  const modelsPath = path.join(backendPath, 'models.py');
 
   // Create requirements.txt
-  await fs.writeFile(requirementsPath, 'Flask==3.0.0\n');
+  await fs.writeFile(requirementsPath, 'Flask==3.0.0\nFlask-SQLAlchemy==3.0.5\nFlask-CORS==4.0.0\n');
+
+  // Create models.py
+  const modelsContent = `from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+`;
+  await fs.writeFile(modelsPath, modelsContent);
 
   // Create app.py
-  const appContent = `from flask import Flask
+  const appContent = `from flask import Flask, request, jsonify
+from flask_cors import CORS
+from models import db, Item
 import os
 
 app = Flask(__name__)
+CORS(app)
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db.init_app(app)
+
+# Create database tables
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return jsonify({
+        "message": "Flask API with Database is running!",
+        "database": "SQLite configured"
+    })
 
-@app.route('/api/items')
+@app.route('/api/health')
+def health():
+    return jsonify({
+        "status": "healthy",
+        "database": "SQLite"
+    })
+
+@app.route('/api/items', methods=['GET'])
 def get_items():
-    return {'items': [{'id': 1, 'name': 'Sample Item'}]}
+    items = Item.query.all()
+    return jsonify([item.to_dict() for item in items])
+
+@app.route('/api/items', methods=['POST'])
+def create_item():
+    data = request.get_json()
+    if not data or 'name' not in data:
+        return jsonify({"error": "Name is required"}), 400
+
+    new_item = Item(name=data['name'], description=data.get('description', ''))
+    db.session.add(new_item)
+    db.session.commit()
+    return jsonify(new_item.to_dict()), 201
+
+@app.route('/api/items/<int:item_id>', methods=['GET'])
+def get_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    return jsonify(item.to_dict())
+
+@app.route('/api/items/<int:item_id>', methods=['PUT'])
+def update_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    data = request.get_json()
+
+    if 'name' in data:
+        item.name = data['name']
+    if 'description' in data:
+        item.description = data['description']
+
+    db.session.commit()
+    return jsonify(item.to_dict())
+
+@app.route('/api/items/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({"message": "Item deleted successfully"})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
@@ -1550,19 +1861,24 @@ if __name__ == '__main__':
 async function setupNodeJS(backendPath: string) {
   const packagePath = path.join(backendPath, 'package.json');
   const serverPath = path.join(backendPath, 'server.js');
+  const dbPath = path.join(backendPath, 'db.js');
+  const modelsPath = path.join(backendPath, 'models.js');
+  const routesPath = path.join(backendPath, 'routes.js');
 
   // Create package.json
   const packageContent = `{
   "name": "backend-api",
   "version": "1.0.0",
-  "description": "Node.js backend API",
+  "description": "Node.js backend API with SQLite database",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "better-sqlite3": "^9.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -1570,23 +1886,241 @@ async function setupNodeJS(backendPath: string) {
 }`;
   await fs.writeFile(packagePath, packageContent);
 
+  // Create db.js
+  const dbContent = `const Database = require('better-sqlite3');
+const path = require('path');
+
+// Create database file in the backend directory
+const dbPath = path.join(__dirname, 'app.db');
+const db = new Database(dbPath);
+
+// Enable WAL mode for better concurrency
+db.pragma('journal_mode = WAL');
+
+// Create items table
+const createTable = db.prepare(\`
+  CREATE TABLE IF NOT EXISTS items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+\`);
+createTable.run();
+
+// Prepare statements for CRUD operations
+const statements = {
+  getAllItems: db.prepare('SELECT * FROM items ORDER BY created_at DESC'),
+  getItemById: db.prepare('SELECT * FROM items WHERE id = ?'),
+  createItem: db.prepare('INSERT INTO items (name, description) VALUES (?, ?)'),
+  updateItem: db.prepare('UPDATE items SET name = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'),
+  deleteItem: db.prepare('DELETE FROM items WHERE id = ?')
+};
+
+module.exports = {
+  db,
+  statements
+};
+`;
+  await fs.writeFile(dbPath, dbContent);
+
+  // Create models.js
+  const modelsContent = `const { statements } = require('./db');
+
+class Item {
+  static getAll() {
+    const rows = statements.getAllItems.all();
+    return rows.map(row => new Item(row));
+  }
+
+  static getById(id) {
+    const row = statements.getItemById.get(id);
+    return row ? new Item(row) : null;
+  }
+
+  static create(name, description = '') {
+    const result = statements.createItem.run(name, description);
+    return new Item({
+      id: result.lastInsertRowid,
+      name,
+      description,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+  }
+
+  static update(id, name, description = '') {
+    const result = statements.updateItem.run(name, description, id);
+    if (result.changes > 0) {
+      return Item.getById(id);
+    }
+    return null;
+  }
+
+  static delete(id) {
+    const result = statements.deleteItem.run(id);
+    return result.changes > 0;
+  }
+
+  constructor(data) {
+    this.id = data.id;
+    this.name = data.name;
+    this.description = data.description;
+    this.created_at = data.created_at;
+    this.updated_at = data.updated_at;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      created_at: this.created_at,
+      updated_at: this.updated_at
+    };
+  }
+}
+
+module.exports = { Item };
+`;
+  await fs.writeFile(modelsPath, modelsContent);
+
+  // Create routes.js
+  const routesContent = `const express = require('express');
+const { Item } = require('./models');
+
+const router = express.Router();
+
+// GET /api/items - Get all items
+router.get('/items', (req, res) => {
+  try {
+    const items = Item.getAll();
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
+// GET /api/items/:id - Get item by ID
+router.get('/items/:id', (req, res) => {
+  try {
+    const item = Item.getById(parseInt(req.params.id));
+    if (item) {
+      res.json(item);
+    } else {
+      res.status(404).json({ error: 'Item not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch item' });
+  }
+});
+
+// POST /api/items - Create new item
+router.post('/items', (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const item = Item.create(name, description || '');
+    res.status(201).json(item);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create item' });
+  }
+});
+
+// PUT /api/items/:id - Update item
+router.put('/items/:id', (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const item = Item.update(parseInt(req.params.id), name, description || '');
+    if (item) {
+      res.json(item);
+    } else {
+      res.status(404).json({ error: 'Item not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update item' });
+  }
+});
+
+// DELETE /api/items/:id - Delete item
+router.delete('/items/:id', (req, res) => {
+  try {
+    const deleted = Item.delete(parseInt(req.params.id));
+    if (deleted) {
+      res.json({ message: 'Item deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Item not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete item' });
+  }
+});
+
+module.exports = router;
+`;
+  await fs.writeFile(routesPath, routesContent);
+
   // Create server.js
   const serverContent = `const express = require('express');
-const app = express();
-const port = 3000;
+const cors = require('cors');
+const path = require('path');
+const apiRoutes = require('./routes');
 
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors({
+  origin: ['http://localhost:32100', 'http://127.0.0.1:32100'],
+  credentials: true
+}));
 app.use(express.json());
 
+// Routes
 app.get('/', (req, res) => {
-  res.json({ message: 'Hello from Node.js!' });
+  res.json({
+    message: 'Node.js API with SQLite Database is running!',
+    database: 'SQLite configured',
+    endpoints: {
+      health: '/api/health',
+      items: '/api/items'
+    }
+  });
 });
 
-app.get('/api/items', (req, res) => {
-  res.json([{ id: 1, name: 'Sample Item' }]);
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    database: 'SQLite',
+    timestamp: new Date().toISOString()
+  });
 });
 
-app.listen(port, () => {
-  console.log(\`Server running on http://localhost:\${port}\`);
+// API routes
+app.use('/api', apiRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(\`🚀 Node.js server with SQLite database running on http://0.0.0.0:\${port}\`);
+  console.log(\`📊 Database file: \${path.join(__dirname, 'app.db')}\`);
 });`;
   await fs.writeFile(serverPath, serverContent);
 
@@ -1884,6 +2418,84 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
       } else {
         reject(err);
       }
+    });
+  });
+}
+
+async function initializeDatabaseForFramework(backendPath: string, framework: string): Promise<void> {
+  switch (framework) {
+    case "django":
+      // For Django, run migrations to create database tables
+      try {
+        logger.info(`Running Django migrations in ${backendPath}`);
+        await runCommandInDirectory(backendPath, "python manage.py makemigrations");
+        await runCommandInDirectory(backendPath, "python manage.py migrate");
+        logger.info(`Django database initialized successfully`);
+      } catch (error) {
+        logger.warn(`Failed to run Django migrations:`, error);
+        throw error;
+      }
+      break;
+
+    case "fastapi":
+      // For FastAPI, the database tables are created automatically when the app starts
+      // due to the models.Base.metadata.create_all(bind=engine) call in main.py
+      logger.info(`FastAPI database will be initialized when server starts`);
+      break;
+
+    case "flask":
+      // For Flask, the database tables are created automatically when the app starts
+      // due to the db.create_all() call in app.py
+      logger.info(`Flask database will be initialized when server starts`);
+      break;
+
+    case "nodejs":
+      // For Node.js, the database tables are created automatically when the server starts
+      // due to the CREATE TABLE IF NOT EXISTS statement in db.js
+      logger.info(`Node.js SQLite database will be initialized when server starts`);
+      break;
+
+    default:
+      logger.warn(`Unknown framework for database initialization: ${framework}`);
+  }
+}
+
+async function runCommandInDirectory(directory: string, command: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const { spawn } = require('child_process');
+    const process = spawn(command, [], {
+      cwd: directory,
+      shell: true,
+      stdio: "pipe",
+    });
+
+    logger.info(`Running command: ${command} in ${directory}`);
+
+    let stdout = "";
+    let stderr = "";
+
+    process.stdout?.on("data", (data: Buffer) => {
+      stdout += data.toString();
+    });
+
+    process.stderr?.on("data", (data: Buffer) => {
+      stderr += data.toString();
+    });
+
+    process.on("close", (code: number | null) => {
+      if (code === 0) {
+        logger.info(`Command completed successfully: ${command}`);
+        resolve();
+      } else {
+        const error = new Error(`Command failed with code ${code}: ${stderr}`);
+        logger.error(`Command failed: ${command}`, error);
+        reject(error);
+      }
+    });
+
+    process.on("error", (err: Error) => {
+      logger.error(`Failed to start command: ${command}`, err);
+      reject(err);
     });
   });
 }
