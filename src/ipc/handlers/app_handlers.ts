@@ -119,6 +119,39 @@ async function findAvailablePort(startPort: number): Promise<number> {
   throw new Error(`No available ports found starting from ${startPort}`);
 }
 
+/**
+ * Update or add an environment variable in .env file content
+ */
+function updateEnvVariable(envContent: string, key: string, value: string): string {
+  const lines = envContent.split('\n');
+  const updatedLines: string[] = [];
+  let keyFound = false;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    // Skip empty lines and comments
+    if (!trimmedLine || trimmedLine.startsWith('#')) {
+      updatedLines.push(line);
+      continue;
+    }
+
+    // Check if this line contains the key we're looking for
+    if (trimmedLine.startsWith(`${key}=`)) {
+      updatedLines.push(`${key}=${value}`);
+      keyFound = true;
+    } else {
+      updatedLines.push(line);
+    }
+  }
+
+  // If key wasn't found, add it at the end
+  if (!keyFound) {
+    updatedLines.push(`${key}=${value}`);
+  }
+
+  return updatedLines.join('\n');
+}
+
 async function detectPythonFramework(backendPath: string): Promise<string> {
   // Check for common Python files
   const pythonFiles = ['main.py', 'app.py', 'server.py', 'application.py'];
@@ -289,6 +322,61 @@ async function executeAppLocalNode({
 
     // Ensure backend directory exists and has proper structure
     await ensureBackendDirectory(backendPath);
+
+    // Create/update environment files for fullstack integration
+    try {
+      logger.info(`Setting up environment files for fullstack app ${appId}`);
+
+      // Create/update backend .env file
+      const backendEnvPath = path.join(backendPath, '.env');
+      let backendEnvContent = '';
+
+      // Read existing .env file if it exists
+      if (fs.existsSync(backendEnvPath)) {
+        backendEnvContent = fs.readFileSync(backendEnvPath, 'utf-8');
+      }
+
+      // Update or add PORT variable
+      backendEnvContent = updateEnvVariable(backendEnvContent, 'PORT', backendPort.toString());
+
+      // Update or add FRONTEND_URL variable for CORS
+      const frontendUrl = `http://localhost:${frontendPort}`;
+      backendEnvContent = updateEnvVariable(backendEnvContent, 'FRONTEND_URL', frontendUrl);
+
+      // Write backend .env file
+      await fsPromises.writeFile(backendEnvPath, backendEnvContent, 'utf-8');
+      logger.info(`Updated backend .env file at ${backendEnvPath}`);
+
+      // Create/update frontend .env file
+      const frontendEnvPath = path.join(frontendPath, '.env');
+      let frontendEnvContent = '';
+
+      // Read existing .env file if it exists
+      if (fs.existsSync(frontendEnvPath)) {
+        frontendEnvContent = fs.readFileSync(frontendEnvPath, 'utf-8');
+      }
+
+      // Update or add VITE_API_URL variable for frontend to call backend
+      const backendApiUrl = `http://localhost:${backendPort}`;
+      frontendEnvContent = updateEnvVariable(frontendEnvContent, 'VITE_API_URL', backendApiUrl);
+
+      // Write frontend .env file
+      await fsPromises.writeFile(frontendEnvPath, frontendEnvContent, 'utf-8');
+      logger.info(`Updated frontend .env file at ${frontendEnvPath}`);
+
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `🔧 Environment files configured - Backend API URL: ${backendApiUrl}, Frontend CORS URL: ${frontendUrl}`,
+        appId,
+      });
+    } catch (error) {
+      logger.error(`Failed to set up environment files for fullstack app ${appId}:`, error);
+      safeSend(event.sender, "app:output", {
+        type: "stdout",
+        message: `⚠️ Warning: Failed to configure environment files. Manual configuration may be needed.`,
+        appId,
+      });
+    }
 
     // Ensure frontend dependencies are installed
     try {
