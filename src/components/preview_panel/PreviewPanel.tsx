@@ -66,11 +66,24 @@ export function PreviewPanel() {
     messageCount > 0 ? appOutput[messageCount - 1]?.message : undefined;
 
   // Auto-switch to "code" mode for backend development
+  // Auto-switch to "code" mode for backend development if the user is not in fullstack mode
+  // and the preview is currently in "preview" mode.
+  // This prevents the preview from being stuck in a non-functional state when
+  // switching to backend mode, but allows manual override.
   useEffect(() => {
-    if (settings?.selectedChatMode === "backend" && previewMode === "preview") {
+    if (
+      settings?.selectedChatMode === "backend" &&
+      previewMode === "preview" &&
+      settings?.fullstackDevelopmentMode !== true
+    ) {
       setPreviewMode("code");
     }
-  }, [settings?.selectedChatMode, previewMode, setPreviewMode]);
+  }, [
+    settings?.selectedChatMode,
+    previewMode,
+    setPreviewMode,
+    settings?.fullstackDevelopmentMode,
+  ]);
 
 
   useEffect(() => {
