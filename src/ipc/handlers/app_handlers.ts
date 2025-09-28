@@ -1170,15 +1170,15 @@ export function registerAppHandlers() {
 
   // Handle client-side errors from frontend
   handle("log-client-error", async (event, { appId, error, context }) => {
-    const errorMessage = `Frontend Error: ${error.message || error}\n${context || ''}`.trim();
+    const errorMessage = `Frontend Error: ${error.message || error}${context ? `\nContext: ${context}` : ''}`.trim();
 
     // Log to system console
     logger.error(`Client error from app ${appId}:`, error);
 
-    // Route to frontend terminal output
+    // Route to both frontend terminal and system messages for visibility
     safeSend(event.sender, "app:output", {
       type: "client-error",
-      message: errorMessage,
+      message: `[CLIENT] ${errorMessage}`,
       appId,
     });
   });

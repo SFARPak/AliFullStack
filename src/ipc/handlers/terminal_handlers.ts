@@ -104,10 +104,21 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
     addTerminalOutput(appId, terminal, message, terminalOutputType);
   }
 
-  // Also send to app:output for backward compatibility and UI display
+  // Enhanced system message routing - ensure important server logs are visible in System Messages
+  // For backend server logs (like HTTP requests), make them more prominent in system messages
+  let systemMessageType = type;
+  let systemMessage = message;
+
+  // For backend server logs, enhance visibility
+  if (terminalType === "backend" && (message.includes("HTTP/") || message.includes("OPTIONS") || message.includes("GET") || message.includes("POST") || message.includes("PUT") || message.includes("DELETE"))) {
+    systemMessageType = "info"; // Use info type to make server logs stand out
+    systemMessage = `[${terminalType.toUpperCase()}] ${message}`;
+  }
+
+  // Always send to system messages for visibility
   safeSend(event.sender, "app:output", {
-    type,
-    message,
+    type: systemMessageType,
+    message: systemMessage,
     appId,
   });
 }
