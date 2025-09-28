@@ -113,12 +113,12 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
   if (terminalType === "backend") {
     // Check for HTTP request logs from Flask/Django/FastAPI/Node.js servers
     const isHttpRequestLog = (
-      // Flask/Django format: "INFO:     127.0.0.1:63021 - "OPTIONS /api/newsletters HTTP/1.1" 200 OK"
-      (message.includes("HTTP/") && (message.includes("OPTIONS") || message.includes("GET") || message.includes("POST") || message.includes("PUT") || message.includes("DELETE") || message.includes("PATCH"))) ||
-      // General server response patterns
-      (message.includes("HTTP/") || message.includes("status") || message.includes("OK") || message.includes("ERROR")) ||
+      // Flask/Django format: 'INFO:     127.0.0.1:63021 - "OPTIONS /api/newsletters HTTP/1.1" 200 OK'
+      (message.includes('HTTP/') && /\s-\s"\w+\s.*HTTP\/\d\.\d+"\s\d+/.test(message)) ||
+      // General HTTP response patterns (fallback)
+      (message.includes('HTTP/') && (message.includes('200') || message.includes('201') || message.includes('400') || message.includes('404') || message.includes('500'))) ||
       // Server startup messages
-      (message.includes("Running on") || message.includes("Server running") || message.includes("listening on") || message.includes("started"))
+      (message.includes("Running on") || message.includes("Server running") || message.includes("listening on") || message.includes("started") || message.includes("* Running on"))
     );
 
     if (isHttpRequestLog) {
