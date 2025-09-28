@@ -25,6 +25,23 @@ export function useRunApp() {
   const setPreviewErrorMessage = useSetAtom(previewErrorMessageAtom);
 
   const processProxyServerOutput = (output: AppOutput) => {
+    // Check for the new format: "🚀 App preview available at http://localhost:56277 (proxied from local port 5174)"
+    const newFormatMatch = output.message.match(
+      /🚀 App preview available at (http:\/\/localhost:\d+) \(proxied from local port (\d+)\)/,
+    );
+    if (newFormatMatch) {
+      const proxyUrl = newFormatMatch[1];
+      const localPort = newFormatMatch[2];
+      const originalUrl = `http://localhost:${localPort}`;
+      setAppUrlObj({
+        appUrl: proxyUrl,
+        appId: output.appId,
+        originalUrl: originalUrl,
+      });
+      return;
+    }
+
+    // Fallback to old format for backward compatibility
     const matchesProxyServerStart = output.message.includes(
       "[AliFullStack-proxy-server]started=[",
     );
