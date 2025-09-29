@@ -17,7 +17,10 @@ interface BackendChatMessageProps {
   isLastMessage?: boolean;
 }
 
-const BackendChatMessage = ({ message, isLastMessage }: BackendChatMessageProps) => {
+const BackendChatMessage = ({
+  message,
+  isLastMessage,
+}: BackendChatMessageProps) => {
   const { isStreaming } = useStreamChat();
   const appId = useAtomValue(selectedAppIdAtom);
   const { versions: liveVersions } = useVersions(appId);

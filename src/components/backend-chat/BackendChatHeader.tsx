@@ -112,7 +112,9 @@ export function BackendChatHeader({
       {/* Backend Mode Indicator */}
       <div className="flex items-center justify-center px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
         <Server size={16} className="mr-2" />
-        <span className="text-sm font-medium">Backend Development Mode - Roo-Code Logic</span>
+        <span className="text-sm font-medium">
+          Backend Development Mode - Roo-Code Logic
+        </span>
       </div>
 
       {/* If the version pane is open, it's expected to not always be on the main branch. */}
