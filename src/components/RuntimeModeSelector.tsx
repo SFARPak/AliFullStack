@@ -21,7 +21,9 @@ export function RuntimeModeSelector() {
   const handleRuntimeModeChange = async (value: "host" | "docker") => {
     // Only allow host mode - Docker is disabled for app development
     if (value === "docker") {
-      showError("Docker mode is disabled. Apps always run in local development mode for optimal development experience.");
+      showError(
+        "Docker mode is disabled. Apps always run in local development mode for optimal development experience.",
+      );
       return;
     }
     try {
@@ -47,17 +49,20 @@ export function RuntimeModeSelector() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="host">Local (default)</SelectItem>
-              <SelectItem value="docker" disabled>Docker (disabled)</SelectItem>
+              <SelectItem value="docker" disabled>
+                Docker (disabled)
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Apps always run in local development mode for optimal development experience.
-          Docker mode is disabled.
+          Apps always run in local development mode for optimal development
+          experience. Docker mode is disabled.
         </div>
       </div>
       <div className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
-        ℹ️ Docker mode is disabled for app development. Apps run directly on your local machine for the best development experience.
+        ℹ️ Docker mode is disabled for app development. Apps run directly on
+        your local machine for the best development experience.
       </div>
     </div>
   );

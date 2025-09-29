@@ -40,7 +40,7 @@ export function CreateAppDialog({
   const [appName, setAppName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [appType, setAppType] = useState<"frontend" | "backend" | "fullstack">(
-    selectedBackendFramework ? "fullstack" : "frontend"
+    selectedBackendFramework ? "fullstack" : "frontend",
   );
   const { createApp } = useCreateApp();
   const { data: nameCheckResult } = useCheckName(appName);
@@ -62,7 +62,7 @@ export function CreateAppDialog({
         name: appName.trim(),
         selectedTemplateId: template?.id,
         selectedBackendFramework,
-        isFullStack: appType === "fullstack"
+        isFullStack: appType === "fullstack",
       });
       if (template && NEON_TEMPLATE_IDS.has(template.id)) {
         await neonTemplateHook({
@@ -100,8 +100,8 @@ export function CreateAppDialog({
             {template
               ? `Create a new app using the ${template.title} template.`
               : selectedBackendFramework
-              ? `Create a new app with the ${selectedBackendFramework} backend framework.`
-              : "Create a new app."}
+                ? `Create a new app with the ${selectedBackendFramework} backend framework.`
+                : "Create a new app."}
           </DialogDescription>
         </DialogHeader>
 
@@ -109,7 +109,12 @@ export function CreateAppDialog({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>App Type</Label>
-              <RadioGroup value={appType} onValueChange={(value: "frontend" | "backend" | "fullstack") => setAppType(value)}>
+              <RadioGroup
+                value={appType}
+                onValueChange={(value: "frontend" | "backend" | "fullstack") =>
+                  setAppType(value)
+                }
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="frontend" id="frontend" />
                   <Label htmlFor="frontend">Frontend (React)</Label>
@@ -120,7 +125,9 @@ export function CreateAppDialog({
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="fullstack" id="fullstack" />
-                  <Label htmlFor="fullstack">Full Stack (Frontend + Backend)</Label>
+                  <Label htmlFor="fullstack">
+                    Full Stack (Frontend + Backend)
+                  </Label>
                 </div>
               </RadioGroup>
             </div>

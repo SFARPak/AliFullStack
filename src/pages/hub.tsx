@@ -8,7 +8,10 @@ import { TemplateCard } from "@/components/TemplateCard";
 import { BackendFrameworkCard } from "@/components/BackendFrameworkCard";
 import { CreateAppDialog } from "@/components/CreateAppDialog";
 import { NeonConnector } from "@/components/NeonConnector";
-import { backendFrameworksData, type BackendFramework } from "@/shared/backendFrameworks";
+import {
+  backendFrameworksData,
+  type BackendFramework,
+} from "@/shared/backendFrameworks";
 
 const HubPage: React.FC = () => {
   const router = useRouter();

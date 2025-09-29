@@ -53,7 +53,8 @@ export function ProModeSelector() {
   };
 
   const hasProKey = settings ? hasAliFullStackProKey(settings) : false;
-  const proModeTogglable = hasProKey && Boolean(settings?.enableAliFullStackPro);
+  const proModeTogglable =
+    hasProKey && Boolean(settings?.enableAliFullStackPro);
 
   return (
     <Popover>

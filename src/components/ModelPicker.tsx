@@ -1,4 +1,7 @@
-import { isAliFullStackProEnabled, type LargeLanguageModel } from "@/lib/schemas";
+import {
+  isAliFullStackProEnabled,
+  type LargeLanguageModel,
+} from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -138,7 +141,8 @@ export function ModelPicker() {
   }
   const selectedModel = settings?.selectedModel;
   const isSmartAutoEnabled =
-    settings.enableProSmartFilesContextMode && isAliFullStackProEnabled(settings);
+    settings.enableProSmartFilesContextMode &&
+    isAliFullStackProEnabled(settings);
   const modelDisplayName = getModelDisplayName();
   // Split providers into primary and secondary groups (excluding auto)
   const providerEntries =
