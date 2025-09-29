@@ -3,8 +3,11 @@ import log from "electron-log";
 
 const logger = log.scope("runShellCommand");
 
-export function runShellCommand(command: string, cwd?: string): Promise<string | null> {
-  logger.log(`Running command: ${command}${cwd ? ` in ${cwd}` : ''}`);
+export function runShellCommand(
+  command: string,
+  cwd?: string,
+): Promise<string | null> {
+  logger.log(`Running command: ${command}${cwd ? ` in ${cwd}` : ""}`);
   return new Promise((resolve) => {
     let output = "";
     const process = spawn(command, [], {

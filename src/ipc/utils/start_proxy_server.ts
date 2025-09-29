@@ -10,9 +10,14 @@ import { addTerminalOutput } from "../handlers/terminal_handlers";
 const logger = log.scope("start_proxy_server");
 
 // Helper function to log to both electron-log and console
-function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
+function logToConsole(
+  message: string,
+  level: "info" | "warn" | "error" | "debug" = "info",
+) {
   logger[level](message);
-  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
+  console.log(
+    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
+  );
 }
 
 export async function startProxy(
@@ -44,7 +49,14 @@ export async function startProxy(
 
   if (electron && !process.env.NODE_ENV?.includes("development")) {
     // In production/built app, use the app's resource path
-    workerPath = path.resolve(__dirname, "..", "..", "..", "worker", "proxy_server.js");
+    workerPath = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "worker",
+      "proxy_server.js",
+    );
   } else {
     // In development, use the project root
     workerPath = path.resolve(process.cwd(), "worker", "proxy_server.js");
@@ -68,7 +80,7 @@ export async function startProxy(
       if (!m.startsWith("proxy-server-start url=")) {
         // Determine which terminal to route to based on terminalType
         let targetTerminals: ("frontend" | "backend")[] = [];
-        
+
         if (terminalType === "frontend") {
           targetTerminals = ["frontend"];
         } else if (terminalType === "backend") {

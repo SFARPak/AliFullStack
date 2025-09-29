@@ -60,7 +60,8 @@ export const localTemplatesData: Template[] = [
   {
     id: "3d-nextjs",
     title: "3D Landing Page Template",
-    description: "Modern 3D landing page using Next.js, React Three Fiber, Framer Motion, and Tailwind CSS.",
+    description:
+      "Modern 3D landing page using Next.js, React Three Fiber, Framer Motion, and Tailwind CSS.",
     imageUrl:
       "https://github.com/user-attachments/assets/96258e4f-abce-4910-a62a-a9dff77965f2",
     githubUrl: "https://github.com/SFARPak/3d-nextjs-template",
