@@ -158,7 +158,9 @@ describe("Bedrock Component", () => {
 			expect(inputField).toBeInTheDocument()
 
 			// Test with a valid URL
-			fireEvent.change(inputField, { target: { value: "https://bedrock.us-east-1.amazonaws.com" } })
+			fireEvent.change(inputField, {
+				target: { value: "https://bedrock.us-east-1.amazonaws.com" },
+			})
 
 			// Verify the configuration field was updated with the valid URL
 			expect(mockSetApiConfigurationField).toHaveBeenCalledWith(

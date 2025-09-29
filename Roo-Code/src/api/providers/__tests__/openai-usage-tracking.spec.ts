@@ -19,7 +19,11 @@ vitest.mock("openai", () => {
 								id: "test-completion",
 								choices: [
 									{
-										message: { role: "assistant", content: "Test response", refusal: null },
+										message: {
+											role: "assistant",
+											content: "Test response",
+											refusal: null,
+										},
 										finish_reason: "stop",
 										index: 0,
 									},
@@ -152,7 +156,11 @@ describe("OpenAiHandler with usage tracking fix", () => {
 					return {
 						id: "test-completion",
 						choices: [{ message: { role: "assistant", content: "Test response" } }],
-						usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+						usage: {
+							prompt_tokens: 10,
+							completion_tokens: 5,
+							total_tokens: 15,
+						},
 					}
 				}
 

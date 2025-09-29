@@ -51,7 +51,10 @@ export abstract class BaseTelemetryClient implements TelemetryClient {
 
 		// Merge provider properties with event-specific properties.
 		// Event properties take precedence in case of conflicts.
-		const mergedProperties = { ...providerProperties, ...(event.properties || {}) }
+		const mergedProperties = {
+			...providerProperties,
+			...(event.properties || {}),
+		}
 
 		// Filter out properties that shouldn't be captured by this client
 		return Object.fromEntries(Object.entries(mergedProperties).filter(([key]) => this.isPropertyCapturable(key)))

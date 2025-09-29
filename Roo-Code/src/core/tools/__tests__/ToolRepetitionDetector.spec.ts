@@ -234,12 +234,16 @@ describe("ToolRepetitionDetector", () => {
 			const detector = new ToolRepetitionDetector(2)
 
 			// First, call with tool-name-1 to set up the counter
-			const toolUse1 = createToolUse("tool-name-1", "tool-name-1", { param: "value" })
+			const toolUse1 = createToolUse("tool-name-1", "tool-name-1", {
+				param: "value",
+			})
 			detector.check(toolUse1)
 
 			// Create a tool that will serialize to the same JSON as toolUse1
 			// We need to mock the serializeToolUse method to return the same value
-			const toolUse2 = createToolUse("tool-name-2", "tool-name-2", { param: "value" })
+			const toolUse2 = createToolUse("tool-name-2", "tool-name-2", {
+				param: "value",
+			})
 
 			// Override the private method to force identical serialization
 			const originalSerialize = (detector as any).serializeToolUse
@@ -271,15 +275,27 @@ describe("ToolRepetitionDetector", () => {
 			const detector = new ToolRepetitionDetector(2)
 
 			// First call with parameters in one order
-			const toolUse1 = createToolUse("same-tool", "same-tool", { a: "1", b: "2", c: "3" })
+			const toolUse1 = createToolUse("same-tool", "same-tool", {
+				a: "1",
+				b: "2",
+				c: "3",
+			})
 			detector.check(toolUse1)
 
 			// Second call with same parameters but in different order
-			const toolUse2 = createToolUse("same-tool", "same-tool", { c: "3", a: "1", b: "2" })
+			const toolUse2 = createToolUse("same-tool", "same-tool", {
+				c: "3",
+				a: "1",
+				b: "2",
+			})
 			detector.check(toolUse2)
 
 			// Third call - should be blocked (limit is 2)
-			const toolUse3 = createToolUse("same-tool", "same-tool", { b: "2", c: "3", a: "1" })
+			const toolUse3 = createToolUse("same-tool", "same-tool", {
+				b: "2",
+				c: "3",
+				a: "1",
+			})
 			const result = detector.check(toolUse3)
 
 			// Since parameters are sorted alphabetically in the serialized JSON,
@@ -498,7 +514,9 @@ describe("ToolRepetitionDetector", () => {
 		it("should still apply repetition detection to non-browser tools", () => {
 			const detector = new ToolRepetitionDetector(2)
 
-			const readFileTool = createToolUse("read_file", "read_file", { path: "test.txt" })
+			const readFileTool = createToolUse("read_file", "read_file", {
+				path: "test.txt",
+			})
 
 			// First call allowed
 			expect(detector.check(readFileTool).allowExecution).toBe(true)
@@ -522,7 +540,9 @@ describe("ToolRepetitionDetector", () => {
 				partial: false,
 			}
 
-			const otherTool = createToolUse("execute_command", "execute_command", { command: "ls" })
+			const otherTool = createToolUse("execute_command", "execute_command", {
+				command: "ls",
+			})
 
 			// First execute_command
 			expect(detector.check(otherTool).allowExecution).toBe(true)

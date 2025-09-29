@@ -92,7 +92,9 @@ export const TitleBar = () => {
         >
           {displayText}
         </Button>
-        {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}
+        {isDyadPro && (
+          <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />
+        )}
 
         {/* Preview Header */}
         {location.pathname === "/chat" && (

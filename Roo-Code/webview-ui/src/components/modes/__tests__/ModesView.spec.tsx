@@ -127,7 +127,13 @@ describe("PromptsView", () => {
 		// Test with built-in mode (code)
 		const { unmount } = render(
 			<ExtensionStateContext.Provider
-				value={{ ...mockExtensionState, mode: "code", customModes: [customMode] } as any}>
+				value={
+					{
+						...mockExtensionState,
+						mode: "code",
+						customModes: [customMode],
+					} as any
+				}>
 				<ModesView onDone={vitest.fn()} />
 			</ExtensionStateContext.Provider>,
 		)
@@ -153,7 +159,13 @@ describe("PromptsView", () => {
 		// Test with custom mode
 		render(
 			<ExtensionStateContext.Provider
-				value={{ ...mockExtensionState, mode: "custom-mode", customModes: [customMode] } as any}>
+				value={
+					{
+						...mockExtensionState,
+						mode: "custom-mode",
+						customModes: [customMode],
+					} as any
+				}>
 				<ModesView onDone={vitest.fn()} />
 			</ExtensionStateContext.Provider>,
 		)
@@ -174,7 +186,13 @@ describe("PromptsView", () => {
 		// Test with built-in mode (code) - description section should be shown with reset button
 		const { unmount } = render(
 			<ExtensionStateContext.Provider
-				value={{ ...mockExtensionState, mode: "code", customModes: [customMode] } as any}>
+				value={
+					{
+						...mockExtensionState,
+						mode: "code",
+						customModes: [customMode],
+					} as any
+				}>
 				<ModesView onDone={vitest.fn()} />
 			</ExtensionStateContext.Provider>,
 		)
@@ -189,7 +207,13 @@ describe("PromptsView", () => {
 		// Test with custom mode - description section should be shown
 		render(
 			<ExtensionStateContext.Provider
-				value={{ ...mockExtensionState, mode: "custom-mode", customModes: [customMode] } as any}>
+				value={
+					{
+						...mockExtensionState,
+						mode: "custom-mode",
+						customModes: [customMode],
+					} as any
+				}>
 				<ModesView onDone={vitest.fn()} />
 			</ExtensionStateContext.Provider>,
 		)

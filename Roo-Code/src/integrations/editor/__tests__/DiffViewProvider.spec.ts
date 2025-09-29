@@ -143,7 +143,10 @@ describe("DiffViewProvider", () => {
 			edit: vi.fn().mockResolvedValue(true),
 			revealRange: vi.fn(),
 		}
-		;(diffViewProvider as any).activeLineController = { setActiveLine: vi.fn(), clear: vi.fn() }
+		;(diffViewProvider as any).activeLineController = {
+			setActiveLine: vi.fn(),
+			clear: vi.fn(),
+		}
 		;(diffViewProvider as any).fadedOverlayController = {
 			updateOverlayAfterLine: vi.fn(),
 			addLines: vi.fn(),
@@ -205,7 +208,11 @@ describe("DiffViewProvider", () => {
 			// Mock showTextDocument to track when it's called
 			vi.mocked(vscode.window.showTextDocument).mockImplementation(async (uri, options) => {
 				callOrder.push("showTextDocument")
-				expect(options).toEqual({ preview: false, viewColumn: vscode.ViewColumn.Active, preserveFocus: true })
+				expect(options).toEqual({
+					preview: false,
+					viewColumn: vscode.ViewColumn.Active,
+					preserveFocus: true,
+				})
 				return mockEditor as any
 			})
 
@@ -240,7 +247,11 @@ describe("DiffViewProvider", () => {
 			// Verify that showTextDocument was called with preview: false and preserveFocus: true
 			expect(vscode.window.showTextDocument).toHaveBeenCalledWith(
 				expect.objectContaining({ fsPath: `${mockCwd}/test.md` }),
-				{ preview: false, viewColumn: vscode.ViewColumn.Active, preserveFocus: true },
+				{
+					preview: false,
+					viewColumn: vscode.ViewColumn.Active,
+					preserveFocus: true,
+				},
 			)
 
 			// Verify that the diff command was executed
@@ -258,10 +269,14 @@ describe("DiffViewProvider", () => {
 			vi.mocked(vscode.window.showTextDocument).mockRejectedValue(new Error("Cannot open file"))
 
 			// Mock workspace.onDidOpenTextDocument
-			vi.mocked(vscode.workspace.onDidOpenTextDocument).mockReturnValue({ dispose: vi.fn() })
+			vi.mocked(vscode.workspace.onDidOpenTextDocument).mockReturnValue({
+				dispose: vi.fn(),
+			})
 
 			// Mock window.onDidChangeVisibleTextEditors
-			vi.mocked(vscode.window.onDidChangeVisibleTextEditors).mockReturnValue({ dispose: vi.fn() })
+			vi.mocked(vscode.window.onDidChangeVisibleTextEditors).mockReturnValue({
+				dispose: vi.fn(),
+			})
 
 			// Set up for file
 			;(diffViewProvider as any).editType = "modify"

@@ -532,7 +532,10 @@ export const extensionBridgeEventSchema = z.discriminatedUnion("type", [
 	z.object({
 		type: z.literal(ExtensionBridgeEventName.ProviderProfileChanged),
 		instance: extensionInstanceSchema,
-		providerProfile: z.object({ name: z.string(), provider: z.string().optional() }),
+		providerProfile: z.object({
+			name: z.string(),
+			provider: z.string().optional(),
+		}),
 		timestamp: z.number(),
 	}),
 

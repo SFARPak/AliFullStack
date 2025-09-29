@@ -83,7 +83,10 @@ export class CerebrasHandler extends BaseProvider implements SingleCompletionHan
 	private providerModels: typeof cerebrasModels
 	private defaultProviderModelId: CerebrasModelId
 	private options: ApiHandlerOptions
-	private lastUsage: { inputTokens: number; outputTokens: number } = { inputTokens: 0, outputTokens: 0 }
+	private lastUsage: { inputTokens: number; outputTokens: number } = {
+		inputTokens: 0,
+		outputTokens: 0,
+	}
 
 	constructor(options: ApiHandlerOptions) {
 		super()
@@ -97,7 +100,10 @@ export class CerebrasHandler extends BaseProvider implements SingleCompletionHan
 		}
 	}
 
-	getModel(): { id: CerebrasModelId; info: (typeof cerebrasModels)[CerebrasModelId] } {
+	getModel(): {
+		id: CerebrasModelId
+		info: (typeof cerebrasModels)[CerebrasModelId]
+	} {
 		const originalModelId = (this.options.apiModelId as CerebrasModelId) || this.defaultProviderModelId
 
 		// Route both qwen coder models to the same actual model ID for API calls
@@ -175,10 +181,17 @@ export class CerebrasHandler extends BaseProvider implements SingleCompletionHan
 				} else if (response.status === 429) {
 					throw new Error(t("common:errors.cerebras.rateLimitExceeded"))
 				} else if (response.status >= 500) {
-					throw new Error(t("common:errors.cerebras.serverError", { status: response.status }))
+					throw new Error(
+						t("common:errors.cerebras.serverError", {
+							status: response.status,
+						}),
+					)
 				} else {
 					throw new Error(
-						t("common:errors.cerebras.genericError", { status: response.status, message: errorMessage }),
+						t("common:errors.cerebras.genericError", {
+							status: response.status,
+							message: errorMessage,
+						}),
 					)
 				}
 			}
@@ -309,10 +322,17 @@ export class CerebrasHandler extends BaseProvider implements SingleCompletionHan
 				} else if (response.status === 429) {
 					throw new Error(t("common:errors.cerebras.rateLimitExceeded"))
 				} else if (response.status >= 500) {
-					throw new Error(t("common:errors.cerebras.serverError", { status: response.status }))
+					throw new Error(
+						t("common:errors.cerebras.serverError", {
+							status: response.status,
+						}),
+					)
 				} else {
 					throw new Error(
-						t("common:errors.cerebras.genericError", { status: response.status, message: errorText }),
+						t("common:errors.cerebras.genericError", {
+							status: response.status,
+							message: errorText,
+						}),
 					)
 				}
 			}

@@ -12,7 +12,11 @@ vi.mock("openai", () => {
 								id: "test-completion",
 								choices: [
 									{
-										message: { role: "assistant", content: "Test response", refusal: null },
+										message: {
+											role: "assistant",
+											content: "Test response",
+											refusal: null,
+										},
 										finish_reason: "stop",
 										index: 0,
 									},

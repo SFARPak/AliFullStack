@@ -63,7 +63,10 @@ describe("AwsBedrockHandler - Extended Thinking", () => {
 					}
 					yield {
 						contentBlockDelta: {
-							delta: { type: "thinking_delta", thinking: " about this problem." },
+							delta: {
+								type: "thinking_delta",
+								thinking: " about this problem.",
+							},
 						},
 					}
 					yield {
@@ -245,7 +248,10 @@ describe("AwsBedrockHandler - Extended Thinking", () => {
 					}
 					yield {
 						contentBlockDelta: {
-							delta: { type: "thinking_delta", thinking: " about this problem." },
+							delta: {
+								type: "thinking_delta",
+								thinking: " about this problem.",
+							},
 						},
 					}
 					yield { metadata: { usage: { inputTokens: 100, outputTokens: 50 } } }

@@ -88,7 +88,9 @@ describe("MessageEnhancer", () => {
 			})
 
 			expect(result.success).toBe(true)
-			expect(mockProviderSettingsManager.getProfile).toHaveBeenCalledWith({ id: "config2" })
+			expect(mockProviderSettingsManager.getProfile).toHaveBeenCalledWith({
+				id: "config2",
+			})
 
 			// Verify the enhancement config was used instead of default
 			const expectedConfig = {
@@ -102,7 +104,12 @@ describe("MessageEnhancer", () => {
 		it("should include task history when enabled", async () => {
 			const mockClineMessages: ClineMessage[] = [
 				{ type: "ask", text: "Create a React component", ts: 1000 },
-				{ type: "say", say: "text", text: "I'll create a React component for you", ts: 2000 },
+				{
+					type: "say",
+					say: "text",
+					text: "I'll create a React component for you",
+					ts: 2000,
+				},
 				{ type: "ask", text: "Add props to the component", ts: 3000 },
 				{ type: "say", say: "reasoning", text: "Using tool", ts: 4000 }, // Should be filtered out
 			]

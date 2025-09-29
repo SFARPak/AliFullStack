@@ -193,7 +193,11 @@ export function MermaidButton({ containerRef, code, isLoading, svgToPng, childre
 								onMouseUp={() => setIsDragging(false)}
 								onMouseLeave={() => setIsDragging(false)}>
 								{containerRef.current && containerRef.current.innerHTML && (
-									<div dangerouslySetInnerHTML={{ __html: containerRef.current.innerHTML }} />
+									<div
+										dangerouslySetInnerHTML={{
+											__html: containerRef.current.innerHTML,
+										}}
+									/>
 								)}
 							</div>
 							<div className="absolute bottom-4 left-4 bg-vscode-editor-background border border-vscode-editorGroup-border rounded px-2 py-1 text-xs text-vscode-descriptionForeground pointer-events-none opacity-80">
@@ -205,7 +209,11 @@ export function MermaidButton({ containerRef, code, isLoading, svgToPng, childre
 							className="w-full min-h-[200px] bg-vscode-editor-background text-vscode-editor-foreground border border-vscode-editorGroup-border rounded-[3px] p-2 font-mono resize-y outline-none"
 							readOnly
 							value={code}
-							style={{ height: "100%", minHeight: "unset", fontSize: "var(--vscode-editor-font-size)" }}
+							style={{
+								height: "100%",
+								minHeight: "unset",
+								fontSize: "var(--vscode-editor-font-size)",
+							}}
 						/>
 					)}
 				</div>

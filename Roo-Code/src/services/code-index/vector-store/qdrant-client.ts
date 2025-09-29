@@ -209,7 +209,10 @@ export class QdrantVectorStore implements IVectorStore {
 
 			// Otherwise, provide a more user-friendly error message that includes the original error
 			throw new Error(
-				t("embeddings:vectorStore.qdrantConnectionFailed", { qdrantUrl: this.qdrantUrl, errorMessage }),
+				t("embeddings:vectorStore.qdrantConnectionFailed", {
+					qdrantUrl: this.qdrantUrl,
+					errorMessage,
+				}),
 			)
 		}
 	}

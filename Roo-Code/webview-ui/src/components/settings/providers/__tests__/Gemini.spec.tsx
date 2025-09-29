@@ -57,7 +57,10 @@ describe("Gemini", () => {
 		})
 
 		it("should render URL context checkbox checked when enableUrlContext is true", () => {
-			const apiConfiguration = { ...defaultApiConfiguration, enableUrlContext: true }
+			const apiConfiguration = {
+				...defaultApiConfiguration,
+				enableUrlContext: true,
+			}
 			render(
 				<Gemini apiConfiguration={apiConfiguration} setApiConfigurationField={mockSetApiConfigurationField} />,
 			)
@@ -100,7 +103,10 @@ describe("Gemini", () => {
 		})
 
 		it("should render grounding search checkbox checked when enableGrounding is true", () => {
-			const apiConfiguration = { ...defaultApiConfiguration, enableGrounding: true }
+			const apiConfiguration = {
+				...defaultApiConfiguration,
+				enableGrounding: true,
+			}
 			render(
 				<Gemini apiConfiguration={apiConfiguration} setApiConfigurationField={mockSetApiConfigurationField} />,
 			)

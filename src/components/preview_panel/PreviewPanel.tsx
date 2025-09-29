@@ -85,7 +85,6 @@ export function PreviewPanel() {
     settings?.fullstackDevelopmentMode,
   ]);
 
-
   useEffect(() => {
     const previousAppId = runningAppIdRef.current;
 

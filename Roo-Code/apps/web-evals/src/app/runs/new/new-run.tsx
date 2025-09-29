@@ -66,7 +66,10 @@ export function NewRun() {
 	const modelSearchValueRef = useRef("")
 
 	const models = useOpenRouterModels()
-	const exercises = useQuery({ queryKey: ["getExercises"], queryFn: () => getExercises() })
+	const exercises = useQuery({
+		queryKey: ["getExercises"],
+		queryFn: () => getExercises(),
+	})
 
 	const form = useForm<CreateRun>({
 		resolver: zodResolver(createRunSchema),
@@ -94,7 +97,10 @@ export function NewRun() {
 		async (values: CreateRun) => {
 			try {
 				if (mode === "openrouter") {
-					values.settings = { ...(values.settings || {}), openRouterModelId: model }
+					values.settings = {
+						...(values.settings || {}),
+						openRouterModelId: model,
+					}
 				}
 
 				const { id } = await createRun(values)
@@ -159,7 +165,11 @@ export function NewRun() {
 				const providerSettings = providerProfiles.apiConfigs[providerProfiles.currentApiConfigName] ?? {}
 
 				setValue("model", getModelId(providerSettings) ?? "")
-				setValue("settings", { ...EVALS_SETTINGS, ...providerSettings, ...globalSettings })
+				setValue("settings", {
+					...EVALS_SETTINGS,
+					...providerSettings,
+					...globalSettings,
+				})
 				setMode("settings")
 
 				event.target.value = ""
@@ -285,7 +295,12 @@ export function NewRun() {
 								</Tabs>
 								{suite === "partial" && (
 									<MultiSelect
-										options={exercises.data?.map((path) => ({ value: path, label: path })) || []}
+										options={
+											exercises.data?.map((path) => ({
+												value: path,
+												label: path,
+											})) || []
+										}
 										onValueChange={(value) => setValue("exercises", value)}
 										placeholder="Select"
 										variant="inverted"

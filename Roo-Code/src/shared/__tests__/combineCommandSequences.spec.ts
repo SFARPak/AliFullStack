@@ -9,8 +9,18 @@ describe("combineCommandSequences", () => {
 		it("should combine command and command_output messages", () => {
 			const messages: ClineMessage[] = [
 				{ type: "ask", ask: "command", text: "ls", ts: 1625097600000 },
-				{ type: "ask", ask: "command_output", text: "file1.txt", ts: 1625097601000 },
-				{ type: "ask", ask: "command_output", text: "file2.txt", ts: 1625097602000 },
+				{
+					type: "ask",
+					ask: "command_output",
+					text: "file1.txt",
+					ts: 1625097601000,
+				},
+				{
+					type: "ask",
+					ask: "command_output",
+					text: "file2.txt",
+					ts: 1625097602000,
+				},
 			]
 
 			const result = combineCommandSequences(messages)
@@ -38,7 +48,12 @@ describe("combineCommandSequences", () => {
 					}),
 					ts: 1625097600000,
 				},
-				{ type: "say", say: "mcp_server_response", text: "Response data", ts: 1625097601000 },
+				{
+					type: "say",
+					say: "mcp_server_response",
+					text: "Response data",
+					ts: 1625097601000,
+				},
 			]
 
 			const result = combineCommandSequences(messages)
@@ -69,8 +84,18 @@ describe("combineCommandSequences", () => {
 					}),
 					ts: 1625097600000,
 				},
-				{ type: "say", say: "mcp_server_response", text: "First response", ts: 1625097601000 },
-				{ type: "say", say: "mcp_server_response", text: "Second response", ts: 1625097602000 },
+				{
+					type: "say",
+					say: "mcp_server_response",
+					text: "First response",
+					ts: 1625097601000,
+				},
+				{
+					type: "say",
+					say: "mcp_server_response",
+					text: "Second response",
+					ts: 1625097602000,
+				},
 			]
 
 			const result = combineCommandSequences(messages)
@@ -101,7 +126,12 @@ describe("combineCommandSequences", () => {
 					}),
 					ts: 1625097600000,
 				},
-				{ type: "say", say: "mcp_server_response", text: "Response 1", ts: 1625097601000 },
+				{
+					type: "say",
+					say: "mcp_server_response",
+					text: "Response 1",
+					ts: 1625097601000,
+				},
 				{
 					type: "ask",
 					ask: "use_mcp_server",
@@ -112,7 +142,12 @@ describe("combineCommandSequences", () => {
 					}),
 					ts: 1625097602000,
 				},
-				{ type: "say", say: "mcp_server_response", text: "Response 2", ts: 1625097603000 },
+				{
+					type: "say",
+					say: "mcp_server_response",
+					text: "Response 2",
+					ts: 1625097603000,
+				},
 			]
 
 			const result = combineCommandSequences(messages)
@@ -147,7 +182,12 @@ describe("combineCommandSequences", () => {
 		it("should handle both command and MCP server sequences", () => {
 			const messages: ClineMessage[] = [
 				{ type: "ask", ask: "command", text: "ls", ts: 1625097600000 },
-				{ type: "ask", ask: "command_output", text: "file1.txt", ts: 1625097601000 },
+				{
+					type: "ask",
+					ask: "command_output",
+					text: "file1.txt",
+					ts: 1625097601000,
+				},
 				{
 					type: "ask",
 					ask: "use_mcp_server",
@@ -158,7 +198,12 @@ describe("combineCommandSequences", () => {
 					}),
 					ts: 1625097602000,
 				},
-				{ type: "say", say: "mcp_server_response", text: "MCP response", ts: 1625097603000 },
+				{
+					type: "say",
+					say: "mcp_server_response",
+					text: "MCP response",
+					ts: 1625097603000,
+				},
 			]
 
 			const result = combineCommandSequences(messages)

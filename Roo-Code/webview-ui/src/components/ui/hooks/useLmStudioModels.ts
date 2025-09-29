@@ -36,4 +36,7 @@ const getLmStudioModels = async () =>
 	})
 
 export const useLmStudioModels = (modelId?: string) =>
-	useQuery({ queryKey: ["lmStudioModels"], queryFn: () => (modelId ? getLmStudioModels() : {}) })
+	useQuery({
+		queryKey: ["lmStudioModels"],
+		queryFn: () => (modelId ? getLmStudioModels() : {}),
+	})

@@ -57,7 +57,10 @@ vi.mock("execa", () => ({
 }))
 
 // Create a mock stream that uses real command output with realistic chunking
-function createRealCommandStream(command: string): { stream: AsyncIterable<string>; exitCode: number } {
+function createRealCommandStream(command: string): {
+	stream: AsyncIterable<string>
+	exitCode: number
+} {
 	let realOutput: string
 	let exitCode: number
 
@@ -138,7 +141,11 @@ function createRealCommandStream(command: string): { stream: AsyncIterable<strin
 async function testTerminalCommand(
 	command: string,
 	expectedOutput: string,
-): Promise<{ executionTimeUs: number; capturedOutput: string; exitDetails: ExitCodeDetails }> {
+): Promise<{
+	executionTimeUs: number
+	capturedOutput: string
+	exitDetails: ExitCodeDetails
+}> {
 	let startTime: bigint = BigInt(0)
 	let endTime: bigint = BigInt(0)
 	let timeRecorded = false

@@ -188,7 +188,11 @@ export const ChatRowContent = ({
 
 	// Handle image selection for editing
 	const handleSelectImages = useCallback(() => {
-		vscode.postMessage({ type: "selectImages", context: "edit", messageTs: message.ts })
+		vscode.postMessage({
+			type: "selectImages",
+			context: "edit",
+			messageTs: message.ts,
+		})
 	}, [message.ts])
 
 	const [cost, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
@@ -251,8 +255,12 @@ export const ChatRowContent = ({
 					),
 					<span style={{ color: normalColor, fontWeight: "bold" }}>
 						{mcpServerUse.type === "use_mcp_tool"
-							? t("chat:mcp.wantsToUseTool", { serverName: mcpServerUse.serverName })
-							: t("chat:mcp.wantsToAccessResource", { serverName: mcpServerUse.serverName })}
+							? t("chat:mcp.wantsToUseTool", {
+									serverName: mcpServerUse.serverName,
+								})
+							: t("chat:mcp.wantsToAccessResource", {
+									serverName: mcpServerUse.serverName,
+								})}
 					</span>,
 				]
 			case "completion_result":
@@ -388,7 +396,10 @@ export const ChatRowContent = ({
 							{tool.isProtected ? (
 								<span
 									className="codicon codicon-lock"
-									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+									style={{
+										color: "var(--vscode-editorWarning-foreground)",
+										marginBottom: "-1.5px",
+									}}
 								/>
 							) : (
 								toolIcon(tool.tool === "appliedDiff" ? "diff" : "edit")
@@ -421,7 +432,10 @@ export const ChatRowContent = ({
 							{tool.isProtected ? (
 								<span
 									className="codicon codicon-lock"
-									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+									style={{
+										color: "var(--vscode-editorWarning-foreground)",
+										marginBottom: "-1.5px",
+									}}
 								/>
 							) : (
 								toolIcon("insert")
@@ -458,7 +472,10 @@ export const ChatRowContent = ({
 							{tool.isProtected ? (
 								<span
 									className="codicon codicon-lock"
-									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+									style={{
+										color: "var(--vscode-editorWarning-foreground)",
+										marginBottom: "-1.5px",
+									}}
 								/>
 							) : (
 								toolIcon("replace")
@@ -514,7 +531,10 @@ export const ChatRowContent = ({
 						content={(tool as any).content}
 						onChange={(updatedTodos) => {
 							if (typeof vscode !== "undefined" && vscode?.postMessage) {
-								vscode.postMessage({ type: "updateTodoList", payload: { todos: updatedTodos } })
+								vscode.postMessage({
+									type: "updateTodoList",
+									payload: { todos: updatedTodos },
+								})
 							}
 						}}
 						editable={editable && isLast}
@@ -528,7 +548,10 @@ export const ChatRowContent = ({
 							{tool.isProtected ? (
 								<span
 									className="codicon codicon-lock"
-									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+									style={{
+										color: "var(--vscode-editorWarning-foreground)",
+										marginBottom: "-1.5px",
+									}}
 								/>
 							) : (
 								toolIcon("new-file")
@@ -547,7 +570,12 @@ export const ChatRowContent = ({
 								isLoading={message.partial}
 								isExpanded={isExpanded}
 								onToggleExpand={handleToggleExpand}
-								onJumpToFile={() => vscode.postMessage({ type: "openFile", text: "./" + tool.path })}
+								onJumpToFile={() =>
+									vscode.postMessage({
+										type: "openFile",
+										text: "./" + tool.path,
+									})
+								}
 							/>
 						</div>
 					</>
@@ -722,7 +750,9 @@ export const ChatRowContent = ({
 												? "chat:directoryOperations.wantsToSearchOutsideWorkspace"
 												: "chat:directoryOperations.wantsToSearch"
 										}
-										components={{ code: <code className="font-medium">{tool.regex}</code> }}
+										components={{
+											code: <code className="font-medium">{tool.regex}</code>,
+										}}
 										values={{ regex: tool.regex }}
 									/>
 								) : (
@@ -732,7 +762,9 @@ export const ChatRowContent = ({
 												? "chat:directoryOperations.didSearchOutsideWorkspace"
 												: "chat:directoryOperations.didSearch"
 										}
-										components={{ code: <code className="font-medium">{tool.regex}</code> }}
+										components={{
+											code: <code className="font-medium">{tool.regex}</code>,
+										}}
 										values={{ regex: tool.regex }}
 									/>
 								)}
@@ -760,13 +792,17 @@ export const ChatRowContent = ({
 										{tool.reason ? (
 											<Trans
 												i18nKey="chat:modes.wantsToSwitchWithReason"
-												components={{ code: <code className="font-medium">{tool.mode}</code> }}
+												components={{
+													code: <code className="font-medium">{tool.mode}</code>,
+												}}
 												values={{ mode: tool.mode, reason: tool.reason }}
 											/>
 										) : (
 											<Trans
 												i18nKey="chat:modes.wantsToSwitch"
-												components={{ code: <code className="font-medium">{tool.mode}</code> }}
+												components={{
+													code: <code className="font-medium">{tool.mode}</code>,
+												}}
 												values={{ mode: tool.mode }}
 											/>
 										)}
@@ -776,13 +812,17 @@ export const ChatRowContent = ({
 										{tool.reason ? (
 											<Trans
 												i18nKey="chat:modes.didSwitchWithReason"
-												components={{ code: <code className="font-medium">{tool.mode}</code> }}
+												components={{
+													code: <code className="font-medium">{tool.mode}</code>,
+												}}
 												values={{ mode: tool.mode, reason: tool.reason }}
 											/>
 										) : (
 											<Trans
 												i18nKey="chat:modes.didSwitch"
-												components={{ code: <code className="font-medium">{tool.mode}</code> }}
+												components={{
+													code: <code className="font-medium">{tool.mode}</code>,
+												}}
 												values={{ mode: tool.mode }}
 											/>
 										)}
@@ -829,7 +869,11 @@ export const ChatRowContent = ({
 								<span className="codicon codicon-arrow-right"></span>
 								{t("chat:subtasks.newTaskContent")}
 							</div>
-							<div style={{ padding: "12px 16px", backgroundColor: "var(--vscode-editor-background)" }}>
+							<div
+								style={{
+									padding: "12px 16px",
+									backgroundColor: "var(--vscode-editor-background)",
+								}}>
 								<MarkdownBlock markdown={tool.content} />
 							</div>
 						</div>
@@ -866,7 +910,11 @@ export const ChatRowContent = ({
 								<span className="codicon codicon-check"></span>
 								{t("chat:subtasks.completionContent")}
 							</div>
-							<div style={{ padding: "12px 16px", backgroundColor: "var(--vscode-editor-background)" }}>
+							<div
+								style={{
+									padding: "12px 16px",
+									backgroundColor: "var(--vscode-editor-background)",
+								}}>
 								<MarkdownBlock markdown={t("chat:subtasks.completionInstructions")} />
 							</div>
 						</div>
@@ -903,11 +951,18 @@ export const ChatRowContent = ({
 									padding: "10px 12px",
 								}}>
 								<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-									<span style={{ fontWeight: "500", fontSize: "var(--vscode-font-size)" }}>
+									<span
+										style={{
+											fontWeight: "500",
+											fontSize: "var(--vscode-font-size)",
+										}}>
 										/{slashCommandInfo.command}
 									</span>
 									{slashCommandInfo.source && (
-										<VSCodeBadge style={{ fontSize: "calc(var(--vscode-font-size) - 2px)" }}>
+										<VSCodeBadge
+											style={{
+												fontSize: "calc(var(--vscode-font-size) - 2px)",
+											}}>
 											{slashCommandInfo.source}
 										</VSCodeBadge>
 									)}
@@ -927,7 +982,10 @@ export const ChatRowContent = ({
 									{slashCommandInfo.args && (
 										<div>
 											<span style={{ fontWeight: "500" }}>Arguments: </span>
-											<span style={{ color: "var(--vscode-descriptionForeground)" }}>
+											<span
+												style={{
+													color: "var(--vscode-descriptionForeground)",
+												}}>
 												{slashCommandInfo.args}
 											</span>
 										</div>
@@ -950,7 +1008,10 @@ export const ChatRowContent = ({
 							{tool.isProtected ? (
 								<span
 									className="codicon codicon-lock"
-									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+									style={{
+										color: "var(--vscode-editorWarning-foreground)",
+										marginBottom: "-1.5px",
+									}}
 								/>
 							) : (
 								toolIcon("file-media")
@@ -1068,13 +1129,21 @@ export const ChatRowContent = ({
 									msUserSelect: "none",
 								}}
 								onClick={handleToggleExpand}>
-								<div style={{ display: "flex", alignItems: "center", gap: "10px", flexGrow: 1 }}>
+								<div
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: "10px",
+										flexGrow: 1,
+									}}>
 									{icon}
 									{title}
 								</div>
 								<div
 									className="text-xs text-vscode-dropdown-foreground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
-									style={{ opacity: cost !== null && cost !== undefined && cost > 0 ? 1 : 0 }}>
+									style={{
+										opacity: cost !== null && cost !== undefined && cost > 0 ? 1 : 0,
+									}}>
 									${Number(cost || 0)?.toFixed(4)}
 								</div>
 							</div>
@@ -1091,7 +1160,10 @@ export const ChatRowContent = ({
 												{t("chat:powershell.issues")}{" "}
 												<a
 													href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
-													style={{ color: "inherit", textDecoration: "underline" }}>
+													style={{
+														color: "inherit",
+														textDecoration: "underline",
+													}}>
 													troubleshooting guide
 												</a>
 												.
@@ -1178,7 +1250,9 @@ export const ChatRowContent = ({
 										<div className="flex gap-2 pr-1">
 											<div
 												className="cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-												style={{ visibility: isStreaming ? "hidden" : "visible" }}
+												style={{
+													visibility: isStreaming ? "hidden" : "visible",
+												}}
 												onClick={(e) => {
 													e.stopPropagation()
 													handleEditClick()
@@ -1187,10 +1261,15 @@ export const ChatRowContent = ({
 											</div>
 											<div
 												className="cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-												style={{ visibility: isStreaming ? "hidden" : "visible" }}
+												style={{
+													visibility: isStreaming ? "hidden" : "visible",
+												}}
 												onClick={(e) => {
 													e.stopPropagation()
-													vscode.postMessage({ type: "deleteMessage", value: message.ts })
+													vscode.postMessage({
+														type: "deleteMessage",
+														value: message.ts,
+													})
 												}}>
 												<Trash2 className="w-4" aria-label="Delete message icon" />
 											</div>
@@ -1343,9 +1422,16 @@ export const ChatRowContent = ({
 													</div>
 												)}
 												{slashCommandInfo.source && (
-													<div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+													<div
+														style={{
+															display: "flex",
+															alignItems: "center",
+															gap: "4px",
+														}}>
 														<VSCodeBadge
-															style={{ fontSize: "calc(var(--vscode-font-size) - 2px)" }}>
+															style={{
+																fontSize: "calc(var(--vscode-font-size) - 2px)",
+															}}>
 															{slashCommandInfo.source}
 														</VSCodeBadge>
 													</div>
@@ -1361,7 +1447,10 @@ export const ChatRowContent = ({
 					}
 				case "image":
 					// Parse the JSON to get imageUri and imagePath
-					const imageInfo = safeJsonParse<{ imageUri: string; imagePath: string }>(message.text || "{}")
+					const imageInfo = safeJsonParse<{
+						imageUri: string
+						imagePath: string
+					}>(message.text || "{}")
 					if (!imageInfo) {
 						return null
 					}
@@ -1465,7 +1554,11 @@ export const ChatRowContent = ({
 									{icon}
 									{title}
 								</div>
-								<div style={{ color: "var(--vscode-charts-green)", paddingTop: 10 }}>
+								<div
+									style={{
+										color: "var(--vscode-charts-green)",
+										paddingTop: 10,
+									}}>
 									<Markdown markdown={message.text} partial={message.partial} />
 								</div>
 							</div>

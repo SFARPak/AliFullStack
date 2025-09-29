@@ -43,7 +43,12 @@ import { createLoggedHandler } from "./safe_handle";
 import { getLanguageModelProviders } from "../shared/language_model_helpers";
 import { startProxy } from "../utils/start_proxy_server";
 import { Worker } from "worker_threads";
-import { createFromTemplate, setupBackendFramework, getStartCommandForFramework, runCommandInDirectory } from "./createFromTemplate";
+import {
+  createFromTemplate,
+  setupBackendFramework,
+  getStartCommandForFramework,
+  runCommandInDirectory,
+} from "./createFromTemplate";
 import { gitCommit } from "../utils/git_utils";
 import { safeSend } from "../utils/safe_sender";
 import { normalizePath } from "../../../shared/normalizePath";
@@ -81,9 +86,14 @@ const logger = log.scope("app_handlers");
 const handle = createLoggedHandler(logger);
 
 // Helper function to log to both electron-log and console
-function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
+function logToConsole(
+  message: string,
+  level: "info" | "warn" | "error" | "debug" = "info",
+) {
   logger[level](message);
-  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
+  console.log(
+    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
+  );
 }
 
 let proxyWorker: Worker | null = null;
@@ -98,10 +108,10 @@ fixPath();
 async function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
     const server = net.createServer();
-    server.listen(port, '127.0.0.1', () => {
+    server.listen(port, "127.0.0.1", () => {
       server.close(() => resolve(true));
     });
-    server.on('error', () => resolve(false));
+    server.on("error", () => resolve(false));
   });
 }
 
@@ -110,7 +120,8 @@ async function isPortAvailable(port: number): Promise<boolean> {
  */
 async function findAvailablePort(startPort: number): Promise<number> {
   let port = startPort;
-  while (port < startPort + 100) { // Try up to 100 ports
+  while (port < startPort + 100) {
+    // Try up to 100 ports
     if (await isPortAvailable(port)) {
       return port;
     }
@@ -122,15 +133,19 @@ async function findAvailablePort(startPort: number): Promise<number> {
 /**
  * Update or add an environment variable in .env file content
  */
-function updateEnvVariable(envContent: string, key: string, value: string): string {
-  const lines = envContent.split('\n');
+function updateEnvVariable(
+  envContent: string,
+  key: string,
+  value: string,
+): string {
+  const lines = envContent.split("\n");
   const updatedLines: string[] = [];
   let keyFound = false;
 
   for (const line of lines) {
     const trimmedLine = line.trim();
     // Skip empty lines and comments
-    if (!trimmedLine || trimmedLine.startsWith('#')) {
+    if (!trimmedLine || trimmedLine.startsWith("#")) {
       updatedLines.push(line);
       continue;
     }
@@ -149,40 +164,51 @@ function updateEnvVariable(envContent: string, key: string, value: string): stri
     updatedLines.push(`${key}=${value}`);
   }
 
-  return updatedLines.join('\n');
+  return updatedLines.join("\n");
 }
 
 async function detectPythonFramework(backendPath: string): Promise<string> {
   // Check for common Python files
-  const pythonFiles = ['main.py', 'app.py', 'server.py', 'application.py'];
-  let detectedFramework = 'python'; // default
+  const pythonFiles = ["main.py", "app.py", "server.py", "application.py"];
+  let detectedFramework = "python"; // default
 
   for (const file of pythonFiles) {
     const filePath = path.join(backendPath, file);
     if (fs.existsSync(filePath)) {
       try {
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const content = fs.readFileSync(filePath, "utf-8");
 
         // Check for FastAPI imports
-        if (content.includes('from fastapi import') || content.includes('import fastapi')) {
-          return 'fastapi';
+        if (
+          content.includes("from fastapi import") ||
+          content.includes("import fastapi")
+        ) {
+          return "fastapi";
         }
 
         // Check for Flask imports
-        if (content.includes('from flask import') || content.includes('import flask')) {
-          return 'flask';
+        if (
+          content.includes("from flask import") ||
+          content.includes("import flask")
+        ) {
+          return "flask";
         }
 
         // Check for Django imports
-        if (content.includes('from django') || content.includes('import django')) {
-          return 'django';
+        if (
+          content.includes("from django") ||
+          content.includes("import django")
+        ) {
+          return "django";
         }
 
         // Check for other frameworks
-        if (content.includes('from sanic import') || content.includes('import sanic')) {
-          return 'python'; // generic Python server
+        if (
+          content.includes("from sanic import") ||
+          content.includes("import sanic")
+        ) {
+          return "python"; // generic Python server
         }
-
       } catch (error) {
         logger.warn(`Could not read ${file} for framework detection:`, error);
       }
@@ -308,33 +334,50 @@ python app.py
 `;
 
     try {
-      await fsPromises.writeFile(path.join(backendPath, 'requirements.txt'), requirementsTxt, 'utf-8');
-      await fsPromises.writeFile(path.join(backendPath, 'app.py'), appPy, 'utf-8');
-      await fsPromises.writeFile(path.join(backendPath, 'start.sh'), startSh, 'utf-8');
+      await fsPromises.writeFile(
+        path.join(backendPath, "requirements.txt"),
+        requirementsTxt,
+        "utf-8",
+      );
+      await fsPromises.writeFile(
+        path.join(backendPath, "app.py"),
+        appPy,
+        "utf-8",
+      );
+      await fsPromises.writeFile(
+        path.join(backendPath, "start.sh"),
+        startSh,
+        "utf-8",
+      );
 
       // Make start.sh executable
-      await fsPromises.chmod(path.join(backendPath, 'start.sh'), 0o755);
+      await fsPromises.chmod(path.join(backendPath, "start.sh"), 0o755);
 
-      logger.info(`Created basic Flask backend structure with database in ${backendPath}`);
+      logger.info(
+        `Created basic Flask backend structure with database in ${backendPath}`,
+      );
     } catch (error) {
-      logger.error(`Failed to create backend structure in ${backendPath}:`, error);
+      logger.error(
+        `Failed to create backend structure in ${backendPath}:`,
+        error,
+      );
       throw error;
     }
   } else {
     // Backend directory exists, but ensure database is initialized for existing backends
     // This handles the case where backend was created during app creation but database needs to be ensured
-    const hasAppPy = backendFiles.includes('app.py');
-    const hasRequirements = backendFiles.includes('requirements.txt');
+    const hasAppPy = backendFiles.includes("app.py");
+    const hasRequirements = backendFiles.includes("requirements.txt");
 
     if (hasAppPy && hasRequirements) {
       // Check if this is a Python backend that needs database initialization
       const framework = await detectPythonFramework(backendPath);
-      if (framework === 'flask') {
+      if (framework === "flask") {
         // Ensure Flask database is initialized
         try {
           const initScript = `
 import os
-os.chdir('${backendPath.replace(/\\/g, '\\\\')}')
+os.chdir('${backendPath.replace(/\\/g, "\\\\")}')
 
 from models import db
 from app import app
@@ -344,15 +387,22 @@ with app.app_context():
     db.create_all()
     print("Flask database tables verified/created successfully")
           `;
-          await fsPromises.writeFile(path.join(backendPath, 'init_db.py'), initScript);
+          await fsPromises.writeFile(
+            path.join(backendPath, "init_db.py"),
+            initScript,
+          );
 
           // Run the initialization script
           await runCommandInDirectory(backendPath, "python init_db.py");
 
           // Clean up the temporary script
-          await fsPromises.unlink(path.join(backendPath, 'init_db.py')).catch(() => {});
+          await fsPromises
+            .unlink(path.join(backendPath, "init_db.py"))
+            .catch(() => {});
 
-          logger.info(`Ensured Flask database is initialized in ${backendPath}`);
+          logger.info(
+            `Ensured Flask database is initialized in ${backendPath}`,
+          );
         } catch (error) {
           logger.warn(`Failed to ensure Flask database initialization:`, error);
           // Don't throw - database might already exist
@@ -386,7 +436,10 @@ async function executeAppLocalNode({
 
   // For fullstack mode (both frontend and backend exist), start both servers
   if (hasFrontend && hasBackend) {
-    logToConsole(`Fullstack mode detected - starting both frontend and backend servers for app ${appId}`, "info");
+    logToConsole(
+      `Fullstack mode detected - starting both frontend and backend servers for app ${appId}`,
+      "info",
+    );
 
     // Find available ports for backend and frontend
     const backendPort = await findAvailablePort(8000);
@@ -407,40 +460,52 @@ async function executeAppLocalNode({
       logger.info(`Setting up environment files for fullstack app ${appId}`);
 
       // Create/update backend .env file
-      const backendEnvPath = path.join(backendPath, '.env');
-      let backendEnvContent = '';
+      const backendEnvPath = path.join(backendPath, ".env");
+      let backendEnvContent = "";
 
       // Read existing .env file if it exists
       if (fs.existsSync(backendEnvPath)) {
-        backendEnvContent = fs.readFileSync(backendEnvPath, 'utf-8');
+        backendEnvContent = fs.readFileSync(backendEnvPath, "utf-8");
       }
 
       // Update or add PORT variable
-      backendEnvContent = updateEnvVariable(backendEnvContent, 'PORT', backendPort.toString());
+      backendEnvContent = updateEnvVariable(
+        backendEnvContent,
+        "PORT",
+        backendPort.toString(),
+      );
 
       // Update or add FRONTEND_URL variable for CORS
       const frontendUrl = `http://localhost:${frontendPort}`;
-      backendEnvContent = updateEnvVariable(backendEnvContent, 'FRONTEND_URL', frontendUrl);
+      backendEnvContent = updateEnvVariable(
+        backendEnvContent,
+        "FRONTEND_URL",
+        frontendUrl,
+      );
 
       // Write backend .env file
-      await fsPromises.writeFile(backendEnvPath, backendEnvContent, 'utf-8');
+      await fsPromises.writeFile(backendEnvPath, backendEnvContent, "utf-8");
       logger.info(`Updated backend .env file at ${backendEnvPath}`);
 
       // Create/update frontend .env file
-      const frontendEnvPath = path.join(frontendPath, '.env');
-      let frontendEnvContent = '';
+      const frontendEnvPath = path.join(frontendPath, ".env");
+      let frontendEnvContent = "";
 
       // Read existing .env file if it exists
       if (fs.existsSync(frontendEnvPath)) {
-        frontendEnvContent = fs.readFileSync(frontendEnvPath, 'utf-8');
+        frontendEnvContent = fs.readFileSync(frontendEnvPath, "utf-8");
       }
 
       // Update or add VITE_API_URL variable for frontend to call backend
       const backendApiUrl = `http://localhost:${backendPort}`;
-      frontendEnvContent = updateEnvVariable(frontendEnvContent, 'VITE_API_URL', backendApiUrl);
+      frontendEnvContent = updateEnvVariable(
+        frontendEnvContent,
+        "VITE_API_URL",
+        backendApiUrl,
+      );
 
       // Write frontend .env file
-      await fsPromises.writeFile(frontendEnvPath, frontendEnvContent, 'utf-8');
+      await fsPromises.writeFile(frontendEnvPath, frontendEnvContent, "utf-8");
       logger.info(`Updated frontend .env file at ${frontendEnvPath}`);
 
       safeSend(event.sender, "app:output", {
@@ -449,7 +514,10 @@ async function executeAppLocalNode({
         appId,
       });
     } catch (error) {
-      logger.error(`Failed to set up environment files for fullstack app ${appId}:`, error);
+      logger.error(
+        `Failed to set up environment files for fullstack app ${appId}:`,
+        error,
+      );
       safeSend(event.sender, "app:output", {
         type: "stdout",
         message: `⚠️ Warning: Failed to configure environment files. Manual configuration may be needed.`,
@@ -459,20 +527,32 @@ async function executeAppLocalNode({
 
     // Ensure frontend dependencies are installed
     try {
-      logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
+      logger.info(
+        `Ensuring frontend dependencies are installed in ${frontendPath}`,
+      );
 
       // Check if node_modules exists and has basic packages
-      const hasNodeModules = fs.existsSync(path.join(frontendPath, "node_modules"));
-      const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+      const hasNodeModules = fs.existsSync(
+        path.join(frontendPath, "node_modules"),
+      );
+      const hasVite =
+        hasNodeModules &&
+        fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
 
       if (!hasVite) {
-        logger.info(`Frontend dependencies not found or incomplete, installing with robust method...`);
+        logger.info(
+          `Frontend dependencies not found or incomplete, installing with robust method...`,
+        );
         await installDependenciesAuto(frontendPath, "frontend");
 
         // Double-check that vite was installed
-        const viteInstalled = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+        const viteInstalled = fs.existsSync(
+          path.join(frontendPath, "node_modules", "vite"),
+        );
         if (!viteInstalled) {
-          logger.error(`Failed to install vite dependency in ${frontendPath} even with robust method`);
+          logger.error(
+            `Failed to install vite dependency in ${frontendPath} even with robust method`,
+          );
           safeSend(event.sender, "app:output", {
             type: "stdout",
             message: `❌ Failed to install frontend dependencies even with multiple retry methods. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
@@ -480,12 +560,18 @@ async function executeAppLocalNode({
           });
           return;
         }
-        logger.info(`Frontend dependencies installed successfully with robust method`);
+        logger.info(
+          `Frontend dependencies installed successfully with robust method`,
+        );
       } else {
-        logger.info(`Frontend dependencies already installed, skipping installation`);
+        logger.info(
+          `Frontend dependencies already installed, skipping installation`,
+        );
       }
     } catch (error) {
-      logger.error(`Failed to install frontend dependencies with robust method: ${error}`);
+      logger.error(
+        `Failed to install frontend dependencies with robust method: ${error}`,
+      );
       safeSend(event.sender, "app:output", {
         type: "stdout",
         message: `❌ Failed to install frontend dependencies after trying multiple methods: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
@@ -551,10 +637,16 @@ async function executeAppLocalNode({
           appId,
         });
 
-        logToConsole(`Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`, "info");
+        logToConsole(
+          `Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`,
+          "info",
+        );
       }
     } catch (error) {
-      logger.error(`Failed to start backend server for fullstack app ${appId}:`, error);
+      logger.error(
+        `Failed to start backend server for fullstack app ${appId}:`,
+        error,
+      );
       // Send error message to UI
       safeSend(event.sender, "app:output", {
         type: "stdout",
@@ -566,7 +658,9 @@ async function executeAppLocalNode({
     // Start frontend server
     try {
       // Double-check that we have the necessary dependencies before starting
-      const viteAvailable = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+      const viteAvailable = fs.existsSync(
+        path.join(frontendPath, "node_modules", "vite"),
+      );
       if (!viteAvailable) {
         safeSend(event.sender, "app:output", {
           type: "stdout",
@@ -616,10 +710,16 @@ async function executeAppLocalNode({
           appId,
         });
 
-        logToConsole(`Frontend server started for fullstack app ${appId} (PID: ${frontendProcess.pid})`, "info");
+        logToConsole(
+          `Frontend server started for fullstack app ${appId} (PID: ${frontendProcess.pid})`,
+          "info",
+        );
       }
     } catch (error) {
-      logger.error(`Failed to start frontend server for fullstack app ${appId}:`, error);
+      logger.error(
+        `Failed to start frontend server for fullstack app ${appId}:`,
+        error,
+      );
       // Send error message to UI
       safeSend(event.sender, "app:output", {
         type: "stdout",
@@ -644,16 +744,26 @@ async function executeAppLocalNode({
 
     // Ensure frontend dependencies are installed for frontend-only apps
     try {
-      logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
-      const hasNodeModules = fs.existsSync(path.join(frontendPath, "node_modules"));
-      const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+      logger.info(
+        `Ensuring frontend dependencies are installed in ${frontendPath}`,
+      );
+      const hasNodeModules = fs.existsSync(
+        path.join(frontendPath, "node_modules"),
+      );
+      const hasVite =
+        hasNodeModules &&
+        fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
 
       if (!hasVite) {
-        logger.info(`Frontend dependencies not found or incomplete, installing with robust method...`);
+        logger.info(
+          `Frontend dependencies not found or incomplete, installing with robust method...`,
+        );
         await installDependenciesAuto(frontendPath, "frontend");
       }
     } catch (error) {
-      logger.error(`Failed to install frontend dependencies with robust method: ${error}`);
+      logger.error(
+        `Failed to install frontend dependencies with robust method: ${error}`,
+      );
       safeSend(event.sender, "app:output", {
         type: "stdout",
         message: `❌ Failed to install frontend dependencies after trying multiple methods: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
@@ -677,16 +787,26 @@ async function executeAppLocalNode({
 
     // Ensure frontend dependencies are installed for frontend apps
     try {
-      logger.info(`Ensuring frontend dependencies are installed in ${frontendPath}`);
-      const hasNodeModules = fs.existsSync(path.join(frontendPath, "node_modules"));
-      const hasVite = hasNodeModules && fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+      logger.info(
+        `Ensuring frontend dependencies are installed in ${frontendPath}`,
+      );
+      const hasNodeModules = fs.existsSync(
+        path.join(frontendPath, "node_modules"),
+      );
+      const hasVite =
+        hasNodeModules &&
+        fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
 
       if (!hasVite) {
-        logger.info(`Frontend dependencies not found or incomplete, installing with robust method...`);
+        logger.info(
+          `Frontend dependencies not found or incomplete, installing with robust method...`,
+        );
         await installDependenciesAuto(frontendPath, "frontend");
       }
     } catch (error) {
-      logger.error(`Failed to install frontend dependencies with robust method: ${error}`);
+      logger.error(
+        `Failed to install frontend dependencies with robust method: ${error}`,
+      );
       safeSend(event.sender, "app:output", {
         type: "stdout",
         message: `❌ Failed to install frontend dependencies after trying multiple methods: ${error instanceof Error ? error.message : String(error)}. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
@@ -717,7 +837,9 @@ async function executeAppLocalNode({
   // For frontend, override with dynamic port and host binding for proxy access
   if (workingDir === frontendPath && serverPort > 0) {
     // Double-check that we have the necessary dependencies before starting
-    const viteAvailable = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
+    const viteAvailable = fs.existsSync(
+      path.join(frontendPath, "node_modules", "vite"),
+    );
     if (!viteAvailable) {
       safeSend(event.sender, "app:output", {
         type: "stdout",
@@ -799,7 +921,8 @@ function listenToProcess({
     if (!urlDetected) {
       safeSend(event.sender, "app:output", {
         type: "stdout",
-        message: "⏳ Waiting for server to start... If this takes too long, check your app's start command.",
+        message:
+          "⏳ Waiting for server to start... If this takes too long, check your app's start command.",
         appId,
       });
     }
@@ -811,7 +934,9 @@ function listenToProcess({
     const message = rawMessage; // Remove prefix since addTerminalOutput handles it
 
     // Always log to system console
-    logToConsole(`[App ${appId} - ${terminalType || 'main'} stdout] ${message}`);
+    logToConsole(
+      `[App ${appId} - ${terminalType || "main"} stdout] ${message}`,
+    );
 
     logger.debug(
       `App ${appId} (PID: ${spawnedProcess.pid}) stdout: ${message}`,
@@ -833,7 +958,13 @@ function listenToProcess({
         appId,
       });
     } else {
-      routeTerminalOutput(event, appId, terminalType || "main", "stdout", message);
+      routeTerminalOutput(
+        event,
+        appId,
+        terminalType || "main",
+        "stdout",
+        message,
+      );
 
       if (urlDetected) return;
 
@@ -853,14 +984,18 @@ function listenToProcess({
         /(https?:\/\/\S+:\d+(?:\/\S*)?)/i,
       ];
 
-      logger.debug(`[${terminalType || 'main'}] Checking for URLs in: ${rawMessage}`);
+      logger.debug(
+        `[${terminalType || "main"}] Checking for URLs in: ${rawMessage}`,
+      );
 
       let detectedUrl = null;
       for (const pattern of urlPatterns) {
         const match = rawMessage.match(pattern);
         if (match && match[1]) {
           detectedUrl = match[1];
-          logger.info(`[${terminalType || 'main'}] URL detected from server log: ${detectedUrl} (pattern: ${pattern})`);
+          logger.info(
+            `[${terminalType || "main"}] URL detected from server log: ${detectedUrl} (pattern: ${pattern})`,
+          );
           break;
         }
       }
@@ -873,7 +1008,9 @@ function listenToProcess({
 
         try {
           if (proxyWorker) {
-            logger.info("Terminating existing proxy worker to create new one for frontend");
+            logger.info(
+              "Terminating existing proxy worker to create new one for frontend",
+            );
             proxyWorker.terminate();
             proxyWorker = null;
           }
@@ -894,7 +1031,6 @@ function listenToProcess({
               });
             },
           });
-
         } catch (error) {
           logger.error(`Failed to start proxy for URL ${detectedUrl}:`, error);
           safeSend(event.sender, "app:output", {
@@ -917,18 +1053,32 @@ function listenToProcess({
 
   spawnedProcess.stderr?.on("data", (data) => {
     const message = util.stripVTControlCharacters(data.toString());
-    
+
     // Always log to system console
-    logToConsole(`[App ${appId} - ${terminalType || 'main'} stderr] ${message}`, "error");
+    logToConsole(
+      `[App ${appId} - ${terminalType || "main"} stderr] ${message}`,
+      "error",
+    );
 
     logger.error(
       `App ${appId} (PID: ${spawnedProcess.pid}) stderr: ${message}`,
     );
-    routeTerminalOutput(event, appId, terminalType || "main", "stderr", message);
+    routeTerminalOutput(
+      event,
+      appId,
+      terminalType || "main",
+      "stderr",
+      message,
+    );
 
     // Auto-fix common dependency errors
-    if (message.includes("Cannot find module") || message.includes("Failed to load PostCSS config")) {
-      logger.info(`Detected missing dependency error for app ${appId}, attempting auto-fix`);
+    if (
+      message.includes("Cannot find module") ||
+      message.includes("Failed to load PostCSS config")
+    ) {
+      logger.info(
+        `Detected missing dependency error for app ${appId}, attempting auto-fix`,
+      );
       safeSend(event.sender, "app:output", {
         type: "stdout",
         message: `🔧 Detected missing dependencies, installing automatically...`,
@@ -937,18 +1087,30 @@ function listenToProcess({
 
       // Determine which directory to install in based on terminalType
       let installDir = appPath;
-      if (terminalType === "frontend" && fs.existsSync(path.join(appPath, "frontend"))) {
+      if (
+        terminalType === "frontend" &&
+        fs.existsSync(path.join(appPath, "frontend"))
+      ) {
         installDir = path.join(appPath, "frontend");
-      } else if (terminalType === "backend" && fs.existsSync(path.join(appPath, "backend"))) {
+      } else if (
+        terminalType === "backend" &&
+        fs.existsSync(path.join(appPath, "backend"))
+      ) {
         installDir = path.join(appPath, "backend");
       }
 
       // Special handling for PostCSS config errors - try installing tailwindcss specifically
       let installPromise: Promise<void>;
-      if (message.includes("Failed to load PostCSS config") && message.includes("tailwindcss")) {
+      if (
+        message.includes("Failed to load PostCSS config") &&
+        message.includes("tailwindcss")
+      ) {
         installPromise = installSpecificPackage(installDir, "tailwindcss");
       } else {
-        installPromise = installDependenciesAuto(installDir, terminalType || "main");
+        installPromise = installDependenciesAuto(
+          installDir,
+          terminalType || "main",
+        );
       }
 
       // Install dependencies asynchronously
@@ -961,7 +1123,9 @@ function listenToProcess({
           });
         })
         .catch((error) => {
-          logger.warn(`Auto-installation failed, but continuing: ${error.message}`);
+          logger.warn(
+            `Auto-installation failed, but continuing: ${error.message}`,
+          );
           // Try a fallback installation
           installDependenciesAutoFallback(installDir, terminalType || "main")
             .then(() => {
@@ -972,10 +1136,13 @@ function listenToProcess({
               });
             })
             .catch((fallbackError) => {
-              logger.error(`Fallback installation also failed for app ${appId}:`, fallbackError);
+              logger.error(
+                `Fallback installation also failed for app ${appId}:`,
+                fallbackError,
+              );
               safeSend(event.sender, "app:output", {
                 type: "stdout",
-                message: `⚠️ Automatic dependency installation failed. Please run 'npm install' manually in the ${terminalType || 'app'} directory and restart the app.`,
+                message: `⚠️ Automatic dependency installation failed. Please run 'npm install' manually in the ${terminalType || "app"} directory and restart the app.`,
                 appId,
               });
             });
@@ -1249,7 +1416,8 @@ export function registerAppHandlers() {
 
   // Handle client-side errors from frontend
   handle("log-client-error", async (event, { appId, error, context }) => {
-    const errorMessage = `Frontend Error: ${error.message || error}${context ? `\nContext: ${context}` : ''}`.trim();
+    const errorMessage =
+      `Frontend Error: ${error.message || error}${context ? `\nContext: ${context}` : ""}`.trim();
 
     // Log to system console
     logger.error(`Client error from app ${appId}:`, error);
@@ -1303,7 +1471,7 @@ export function registerAppHandlers() {
         logger.info(`Initializing Git repository for app: ${fullAppPath}`);
 
         // Check if .git already exists (might happen if copy/app creation already set it up)
-        if (!fs.existsSync(path.join(fullAppPath, '.git'))) {
+        if (!fs.existsSync(path.join(fullAppPath, ".git"))) {
           await git.init({
             fs: fs,
             dir: fullAppPath,
@@ -1316,23 +1484,26 @@ export function registerAppHandlers() {
           // Verify the main branch exists
           try {
             const branches = await git.listBranches({ fs, dir: fullAppPath });
-            if (!branches.includes('main')) {
+            if (!branches.includes("main")) {
               logger.warn(`Main branch not found, checking out main`);
               await git.checkout({
                 fs,
                 dir: fullAppPath,
-                ref: 'main',
+                ref: "main",
                 force: true, // Force checkout if needed
               });
             }
           } catch (branchError) {
-            logger.warn(`Error checking branches, forcing main branch creation:`, branchError);
+            logger.warn(
+              `Error checking branches, forcing main branch creation:`,
+              branchError,
+            );
             // Try to create main branch explicitly
             try {
               await git.checkout({
                 fs,
                 dir: fullAppPath,
-                ref: 'main',
+                ref: "main",
                 force: true,
               });
             } catch (createError) {
@@ -1395,13 +1566,18 @@ export function registerAppHandlers() {
           app.id,
           "react", // default frontend framework
           params.selectedBackendFramework || undefined,
-          requirements
+          requirements,
         );
         logger.info(`Autonomous development started for app ${app.id}`);
       } catch (devError) {
-        logger.error(`Failed to start autonomous development for app ${app.id}:`, devError);
+        logger.error(
+          `Failed to start autonomous development for app ${app.id}:`,
+          devError,
+        );
         // Don't fail app creation if autonomous development fails to start
-        logger.warn(`App ${app.id} created but autonomous development failed to start`);
+        logger.warn(
+          `App ${app.id} created but autonomous development failed to start`,
+        );
       }
 
       return { app, chatId: chat.id };
@@ -1410,10 +1586,7 @@ export function registerAppHandlers() {
 
   handle(
     "create-missing-folder",
-    async (
-      _,
-      params: CreateMissingFolderParams,
-    ): Promise<void> => {
+    async (_, params: CreateMissingFolderParams): Promise<void> => {
       const app = await db.query.apps.findFirst({
         where: eq(apps.id, params.appId),
       });
@@ -1427,7 +1600,9 @@ export function registerAppHandlers() {
 
       if (params.folderType === "frontend") {
         const templateId = params.templateId || settings.selectedTemplateId;
-        logger.info(`Creating missing frontend folder for app ${params.appId} with template: ${templateId}`);
+        logger.info(
+          `Creating missing frontend folder for app ${params.appId} with template: ${templateId}`,
+        );
 
         await createFromTemplate({
           fullAppPath,
@@ -1443,11 +1618,16 @@ export function registerAppHandlers() {
           const packageJsonPath = path.join(frontendPath, "package.json");
           logger.info(`Checking for package.json at: ${packageJsonPath}`);
           if (fs.existsSync(packageJsonPath)) {
-            logger.info(`Found package.json, installing frontend dependencies in ${frontendPath}`);
+            logger.info(
+              `Found package.json, installing frontend dependencies in ${frontendPath}`,
+            );
             try {
               await installDependencies(frontendPath, "nodejs");
             } catch (installError) {
-              logger.warn(`Failed to install frontend dependencies:`, installError);
+              logger.warn(
+                `Failed to install frontend dependencies:`,
+                installError,
+              );
               // Continue with the process even if dependency installation fails
             }
           } else {
@@ -1455,9 +1635,14 @@ export function registerAppHandlers() {
             // List files in frontend directory to debug
             try {
               const files = fs.readdirSync(frontendPath);
-              logger.info(`Files in frontend directory after creation: ${files.join(', ')}`);
+              logger.info(
+                `Files in frontend directory after creation: ${files.join(", ")}`,
+              );
             } catch (listError) {
-              logger.error(`Could not list files in frontend directory:`, listError);
+              logger.error(
+                `Could not list files in frontend directory:`,
+                listError,
+              );
             }
 
             // Create a fallback package.json if the copy failed
@@ -1485,24 +1670,38 @@ export function registerAppHandlers() {
 }`;
 
             try {
-              await fsPromises.writeFile(packageJsonPath, fallbackPackageJson, 'utf-8');
-              logger.info(`Created fallback package.json at ${packageJsonPath}`);
+              await fsPromises.writeFile(
+                packageJsonPath,
+                fallbackPackageJson,
+                "utf-8",
+              );
+              logger.info(
+                `Created fallback package.json at ${packageJsonPath}`,
+              );
               // Now try to install dependencies
               await installDependencies(frontendPath, "nodejs");
             } catch (fallbackError) {
-              logger.error(`Failed to create fallback package.json:`, fallbackError);
+              logger.error(
+                `Failed to create fallback package.json:`,
+                fallbackError,
+              );
             }
           }
         } else {
           logger.error(`Frontend directory not found at ${frontendPath}`);
         }
       } else if (params.folderType === "backend") {
-        const backendFramework = params.backendFramework || settings.selectedBackendFramework;
+        const backendFramework =
+          params.backendFramework || settings.selectedBackendFramework;
         if (!backendFramework) {
-          throw new Error("No backend framework selected. Please select a backend framework first.");
+          throw new Error(
+            "No backend framework selected. Please select a backend framework first.",
+          );
         }
 
-        logger.info(`Creating missing backend folder for app ${params.appId} with framework: ${backendFramework}`);
+        logger.info(
+          `Creating missing backend folder for app ${params.appId} with framework: ${backendFramework}`,
+        );
 
         // Only create backend folder
         const backendPath = path.join(fullAppPath, "backend");
@@ -1512,10 +1711,15 @@ export function registerAppHandlers() {
 
           // Install dependencies for the backend framework
           try {
-            logger.info(`Installing dependencies for ${backendFramework} in ${backendPath}`);
+            logger.info(
+              `Installing dependencies for ${backendFramework} in ${backendPath}`,
+            );
             await installDependencies(backendPath, backendFramework);
           } catch (installError) {
-            logger.warn(`Failed to install dependencies for ${backendFramework}:`, installError);
+            logger.warn(
+              `Failed to install dependencies for ${backendFramework}:`,
+              installError,
+            );
             // Continue with the process even if dependency installation fails
           }
 
@@ -1776,7 +1980,10 @@ export function registerAppHandlers() {
     "run-app",
     async (
       event: Electron.IpcMainInvokeEvent,
-      { appId, terminalType }: { appId: number; terminalType?: "frontend" | "backend" | "main" },
+      {
+        appId,
+        terminalType,
+      }: { appId: number; terminalType?: "frontend" | "backend" | "main" },
     ): Promise<void> => {
       return withLock(appId, async () => {
         // Check if app is already running
@@ -1799,15 +2006,15 @@ export function registerAppHandlers() {
         try {
           // There may have been a previous run that left a process on port 32100.
           await cleanUpPort(32100);
-    await executeApp({
-      appPath,
-      appId,
-      event,
-      isNeon: !!app.neonProjectId,
-      installCommand: app.installCommand,
-      startCommand: app.startCommand,
-      terminalType,
-    });
+          await executeApp({
+            appPath,
+            appId,
+            event,
+            isNeon: !!app.neonProjectId,
+            installCommand: app.installCommand,
+            startCommand: app.startCommand,
+            terminalType,
+          });
 
           return;
         } catch (error: any) {
@@ -1844,7 +2051,10 @@ export function registerAppHandlers() {
         // Check for frontend process (for fullstack apps)
         const frontendAppInfo = runningApps.get(`${appId}-frontend`);
         if (frontendAppInfo) {
-          processesToStop.push({ key: `${appId}-frontend`, appInfo: frontendAppInfo });
+          processesToStop.push({
+            key: `${appId}-frontend`,
+            appInfo: frontendAppInfo,
+          });
         }
 
         if (processesToStop.length === 0) {
@@ -1893,7 +2103,11 @@ export function registerAppHandlers() {
         appId,
         removeNodeModules,
         terminalType,
-      }: { appId: number; removeNodeModules?: boolean; terminalType?: "frontend" | "backend" | "main" },
+      }: {
+        appId: number;
+        removeNodeModules?: boolean;
+        terminalType?: "frontend" | "backend" | "main";
+      },
     ): Promise<void> => {
       logger.log(`Restarting app ${appId}`);
       return withLock(appId, async () => {
@@ -2591,7 +2805,10 @@ async function installDependencies(projectPath: string, framework: string) {
   });
 }
 
-async function installDependenciesAuto(projectPath: string, componentType: string): Promise<void> {
+async function installDependenciesAuto(
+  projectPath: string,
+  componentType: string,
+): Promise<void> {
   // Determine framework based on directory contents and component type
   let framework = "nodejs"; // default
 
@@ -2628,7 +2845,9 @@ async function installDependenciesAuto(projectPath: string, componentType: strin
         stdio: "pipe",
       });
 
-      logger.info(`Installing dependencies with: ${installCommand} in ${projectPath}`);
+      logger.info(
+        `Installing dependencies with: ${installCommand} in ${projectPath}`,
+      );
 
       let installOutput = "";
       let installError = "";
@@ -2643,32 +2862,50 @@ async function installDependenciesAuto(projectPath: string, componentType: strin
 
       installProcess.on("close", (code) => {
         if (code === 0) {
-          logger.info(`Successfully installed dependencies for ${componentType} in ${projectPath}`);
+          logger.info(
+            `Successfully installed dependencies for ${componentType} in ${projectPath}`,
+          );
           resolve();
         } else {
-          logger.error(`Dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
+          logger.error(
+            `Dependency installation failed for ${componentType} (code: ${code}): ${installError}`,
+          );
           reject(new Error(`Installation failed: ${installError}`));
         }
       });
 
       installProcess.on("error", (err) => {
-        logger.error(`Failed to start dependency installation for ${componentType}:`, err);
+        logger.error(
+          `Failed to start dependency installation for ${componentType}:`,
+          err,
+        );
         reject(err);
       });
     });
   }
 }
 
-async function installNodejsDependenciesRobust(projectPath: string, componentType: string): Promise<void> {
+async function installNodejsDependenciesRobust(
+  projectPath: string,
+  componentType: string,
+): Promise<void> {
   const installStrategies = [
     { command: "npm install", description: "standard install" },
-    { command: "npm install --legacy-peer-deps", description: "with legacy peer deps" },
-    { command: "npm install --force", description: "forced install (last resort)" }
+    {
+      command: "npm install --legacy-peer-deps",
+      description: "with legacy peer deps",
+    },
+    {
+      command: "npm install --force",
+      description: "forced install (last resort)",
+    },
   ];
 
   for (const strategy of installStrategies) {
     try {
-      logger.info(`Attempting Node.js dependency installation ${strategy.description}: ${strategy.command} in ${projectPath}`);
+      logger.info(
+        `Attempting Node.js dependency installation ${strategy.description}: ${strategy.command} in ${projectPath}`,
+      );
 
       await new Promise<void>((resolve, reject) => {
         const installProcess = spawn(strategy.command, [], {
@@ -2690,7 +2927,9 @@ async function installNodejsDependenciesRobust(projectPath: string, componentTyp
 
         installProcess.on("close", (code) => {
           if (code === 0) {
-            logger.info(`Successfully installed Node.js dependencies ${strategy.description} for ${componentType} in ${projectPath}`);
+            logger.info(
+              `Successfully installed Node.js dependencies ${strategy.description} for ${componentType} in ${projectPath}`,
+            );
             resolve();
           } else {
             const errorMsg = `Node.js dependency installation failed ${strategy.description} (code: ${code}): ${installError}`;
@@ -2708,22 +2947,25 @@ async function installNodejsDependenciesRobust(projectPath: string, componentTyp
 
       // If we get here, the installation succeeded
       return;
-
     } catch (error) {
-      logger.warn(`Node.js dependency installation strategy "${strategy.description}" failed, trying next approach...`);
+      logger.warn(
+        `Node.js dependency installation strategy "${strategy.description}" failed, trying next approach...`,
+      );
       // Continue to next strategy
     }
   }
 
   // If all strategies failed, try clearing node_modules and trying again
-  logger.warn(`All Node.js installation strategies failed, attempting cleanup and retry...`);
+  logger.warn(
+    `All Node.js installation strategies failed, attempting cleanup and retry...`,
+  );
 
   try {
     // Clean up and retry with legacy peer deps
     const cleanupCommands = [
       "rm -rf node_modules",
       "rm -f package-lock.json",
-      "npm install --legacy-peer-deps"
+      "npm install --legacy-peer-deps",
     ];
 
     for (const cleanupCmd of cleanupCommands) {
@@ -2750,15 +2992,24 @@ async function installNodejsDependenciesRobust(projectPath: string, componentTyp
       });
     }
 
-    logger.info(`Successfully completed cleanup and retry for ${componentType} in ${projectPath}`);
-
+    logger.info(
+      `Successfully completed cleanup and retry for ${componentType} in ${projectPath}`,
+    );
   } catch (cleanupError) {
-    logger.error(`Cleanup and retry failed for ${componentType}:`, cleanupError);
-    throw new Error(`All dependency installation attempts failed, including cleanup retry. Please run 'npm install --legacy-peer-deps' manually in the ${componentType} directory.`);
+    logger.error(
+      `Cleanup and retry failed for ${componentType}:`,
+      cleanupError,
+    );
+    throw new Error(
+      `All dependency installation attempts failed, including cleanup retry. Please run 'npm install --legacy-peer-deps' manually in the ${componentType} directory.`,
+    );
   }
 }
 
-async function installSpecificPackage(projectPath: string, packageName: string): Promise<void> {
+async function installSpecificPackage(
+  projectPath: string,
+  packageName: string,
+): Promise<void> {
   const installCommand = `npm install ${packageName}`;
 
   return new Promise<void>((resolve, reject) => {
@@ -2768,7 +3019,9 @@ async function installSpecificPackage(projectPath: string, packageName: string):
       stdio: "pipe",
     });
 
-    logger.info(`Installing specific package: ${installCommand} in ${projectPath}`);
+    logger.info(
+      `Installing specific package: ${installCommand} in ${projectPath}`,
+    );
 
     let installOutput = "";
     let installError = "";
@@ -2786,7 +3039,9 @@ async function installSpecificPackage(projectPath: string, packageName: string):
         logger.info(`Successfully installed ${packageName} in ${projectPath}`);
         resolve();
       } else {
-        logger.warn(`Failed to install ${packageName} (code: ${code}): ${installError}`);
+        logger.warn(
+          `Failed to install ${packageName} (code: ${code}): ${installError}`,
+        );
         reject(new Error(`Installation failed: ${installError}`));
       }
     });
@@ -2798,7 +3053,10 @@ async function installSpecificPackage(projectPath: string, packageName: string):
   });
 }
 
-async function installDependenciesAutoFallback(projectPath: string, componentType: string): Promise<void> {
+async function installDependenciesAutoFallback(
+  projectPath: string,
+  componentType: string,
+): Promise<void> {
   // Fallback: try npm install --legacy-peer-deps
   const installCommand = "npm install --legacy-peer-deps";
 
@@ -2809,7 +3067,9 @@ async function installDependenciesAutoFallback(projectPath: string, componentTyp
       stdio: "pipe",
     });
 
-    logger.info(`Fallback auto-installing dependencies with: ${installCommand} in ${projectPath}`);
+    logger.info(
+      `Fallback auto-installing dependencies with: ${installCommand} in ${projectPath}`,
+    );
 
     let installOutput = "";
     let installError = "";
@@ -2824,16 +3084,23 @@ async function installDependenciesAutoFallback(projectPath: string, componentTyp
 
     installProcess.on("close", (code) => {
       if (code === 0) {
-        logger.info(`Successfully fallback-installed dependencies for ${componentType} in ${projectPath}`);
+        logger.info(
+          `Successfully fallback-installed dependencies for ${componentType} in ${projectPath}`,
+        );
         resolve();
       } else {
-        logger.warn(`Fallback dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
+        logger.warn(
+          `Fallback dependency installation failed for ${componentType} (code: ${code}): ${installError}`,
+        );
         reject(new Error(`Fallback installation failed: ${installError}`));
       }
     });
 
     installProcess.on("error", (err) => {
-      logger.error(`Failed to start fallback dependency installation for ${componentType}:`, err);
+      logger.error(
+        `Failed to start fallback dependency installation for ${componentType}:`,
+        err,
+      );
       reject(err);
     });
   });
@@ -2848,7 +3115,9 @@ function getInstallCommand(framework: string): string {
     case "flask":
       return "pip install -r requirements.txt";
     default:
-      logger.warn(`Unknown framework for dependency installation: ${framework}`);
+      logger.warn(
+        `Unknown framework for dependency installation: ${framework}`,
+      );
       return "";
   }
 }

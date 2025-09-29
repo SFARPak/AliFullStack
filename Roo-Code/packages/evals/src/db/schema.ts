@@ -31,7 +31,10 @@ export const runs = pgTable("runs", {
 })
 
 export const runsRelations = relations(runs, ({ one }) => ({
-	taskMetrics: one(taskMetrics, { fields: [runs.taskMetricsId], references: [taskMetrics.id] }),
+	taskMetrics: one(taskMetrics, {
+		fields: [runs.taskMetricsId],
+		references: [taskMetrics.id],
+	}),
 }))
 
 export type Run = typeof runs.$inferSelect
@@ -64,7 +67,10 @@ export const tasks = pgTable(
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
 	run: one(runs, { fields: [tasks.runId], references: [runs.id] }),
-	taskMetrics: one(taskMetrics, { fields: [tasks.taskMetricsId], references: [taskMetrics.id] }),
+	taskMetrics: one(taskMetrics, {
+		fields: [tasks.taskMetricsId],
+		references: [taskMetrics.id],
+	}),
 }))
 
 export type Task = typeof tasks.$inferSelect
@@ -124,4 +130,12 @@ export type UpdateToolError = Partial<Omit<ToolError, "id" | "createdAt">>
  * schema
  */
 
-export const schema = { runs, runsRelations, tasks, tasksRelations, taskMetrics, toolErrors, toolErrorsRelations }
+export const schema = {
+	runs,
+	runsRelations,
+	tasks,
+	tasksRelations,
+	taskMetrics,
+	toolErrors,
+	toolErrorsRelations,
+}

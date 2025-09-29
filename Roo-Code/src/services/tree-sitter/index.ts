@@ -226,7 +226,10 @@ export async function parseSourceCodeForDefinitionsTopLevel(
 	return result ? result : "No source code definitions found."
 }
 
-function separateFiles(allFiles: string[]): { filesToParse: string[]; remainingFiles: string[] } {
+function separateFiles(allFiles: string[]): {
+	filesToParse: string[]
+	remainingFiles: string[]
+} {
 	const filesToParse = allFiles.filter((file) => extensions.includes(path.extname(file))).slice(0, 50) // 50 files max
 	const remainingFiles = allFiles.filter((file) => !filesToParse.includes(file))
 	return { filesToParse, remainingFiles }

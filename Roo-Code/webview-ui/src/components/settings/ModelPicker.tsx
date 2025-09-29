@@ -216,7 +216,9 @@ export const ModelPicker = ({
 							{searchValue && !modelIds.includes(searchValue) && (
 								<div className="p-1 border-t border-vscode-input-border">
 									<CommandItem data-testid="use-custom-model" value={searchValue} onSelect={onSelect}>
-										{t("settings:modelPicker.useCustomModel", { modelId: searchValue })}
+										{t("settings:modelPicker.useCustomModel", {
+											modelId: searchValue,
+										})}
 									</CommandItem>
 								</div>
 							)}

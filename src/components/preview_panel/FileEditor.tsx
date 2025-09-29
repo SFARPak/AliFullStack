@@ -105,10 +105,15 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
   useEffect(() => {
     if (content !== null) {
       // Dispose of old model if file path changed
-      if (originalValueRef.current !== undefined && typeof window !== "undefined") {
-        import("@/components/chat/monaco").then(({ disposeMonacoModel }) => {
-          disposeMonacoModel(filePath);
-        }).catch(err => console.warn("Failed to dispose Monaco model:", err));
+      if (
+        originalValueRef.current !== undefined &&
+        typeof window !== "undefined"
+      ) {
+        import("@/components/chat/monaco")
+          .then(({ disposeMonacoModel }) => {
+            disposeMonacoModel(filePath);
+          })
+          .catch((err) => console.warn("Failed to dispose Monaco model:", err));
       }
 
       setValue(content);
@@ -138,10 +143,15 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
     editorRef.current = editor;
 
     // Ensure Monaco model exists for this file
-    if (currentValueRef.current !== undefined && typeof window !== "undefined") {
-      import("@/components/chat/monaco").then(({ ensureMonacoModel }) => {
-        ensureMonacoModel(filePath, currentValueRef.current!);
-      }).catch(err => console.warn("Failed to ensure Monaco model:", err));
+    if (
+      currentValueRef.current !== undefined &&
+      typeof window !== "undefined"
+    ) {
+      import("@/components/chat/monaco")
+        .then(({ ensureMonacoModel }) => {
+          ensureMonacoModel(filePath, currentValueRef.current!);
+        })
+        .catch((err) => console.warn("Failed to ensure Monaco model:", err));
     }
 
     // Listen for model content change events
@@ -186,9 +196,11 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
 
       // Update Monaco model to ensure it's in sync
       if (typeof window !== "undefined") {
-        import("@/components/chat/monaco").then(({ ensureMonacoModel }) => {
-          ensureMonacoModel(filePath, currentValueRef.current!);
-        }).catch(err => console.warn("Failed to update Monaco model:", err));
+        import("@/components/chat/monaco")
+          .then(({ ensureMonacoModel }) => {
+            ensureMonacoModel(filePath, currentValueRef.current!);
+          })
+          .catch((err) => console.warn("Failed to update Monaco model:", err));
       }
 
       await queryClient.invalidateQueries({ queryKey: ["versions", appId] });

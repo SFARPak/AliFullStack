@@ -66,7 +66,9 @@ describe("CustomModesManager - YAML Edge Cases", () => {
 
 		mockWorkspaceFolders = [{ uri: { fsPath: "/mock/workspace" } }]
 		;(vscode.workspace as any).workspaceFolders = mockWorkspaceFolders
-		;(vscode.workspace.onDidSaveTextDocument as Mock).mockReturnValue({ dispose: vi.fn() })
+		;(vscode.workspace.onDidSaveTextDocument as Mock).mockReturnValue({
+			dispose: vi.fn(),
+		})
 		;(getWorkspacePath as Mock).mockReturnValue("/mock/workspace")
 		;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 			return path === mockSettingsPath || path === mockRoomodes

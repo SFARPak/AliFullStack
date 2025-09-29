@@ -85,7 +85,9 @@ describe("GeminiHandler backend support", () => {
 							groundingMetadata: {
 								groundingChunks: [
 									{ web: null }, // Missing URI
-									{ web: { uri: "https://example.com", title: "Example Site" } }, // Valid
+									{
+										web: { uri: "https://example.com", title: "Example Site" },
+									}, // Valid
 									{}, // Missing web property entirely
 								],
 							},
@@ -138,7 +140,11 @@ describe("GeminiHandler backend support", () => {
 			await expect(async () => {
 				const generator = handler.createMessage("test", [] as any)
 				await generator.next()
-			}).rejects.toThrow(t("common:errors.gemini.generate_stream", { error: "API rate limit exceeded" }))
+			}).rejects.toThrow(
+				t("common:errors.gemini.generate_stream", {
+					error: "API rate limit exceeded",
+				}),
+			)
 		})
 	})
 })

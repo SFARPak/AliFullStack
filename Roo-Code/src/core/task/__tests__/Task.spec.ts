@@ -77,7 +77,9 @@ vi.mock("vscode", () => {
 	const mockEventEmitter = { event: vi.fn(), fire: vi.fn() }
 	const mockTextDocument = { uri: { fsPath: "/mock/workspace/path/file.ts" } }
 	const mockTextEditor = { document: mockTextDocument }
-	const mockTab = { input: { uri: { fsPath: "/mock/workspace/path/file.ts" } } }
+	const mockTab = {
+		input: { uri: { fsPath: "/mock/workspace/path/file.ts" } },
+	}
 	const mockTabGroup = { tabs: [mockTab] }
 
 	return {
@@ -116,7 +118,9 @@ vi.mock("vscode", () => {
 				stat: vi.fn().mockResolvedValue({ type: 1 }), // FileType.File = 1
 			},
 			onDidSaveTextDocument: vi.fn(() => mockDisposable),
-			getConfiguration: vi.fn(() => ({ get: (key: string, defaultValue: any) => defaultValue })),
+			getConfiguration: vi.fn(() => ({
+				get: (key: string, defaultValue: any) => defaultValue,
+			})),
 		},
 		env: {
 			uriScheme: "vscode",
@@ -474,7 +478,9 @@ describe("Cline", () => {
 				}
 
 				// Create test conversation history with mixed content
-				const conversationHistory: (Anthropic.MessageParam & { ts?: number })[] = [
+				const conversationHistory: (Anthropic.MessageParam & {
+					ts?: number
+				})[] = [
 					{
 						role: "user" as const,
 						content: [
@@ -584,7 +590,14 @@ describe("Cline", () => {
 						role: "user",
 						content: [
 							{ type: "text", text: "Here is an image" },
-							{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "base64data" } },
+							{
+								type: "image",
+								source: {
+									type: "base64",
+									media_type: "image/jpeg",
+									data: "base64data",
+								},
+							},
 						],
 					},
 				]
@@ -607,7 +620,10 @@ describe("Cline", () => {
 				expect(imagesCalls.length).toBeGreaterThan(0)
 				if (imagesCalls[0]?.[1]?.[0]?.content) {
 					expect(imagesCalls[0][1][0].content).toHaveLength(2)
-					expect(imagesCalls[0][1][0].content[0]).toEqual({ type: "text", text: "Here is an image" })
+					expect(imagesCalls[0][1][0].content[0]).toEqual({
+						type: "text",
+						text: "Here is an image",
+					})
 					expect(imagesCalls[0][1][0].content[1]).toHaveProperty("type", "image")
 				}
 
@@ -615,7 +631,10 @@ describe("Cline", () => {
 				expect(noImagesCalls.length).toBeGreaterThan(0)
 				if (noImagesCalls[0]?.[1]?.[0]?.content) {
 					expect(noImagesCalls[0][1][0].content).toHaveLength(2)
-					expect(noImagesCalls[0][1][0].content[0]).toEqual({ type: "text", text: "Here is an image" })
+					expect(noImagesCalls[0][1][0].content[0]).toEqual({
+						type: "text",
+						text: "Here is an image",
+					})
 					expect(noImagesCalls[0][1][0].content[1]).toEqual({
 						type: "text",
 						text: "[Referenced image in conversation]",
@@ -1007,7 +1026,10 @@ describe("Cline", () => {
 						yield { type: "text", text: "parent response" }
 					},
 					async next() {
-						return { done: true, value: { type: "text", text: "parent response" } }
+						return {
+							done: true,
+							value: { type: "text", text: "parent response" },
+						}
 					},
 					async return() {
 						return { done: true, value: undefined }
@@ -1043,7 +1065,10 @@ describe("Cline", () => {
 						yield { type: "text", text: "child response" }
 					},
 					async next() {
-						return { done: true, value: { type: "text", text: "child response" } }
+						return {
+							done: true,
+							value: { type: "text", text: "child response" },
+						}
 					},
 					async return() {
 						return { done: true, value: undefined }

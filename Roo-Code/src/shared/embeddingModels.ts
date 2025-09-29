@@ -63,7 +63,10 @@ export const EMBEDDING_MODEL_PROFILES: EmbeddingModelProfiles = {
 		// Google models
 		"google/gemini-embedding-001": { dimension: 3072, scoreThreshold: 0.4 },
 		"google/text-embedding-005": { dimension: 768, scoreThreshold: 0.4 },
-		"google/text-multilingual-embedding-002": { dimension: 768, scoreThreshold: 0.4 },
+		"google/text-multilingual-embedding-002": {
+			dimension: 768,
+			scoreThreshold: 0.4,
+		},
 		// Amazon models
 		"amazon/titan-embed-text-v2": { dimension: 1024, scoreThreshold: 0.4 },
 		// Mistral models

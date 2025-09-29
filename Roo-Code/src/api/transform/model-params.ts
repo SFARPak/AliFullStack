@@ -133,13 +133,24 @@ export function getModelParams({
 		reasoningEffort = effort as ReasoningEffortWithMinimal
 	}
 
-	const params: BaseModelParams = { maxTokens, temperature, reasoningEffort, reasoningBudget, verbosity }
+	const params: BaseModelParams = {
+		maxTokens,
+		temperature,
+		reasoningEffort,
+		reasoningBudget,
+		verbosity,
+	}
 
 	if (format === "anthropic") {
 		return {
 			format,
 			...params,
-			reasoning: getAnthropicReasoning({ model, reasoningBudget, reasoningEffort, settings }),
+			reasoning: getAnthropicReasoning({
+				model,
+				reasoningBudget,
+				reasoningEffort,
+				settings,
+			}),
 		}
 	} else if (format === "openai") {
 		// Special case for o1 and o3-mini, which don't support temperature.
@@ -151,13 +162,23 @@ export function getModelParams({
 		return {
 			format,
 			...params,
-			reasoning: getOpenAiReasoning({ model, reasoningBudget, reasoningEffort, settings }),
+			reasoning: getOpenAiReasoning({
+				model,
+				reasoningBudget,
+				reasoningEffort,
+				settings,
+			}),
 		}
 	} else if (format === "gemini") {
 		return {
 			format,
 			...params,
-			reasoning: getGeminiReasoning({ model, reasoningBudget, reasoningEffort, settings }),
+			reasoning: getGeminiReasoning({
+				model,
+				reasoningBudget,
+				reasoningEffort,
+				settings,
+			}),
 		}
 	} else {
 		// Special case for o1-pro, which doesn't support temperature.
@@ -172,7 +193,12 @@ export function getModelParams({
 		return {
 			format,
 			...params,
-			reasoning: getOpenRouterReasoning({ model, reasoningBudget, reasoningEffort, settings }),
+			reasoning: getOpenRouterReasoning({
+				model,
+				reasoningBudget,
+				reasoningEffort,
+				settings,
+			}),
 		}
 	}
 }

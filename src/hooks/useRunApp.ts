@@ -158,7 +158,7 @@ export function useRunApp() {
   const restartApp = useCallback(
     async (
       params: { removeNodeModules?: boolean } = {},
-      options: { terminalType?: "frontend" | "backend" | "main" } = {}
+      options: { terminalType?: "frontend" | "backend" | "main" } = {},
     ) => {
       const { removeNodeModules = false } = params;
       const { terminalType = "main" } = options;

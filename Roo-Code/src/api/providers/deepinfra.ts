@@ -34,7 +34,11 @@ export class DeepInfraHandler extends RouterProvider implements SingleCompletion
 	}
 
 	public override async fetchModel() {
-		this.models = await getModels({ provider: this.name, apiKey: this.client.apiKey, baseUrl: this.client.baseURL })
+		this.models = await getModels({
+			provider: this.name,
+			apiKey: this.client.apiKey,
+			baseUrl: this.client.baseURL,
+		})
 		return this.getModel()
 	}
 
@@ -93,7 +97,10 @@ export class DeepInfraHandler extends RouterProvider implements SingleCompletion
 			}
 
 			if (delta && "reasoning_content" in delta && delta.reasoning_content) {
-				yield { type: "reasoning", text: (delta.reasoning_content as string | undefined) || "" }
+				yield {
+					type: "reasoning",
+					text: (delta.reasoning_content as string | undefined) || "",
+				}
 			}
 
 			if (chunk.usage) {

@@ -112,7 +112,9 @@ export const Ollama = ({ apiConfiguration, setApiConfigurationField }: OllamaPro
 					<div className="flex flex-row items-center gap-1">
 						<div className="codicon codicon-close" />
 						<div>
-							{t("settings:validation.modelAvailability", { modelId: apiConfiguration?.ollamaModelId })}
+							{t("settings:validation.modelAvailability", {
+								modelId: apiConfiguration?.ollamaModelId,
+							})}
 						</div>
 					</div>
 				</div>

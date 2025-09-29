@@ -317,7 +317,10 @@ export function ChatInput({ chatId }: { chatId?: number }) {
           </div>
           <div className="pl-2 pr-1 flex items-center justify-between pb-2">
             <div className="flex items-center">
-              <ChatInputControls showContextFilesPicker={true} appId={appId ?? undefined} />
+              <ChatInputControls
+                showContextFilesPicker={true}
+                appId={appId ?? undefined}
+              />
               {/* File attachment dropdown */}
               <FileAttachmentDropdown
                 onFileSelect={handleFileSelect}
@@ -575,9 +578,7 @@ function ActionProposalActions({ proposal }: { proposal: ActionProposal }) {
     <div className="border-b border-border p-2 pb-0 flex items-center justify-between">
       <div className="flex items-center space-x-2 overflow-x-auto pb-2">
         {proposal.actions.map((action) => (
-          <div key={action.id}>
-            {mapActionToButton(action)}
-          </div>
+          <div key={action.id}>{mapActionToButton(action)}</div>
         ))}
       </div>
     </div>

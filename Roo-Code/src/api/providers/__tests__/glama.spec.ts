@@ -54,7 +54,11 @@ vitest.mock("openai", () => {
 								}
 								yield {
 									choices: [{ delta: {}, index: 0 }],
-									usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+									usage: {
+										prompt_tokens: 10,
+										completion_tokens: 5,
+										total_tokens: 15,
+									},
 								}
 							},
 						}
@@ -224,7 +228,10 @@ describe("GlamaHandler", () => {
 		})
 
 		it("should return default model when invalid model provided", async () => {
-			const handlerWithInvalidModel = new GlamaHandler({ ...mockOptions, glamaModelId: "invalid/model" })
+			const handlerWithInvalidModel = new GlamaHandler({
+				...mockOptions,
+				glamaModelId: "invalid/model",
+			})
 			const modelInfo = await handlerWithInvalidModel.fetchModel()
 			expect(modelInfo.id).toBe("anthropic/claude-3-7-sonnet")
 			expect(modelInfo.info).toBeDefined()

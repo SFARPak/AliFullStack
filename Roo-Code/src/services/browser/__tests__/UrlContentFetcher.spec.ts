@@ -71,7 +71,10 @@ vi.mock("serialize-error", () => ({
 		} else if (typeof error === "string") {
 			return { message: error }
 		} else if (error && typeof error === "object" && "message" in error) {
-			return { message: String(error.message), name: "name" in error ? String(error.name) : undefined }
+			return {
+				message: String(error.message),
+				name: "name" in error ? String(error.name) : undefined,
+			}
 		} else {
 			return { message: String(error) }
 		}
@@ -198,7 +201,10 @@ describe("UrlContentFetcher", () => {
 		it("should set viewport and headers after launching", async () => {
 			await urlContentFetcher.launchBrowser()
 
-			expect(mockPage.setViewport).toHaveBeenCalledWith({ width: 1280, height: 720 })
+			expect(mockPage.setViewport).toHaveBeenCalledWith({
+				width: 1280,
+				height: 720,
+			})
 			expect(mockPage.setExtraHTTPHeaders).toHaveBeenCalledWith({
 				"Accept-Language": "en-US,en;q=0.9",
 			})
@@ -295,7 +301,10 @@ describe("UrlContentFetcher", () => {
 		})
 
 		it("should handle error objects with message property", async () => {
-			const errorWithMessage = { message: "Custom error", code: "CUSTOM_ERROR" }
+			const errorWithMessage = {
+				message: "Custom error",
+				code: "CUSTOM_ERROR",
+			}
 			mockPage.goto.mockRejectedValueOnce(errorWithMessage)
 
 			await expect(urlContentFetcher.urlToMarkdown("https://example.com")).rejects.toThrow("Custom error")
@@ -305,7 +314,10 @@ describe("UrlContentFetcher", () => {
 		})
 
 		it("should retry for error objects with network-related messages", async () => {
-			const errorWithNetworkMessage = { message: "net::ERR_CONNECTION_REFUSED", code: "NETWORK_ERROR" }
+			const errorWithNetworkMessage = {
+				message: "net::ERR_CONNECTION_REFUSED",
+				code: "NETWORK_ERROR",
+			}
 			mockPage.goto.mockRejectedValueOnce(errorWithNetworkMessage).mockResolvedValueOnce(undefined)
 
 			const result = await urlContentFetcher.urlToMarkdown("https://example.com")

@@ -336,7 +336,9 @@ export default function AppDetailsPage() {
                 return;
               }
               // Set chat mode to fullstack before navigating
-              await IpcClient.getInstance().setUserSettings({ selectedChatMode: "fullstack" });
+              await IpcClient.getInstance().setUserSettings({
+                selectedChatMode: "fullstack",
+              });
               navigate({ to: "/chat" });
             }}
             className="cursor-pointer w-full py-5 flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
@@ -352,7 +354,9 @@ export default function AppDetailsPage() {
                 return;
               }
               // Set chat mode to frontend (build) before navigating
-              await IpcClient.getInstance().setUserSettings({ selectedChatMode: "build" });
+              await IpcClient.getInstance().setUserSettings({
+                selectedChatMode: "build",
+              });
               navigate({ to: "/chat" });
             }}
             className="cursor-pointer w-full py-5 flex justify-center items-center gap-2"
@@ -368,7 +372,9 @@ export default function AppDetailsPage() {
                 return;
               }
               // Set chat mode to backend before navigating
-              await IpcClient.getInstance().setUserSettings({ selectedChatMode: "backend" });
+              await IpcClient.getInstance().setUserSettings({
+                selectedChatMode: "backend",
+              });
               navigate({ to: "/chat" });
             }}
             className="cursor-pointer w-full py-5 flex justify-center items-center gap-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800"

@@ -130,7 +130,10 @@ export const AutoApproveSettings = ({
 							onChange={() => {
 								const newValue = !(autoApprovalEnabled ?? false)
 								setAutoApprovalEnabled(newValue)
-								vscode.postMessage({ type: "autoApprovalEnabled", bool: newValue })
+								vscode.postMessage({
+									type: "autoApprovalEnabled",
+									bool: newValue,
+								})
 							}}>
 							<span className="font-medium">{t("settings:autoApprove.enabled")}</span>
 						</VSCodeCheckbox>
@@ -320,7 +323,10 @@ export const AutoApproveSettings = ({
 									onClick={() => {
 										const newCommands = (allowedCommands ?? []).filter((_, i) => i !== index)
 										setCachedStateField("allowedCommands", newCommands)
-										vscode.postMessage({ type: "allowedCommands", commands: newCommands })
+										vscode.postMessage({
+											type: "allowedCommands",
+											commands: newCommands,
+										})
 									}}>
 									<div className="flex flex-row items-center gap-1">
 										<div>{cmd}</div>
@@ -371,7 +377,10 @@ export const AutoApproveSettings = ({
 									onClick={() => {
 										const newCommands = (deniedCommands ?? []).filter((_, i) => i !== index)
 										setCachedStateField("deniedCommands", newCommands)
-										vscode.postMessage({ type: "deniedCommands", commands: newCommands })
+										vscode.postMessage({
+											type: "deniedCommands",
+											commands: newCommands,
+										})
 									}}>
 									<div className="flex flex-row items-center gap-1">
 										<div>{cmd}</div>

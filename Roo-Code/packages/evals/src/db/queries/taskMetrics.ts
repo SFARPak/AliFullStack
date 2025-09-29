@@ -6,7 +6,9 @@ import { taskMetrics } from "../schema.js"
 import { client as db } from "../db.js"
 
 export const findTaskMetrics = async (id: number) => {
-	const run = await db.query.taskMetrics.findFirst({ where: eq(taskMetrics.id, id) })
+	const run = await db.query.taskMetrics.findFirst({
+		where: eq(taskMetrics.id, id),
+	})
 
 	if (!run) {
 		throw new RecordNotFoundError()

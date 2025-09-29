@@ -63,7 +63,10 @@ describe("convertToOpenAiMessages", () => {
 
 		expect(Array.isArray(content)).toBe(true)
 		expect(content).toHaveLength(2)
-		expect(content[0]).toEqual({ type: "text", text: "What is in this image?" })
+		expect(content[0]).toEqual({
+			type: "text",
+			text: "What is in this image?",
+		})
 		expect(content[1]).toEqual({
 			type: "image_url",
 			image_url: { url: "data:image/jpeg;base64,base64data" },

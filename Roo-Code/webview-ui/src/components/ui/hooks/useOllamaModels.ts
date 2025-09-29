@@ -36,4 +36,7 @@ const getOllamaModels = async () =>
 	})
 
 export const useOllamaModels = (modelId?: string) =>
-	useQuery({ queryKey: ["ollamaModels"], queryFn: () => (modelId ? getOllamaModels() : {}) })
+	useQuery({
+		queryKey: ["ollamaModels"],
+		queryFn: () => (modelId ? getOllamaModels() : {}),
+	})

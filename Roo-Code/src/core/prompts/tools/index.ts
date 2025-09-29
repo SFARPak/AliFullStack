@@ -56,7 +56,12 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	insert_content: (args) => getInsertContentDescription(args),
 	search_and_replace: (args) => getSearchAndReplaceDescription(args),
 	apply_diff: (args) =>
-		args.diffStrategy ? args.diffStrategy.getToolDescription({ cwd: args.cwd, toolOptions: args.toolOptions }) : "",
+		args.diffStrategy
+			? args.diffStrategy.getToolDescription({
+					cwd: args.cwd,
+					toolOptions: args.toolOptions,
+				})
+			: "",
 	update_todo_list: (args) => getUpdateTodoListDescription(args),
 	run_slash_command: () => getRunSlashCommandDescription(),
 	generate_image: (args) => getGenerateImageDescription(args),

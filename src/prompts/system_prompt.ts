@@ -801,7 +801,15 @@ export const constructSystemPrompt = ({
   backendFramework,
 }: {
   aiRules: string | undefined;
-  chatMode?: "build" | "ask" | "backend" | "fullstack" | "django" | "fastapi" | "flask" | "nodejs";
+  chatMode?:
+    | "build"
+    | "ask"
+    | "backend"
+    | "fullstack"
+    | "django"
+    | "fastapi"
+    | "flask"
+    | "nodejs";
   backendFramework?: string;
 }) => {
   let systemPrompt;

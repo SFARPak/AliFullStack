@@ -574,7 +574,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 	// API Messages
 
 	private async getSavedApiConversationHistory(): Promise<ApiMessage[]> {
-		return readApiMessages({ taskId: this.taskId, globalStoragePath: this.globalStoragePath })
+		return readApiMessages({
+			taskId: this.taskId,
+			globalStoragePath: this.globalStoragePath,
+		})
 	}
 
 	private async addToApiConversationHistory(message: Anthropic.MessageParam) {
@@ -604,7 +607,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 	// Cline Messages
 
 	private async getSavedClineMessages(): Promise<ClineMessage[]> {
-		return readTaskMessages({ taskId: this.taskId, globalStoragePath: this.globalStoragePath })
+		return readTaskMessages({
+			taskId: this.taskId,
+			globalStoragePath: this.globalStoragePath,
+		})
 	}
 
 	private async addToClineMessages(message: ClineMessage) {
@@ -644,7 +650,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 	private async updateClineMessage(message: ClineMessage) {
 		const provider = this.providerRef.deref()
-		await provider?.postMessageToWebview({ type: "messageUpdated", clineMessage: message })
+		await provider?.postMessageToWebview({
+			type: "messageUpdated",
+			clineMessage: message,
+		})
 		this.emit(RooCodeEventName.Message, { action: "updated", message })
 
 		const shouldCaptureMessage = message.partial !== true && CloudService.isEnabled()
@@ -746,7 +755,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					// state.
 					askTs = Date.now()
 					this.lastMessageTs = askTs
-					await this.addToClineMessages({ ts: askTs, type: "ask", ask: type, text, partial, isProtected })
+					await this.addToClineMessages({
+						ts: askTs,
+						type: "ask",
+						ask: type,
+						text,
+						partial,
+						isProtected,
+					})
 					throw new Error("Current ask promise was ignored (#2)")
 				}
 			} else {
@@ -783,7 +799,13 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					this.askResponseImages = undefined
 					askTs = Date.now()
 					this.lastMessageTs = askTs
-					await this.addToClineMessages({ ts: askTs, type: "ask", ask: type, text, isProtected })
+					await this.addToClineMessages({
+						ts: askTs,
+						type: "ask",
+						ask: type,
+						text,
+						isProtected,
+					})
 				}
 			}
 		} else {
@@ -793,7 +815,13 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			this.askResponseImages = undefined
 			askTs = Date.now()
 			this.lastMessageTs = askTs
-			await this.addToClineMessages({ ts: askTs, type: "ask", ask: type, text, isProtected })
+			await this.addToClineMessages({
+				ts: askTs,
+				type: "ask",
+				ask: type,
+				text,
+				isProtected,
+			})
 		}
 
 		// The state is mutable if the message is complete and the task will
@@ -872,7 +900,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			throw new Error("Current ask promise was ignored")
 		}
 
-		const result = { response: this.askResponse!, text: this.askResponseText, images: this.askResponseImages }
+		const result = {
+			response: this.askResponse!,
+			text: this.askResponseText,
+			images: this.askResponseImages,
+		}
 		this.askResponse = undefined
 		this.askResponseText = undefined
 		this.askResponseImages = undefined
@@ -962,7 +994,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 				this.emit(RooCodeEventName.TaskUserMessage, this.taskId)
 
-				provider.postMessageToWebview({ type: "invoke", invoke: "sendMessage", text, images })
+				provider.postMessageToWebview({
+					type: "invoke",
+					invoke: "sendMessage",
+					text,
+					images,
+				})
 			} else {
 				console.error("[Task#submitUserMessage] Provider reference lost")
 			}
@@ -1040,7 +1077,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		// Set flag to skip previous_response_id on the next API call after manual condense
 		this.skipPrevResponseIdOnce = true
 
-		const contextCondense: ContextCondense = { summary, cost, newContextTokens, prevContextTokens }
+		const contextCondense: ContextCondense = {
+			summary,
+			cost,
+			newContextTokens,
+			prevContextTokens,
+		}
 		await this.say(
 			"condense_context",
 			undefined /* text */,
@@ -1618,7 +1660,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			throw new Error("Provider not available")
 		}
 
-		const newTask = await provider.createTask(message, undefined, this, { initialTodos })
+		const newTask = await provider.createTask(message, undefined, this, {
+			initialTodos,
+		})
 
 		if (newTask) {
 			this.isPaused = true // Pause parent.
@@ -1744,7 +1788,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				if (response === "messageResponse") {
 					currentUserContent.push(
 						...[
-							{ type: "text" as const, text: formatResponse.tooManyMistakes(text) },
+							{
+								type: "text" as const,
+								text: formatResponse.tooManyMistakes(text),
+							},
 							...formatResponse.imageBlocks(images),
 						],
 					)
@@ -1825,7 +1872,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			// results.
 			const finalUserContent = [...parsedUserContent, { type: "text" as const, text: environmentDetails }]
 
-			await this.addToApiConversationHistory({ role: "user", content: finalUserContent })
+			await this.addToApiConversationHistory({
+				role: "user",
+				content: finalUserContent,
+			})
 			TelemetryService.instance.captureConversationMessage(this.taskId, "user")
 
 			// Since we sent off a placeholder api_req_started message to update the
@@ -2294,7 +2344,10 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					const didToolUse = this.assistantMessageContent.some((block) => block.type === "tool_use")
 
 					if (!didToolUse) {
-						this.userMessageContent.push({ type: "text", text: formatResponse.noToolsUsed() })
+						this.userMessageContent.push({
+							type: "text",
+							text: formatResponse.noToolsUsed(),
+						})
 						this.consecutiveMistakeCount++
 					}
 
@@ -2474,7 +2527,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 		if (truncateResult.summary) {
 			const { summary, cost, prevContextTokens, newContextTokens = 0 } = truncateResult
-			const contextCondense: ContextCondense = { summary, cost, newContextTokens, prevContextTokens }
+			const contextCondense: ContextCondense = {
+				summary,
+				cost,
+				newContextTokens,
+				prevContextTokens,
+			}
 			await this.say(
 				"condense_context",
 				undefined /* text */,
@@ -2595,7 +2653,12 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				this.skipPrevResponseIdOnce = true
 
 				const { summary, cost, prevContextTokens, newContextTokens = 0 } = truncateResult
-				const contextCondense: ContextCondense = { summary, cost, newContextTokens, prevContextTokens }
+				const contextCondense: ContextCondense = {
+					summary,
+					cost,
+					newContextTokens,
+					prevContextTokens,
+				}
 				await this.say(
 					"condense_context",
 					undefined /* text */,
@@ -2835,7 +2898,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			if (!modelId || !modelId.startsWith("gpt-5")) return
 
 			// Check if the API handler has a getLastResponseId method (OpenAiNativeHandler specific)
-			const handler = this.api as ApiHandler & { getLastResponseId?: () => string | undefined }
+			const handler = this.api as ApiHandler & {
+				getLastResponseId?: () => string | undefined
+			}
 			const lastResponseId = handler.getLastResponseId?.()
 			const idx = findLastIndex(
 				this.clineMessages,

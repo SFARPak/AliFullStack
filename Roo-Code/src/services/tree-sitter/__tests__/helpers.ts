@@ -26,7 +26,10 @@ export const debugLog = (message: string, ...args: any[]) => {
 }
 
 // Store the initialized TreeSitter for reuse
-let initializedTreeSitter: { Parser: typeof Parser; Language: typeof Language } | null = null
+let initializedTreeSitter: {
+	Parser: typeof Parser
+	Language: typeof Language
+} | null = null
 
 // Function to initialize tree-sitter
 export async function initializeTreeSitter() {

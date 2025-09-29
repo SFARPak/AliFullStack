@@ -620,7 +620,13 @@ describe("VertexHandler", () => {
 				messages: [
 					{
 						role: "user",
-						content: [{ type: "text", text: "Test prompt", cache_control: { type: "ephemeral" } }],
+						content: [
+							{
+								type: "text",
+								text: "Test prompt",
+								cache_control: { type: "ephemeral" },
+							},
+						],
 					},
 				],
 				stream: false,
@@ -791,7 +797,10 @@ describe("VertexHandler", () => {
 				}
 				return {
 					async *[Symbol.asyncIterator]() {
-						yield { type: "message_start", message: { usage: { input_tokens: 10, output_tokens: 5 } } }
+						yield {
+							type: "message_start",
+							message: { usage: { input_tokens: 10, output_tokens: 5 } },
+						}
 					},
 				}
 			})

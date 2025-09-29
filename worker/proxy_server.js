@@ -149,14 +149,18 @@ function buildTargetURL(clientReq) {
 /* ----------------------------------------------------------------------- */
 
 const server = http.createServer((clientReq, clientRes) => {
-  parentPort?.postMessage(`[proxy] Request: ${clientReq.method} ${clientReq.url}`);
+  parentPort?.postMessage(
+    `[proxy] Request: ${clientReq.method} ${clientReq.url}`,
+  );
 
   let target;
   try {
     target = buildTargetURL(clientReq);
     parentPort?.postMessage(`[proxy] Forwarding to: ${target.href}`);
   } catch (err) {
-    parentPort?.postMessage(`[proxy] Error building target URL: ${err.message}`);
+    parentPort?.postMessage(
+      `[proxy] Error building target URL: ${err.message}`,
+    );
     clientRes.writeHead(400, { "content-type": "text/plain" });
     return void clientRes.end("Bad request: " + err.message);
   }
@@ -193,7 +197,9 @@ const server = http.createServer((clientReq, clientRes) => {
   };
 
   const upReq = lib.request(upOpts, (upRes) => {
-    parentPort?.postMessage(`[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`);
+    parentPort?.postMessage(
+      `[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`,
+    );
 
     const inject = needsInjection(target.pathname);
 
@@ -230,7 +236,9 @@ const server = http.createServer((clientReq, clientRes) => {
 
   clientReq.pipe(upReq);
   upReq.on("error", (e) => {
-    parentPort?.postMessage(`[proxy] Upstream error: ${e.message} for ${target?.href || 'unknown'}`);
+    parentPort?.postMessage(
+      `[proxy] Upstream error: ${e.message} for ${target?.href || "unknown"}`,
+    );
     clientRes.writeHead(502, { "content-type": "text/plain" });
     clientRes.end("Upstream error: " + e.message);
   });

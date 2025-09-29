@@ -14,7 +14,9 @@ export type OpenRouterReasoningParams = {
 
 export type AnthropicReasoningParams = BetaThinkingConfigParam
 
-export type OpenAiReasoningParams = { reasoning_effort: OpenAI.Chat.ChatCompletionCreateParams["reasoning_effort"] }
+export type OpenAiReasoningParams = {
+	reasoning_effort: OpenAI.Chat.ChatCompletionCreateParams["reasoning_effort"]
+}
 
 export type GeminiReasoningParams = GenerateContentConfig["thinkingConfig"]
 

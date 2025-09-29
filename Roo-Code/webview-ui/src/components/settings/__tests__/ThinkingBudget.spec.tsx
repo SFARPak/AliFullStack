@@ -106,7 +106,10 @@ describe("ThinkingBudget", () => {
 		render(
 			<ThinkingBudget
 				{...defaultProps}
-				apiConfiguration={{ modelMaxTokens: 10000, modelMaxThinkingTokens: 9000 }}
+				apiConfiguration={{
+					modelMaxTokens: 10000,
+					modelMaxThinkingTokens: 9000,
+				}}
 				setApiConfigurationField={setApiConfigurationField}
 			/>,
 		)

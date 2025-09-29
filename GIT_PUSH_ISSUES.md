@@ -5,16 +5,19 @@ This document outlines the issues encountered when pushing to GitHub and how the
 ### Issues Identified
 
 1. **HTTPS Authentication Stuck**
+
    - **Problem**: `git push -u origin main` was getting stuck when using HTTPS URL (`https://github.com/SFARPak/AliFullStack.git`)
    - **Root Cause**: HTTPS requires authentication via personal access token, which may not be configured or the terminal was waiting for input
    - **Solution**: Switched to SSH authentication using `git@github.com:SFARPak/AliFullStack.git`
 
 2. **Repository Corruption**
+
    - **Problem**: Push failed with error "fatal: did not receive expected object de2cc2b48f2c8bfa401608c63b5fa325bd7dc0dc"
    - **Root Cause**: Local Git repository had corrupted pack files, likely due to large files or interrupted operations
    - **Solution**: Created a fresh clone without corrupted objects
 
 3. **Large Files Exceeding GitHub Limits**
+
    - **Problem**: GitHub rejected push with "GH001: Large files detected" for files over 100 MB
    - **Affected Files**:
      - `node_modules/@next/swc-darwin-x64/next-swc.darwin-x64.node` (119.25 MB)
@@ -29,15 +32,18 @@ This document outlines the issues encountered when pushing to GitHub and how the
 ### Resolution Steps Taken
 
 1. **Switched to SSH Authentication**
+
    ```bash
    git remote set-url origin git@github.com:SFARPak/AliFullStack.git
    ```
 
 2. **Created Clean Repository Copy**
+
    - Cloned the original repository to avoid corruption
    - Excluded problematic directories (`node_modules`, `Roo-Code`, `.git`)
 
 3. **Removed Large Files**
+
    - Ensured `node_modules/` is in `.gitignore`
    - Excluded `Roo-Code/` submodule which contained large Git objects
 

@@ -90,7 +90,13 @@ export class AnthropicVertexHandler extends BaseProvider implements SingleComple
 			thinking,
 			// Cache the system prompt if caching is enabled.
 			system: supportsPromptCache
-				? [{ text: systemPrompt, type: "text" as const, cache_control: { type: "ephemeral" } }]
+				? [
+						{
+							text: systemPrompt,
+							type: "text" as const,
+							cache_control: { type: "ephemeral" },
+						},
+					]
 				: systemPrompt,
 			messages: supportsPromptCache ? addCacheBreakpoints(messages) : messages,
 			stream: true,
@@ -137,7 +143,10 @@ export class AnthropicVertexHandler extends BaseProvider implements SingleComple
 								yield { type: "reasoning", text: "\n" }
 							}
 
-							yield { type: "reasoning", text: (chunk.content_block as any).thinking }
+							yield {
+								type: "reasoning",
+								text: (chunk.content_block as any).thinking,
+							}
 							break
 						}
 					}
@@ -166,13 +175,22 @@ export class AnthropicVertexHandler extends BaseProvider implements SingleComple
 		const modelId = this.options.apiModelId
 		let id = modelId && modelId in vertexModels ? (modelId as VertexModelId) : vertexDefaultModelId
 		const info: ModelInfo = vertexModels[id]
-		const params = getModelParams({ format: "anthropic", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "anthropic",
+			modelId: id,
+			model: info,
+			settings: this.options,
+		})
 
 		// The `:thinking` suffix indicates that the model is a "Hybrid"
 		// reasoning model and that reasoning is required to be enabled.
 		// The actual model ID honored by Anthropic's API does not have this
 		// suffix.
-		return { id: id.endsWith(":thinking") ? id.replace(":thinking", "") : id, info, ...params }
+		return {
+			id: id.endsWith(":thinking") ? id.replace(":thinking", "") : id,
+			info,
+			...params,
+		}
 	}
 
 	async completePrompt(prompt: string) {
@@ -194,7 +212,13 @@ export class AnthropicVertexHandler extends BaseProvider implements SingleComple
 					{
 						role: "user",
 						content: supportsPromptCache
-							? [{ type: "text" as const, text: prompt, cache_control: { type: "ephemeral" } }]
+							? [
+									{
+										type: "text" as const,
+										text: prompt,
+										cache_control: { type: "ephemeral" },
+									},
+								]
 							: prompt,
 					},
 				],

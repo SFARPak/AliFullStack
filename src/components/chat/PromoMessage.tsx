@@ -56,7 +56,11 @@ export function Message({ spans }: MessageConfig) {
 export const TURBO_EDITS_PROMO_MESSAGE: MessageConfig = {
   spans: [
     { type: "text", content: "Tired of waiting on AI?" },
-    { type: "link", content: " Get AliFullStack Pro", url: "https://alifullstack.alitech.io/pro#ai" },
+    {
+      type: "link",
+      content: " Get AliFullStack Pro",
+      url: "https://alifullstack.alitech.io/pro#ai",
+    },
     { type: "text", content: " for faster edits with Turbo Edits." },
   ],
 };

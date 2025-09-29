@@ -276,9 +276,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	if (process.env.NODE_ENV === "development") {
 		const watchPaths = [
 			{ path: context.extensionPath, pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "../packages/types"), pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "../packages/telemetry"), pattern: "**/*.ts" },
-			{ path: path.join(context.extensionPath, "node_modules/@roo-code/cloud"), pattern: "**/*" },
+			{
+				path: path.join(context.extensionPath, "../packages/types"),
+				pattern: "**/*.ts",
+			},
+			{
+				path: path.join(context.extensionPath, "../packages/telemetry"),
+				pattern: "**/*.ts",
+			},
+			{
+				path: path.join(context.extensionPath, "node_modules/@roo-code/cloud"),
+				pattern: "**/*",
+			},
 		]
 
 		console.log(

@@ -196,8 +196,16 @@ export class FileWatcher implements IFileWatcher {
 		processedCountInBatch: number,
 		totalFilesInBatch: number,
 		pathsToExplicitlyDelete: string[],
-		filesToUpsertDetails: Array<{ path: string; uri: vscode.Uri; originalType: "create" | "change" }>,
-	): Promise<{ overallBatchError?: Error; clearedPaths: Set<string>; processedCount: number }> {
+		filesToUpsertDetails: Array<{
+			path: string
+			uri: vscode.Uri
+			originalType: "create" | "change"
+		}>,
+	): Promise<{
+		overallBatchError?: Error
+		clearedPaths: Set<string>
+		processedCount: number
+	}> {
 		let overallBatchError: Error | undefined
 		const allPathsToClearFromDB = new Set<string>(pathsToExplicitlyDelete)
 
@@ -247,11 +255,19 @@ export class FileWatcher implements IFileWatcher {
 			}
 		}
 
-		return { overallBatchError, clearedPaths: allPathsToClearFromDB, processedCount: processedCountInBatch }
+		return {
+			overallBatchError,
+			clearedPaths: allPathsToClearFromDB,
+			processedCount: processedCountInBatch,
+		}
 	}
 
 	private async _processFilesAndPrepareUpserts(
-		filesToUpsertDetails: Array<{ path: string; uri: vscode.Uri; originalType: "create" | "change" }>,
+		filesToUpsertDetails: Array<{
+			path: string
+			uri: vscode.Uri
+			originalType: "create" | "change"
+		}>,
 		batchResults: FileProcessingResult[],
 		processedCountInBatch: number,
 		totalFilesInBatch: number,
@@ -262,7 +278,10 @@ export class FileWatcher implements IFileWatcher {
 		processedCount: number
 	}> {
 		const pointsForBatchUpsert: PointStruct[] = []
-		const successfullyProcessedForUpsert: Array<{ path: string; newHash?: string }> = []
+		const successfullyProcessedForUpsert: Array<{
+			path: string
+			newHash?: string
+		}> = []
 		const filesToProcessConcurrently = [...filesToUpsertDetails]
 
 		for (let i = 0; i < filesToProcessConcurrently.length; i += this.FILE_PROCESSING_CONCURRENCY_LIMIT) {
@@ -301,7 +320,10 @@ export class FileWatcher implements IFileWatcher {
 						} else if (result.status === "processed_for_batching" && result.pointsToUpsert) {
 							pointsForBatchUpsert.push(...result.pointsToUpsert)
 							if (result.path && result.newHash) {
-								successfullyProcessedForUpsert.push({ path: result.path, newHash: result.newHash })
+								successfullyProcessedForUpsert.push({
+									path: result.path,
+									newHash: result.newHash,
+								})
 							} else if (result.path && !result.newHash) {
 								successfullyProcessedForUpsert.push({ path: result.path })
 							}
@@ -435,7 +457,11 @@ export class FileWatcher implements IFileWatcher {
 
 		// Categorize events
 		const pathsToExplicitlyDelete: string[] = []
-		const filesToUpsertDetails: Array<{ path: string; uri: vscode.Uri; originalType: "create" | "change" }> = []
+		const filesToUpsertDetails: Array<{
+			path: string
+			uri: vscode.Uri
+			originalType: "create" | "change"
+		}> = []
 
 		for (const event of eventsToProcess.values()) {
 			if (event.type === "delete") {
@@ -557,7 +583,10 @@ export class FileWatcher implements IFileWatcher {
 			}
 
 			// Parse file
-			const blocks = await codeParser.parseFile(filePath, { content, fileHash: newHash })
+			const blocks = await codeParser.parseFile(filePath, {
+				content,
+				fileHash: newHash,
+			})
 
 			// Prepare points for batch processing
 			let pointsToUpsert: PointStruct[] = []

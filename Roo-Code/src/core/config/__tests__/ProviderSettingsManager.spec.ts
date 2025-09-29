@@ -544,7 +544,11 @@ describe("ProviderSettingsManager", () => {
 			const { name, ...providerSettings } = await providerSettingsManager.activateProfile({ name: "test" })
 
 			expect(name).toBe("test")
-			expect(providerSettings).toEqual({ apiProvider: "anthropic", apiKey: "test-key", id: "test-id" })
+			expect(providerSettings).toEqual({
+				apiProvider: "anthropic",
+				apiKey: "test-key",
+				id: "test-id",
+			})
 
 			// Get the stored config to check the structure.
 			const calls = mockSecrets.store.mock.calls
@@ -651,7 +655,10 @@ describe("ProviderSettingsManager", () => {
 		it("should return true for existing config", async () => {
 			const existingConfig: ProviderProfiles = {
 				currentApiConfigName: "default",
-				apiConfigs: { default: { id: "default" }, test: { apiProvider: "anthropic", id: "test-id" } },
+				apiConfigs: {
+					default: { id: "default" },
+					test: { apiProvider: "anthropic", id: "test-id" },
+				},
 				migrations: { rateLimitSecondsMigrated: false },
 			}
 
@@ -663,7 +670,10 @@ describe("ProviderSettingsManager", () => {
 
 		it("should return false for non-existent config", async () => {
 			mockSecrets.get.mockResolvedValue(
-				JSON.stringify({ currentApiConfigName: "default", apiConfigs: { default: {} } }),
+				JSON.stringify({
+					currentApiConfigName: "default",
+					apiConfigs: { default: {} },
+				}),
 			)
 
 			const hasConfig = await providerSettingsManager.hasConfig("nonexistent")
@@ -764,8 +774,14 @@ describe("ProviderSettingsManager", () => {
 				currentApiConfigName: "default",
 				apiConfigs: {
 					default: { id: "default-id" },
-					"cloud-profile-1": { id: "cloud-id-1", apiProvider: "anthropic" as const },
-					"cloud-profile-2": { id: "cloud-id-2", apiProvider: "openai" as const },
+					"cloud-profile-1": {
+						id: "cloud-id-1",
+						apiProvider: "anthropic" as const,
+					},
+					"cloud-profile-2": {
+						id: "cloud-id-2",
+						apiProvider: "openai" as const,
+					},
 				},
 				cloudProfileIds: ["cloud-id-1", "cloud-id-2"],
 			}
@@ -835,7 +851,10 @@ describe("ProviderSettingsManager", () => {
 				apiConfigs: {
 					default: { id: "default-id" },
 					"conflict-name": { id: "local-id-1", apiProvider: "openai" as const },
-					"conflict-name_local": { id: "local-id-2", apiProvider: "vertex" as const },
+					"conflict-name_local": {
+						id: "local-id-2",
+						apiProvider: "vertex" as const,
+					},
 				},
 				cloudProfileIds: [],
 			}
@@ -875,8 +894,14 @@ describe("ProviderSettingsManager", () => {
 				currentApiConfigName: "default",
 				apiConfigs: {
 					default: { id: "default-id" },
-					"cloud-profile-1": { id: "cloud-id-1", apiProvider: "anthropic" as const },
-					"cloud-profile-2": { id: "cloud-id-2", apiProvider: "openai" as const },
+					"cloud-profile-1": {
+						id: "cloud-id-1",
+						apiProvider: "anthropic" as const,
+					},
+					"cloud-profile-2": {
+						id: "cloud-id-2",
+						apiProvider: "openai" as const,
+					},
 				},
 				cloudProfileIds: ["cloud-id-1", "cloud-id-2"],
 			}
@@ -937,7 +962,11 @@ describe("ProviderSettingsManager", () => {
 				currentApiConfigName: "default",
 				apiConfigs: {
 					default: { id: "default-id" },
-					"keep-cloud": { id: "cloud-id-1", apiProvider: "anthropic" as const, apiKey: "secret1" },
+					"keep-cloud": {
+						id: "cloud-id-1",
+						apiProvider: "anthropic" as const,
+						apiKey: "secret1",
+					},
 					"delete-cloud": { id: "cloud-id-2", apiProvider: "openai" as const },
 					"rename-me": { id: "local-id", apiProvider: "vertex" as const },
 				},
@@ -1053,7 +1082,10 @@ describe("ProviderSettingsManager", () => {
 			const existingConfig: ProviderProfiles = {
 				currentApiConfigName: "active-profile",
 				apiConfigs: {
-					"active-profile": { id: "active-id", apiProvider: "anthropic" as const },
+					"active-profile": {
+						id: "active-id",
+						apiProvider: "anthropic" as const,
+					},
 					"backup-profile": { id: "backup-id", apiProvider: "openai" as const },
 				},
 				cloudProfileIds: ["active-id"],
@@ -1098,7 +1130,10 @@ describe("ProviderSettingsManager", () => {
 			const existingConfig: ProviderProfiles = {
 				currentApiConfigName: "local-profile",
 				apiConfigs: {
-					"local-profile": { id: "local-id", apiProvider: "anthropic" as const },
+					"local-profile": {
+						id: "local-id",
+						apiProvider: "anthropic" as const,
+					},
 					"cloud-profile": { id: "cloud-id", apiProvider: "openai" as const },
 				},
 				cloudProfileIds: ["cloud-id"],

@@ -42,7 +42,11 @@ export const processTask = async ({ taskId, logger }: { taskId: number; logger?:
 	const task = await findTask(taskId)
 	const { language, exercise } = task
 	const run = await findRun(task.runId)
-	await registerRunner({ runId: run.id, taskId, timeoutSeconds: (run.timeout || 5) * 60 })
+	await registerRunner({
+		runId: run.id,
+		taskId,
+		timeoutSeconds: (run.timeout || 5) * 60,
+	})
 
 	const containerized = isDockerContainer()
 
@@ -171,7 +175,11 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 		await new Promise((resolve) => setTimeout(resolve, Math.random() * 5_000 + 5_000))
 	}
 
-	const subprocess = execa({ env, shell: "/bin/bash", cancelSignal })`${codeCommand}`
+	const subprocess = execa({
+		env,
+		shell: "/bin/bash",
+		cancelSignal,
+	})`${codeCommand}`
 
 	// If debugging, add `--verbose` to `command` and uncomment the following line.
 	// subprocess.stdout.pipe(process.stdout)
@@ -251,7 +259,10 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 				cacheReads: 0,
 			})
 
-			await updateTask(task.id, { taskMetricsId: taskMetrics.id, startedAt: new Date() })
+			await updateTask(task.id, {
+				taskMetricsId: taskMetrics.id,
+				startedAt: new Date(),
+			})
 
 			taskStartedAt = Date.now()
 			taskMetricsId = taskMetrics.id
@@ -326,7 +337,10 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 
 		if (rooTaskId && !isClientDisconnected) {
 			logger.info("cancelling task")
-			client.sendCommand({ commandName: TaskCommandName.CancelTask, data: rooTaskId })
+			client.sendCommand({
+				commandName: TaskCommandName.CancelTask,
+				data: rooTaskId,
+			})
 			await new Promise((resolve) => setTimeout(resolve, 5_000)) // Allow some time for the task to cancel.
 		}
 
@@ -345,7 +359,10 @@ export const runTask = async ({ run, task, publish, logger }: RunTaskOptions) =>
 
 	if (rooTaskId && !isClientDisconnected) {
 		logger.info("closing task")
-		client.sendCommand({ commandName: TaskCommandName.CloseTask, data: rooTaskId })
+		client.sendCommand({
+			commandName: TaskCommandName.CloseTask,
+			data: rooTaskId,
+		})
 		await new Promise((resolve) => setTimeout(resolve, 2_000)) // Allow some time for the window to close.
 	}
 

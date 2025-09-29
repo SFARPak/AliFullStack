@@ -291,8 +291,12 @@ describe("CodeParser", () => {
 
 	describe("singleton instance", () => {
 		it("should maintain parser state across calls", async () => {
-			const result1 = await codeParser.parseFile("test.js", { content: "const a = 1" })
-			const result2 = await codeParser.parseFile("test.js", { content: "const b = 2" })
+			const result1 = await codeParser.parseFile("test.js", {
+				content: "const a = 1",
+			})
+			const result2 = await codeParser.parseFile("test.js", {
+				content: "const b = 2",
+			})
 			expect(result1).toBeDefined()
 			expect(result2).toBeDefined()
 		})
@@ -316,28 +320,46 @@ Each section should have its own unique hash based on its content.`
 
 			vi.mocked(parseMarkdown).mockReturnValue([
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 4 }, text: "Section One" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 4 },
+						text: "Section One",
+					},
 					name: "name.definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 4 }, text: "Section One" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 4 },
+						text: "Section One",
+					},
 					name: "definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 5 }, endPosition: { row: 8 }, text: "Section Two" },
+					node: {
+						startPosition: { row: 5 },
+						endPosition: { row: 8 },
+						text: "Section Two",
+					},
 					name: "name.definition.header.h2",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 5 }, endPosition: { row: 8 }, text: "Section Two" },
+					node: {
+						startPosition: { row: 5 },
+						endPosition: { row: 8 },
+						text: "Section Two",
+					},
 					name: "definition.header.h2",
 					patternIndex: 0,
 				},
 			] as any)
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			expect(result).toHaveLength(2)
 
@@ -360,7 +382,9 @@ Additional content to ensure we exceed the minimum block size requirements for p
 
 			vi.mocked(parseMarkdown).mockReturnValue([])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			expect(parseMarkdown).toHaveBeenCalledWith(markdownContent)
 			expect(result).toHaveLength(1)
@@ -383,7 +407,9 @@ Additional content to ensure we exceed the minimum block size requirements for p
 
 			vi.mocked(parseMarkdown).mockReturnValue([])
 
-			const result = await parser.parseFile("test.md", { content: largeMarkdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: largeMarkdownContent,
+			})
 
 			expect(parseMarkdown).toHaveBeenCalledWith(largeMarkdownContent)
 			// Should have multiple chunks due to size
@@ -416,38 +442,64 @@ The content is comprehensive enough to be included in the search results.`
 
 			vi.mocked(parseMarkdown).mockReturnValue([
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 1 }, text: "Short" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 1 },
+						text: "Short",
+					},
 					name: "name.definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 1 }, text: "Short" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 1 },
+						text: "Short",
+					},
 					name: "definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 3 }, endPosition: { row: 4 }, text: "Another Short" },
+					node: {
+						startPosition: { row: 3 },
+						endPosition: { row: 4 },
+						text: "Another Short",
+					},
 					name: "name.definition.header.h2",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 3 }, endPosition: { row: 4 }, text: "Another Short" },
+					node: {
+						startPosition: { row: 3 },
+						endPosition: { row: 4 },
+						text: "Another Short",
+					},
 					name: "definition.header.h2",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 6 }, endPosition: { row: 9 }, text: "Long Section" },
+					node: {
+						startPosition: { row: 6 },
+						endPosition: { row: 9 },
+						text: "Long Section",
+					},
 					name: "name.definition.header.h3",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 6 }, endPosition: { row: 9 }, text: "Long Section" },
+					node: {
+						startPosition: { row: 6 },
+						endPosition: { row: 9 },
+						text: "Long Section",
+					},
 					name: "definition.header.h3",
 					patternIndex: 0,
 				},
 			] as any)
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Only the long section should be included
 			expect(result).toHaveLength(1)
@@ -489,7 +541,9 @@ The content is comprehensive enough to be included in the search results.`
 				},
 			] as any)
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Large section should be chunked into multiple blocks
 			const h1Blocks = result.filter((r) => r.type === "markdown_header_h1")
@@ -520,18 +574,28 @@ More normal content.`
 
 			vi.mocked(parseMarkdown).mockReturnValue([
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 3 }, text: "Section with Long Line" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 3 },
+						text: "Section with Long Line",
+					},
 					name: "name.definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 3 }, text: markdownContent },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 3 },
+						text: markdownContent,
+					},
 					name: "definition.header.h1",
 					patternIndex: 0,
 				},
 			] as any)
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Should create multiple blocks due to chunking
 			expect(result.length).toBeGreaterThan(1)
@@ -551,18 +615,28 @@ ${largeContent}`
 
 			vi.mocked(parseMarkdown).mockReturnValue([
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 100 }, text: "Deep Header Level 3" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 100 },
+						text: "Deep Header Level 3",
+					},
 					name: "name.definition.header.h3",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 100 }, text: markdownContent },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 100 },
+						text: markdownContent,
+					},
 					name: "definition.header.h3",
 					patternIndex: 0,
 				},
 			] as any)
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Should have multiple blocks due to chunking
 			expect(result.length).toBeGreaterThan(1)
@@ -584,7 +658,9 @@ ${largeContent}`
 
 			vi.mocked(parseMarkdown).mockReturnValue([])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Should have multiple chunks due to size
 			expect(result.length).toBeGreaterThan(1)
@@ -646,7 +722,9 @@ ${headerContent}`
 				} as any,
 			])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// With MIN_BLOCK_CHARS=50, content may be split into more blocks
 			expect(result.length).toBeGreaterThanOrEqual(2)
@@ -706,7 +784,9 @@ This ensures that trailing content in markdown files is properly captured and in
 				} as any,
 			])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Should have exactly 2 blocks: header section and post-header content
 			expect(result.length).toBe(2)
@@ -784,7 +864,9 @@ This conclusion section contains multiple lines to ensure it exceeds 100 charact
 				} as any,
 			])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// The introduction section should be chunked
 			const h1Blocks = result.filter(
@@ -820,7 +902,9 @@ Adding more content to ensure we meet minimum block requirements.`
 			// Mock parseMarkdown to return no headers (testing fallback chunking)
 			vi.mocked(parseMarkdown).mockReturnValue([])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// The content should be chunked due to the oversized line
 			expect(result.length).toBeGreaterThan(1)
@@ -874,7 +958,9 @@ This content verifies that processing continues after multiple oversized lines.`
 				} as any,
 			])
 
-			const result = await parser.parseFile("test.md", { content: markdownContent })
+			const result = await parser.parseFile("test.md", {
+				content: markdownContent,
+			})
 
 			// Should have multiple segment blocks
 			const segmentBlocks = result.filter((r) => r.type === "markdown_header_h1_segment")
@@ -934,22 +1020,38 @@ This content verifies that processing continues after multiple oversized lines.`
 			// Mock parseMarkdown to return headers
 			vi.mocked(parseMarkdown).mockReturnValue([
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 2 }, text: "Header 1" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 2 },
+						text: "Header 1",
+					},
 					name: "name.definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 0 }, endPosition: { row: 2 }, text: "Header 1" },
+					node: {
+						startPosition: { row: 0 },
+						endPosition: { row: 2 },
+						text: "Header 1",
+					},
 					name: "definition.header.h1",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 4 }, endPosition: { row: 6 }, text: "Header 2" },
+					node: {
+						startPosition: { row: 4 },
+						endPosition: { row: 6 },
+						text: "Header 2",
+					},
 					name: "name.definition.header.h2",
 					patternIndex: 0,
 				},
 				{
-					node: { startPosition: { row: 4 }, endPosition: { row: 6 }, text: "Header 2" },
+					node: {
+						startPosition: { row: 4 },
+						endPosition: { row: 6 },
+						text: "Header 2",
+					},
 					name: "definition.header.h2",
 					patternIndex: 0,
 				},

@@ -4,7 +4,13 @@ export function addCacheBreakpoints(systemPrompt: string, messages: OpenAI.Chat.
 	messages[0] = {
 		role: "system",
 		// @ts-ignore-next-line
-		content: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+		content: [
+			{
+				type: "text",
+				text: systemPrompt,
+				cache_control: { type: "ephemeral" },
+			},
+		],
 	}
 
 	// Ensure all user messages have content in array format first

@@ -9,7 +9,11 @@ describe("Command Autocomplete", () => {
 		{ name: "deploy", source: "global" },
 		{ name: "test-suite", source: "project" },
 		{ name: "cleanup_old", source: "global" },
-		{ name: "release", source: "project", argumentHint: "patch | minor | major" },
+		{
+			name: "release",
+			source: "project",
+			argumentHint: "patch | minor | major",
+		},
 	]
 
 	const mockQueryItems = [
@@ -237,7 +241,10 @@ describe("Command Autocomplete", () => {
 
 		it("should handle very long command names", () => {
 			const longNameCommands: Command[] = [
-				{ name: "very-long-command-name-that-exceeds-normal-length", source: "project" },
+				{
+					name: "very-long-command-name-that-exceeds-normal-length",
+					source: "project",
+				},
 			]
 
 			const options = getContextMenuOptions("/very", null, mockQueryItems, [], [], longNameCommands)

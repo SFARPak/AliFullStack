@@ -120,8 +120,12 @@ export const FollowUpSuggest = ({
 							{isFirstSuggestion && countdown !== null && !suggestionSelected && !isAnswered && (
 								<span
 									className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-vscode-badge-background text-vscode-badge-foreground"
-									title={t("chat:followUpSuggest.autoSelectCountdown", { count: countdown })}>
-									{t("chat:followUpSuggest.countdownDisplay", { count: countdown })}
+									title={t("chat:followUpSuggest.autoSelectCountdown", {
+										count: countdown,
+									})}>
+									{t("chat:followUpSuggest.countdownDisplay", {
+										count: countdown,
+									})}
 								</span>
 							)}
 						</Button>

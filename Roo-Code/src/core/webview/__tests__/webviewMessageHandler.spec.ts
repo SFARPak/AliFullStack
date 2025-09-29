@@ -129,7 +129,10 @@ describe("webviewMessageHandler - requestLmStudioModels", () => {
 			type: "requestLmStudioModels",
 		})
 
-		expect(mockGetModels).toHaveBeenCalledWith({ provider: "lmstudio", baseUrl: "http://localhost:1234" })
+		expect(mockGetModels).toHaveBeenCalledWith({
+			provider: "lmstudio",
+			baseUrl: "http://localhost:1234",
+		})
 
 		expect(mockClineProvider.postMessageToWebview).toHaveBeenCalledWith({
 			type: "lmStudioModels",
@@ -171,7 +174,10 @@ describe("webviewMessageHandler - requestOllamaModels", () => {
 			type: "requestOllamaModels",
 		})
 
-		expect(mockGetModels).toHaveBeenCalledWith({ provider: "ollama", baseUrl: "http://localhost:1234" })
+		expect(mockGetModels).toHaveBeenCalledWith({
+			provider: "ollama",
+			baseUrl: "http://localhost:1234",
+		})
 
 		expect(mockClineProvider.postMessageToWebview).toHaveBeenCalledWith({
 			type: "ollamaModels",
@@ -220,10 +226,18 @@ describe("webviewMessageHandler - requestRouterModels", () => {
 		// Verify getModels was called for each provider
 		expect(mockGetModels).toHaveBeenCalledWith({ provider: "deepinfra" })
 		expect(mockGetModels).toHaveBeenCalledWith({ provider: "openrouter" })
-		expect(mockGetModels).toHaveBeenCalledWith({ provider: "requesty", apiKey: "requesty-key" })
+		expect(mockGetModels).toHaveBeenCalledWith({
+			provider: "requesty",
+			apiKey: "requesty-key",
+		})
 		expect(mockGetModels).toHaveBeenCalledWith({ provider: "glama" })
-		expect(mockGetModels).toHaveBeenCalledWith({ provider: "unbound", apiKey: "unbound-key" })
-		expect(mockGetModels).toHaveBeenCalledWith({ provider: "vercel-ai-gateway" })
+		expect(mockGetModels).toHaveBeenCalledWith({
+			provider: "unbound",
+			apiKey: "unbound-key",
+		})
+		expect(mockGetModels).toHaveBeenCalledWith({
+			provider: "vercel-ai-gateway",
+		})
 		expect(mockGetModels).toHaveBeenCalledWith({
 			provider: "litellm",
 			apiKey: "litellm-key",
@@ -511,12 +525,18 @@ describe("webviewMessageHandler - deleteCustomMode", () => {
 		vi.mocked(fsUtils.fileExistsAtPath).mockResolvedValue(true)
 		vi.mocked(mockClineProvider.customModesManager.deleteCustomMode).mockResolvedValue(undefined)
 
-		await webviewMessageHandler(mockClineProvider, { type: "deleteCustomMode", slug })
+		await webviewMessageHandler(mockClineProvider, {
+			type: "deleteCustomMode",
+			slug,
+		})
 
 		// The confirmation dialog is now handled in the webview, so we don't expect showInformationMessage to be called
 		expect(vscode.window.showInformationMessage).not.toHaveBeenCalled()
 		expect(mockClineProvider.customModesManager.deleteCustomMode).toHaveBeenCalledWith(slug)
-		expect(fs.rm).toHaveBeenCalledWith(rulesFolderPath, { recursive: true, force: true })
+		expect(fs.rm).toHaveBeenCalledWith(rulesFolderPath, {
+			recursive: true,
+			force: true,
+		})
 	})
 
 	it("should delete a global mode and its rules folder", async () => {
@@ -536,12 +556,18 @@ describe("webviewMessageHandler - deleteCustomMode", () => {
 		vi.mocked(fsUtils.fileExistsAtPath).mockResolvedValue(true)
 		vi.mocked(mockClineProvider.customModesManager.deleteCustomMode).mockResolvedValue(undefined)
 
-		await webviewMessageHandler(mockClineProvider, { type: "deleteCustomMode", slug })
+		await webviewMessageHandler(mockClineProvider, {
+			type: "deleteCustomMode",
+			slug,
+		})
 
 		// The confirmation dialog is now handled in the webview, so we don't expect showInformationMessage to be called
 		expect(vscode.window.showInformationMessage).not.toHaveBeenCalled()
 		expect(mockClineProvider.customModesManager.deleteCustomMode).toHaveBeenCalledWith(slug)
-		expect(fs.rm).toHaveBeenCalledWith(rulesFolderPath, { recursive: true, force: true })
+		expect(fs.rm).toHaveBeenCalledWith(rulesFolderPath, {
+			recursive: true,
+			force: true,
+		})
 	})
 
 	it("should only delete the mode when rules folder does not exist", async () => {
@@ -558,7 +584,10 @@ describe("webviewMessageHandler - deleteCustomMode", () => {
 		vi.mocked(fsUtils.fileExistsAtPath).mockResolvedValue(false)
 		vi.mocked(mockClineProvider.customModesManager.deleteCustomMode).mockResolvedValue(undefined)
 
-		await webviewMessageHandler(mockClineProvider, { type: "deleteCustomMode", slug })
+		await webviewMessageHandler(mockClineProvider, {
+			type: "deleteCustomMode",
+			slug,
+		})
 
 		// The confirmation dialog is now handled in the webview, so we don't expect showInformationMessage to be called
 		expect(vscode.window.showInformationMessage).not.toHaveBeenCalled()
@@ -584,10 +613,16 @@ describe("webviewMessageHandler - deleteCustomMode", () => {
 		vi.mocked(mockClineProvider.customModesManager.deleteCustomMode).mockResolvedValue(undefined)
 		vi.mocked(fs.rm).mockRejectedValue(error)
 
-		await webviewMessageHandler(mockClineProvider, { type: "deleteCustomMode", slug })
+		await webviewMessageHandler(mockClineProvider, {
+			type: "deleteCustomMode",
+			slug,
+		})
 
 		expect(mockClineProvider.customModesManager.deleteCustomMode).toHaveBeenCalledWith(slug)
-		expect(fs.rm).toHaveBeenCalledWith(rulesFolderPath, { recursive: true, force: true })
+		expect(fs.rm).toHaveBeenCalledWith(rulesFolderPath, {
+			recursive: true,
+			force: true,
+		})
 		// Verify error message is shown to the user
 		expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
 			t("common:errors.delete_rules_folder_failed", {

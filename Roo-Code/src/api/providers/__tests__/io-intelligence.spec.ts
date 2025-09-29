@@ -187,7 +187,9 @@ describe("IOIntelligenceHandler", () => {
 
 	it("completePrompt method should return text from IO Intelligence API", async () => {
 		const expectedResponse = "This is a test response from IO Intelligence"
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: expectedResponse } }],
+		})
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe(expectedResponse)
 	})
@@ -232,7 +234,10 @@ describe("IOIntelligenceHandler", () => {
 						.fn()
 						.mockResolvedValueOnce({
 							done: false,
-							value: { choices: [{ delta: {} }], usage: { prompt_tokens: 10, completion_tokens: 20 } },
+							value: {
+								choices: [{ delta: {} }],
+								usage: { prompt_tokens: 10, completion_tokens: 20 },
+							},
 						})
 						.mockResolvedValueOnce({ done: true }),
 				}),
@@ -243,7 +248,11 @@ describe("IOIntelligenceHandler", () => {
 		const firstChunk = await stream.next()
 
 		expect(firstChunk.done).toBe(false)
-		expect(firstChunk.value).toEqual({ type: "usage", inputTokens: 10, outputTokens: 20 })
+		expect(firstChunk.value).toEqual({
+			type: "usage",
+			inputTokens: 10,
+			outputTokens: 20,
+		})
 	})
 
 	it("should return model info from cache when available", () => {

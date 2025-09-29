@@ -32,7 +32,12 @@ export const CopyButton = ({ itemTask }: CopyButtonProps) => {
 				onClick={onCopy}
 				className="group-hover:opacity-100 opacity-50 transition-opacity"
 				data-testid="copy-prompt-button">
-				<span className={cn("codicon scale-80", { "codicon-check": isCopied, "codicon-copy": !isCopied })} />
+				<span
+					className={cn("codicon scale-80", {
+						"codicon-check": isCopied,
+						"codicon-copy": !isCopied,
+					})}
+				/>
 			</Button>
 		</StandardTooltip>
 	)

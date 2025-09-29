@@ -240,7 +240,10 @@ export function getContextMenuOptions(
 		if (selectedType === ContextMenuOptionType.Folder) {
 			const folders = queryItems
 				.filter((item) => item.type === ContextMenuOptionType.Folder)
-				.map((item) => ({ type: ContextMenuOptionType.Folder, value: item.value }))
+				.map((item) => ({
+					type: ContextMenuOptionType.Folder,
+					value: item.value,
+				}))
 			return folders.length > 0 ? folders : [{ type: ContextMenuOptionType.NoResults }]
 		}
 

@@ -140,14 +140,20 @@ export class MarketplaceManager {
 
 	async installMarketplaceItem(
 		item: MarketplaceItem,
-		options?: { target?: "global" | "project"; parameters?: Record<string, any> },
+		options?: {
+			target?: "global" | "project"
+			parameters?: Record<string, any>
+		},
 	): Promise<string> {
 		const { target = "project", parameters } = options || {}
 
 		vscode.window.showInformationMessage(t("marketplace:installation.installing", { itemName: item.name }))
 
 		try {
-			const result = await this.installer.installItem(item, { target, parameters })
+			const result = await this.installer.installItem(item, {
+				target,
+				parameters,
+			})
 			vscode.window.showInformationMessage(t("marketplace:installation.installSuccess", { itemName: item.name }))
 
 			// Capture telemetry for successful installation
@@ -186,7 +192,10 @@ export class MarketplaceManager {
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
 			vscode.window.showErrorMessage(
-				t("marketplace:installation.installError", { itemName: item.name, errorMessage }),
+				t("marketplace:installation.installError", {
+					itemName: item.name,
+					errorMessage,
+				}),
 			)
 			throw error
 		}
@@ -209,7 +218,10 @@ export class MarketplaceManager {
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
 			vscode.window.showErrorMessage(
-				t("marketplace:installation.removeError", { itemName: item.name, errorMessage }),
+				t("marketplace:installation.removeError", {
+					itemName: item.name,
+					errorMessage,
+				}),
 			)
 			throw error
 		}

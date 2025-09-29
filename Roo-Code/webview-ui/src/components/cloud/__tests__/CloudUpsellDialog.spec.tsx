@@ -46,7 +46,9 @@ describe("CloudUpsellDialog", () => {
 	it("calls onConnect when connect button is clicked", () => {
 		render(<CloudUpsellDialog open={true} onOpenChange={mockOnOpenChange} onConnect={mockOnConnect} />)
 
-		const connectButton = screen.getByRole("button", { name: "Connect to Cloud" })
+		const connectButton = screen.getByRole("button", {
+			name: "Connect to Cloud",
+		})
 		fireEvent.click(connectButton)
 
 		expect(mockOnConnect).toHaveBeenCalledTimes(1)

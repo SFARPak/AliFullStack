@@ -222,7 +222,9 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 			region: this.options.awsRegion,
 			// Add the endpoint configuration when specified and enabled
 			...(this.options.awsBedrockEndpoint &&
-				this.options.awsBedrockEndpointEnabled && { endpoint: this.options.awsBedrockEndpoint }),
+				this.options.awsBedrockEndpointEnabled && {
+					endpoint: this.options.awsBedrockEndpoint,
+				}),
 		}
 
 		if (this.options.awsUseApiKey && this.options.awsApiKey) {
@@ -350,7 +352,10 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 		// shouldUseReasoningBudget(): Enabled through user settings (enableReasoningEffort = true)
 		const isThinkingExplicitlyEnabled = metadata?.thinking?.enabled
 		const isThinkingEnabledBySettings =
-			shouldUseReasoningBudget({ model: modelConfig.info, settings: this.options }) &&
+			shouldUseReasoningBudget({
+				model: modelConfig.info,
+				settings: this.options,
+			}) &&
 			modelConfig.reasoning &&
 			modelConfig.reasoningBudget
 
@@ -640,7 +645,10 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 			// For completePrompt, thinking is typically not used, but we should still check
 			// if thinking was somehow enabled in the model config
 			const thinkingEnabled =
-				shouldUseReasoningBudget({ model: modelConfig.info, settings: this.options }) &&
+				shouldUseReasoningBudget({
+					model: modelConfig.info,
+					settings: this.options,
+				}) &&
 				modelConfig.reasoning &&
 				modelConfig.reasoningBudget
 
@@ -798,7 +806,12 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 
 	private costModelConfig: { id: BedrockModelId | string; info: ModelInfo } = {
 		id: "",
-		info: { maxTokens: 0, contextWindow: 0, supportsPromptCache: false, supportsImages: false },
+		info: {
+			maxTokens: 0,
+			contextWindow: 0,
+			supportsPromptCache: false,
+			supportsImages: false,
+		},
 	}
 
 	private parseArn(arn: string, region?: string) {
@@ -904,7 +917,10 @@ export class AwsBedrockHandler extends BaseProvider implements SingleCompletionH
 			//Do a deep copy of the model info so that later in the code the model id and maxTokens can be set.
 			// The bedrockModels array is a constant and updating the model ID from the returned invokedModelID value
 			// in a prompt router response isn't possible on the constant.
-			model = { id: baseModelId, info: JSON.parse(JSON.stringify(bedrockModels[baseModelId])) }
+			model = {
+				id: baseModelId,
+				info: JSON.parse(JSON.stringify(bedrockModels[baseModelId])),
+			}
 		} else if (modelType && modelType.includes("router")) {
 			model = {
 				id: bedrockDefaultPromptRouterModelId,
@@ -1331,7 +1347,14 @@ Please check:
 	private handleBedrockError(
 		error: unknown,
 		isStreamContext: boolean,
-	): string | Array<{ type: string; text?: string; inputTokens?: number; outputTokens?: number }> {
+	):
+		| string
+		| Array<{
+				type: string
+				text?: string
+				inputTokens?: number
+				outputTokens?: number
+		  }> {
 		// Determine error type
 		const errorType = this.getErrorType(error)
 

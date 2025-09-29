@@ -193,7 +193,10 @@ export async function summarizeConversation(
 
 	// Count the tokens in the context for the next API request
 	// We only estimate the tokens in summaryMesage if outputTokens is 0, otherwise we use outputTokens
-	const systemPromptMessage: ApiMessage = { role: "user", content: systemPrompt }
+	const systemPromptMessage: ApiMessage = {
+		role: "user",
+		content: systemPrompt,
+	}
 
 	const contextMessages = outputTokens
 		? [systemPromptMessage, ...keepMessages]

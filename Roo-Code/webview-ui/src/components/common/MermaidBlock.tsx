@@ -207,7 +207,11 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
 								backgroundColor: "var(--vscode-editor-background)",
 								borderTop: "none",
 							}}>
-							<div style={{ marginBottom: "8px", color: "var(--vscode-descriptionForeground)" }}>
+							<div
+								style={{
+									marginBottom: "8px",
+									color: "var(--vscode-descriptionForeground)",
+								}}>
 								{error}
 							</div>
 							<CodeBlock language="mermaid" source={code} />

@@ -96,7 +96,9 @@ const createServerTypeSchema = () => {
 				...data,
 				type: "stdio" as const,
 			}))
-			.refine((data) => data.type === undefined || data.type === "stdio", { message: typeErrorMessage }),
+			.refine((data) => data.type === undefined || data.type === "stdio", {
+				message: typeErrorMessage,
+			}),
 		// SSE config (has url field)
 		BaseConfigSchema.extend({
 			type: z.enum(["sse"]).optional(),
@@ -111,7 +113,9 @@ const createServerTypeSchema = () => {
 				...data,
 				type: "sse" as const,
 			}))
-			.refine((data) => data.type === undefined || data.type === "sse", { message: typeErrorMessage }),
+			.refine((data) => data.type === undefined || data.type === "sse", {
+				message: typeErrorMessage,
+			}),
 		// StreamableHTTP config (has url field)
 		BaseConfigSchema.extend({
 			type: z.enum(["streamable-http"]).optional(),
@@ -771,7 +775,10 @@ export class McpHub {
 					max_retry_time: 5000, // Maximum retry time in milliseconds
 					withCredentials: configInjected.headers?.["Authorization"] ? true : false, // Enable credentials if Authorization header exists
 					fetch: (url: string | URL, init: RequestInit) => {
-						const headers = new Headers({ ...(init?.headers || {}), ...(configInjected.headers || {}) })
+						const headers = new Headers({
+							...(init?.headers || {}),
+							...(configInjected.headers || {}),
+						})
 						return fetch(url, {
 							...init,
 							headers,

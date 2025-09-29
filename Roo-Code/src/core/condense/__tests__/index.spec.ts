@@ -40,7 +40,12 @@ describe("getMessagesSinceLastSummary", () => {
 		const messages: ApiMessage[] = [
 			{ role: "user", content: "Hello", ts: 1 },
 			{ role: "assistant", content: "Hi there", ts: 2 },
-			{ role: "assistant", content: "Summary of conversation", ts: 3, isSummary: true },
+			{
+				role: "assistant",
+				content: "Summary of conversation",
+				ts: 3,
+				isSummary: true,
+			},
 			{ role: "user", content: "How are you?", ts: 4 },
 			{ role: "assistant", content: "I'm good", ts: 5 },
 		]
@@ -48,7 +53,12 @@ describe("getMessagesSinceLastSummary", () => {
 		const result = getMessagesSinceLastSummary(messages)
 		expect(result).toEqual([
 			{ role: "user", content: "Hello", ts: 1 },
-			{ role: "assistant", content: "Summary of conversation", ts: 3, isSummary: true },
+			{
+				role: "assistant",
+				content: "Summary of conversation",
+				ts: 3,
+				isSummary: true,
+			},
 			{ role: "user", content: "How are you?", ts: 4 },
 			{ role: "assistant", content: "I'm good", ts: 5 },
 		])
@@ -235,7 +245,10 @@ describe("summarizeConversation", () => {
 
 		// We need to mock maybeRemoveImageBlocks to return the expected messages
 		;(maybeRemoveImageBlocks as Mock).mockImplementationOnce((messages: any) => {
-			return messages.map(({ role, content }: { role: string; content: any }) => ({ role, content }))
+			return messages.map(({ role, content }: { role: string; content: any }) => ({
+				role,
+				content,
+			}))
 		})
 
 		const result = await summarizeConversation(
@@ -299,7 +312,10 @@ describe("summarizeConversation", () => {
 
 		// Create a stream with usage information
 		const streamWithUsage = (async function* () {
-			yield { type: "text" as const, text: "This is a summary with system prompt" }
+			yield {
+				type: "text" as const,
+				text: "This is a summary with system prompt",
+			}
 			yield { type: "usage" as const, totalCost: 0.06, outputTokens: 200 }
 		})()
 
@@ -337,7 +353,10 @@ describe("summarizeConversation", () => {
 
 		// Create a stream that produces a summary
 		const streamWithLargeTokens = (async function* () {
-			yield { type: "text" as const, text: "This is a very long summary that uses many tokens" }
+			yield {
+				type: "text" as const,
+				text: "This is a very long summary that uses many tokens",
+			}
 			yield { type: "usage" as const, totalCost: 0.08, outputTokens: 500 }
 		})()
 
@@ -565,7 +584,10 @@ describe("summarizeConversation with custom settings", () => {
 		mockCondensingApiHandler = {
 			createMessage: vi.fn().mockImplementation(() => {
 				return (async function* () {
-					yield { type: "text" as const, text: "Summary from condensing handler" }
+					yield {
+						type: "text" as const,
+						text: "Summary from condensing handler",
+					}
 					yield { type: "usage" as const, totalCost: 0.03, outputTokens: 80 }
 				})()
 			}),

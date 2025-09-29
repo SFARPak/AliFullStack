@@ -107,7 +107,12 @@ export const CloudTaskButton = ({ item, disabled = false }: CloudTaskButtonProps
 						<div className="flex justify-center md:justify-start">
 							<div
 								className="w-[170px] h-[170px] bg-white rounded-lg border-border cursor-pointer hover:opacity-70 transition-opacity"
-								onClick={() => vscode.postMessage({ type: "openExternal", url: cloudTaskUrl })}
+								onClick={() =>
+									vscode.postMessage({
+										type: "openExternal",
+										url: cloudTaskUrl,
+									})
+								}
 								title={t("chat:task.openInCloud")}>
 								<canvas ref={canvasRef} className="m-[15px]" />
 							</div>

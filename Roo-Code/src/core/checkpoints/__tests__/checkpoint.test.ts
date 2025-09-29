@@ -195,7 +195,11 @@ describe("Checkpoint functionality", () => {
 			]
 			mockTask.apiConversationHistory = [
 				{ ts: 1, role: "user", content: [{ type: "text", text: "Message 1" }] },
-				{ ts: 2, role: "assistant", content: [{ type: "text", text: "Message 2" }] },
+				{
+					ts: 2,
+					role: "assistant",
+					content: [{ type: "text", text: "Message 2" }],
+				},
 				{ ts: 3, role: "user", content: [{ type: "text", text: "Message 3" }] },
 			]
 		})

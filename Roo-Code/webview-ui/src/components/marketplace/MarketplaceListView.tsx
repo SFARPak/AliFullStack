@@ -208,7 +208,9 @@ export function MarketplaceListView({ stateManager, allTags, filteredTags, filte
 						onClick={() =>
 							manager.transition({
 								type: "UPDATE_FILTERS",
-								payload: { filters: { search: "", type: "", tags: [], installed: "all" } },
+								payload: {
+									filters: { search: "", type: "", tags: [], installed: "all" },
+								},
 							})
 						}
 						className="mt-4 bg-vscode-button-secondaryBackground text-vscode-button-secondaryForeground hover:bg-vscode-button-secondaryHoverBackground transition-colors">

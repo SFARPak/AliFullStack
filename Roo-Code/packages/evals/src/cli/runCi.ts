@@ -14,7 +14,11 @@ export const runCi = async ({
 } = {}) => {
 	console.log("Running evals in CI mode.")
 
-	const run = await createRun({ model: "anthropic/claude-sonnet-4", socketPath: "", concurrency })
+	const run = await createRun({
+		model: "anthropic/claude-sonnet-4",
+		socketPath: "",
+		concurrency,
+	})
 
 	for (const language of exerciseLanguages) {
 		let exercises = await getExercisesForLanguage(EVALS_REPO_PATH, language)

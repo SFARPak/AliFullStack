@@ -91,7 +91,13 @@ export class AnthropicHandler extends BaseProvider implements SingleCompletionHa
 									...message,
 									content:
 										typeof message.content === "string"
-											? [{ type: "text", text: message.content, cache_control: cacheControl }]
+											? [
+													{
+														type: "text",
+														text: message.content,
+														cache_control: cacheControl,
+													},
+												]
 											: message.content.map((content, contentIndex) =>
 													contentIndex === message.content.length - 1
 														? { ...content, cache_control: cacheControl }

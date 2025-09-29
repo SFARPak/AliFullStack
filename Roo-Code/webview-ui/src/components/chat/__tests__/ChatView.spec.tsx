@@ -494,7 +494,10 @@ describe("ChatView - Auto Approval Tests", () => {
 						type: "ask",
 						ask: "tool",
 						ts: Date.now(),
-						text: JSON.stringify({ tool: "editedExistingFile", path: "test.txt" }),
+						text: JSON.stringify({
+							tool: "editedExistingFile",
+							path: "test.txt",
+						}),
 						partial: false,
 					},
 				],
@@ -1156,7 +1159,9 @@ describe("ChatView - Version Indicator Tests", () => {
 			}),
 		)
 
-		const { getByTestId, queryByTestId } = renderChatView({ showAnnouncement: false })
+		const { getByTestId, queryByTestId } = renderChatView({
+			showAnnouncement: false,
+		})
 
 		// Hydrate state
 		mockPostMessage({

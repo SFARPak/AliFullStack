@@ -254,7 +254,10 @@ vi.mock("@src/components/ui/hooks/useSelectedModel", () => ({
 				info,
 			}
 		} else {
-			const info: ModelInfo = { contextWindow: 4000, supportsPromptCache: true }
+			const info: ModelInfo = {
+				contextWindow: 4000,
+				supportsPromptCache: true,
+			}
 
 			return {
 				provider: apiConfiguration.apiProvider,
@@ -489,7 +492,9 @@ describe("ApiOptions", () => {
 			console.log(selectContainer.querySelector("select")?.value)
 
 			// Simulate changing the reasoning effort to 'high'
-			fireEvent.change(selectContainer.querySelector("select")!, { target: { value: "high" } })
+			fireEvent.change(selectContainer.querySelector("select")!, {
+				target: { value: "high" },
+			})
 
 			// Check if setApiConfigurationField was called correctly for openAiCustomModelInfo
 			expect(mockSetApiConfigurationField).toHaveBeenCalledWith(
@@ -534,7 +539,9 @@ describe("ApiOptions", () => {
 			const baseUrlInput = screen.getByTestId("litellm-base-url")
 			const apiKeyInput = screen.getByTestId("litellm-api-key")
 
-			fireEvent.change(baseUrlInput, { target: { value: "http://new-url:8000" } })
+			fireEvent.change(baseUrlInput, {
+				target: { value: "http://new-url:8000" },
+			})
 			fireEvent.change(apiKeyInput, { target: { value: "new-api-key" } })
 
 			expect(mockSetApiConfigurationField).toHaveBeenCalledWith("litellmBaseUrl", "http://new-url:8000")

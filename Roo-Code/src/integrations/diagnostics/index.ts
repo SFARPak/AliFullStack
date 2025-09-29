@@ -92,7 +92,11 @@ export async function diagnosticsToProblemsString(
 		let totalCount = 0
 
 		// Flatten all diagnostics with their URIs
-		const allDiagnostics: { uri: vscode.Uri; diagnostic: vscode.Diagnostic; formattedText?: string }[] = []
+		const allDiagnostics: {
+			uri: vscode.Uri
+			diagnostic: vscode.Diagnostic
+			formattedText?: string
+		}[] = []
 		for (const [uri, fileDiagnostics] of diagnostics) {
 			const filtered = fileDiagnostics.filter((d) => severities.includes(d.severity))
 			for (const diagnostic of filtered) {

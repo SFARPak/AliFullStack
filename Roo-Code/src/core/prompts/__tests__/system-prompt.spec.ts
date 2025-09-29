@@ -15,7 +15,13 @@ vi.mock("os", () => ({
 		freemem: () => 4294967296,
 		cpus: () => [],
 		networkInterfaces: () => ({}),
-		userInfo: () => ({ username: "test", uid: 1000, gid: 1000, shell: "/bin/bash", homedir: "/home/user" }),
+		userInfo: () => ({
+			username: "test",
+			uid: 1000,
+			gid: 1000,
+			shell: "/bin/bash",
+			homedir: "/home/user",
+		}),
 	},
 	homedir: () => "/home/user",
 	platform: () => "linux",
@@ -30,7 +36,13 @@ vi.mock("os", () => ({
 	freemem: () => 4294967296,
 	cpus: () => [],
 	networkInterfaces: () => ({}),
-	userInfo: () => ({ username: "test", uid: 1000, gid: 1000, shell: "/bin/bash", homedir: "/home/user" }),
+	userInfo: () => ({
+		username: "test",
+		uid: 1000,
+		gid: 1000,
+		shell: "/bin/bash",
+		homedir: "/home/user",
+	}),
 }))
 
 vi.mock("default-shell", () => ({
@@ -79,7 +91,11 @@ __setMockImplementation(
 		globalCustomInstructions: string,
 		cwd: string,
 		mode: string,
-		options?: { language?: string; rooIgnoreInstructions?: string; settings?: Record<string, any> },
+		options?: {
+			language?: string
+			rooIgnoreInstructions?: string
+			settings?: Record<string, any>
+		},
 	) => {
 		const sections = []
 

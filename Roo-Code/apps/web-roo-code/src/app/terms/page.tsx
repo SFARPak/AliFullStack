@@ -52,7 +52,8 @@ export default function Terms() {
 
 					<p className="lead">
 						These Terms of Service (&quot;<strong>TOS</strong>&quot;) govern access to and use of the Roo
-						Code Cloud service (the &quot;<strong>Service</strong>&quot;). They apply to:
+						Code Cloud service (the &quot;
+						<strong>Service</strong>&quot;). They apply to:
 					</p>
 					<ul className="lead">
 						<li>
@@ -69,8 +70,8 @@ export default function Terms() {
 
 					<p>
 						By <strong>creating an account, clicking to accept, or using the Service</strong>, the person or
-						entity doing so (&quot;<strong>Customer</strong>&quot;) agrees to be bound by these TOS, even if
-						no separate Order Form is signed.
+						entity doing so (&quot;<strong>Customer</strong>
+						&quot;) agrees to be bound by these TOS, even if no separate Order Form is signed.
 					</p>
 
 					<p>

@@ -41,7 +41,12 @@ export class XAIHandler extends BaseProvider implements SingleCompletionHandler 
 				: xaiDefaultModelId
 
 		const info = xaiModels[id]
-		const params = getModelParams({ format: "openai", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "openai",
+			modelId: id,
+			model: info,
+			settings: this.options,
+		})
 		return { id, info, ...params }
 	}
 

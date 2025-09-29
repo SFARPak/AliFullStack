@@ -217,7 +217,11 @@ export class ClineProvider
 						const { historyItem } = await this.getTaskWithId(instance.taskId)
 						const rootTask = instance.rootTask
 						const parentTask = instance.parentTask
-						await this.createTaskWithHistoryItem({ ...historyItem, rootTask, parentTask })
+						await this.createTaskWithHistoryItem({
+							...historyItem,
+							rootTask,
+							parentTask,
+						})
 					}
 				} catch (error) {
 					this.log(
@@ -675,7 +679,11 @@ export class ClineProvider
 		const prompt = supportPrompt.create(promptType, params, customSupportPrompts)
 
 		if (command === "addToContext") {
-			await visibleProvider.postMessageToWebview({ type: "invoke", invoke: "setChatBoxMessage", text: prompt })
+			await visibleProvider.postMessageToWebview({
+				type: "invoke",
+				invoke: "setChatBoxMessage",
+				text: prompt,
+			})
 			return
 		}
 
@@ -699,7 +707,11 @@ export class ClineProvider
 		const prompt = supportPrompt.create(promptType, params, customSupportPrompts)
 
 		if (command === "terminalAddToContext") {
-			await visibleProvider.postMessageToWebview({ type: "invoke", invoke: "setChatBoxMessage", text: prompt })
+			await visibleProvider.postMessageToWebview({
+				type: "invoke",
+				invoke: "setChatBoxMessage",
+				text: prompt,
+			})
 			return
 		}
 
@@ -797,7 +809,10 @@ export class ClineProvider
 			// for this visibility listener panel.
 			const viewStateDisposable = webviewView.onDidChangeViewState(() => {
 				if (this.view?.visible) {
-					this.postMessageToWebview({ type: "action", action: "didBecomeVisible" })
+					this.postMessageToWebview({
+						type: "action",
+						action: "didBecomeVisible",
+					})
 				}
 			})
 
@@ -806,7 +821,10 @@ export class ClineProvider
 			// sidebar
 			const visibilityDisposable = webviewView.onDidChangeVisibility(() => {
 				if (this.view?.visible) {
-					this.postMessageToWebview({ type: "action", action: "didBecomeVisible" })
+					this.postMessageToWebview({
+						type: "action",
+						action: "didBecomeVisible",
+					})
 				}
 			})
 
@@ -835,7 +853,10 @@ export class ClineProvider
 		const configDisposable = vscode.workspace.onDidChangeConfiguration(async (e) => {
 			if (e && e.affectsConfiguration("workbench.colorTheme")) {
 				// Sends latest theme name to webview
-				await this.postMessageToWebview({ type: "theme", text: JSON.stringify(await getTheme()) })
+				await this.postMessageToWebview({
+					type: "theme",
+					text: JSON.stringify(await getTheme()),
+				})
 			}
 		})
 		this.webviewDisposables.push(configDisposable)
@@ -1344,7 +1365,10 @@ export class ClineProvider
 		await this.postStateToWebview()
 
 		if (providerSettings.apiProvider) {
-			this.emit(RooCodeEventName.ProviderProfileChanged, { name, provider: providerSettings.apiProvider })
+			this.emit(RooCodeEventName.ProviderProfileChanged, {
+				name,
+				provider: providerSettings.apiProvider,
+			})
 		}
 	}
 
@@ -1396,7 +1420,9 @@ export class ClineProvider
 			const baseUrl = apiConfiguration.openRouterBaseUrl || "https://openrouter.ai/api/v1"
 			// Extract the base domain for the auth endpoint.
 			const baseUrlDomain = baseUrl.match(/^(https?:\/\/[^\/]+)/)?.[1] || "https://openrouter.ai"
-			const response = await axios.post(`${baseUrlDomain}/api/v1/auth/keys`, { code })
+			const response = await axios.post(`${baseUrlDomain}/api/v1/auth/keys`, {
+				code,
+			})
 
 			if (response.data && response.data.key) {
 				apiKey = response.data.key
@@ -1515,7 +1541,10 @@ export class ClineProvider
 			await this.createTaskWithHistoryItem(historyItem) // Clears existing task.
 		}
 
-		await this.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
+		await this.postMessageToWebview({
+			type: "action",
+			action: "chatButtonClicked",
+		})
 	}
 
 	async exportTaskWithId(id: string) {
@@ -1536,7 +1565,10 @@ export class ClineProvider
 			throw new Error(`Task with id ${taskId} not found in stack`)
 		}
 		await task.condenseContext()
-		await this.postMessageToWebview({ type: "condenseTaskContextResponse", text: taskId })
+		await this.postMessageToWebview({
+			type: "condenseTaskContextResponse",
+			text: taskId,
+		})
 	}
 
 	// this function deletes a task from task hidtory, and deletes it's checkpoints and delete the task folder
@@ -1561,7 +1593,11 @@ export class ClineProvider
 			const workspaceDir = this.cwd
 
 			try {
-				await ShadowCheckpointService.deleteTask({ taskId: id, globalStorageDir, workspaceDir })
+				await ShadowCheckpointService.deleteTask({
+					taskId: id,
+					globalStorageDir,
+					workspaceDir,
+				})
 			} catch (error) {
 				console.error(
 					`[deleteTaskWithId${id}] failed to delete associated shadow repository or branch: ${error instanceof Error ? error.message : String(error)}`,
@@ -1607,7 +1643,10 @@ export class ClineProvider
 		// Check MDM compliance and send user to account tab if not compliant
 		// Only redirect if there's an actual MDM policy requiring authentication
 		if (this.mdmService?.requiresCloudAuth() && !this.checkMdmCompliance()) {
-			await this.postMessageToWebview({ type: "action", action: "cloudButtonClicked" })
+			await this.postMessageToWebview({
+				type: "action",
+				action: "cloudButtonClicked",
+			})
 		}
 	}
 
@@ -1619,7 +1658,11 @@ export class ClineProvider
 			const [marketplaceResult, marketplaceInstalledMetadata] = await Promise.all([
 				this.marketplaceManager.getMarketplaceItems().catch((error) => {
 					console.error("Failed to fetch marketplace items:", error)
-					return { organizationMcps: [], marketplaceItems: [], errors: [error.message] }
+					return {
+						organizationMcps: [],
+						marketplaceItems: [],
+						errors: [error.message],
+					}
 				}),
 				this.marketplaceManager.getInstallationMetadata().catch((error) => {
 					console.error("Failed to fetch installation metadata:", error)
@@ -1632,7 +1675,10 @@ export class ClineProvider
 				type: "marketplaceData",
 				organizationMcps: marketplaceResult.organizationMcps || [],
 				marketplaceItems: marketplaceResult.marketplaceItems || [],
-				marketplaceInstalledMetadata: marketplaceInstalledMetadata || { project: {}, global: {} },
+				marketplaceInstalledMetadata: marketplaceInstalledMetadata || {
+					project: {},
+					global: {},
+				},
 				errors: marketplaceResult.errors,
 			})
 		} catch (error) {
@@ -2245,7 +2291,10 @@ export class ClineProvider
 		await this.customModesManager.resetCustomModes()
 		await this.removeClineFromStack()
 		await this.postStateToWebview()
-		await this.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
+		await this.postMessageToWebview({
+			type: "action",
+			action: "chatButtonClicked",
+		})
 	}
 
 	// logging
@@ -2610,7 +2659,11 @@ export class ClineProvider
 		}
 
 		// Clears task again, so we need to abortTask manually above.
-		await this.createTaskWithHistoryItem({ ...historyItem, rootTask, parentTask })
+		await this.createTaskWithHistoryItem({
+			...historyItem,
+			rootTask,
+			parentTask,
+		})
 	}
 
 	// Clear the current task without treating it as a subtask.
@@ -2636,7 +2689,10 @@ export class ClineProvider
 	public async getModes(): Promise<{ slug: string; name: string }[]> {
 		try {
 			const customModes = await this.customModesManager.getCustomModes()
-			return [...DEFAULT_MODES, ...customModes].map(({ slug, name }) => ({ slug, name }))
+			return [...DEFAULT_MODES, ...customModes].map(({ slug, name }) => ({
+				slug,
+				name,
+			}))
 		} catch (error) {
 			return DEFAULT_MODES.map(({ slug, name }) => ({ slug, name }))
 		}
@@ -2655,7 +2711,10 @@ export class ClineProvider
 
 	public async getProviderProfiles(): Promise<{ name: string; provider?: string }[]> {
 		const { listApiConfigMeta = [] } = await this.getState()
-		return listApiConfigMeta.map((profile) => ({ name: profile.name, provider: profile.apiProvider }))
+		return listApiConfigMeta.map((profile) => ({
+			name: profile.name,
+			provider: profile.apiProvider,
+		}))
 	}
 
 	public async getProviderProfile(): Promise<string> {
@@ -2714,7 +2773,14 @@ export class ClineProvider
 
 		const task = this.getCurrentTask()
 		const todoList = task?.todoList
-		let todos: { total: number; completed: number; inProgress: number; pending: number } | undefined
+		let todos:
+			| {
+					total: number
+					completed: number
+					inProgress: number
+					pending: number
+			  }
+			| undefined
 
 		if (todoList && todoList.length > 0) {
 			todos = {

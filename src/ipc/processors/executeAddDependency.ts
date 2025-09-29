@@ -29,13 +29,19 @@ export async function executeAddDependency({
     installResults = stdout + (stderr ? `\n${stderr}` : "");
   } catch (installError) {
     // If package installation fails, try cleaning node_modules and retrying
-    console.warn(`Package installation failed for ${packageStr}, attempting cleanup and retry:`, installError);
+    console.warn(
+      `Package installation failed for ${packageStr}, attempting cleanup and retry:`,
+      installError,
+    );
 
     try {
       // Clean up potential corrupted files and temporary directories
-      await execPromise(`rm -rf node_modules/.tmp-* node_modules/*_tmp_* node_modules/.pnpm-debug.log* node_modules/.*-* node_modules/*-*`, {
-        cwd: appPath,
-      });
+      await execPromise(
+        `rm -rf node_modules/.tmp-* node_modules/*_tmp_* node_modules/.pnpm-debug.log* node_modules/.*-* node_modules/*-*`,
+        {
+          cwd: appPath,
+        },
+      );
 
       // Clear package manager caches
       await execPromise(`pnpm store prune || npm cache clean --force || true`, {
@@ -53,7 +59,10 @@ export async function executeAddDependency({
     } catch (retryError) {
       // If retry also fails, try one more time with different approach
       try {
-        console.warn(`Retry also failed, trying alternative installation method:`, retryError);
+        console.warn(
+          `Retry also failed, trying alternative installation method:`,
+          retryError,
+        );
         const { stdout, stderr } = await execPromise(
           `npm install ${packageStr} --no-package-lock --legacy-peer-deps`,
           {

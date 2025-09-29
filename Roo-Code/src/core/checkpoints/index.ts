@@ -188,7 +188,10 @@ export async function checkpointSave(task: Task, force = false, suppressMessage 
 
 	// Start the checkpoint process in the background.
 	return service
-		.saveCheckpoint(`Task: ${task.taskId}, Time: ${Date.now()}`, { allowEmpty: force, suppressMessage })
+		.saveCheckpoint(`Task: ${task.taskId}, Time: ${Date.now()}`, {
+			allowEmpty: force,
+			suppressMessage,
+		})
 		.catch((err) => {
 			console.error("[Task#checkpointSave] caught unexpected error, disabling checkpoints", err)
 			task.enableCheckpoints = false
@@ -223,7 +226,10 @@ export async function checkpointRestore(
 	try {
 		await service.restoreCheckpoint(commitHash)
 		TelemetryService.instance.captureCheckpointRestored(task.taskId)
-		await provider?.postMessageToWebview({ type: "currentCheckpointUpdated", text: commitHash })
+		await provider?.postMessageToWebview({
+			type: "currentCheckpointUpdated",
+			text: commitHash,
+		})
 
 		if (mode === "restore") {
 			await task.overwriteApiConversationHistory(task.apiConversationHistory.filter((m) => !m.ts || m.ts < ts))

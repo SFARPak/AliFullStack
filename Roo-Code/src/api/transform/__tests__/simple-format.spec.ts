@@ -133,7 +133,10 @@ describe("simple-format", () => {
 			] as Anthropic.Messages.MessageParam[]
 			expect(convertToSimpleMessages(messages)).toEqual([
 				{ role: "user", content: "Look at this:\n[Image: image/png]" },
-				{ role: "assistant", content: "I see the image\n[Tool Use: analyze_image]" },
+				{
+					role: "assistant",
+					content: "I see the image\n[Tool Use: analyze_image]",
+				},
 			])
 		})
 	})

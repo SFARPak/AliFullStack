@@ -25,7 +25,9 @@ const getProductionClient = () => {
 	}
 
 	if (!_productionClient) {
-		_productionPgClient = postgres(process.env.PRODUCTION_DATABASE_URL, { prepare: false })
+		_productionPgClient = postgres(process.env.PRODUCTION_DATABASE_URL, {
+			prepare: false,
+		})
 		_productionClient = drizzle({ client: _productionPgClient, schema })
 	}
 

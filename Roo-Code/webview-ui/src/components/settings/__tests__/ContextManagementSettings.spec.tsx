@@ -395,7 +395,10 @@ describe("ContextManagementSettings", () => {
 
 		it("toggles auto condense context setting", () => {
 			const mockSetCachedStateField = vitest.fn()
-			const props = { ...autoCondenseProps, setCachedStateField: mockSetCachedStateField }
+			const props = {
+				...autoCondenseProps,
+				setCachedStateField: mockSetCachedStateField,
+			}
 			render(<ContextManagementSettings {...props} />)
 
 			const checkbox = screen.getByTestId("auto-condense-context-checkbox")
@@ -418,7 +421,10 @@ describe("ContextManagementSettings", () => {
 
 		it("updates auto condense context percent", () => {
 			const mockSetCachedStateField = vitest.fn()
-			const props = { ...autoCondenseProps, setCachedStateField: mockSetCachedStateField }
+			const props = {
+				...autoCondenseProps,
+				setCachedStateField: mockSetCachedStateField,
+			}
 			render(<ContextManagementSettings {...props} />)
 
 			// Find the condense threshold slider

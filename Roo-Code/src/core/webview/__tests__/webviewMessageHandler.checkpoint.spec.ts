@@ -32,9 +32,21 @@ describe("webviewMessageHandler - checkpoint operations", () => {
 				{ ts: 4, type: "assistant", say: "assistant", text: "After message" },
 			],
 			apiConversationHistory: [
-				{ ts: 1, role: "user", content: [{ type: "text", text: "First message" }] },
-				{ ts: 3, role: "user", content: [{ type: "text", text: "Message to delete" }] },
-				{ ts: 4, role: "assistant", content: [{ type: "text", text: "After message" }] },
+				{
+					ts: 1,
+					role: "user",
+					content: [{ type: "text", text: "First message" }],
+				},
+				{
+					ts: 3,
+					role: "user",
+					content: [{ type: "text", text: "Message to delete" }],
+				},
+				{
+					ts: 4,
+					role: "assistant",
+					content: [{ type: "text", text: "After message" }],
+				},
 			],
 			checkpointRestore: vi.fn(),
 			overwriteClineMessages: vi.fn(),

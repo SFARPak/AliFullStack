@@ -88,7 +88,10 @@ export function CodeExample() {
 							{isTyping && (
 								<motion.span
 									animate={{ opacity: [1, 0] }}
-									transition={{ repeat: Number.POSITIVE_INFINITY, duration: 0.8 }}
+									transition={{
+										repeat: Number.POSITIVE_INFINITY,
+										duration: 0.8,
+									}}
 									className="inline-block h-4 w-2 bg-blue-500"
 								/>
 							)}

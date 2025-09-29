@@ -39,7 +39,10 @@ export const BrowserSettings = ({
 	const { t } = useAppTranslation()
 
 	const [testingConnection, setTestingConnection] = useState(false)
-	const [testResult, setTestResult] = useState<{ success: boolean; text: string } | null>(null)
+	const [testResult, setTestResult] = useState<{
+		success: boolean
+		text: string
+	} | null>(null)
 	const [discovering, setDiscovering] = useState(false)
 
 	// We don't need a local state for useRemoteBrowser since we're using the
@@ -71,7 +74,10 @@ export const BrowserSettings = ({
 
 		try {
 			// Send a message to the extension to test the connection.
-			vscode.postMessage({ type: "testBrowserConnection", text: remoteBrowserHost })
+			vscode.postMessage({
+				type: "testBrowserConnection",
+				text: remoteBrowserHost,
+			})
 		} catch (error) {
 			setTestResult({
 				success: false,
@@ -91,8 +97,14 @@ export const BrowserSettings = ({
 				value: "900x600",
 				label: t("settings:browser.viewport.options.smallDesktop"),
 			},
-			{ value: "768x1024", label: t("settings:browser.viewport.options.tablet") },
-			{ value: "360x640", label: t("settings:browser.viewport.options.mobile") },
+			{
+				value: "768x1024",
+				label: t("settings:browser.viewport.options.tablet"),
+			},
+			{
+				value: "360x640",
+				label: t("settings:browser.viewport.options.mobile"),
+			},
 		],
 		[t],
 	)

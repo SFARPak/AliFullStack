@@ -1,4 +1,8 @@
-import { appOutputAtom, frontendTerminalOutputAtom, backendTerminalOutputAtom } from "@/atoms/appAtoms";
+import {
+  appOutputAtom,
+  frontendTerminalOutputAtom,
+  backendTerminalOutputAtom,
+} from "@/atoms/appAtoms";
 import { useAtomValue } from "jotai";
 
 // Console component with side-by-side terminal support
@@ -13,13 +17,27 @@ export const Console = () => {
   const hasMain = appOutput.length > 0;
 
   // Count active terminals
-  const activeTerminals = [hasMain && "main", hasFrontend && "frontend", hasBackend && "backend"].filter(Boolean);
+  const activeTerminals = [
+    hasMain && "main",
+    hasFrontend && "frontend",
+    hasBackend && "backend",
+  ].filter(Boolean);
   const terminalCount = activeTerminals.length;
 
   // Terminal rendering component
-  const TerminalPanel = ({ title, outputs, color }: { title: string; outputs: any[]; color: string }) => (
+  const TerminalPanel = ({
+    title,
+    outputs,
+    color,
+  }: {
+    title: string;
+    outputs: any[];
+    color: string;
+  }) => (
     <div className="flex flex-col h-full">
-      <div className={`px-3 py-2 bg-${color}-100 dark:bg-${color}-900 text-${color}-800 dark:text-${color}-200 text-xs font-medium border-b border-border`}>
+      <div
+        className={`px-3 py-2 bg-${color}-100 dark:bg-${color}-900 text-${color}-800 dark:text-${color}-200 text-xs font-medium border-b border-border`}
+      >
         {title} ({outputs.length})
       </div>
       <div className="font-mono text-xs px-4 flex-1 overflow-auto">
@@ -33,10 +51,22 @@ export const Console = () => {
   // Single terminal layout
   if (terminalCount === 1) {
     if (hasFrontend) {
-      return <TerminalPanel title="Frontend" outputs={frontendTerminalOutput} color="green" />;
+      return (
+        <TerminalPanel
+          title="Frontend"
+          outputs={frontendTerminalOutput}
+          color="green"
+        />
+      );
     }
     if (hasBackend) {
-      return <TerminalPanel title="Backend" outputs={backendTerminalOutput} color="orange" />;
+      return (
+        <TerminalPanel
+          title="Backend"
+          outputs={backendTerminalOutput}
+          color="orange"
+        />
+      );
     }
     return <TerminalPanel title="System" outputs={appOutput} color="blue" />;
   }
@@ -48,10 +78,18 @@ export const Console = () => {
       return (
         <div className="flex h-full">
           <div className="flex-1 border-r border-border">
-            <TerminalPanel title="Frontend" outputs={frontendTerminalOutput} color="green" />
+            <TerminalPanel
+              title="Frontend"
+              outputs={frontendTerminalOutput}
+              color="green"
+            />
           </div>
           <div className="flex-1">
-            <TerminalPanel title="Backend" outputs={backendTerminalOutput} color="orange" />
+            <TerminalPanel
+              title="Backend"
+              outputs={backendTerminalOutput}
+              color="orange"
+            />
           </div>
         </div>
       );
@@ -64,7 +102,11 @@ export const Console = () => {
             <TerminalPanel title="System" outputs={appOutput} color="blue" />
           </div>
           <div className="flex-1">
-            <TerminalPanel title="Frontend" outputs={frontendTerminalOutput} color="green" />
+            <TerminalPanel
+              title="Frontend"
+              outputs={frontendTerminalOutput}
+              color="green"
+            />
           </div>
         </div>
       );
@@ -77,7 +119,11 @@ export const Console = () => {
             <TerminalPanel title="System" outputs={appOutput} color="blue" />
           </div>
           <div className="flex-1">
-            <TerminalPanel title="Backend" outputs={backendTerminalOutput} color="orange" />
+            <TerminalPanel
+              title="Backend"
+              outputs={backendTerminalOutput}
+              color="orange"
+            />
           </div>
         </div>
       );
@@ -92,10 +138,18 @@ export const Console = () => {
           <TerminalPanel title="System" outputs={appOutput} color="blue" />
         </div>
         <div className="flex-1 border-r border-border">
-          <TerminalPanel title="Frontend" outputs={frontendTerminalOutput} color="green" />
+          <TerminalPanel
+            title="Frontend"
+            outputs={frontendTerminalOutput}
+            color="green"
+          />
         </div>
         <div className="flex-1">
-          <TerminalPanel title="Backend" outputs={backendTerminalOutput} color="orange" />
+          <TerminalPanel
+            title="Backend"
+            outputs={backendTerminalOutput}
+            color="orange"
+          />
         </div>
       </div>
     );

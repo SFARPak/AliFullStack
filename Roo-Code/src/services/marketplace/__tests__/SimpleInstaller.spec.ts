@@ -78,7 +78,9 @@ describe("SimpleInstaller", () => {
 			notFoundError.code = "ENOENT"
 			mockFs.readFile.mockRejectedValueOnce(notFoundError)
 
-			const result = await installer.installItem(mockModeItem, { target: "project" })
+			const result = await installer.installItem(mockModeItem, {
+				target: "project",
+			})
 
 			expect(result.filePath).toBe(path.join("/test/workspace", ".roomodes"))
 			expect(mockCustomModesManager.importModeWithRules).toHaveBeenCalled()
@@ -131,7 +133,9 @@ describe("SimpleInstaller", () => {
 			mockFs.readFile.mockRejectedValueOnce(notFoundError)
 			mockFs.writeFile.mockResolvedValueOnce(undefined as any)
 
-			const result = await installerWithoutManager.installItem(mockModeItem, { target: "project" })
+			const result = await installerWithoutManager.installItem(mockModeItem, {
+				target: "project",
+			})
 
 			expect(result.filePath).toBe(path.join("/test/workspace", ".roomodes"))
 			expect(mockFs.writeFile).toHaveBeenCalled()
@@ -157,7 +161,9 @@ describe("SimpleInstaller", () => {
 			mockFs.readFile.mockRejectedValueOnce(notFoundError)
 			mockFs.writeFile.mockResolvedValueOnce(undefined as any)
 
-			const result = await installer.installItem(mockMcpItem, { target: "project" })
+			const result = await installer.installItem(mockMcpItem, {
+				target: "project",
+			})
 
 			expect(result.filePath).toBe(path.join("/test/workspace", ".roo", "mcp.json"))
 			expect(mockFs.writeFile).toHaveBeenCalled()

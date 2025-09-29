@@ -172,7 +172,10 @@ export class BridgeOrchestrator {
 		this.token = options.token
 		this.provider = options.provider
 		this.instanceId = options.sessionId || crypto.randomUUID()
-		this.appProperties = { ...options.provider.appProperties, hostname: os.hostname() }
+		this.appProperties = {
+			...options.provider.appProperties,
+			hostname: os.hostname(),
+		}
 		this.gitProperties = options.provider.gitProperties
 
 		this.socketTransport = new SocketTransport({

@@ -12,11 +12,17 @@ export async function fetchInstructionsTool(
 	pushToolResult: PushToolResult,
 ) {
 	const task: string | undefined = block.params.task
-	const sharedMessageProps: ClineSayTool = { tool: "fetchInstructions", content: task }
+	const sharedMessageProps: ClineSayTool = {
+		tool: "fetchInstructions",
+		content: task,
+	}
 
 	try {
 		if (block.partial) {
-			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: undefined } satisfies ClineSayTool)
+			const partialMessage = JSON.stringify({
+				...sharedMessageProps,
+				content: undefined,
+			} satisfies ClineSayTool)
 			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
@@ -29,7 +35,10 @@ export async function fetchInstructionsTool(
 
 			cline.consecutiveMistakeCount = 0
 
-			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: task } satisfies ClineSayTool)
+			const completeMessage = JSON.stringify({
+				...sharedMessageProps,
+				content: task,
+			} satisfies ClineSayTool)
 			const didApprove = await askApproval("tool", completeMessage)
 
 			if (!didApprove) {
@@ -46,7 +55,11 @@ export async function fetchInstructionsTool(
 
 			const diffStrategy = cline.diffStrategy
 			const context = provider?.context
-			const content = await fetchInstructions(task, { mcpHub, diffStrategy, context })
+			const content = await fetchInstructions(task, {
+				mcpHub,
+				diffStrategy,
+				context,
+			})
 
 			if (!content) {
 				pushToolResult(formatResponse.toolError(`Invalid instructions request: ${task}`))

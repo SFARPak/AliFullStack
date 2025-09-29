@@ -178,11 +178,25 @@ describe("Sliding Window", () => {
 		it("should estimate tokens for image blocks based on data size", async () => {
 			// Small image
 			const smallImage: Array<Anthropic.Messages.ContentBlockParam> = [
-				{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "small_dummy_data" } },
+				{
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: "image/jpeg",
+						data: "small_dummy_data",
+					},
+				},
 			]
 			// Larger image with more data
 			const largerImage: Array<Anthropic.Messages.ContentBlockParam> = [
-				{ type: "image", source: { type: "base64", media_type: "image/png", data: "X".repeat(1000) } },
+				{
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: "image/png",
+						data: "X".repeat(1000),
+					},
+				},
 			]
 
 			// Verify the token count scales with the size of the image data
@@ -202,7 +216,14 @@ describe("Sliding Window", () => {
 		it("should estimate tokens for mixed content blocks", async () => {
 			const content: Array<Anthropic.Messages.ContentBlockParam> = [
 				{ type: "text", text: "A text block with 30 characters" },
-				{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "dummy_data" } },
+				{
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: "image/jpeg",
+						data: "dummy_data",
+					},
+				},
 				{ type: "text", text: "Another text with 24 chars" },
 			]
 
@@ -216,7 +237,14 @@ describe("Sliding Window", () => {
 
 			// Also test against a version with only the image to verify text adds tokens
 			const imageOnlyContent: Array<Anthropic.Messages.ContentBlockParam> = [
-				{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "dummy_data" } },
+				{
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: "image/jpeg",
+						data: "dummy_data",
+					},
+				},
 			]
 			const imageOnlyResult = await estimateTokenCount(imageOnlyContent, mockApiHandler)
 			expect(result).toBeGreaterThan(imageOnlyResult)

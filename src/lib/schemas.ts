@@ -251,7 +251,9 @@ export const UserSettingsSchema = z.object({
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 
 export function isAliFullStackProEnabled(settings: UserSettings): boolean {
-  return settings.enableAliFullStackPro === true && hasAliFullStackProKey(settings);
+  return (
+    settings.enableAliFullStackPro === true && hasAliFullStackProKey(settings)
+  );
 }
 
 export function hasAliFullStackProKey(settings: UserSettings): boolean {

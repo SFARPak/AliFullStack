@@ -242,7 +242,10 @@ Each file requires its own path, start_line, and diff elements.
 			.replace(/^\\:start_line:/gm, ":start_line:")
 	}
 
-	private validateMarkerSequencing(diffContent: string): { success: boolean; error?: string } {
+	private validateMarkerSequencing(diffContent: string): {
+		success: boolean
+		error?: string
+	} {
 		enum State {
 			START,
 			AFTER_SEARCH,

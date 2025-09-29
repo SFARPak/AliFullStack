@@ -178,7 +178,10 @@ async function validateToolExists(
 		}
 
 		// Tool exists and is enabled
-		return { isValid: true, availableTools: server.tools.map((tool) => tool.name) }
+		return {
+			isValid: true,
+			availableTools: server.tools.map((tool) => tool.name),
+		}
 	} catch (error) {
 		// If there's an error during validation, log it but don't block the tool execution
 		// The actual tool call might still fail with a proper error

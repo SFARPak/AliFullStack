@@ -114,7 +114,9 @@ describe("MarketplaceInstallModal - Optional Parameters", () => {
 
 		// Leave required parameter empty, fill optional one
 		const endpointInput = screen.getByPlaceholderText("Leave empty for default")
-		fireEvent.change(endpointInput, { target: { value: "https://custom.endpoint.com" } })
+		fireEvent.change(endpointInput, {
+			target: { value: "https://custom.endpoint.com" },
+		})
 
 		// Click install without filling required parameter
 		const installButton = screen.getByText("Install")

@@ -59,7 +59,11 @@ describe("multiApplyDiffTool", () => {
 			recordToolError: vi.fn(),
 			say: vi.fn().mockResolvedValue(undefined),
 			sayAndCreateMissingParamError: vi.fn().mockResolvedValue("Missing parameter error"),
-			ask: vi.fn().mockResolvedValue({ response: "yesButtonClicked", text: "", images: [] }),
+			ask: vi.fn().mockResolvedValue({
+				response: "yesButtonClicked",
+				text: "",
+				images: [],
+			}),
 			diffStrategy: {
 				applyDiff: vi.fn().mockResolvedValue({
 					success: true,
@@ -125,12 +129,16 @@ describe("multiApplyDiffTool", () => {
 				file: {
 					path: "test.ts",
 					diff: [
-						{ content: "<<<<<<< SEARCH\ntest\n=======\nreplaced\n>>>>>>> REPLACE" },
+						{
+							content: "<<<<<<< SEARCH\ntest\n=======\nreplaced\n>>>>>>> REPLACE",
+						},
 						{ content: null },
 						{ content: undefined },
 						{ content: 42 },
 						{ content: "" }, // Empty string should also be filtered
-						{ content: "<<<<<<< SEARCH\nmore\n=======\nchanges\n>>>>>>> REPLACE" },
+						{
+							content: "<<<<<<< SEARCH\nmore\n=======\nchanges\n>>>>>>> REPLACE",
+						},
 					],
 				},
 			})
@@ -376,11 +384,15 @@ new content
 				file: {
 					path: "test.ts",
 					diff: [
-						{ content: "<<<<<<< SEARCH\ntest\n=======\nreplaced\n>>>>>>> REPLACE" },
+						{
+							content: "<<<<<<< SEARCH\ntest\n=======\nreplaced\n>>>>>>> REPLACE",
+						},
 						{ content: null },
 						{ content: undefined },
 						{ content: 42 },
-						{ content: "<<<<<<< SEARCH\nmore\n=======\nchanges\n>>>>>>> REPLACE" },
+						{
+							content: "<<<<<<< SEARCH\nmore\n=======\nchanges\n>>>>>>> REPLACE",
+						},
 					],
 				},
 			})

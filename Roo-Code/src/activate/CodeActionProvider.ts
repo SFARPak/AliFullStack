@@ -27,7 +27,11 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 		args: any[],
 	): vscode.CodeAction {
 		const action = new vscode.CodeAction(title, kind)
-		action.command = { command: getCodeActionCommand(command), title, arguments: args }
+		action.command = {
+			command: getCodeActionCommand(command),
+			title,
+			arguments: args,
+		}
 		return action
 	}
 

@@ -13,7 +13,9 @@ import { GroqHandler } from "../groq"
 vitest.mock("openai", () => {
 	const createMock = vitest.fn()
 	return {
-		default: vitest.fn(() => ({ chat: { completions: { create: createMock } } })),
+		default: vitest.fn(() => ({
+			chat: { completions: { create: createMock } },
+		})),
 	}
 })
 
@@ -46,7 +48,10 @@ describe("GroqHandler", () => {
 
 	it("should return specified model when valid model is provided", () => {
 		const testModelId: GroqModelId = "llama-3.3-70b-versatile"
-		const handlerWithModel = new GroqHandler({ apiModelId: testModelId, groqApiKey: "test-groq-api-key" })
+		const handlerWithModel = new GroqHandler({
+			apiModelId: testModelId,
+			groqApiKey: "test-groq-api-key",
+		})
 		const model = handlerWithModel.getModel()
 		expect(model.id).toBe(testModelId)
 		expect(model.info).toEqual(groqModels[testModelId])
@@ -54,7 +59,9 @@ describe("GroqHandler", () => {
 
 	it("completePrompt method should return text from Groq API", async () => {
 		const expectedResponse = "This is a test response from Groq"
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: expectedResponse } }],
+		})
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe(expectedResponse)
 	})
@@ -97,7 +104,10 @@ describe("GroqHandler", () => {
 						.fn()
 						.mockResolvedValueOnce({
 							done: false,
-							value: { choices: [{ delta: {} }], usage: { prompt_tokens: 10, completion_tokens: 20 } },
+							value: {
+								choices: [{ delta: {} }],
+								usage: { prompt_tokens: 10, completion_tokens: 20 },
+							},
 						})
 						.mockResolvedValueOnce({ done: true }),
 				}),
@@ -160,7 +170,10 @@ describe("GroqHandler", () => {
 	it("createMessage should pass correct parameters to Groq client", async () => {
 		const modelId: GroqModelId = "llama-3.1-8b-instant"
 		const modelInfo = groqModels[modelId]
-		const handlerWithModel = new GroqHandler({ apiModelId: modelId, groqApiKey: "test-groq-api-key" })
+		const handlerWithModel = new GroqHandler({
+			apiModelId: modelId,
+			groqApiKey: "test-groq-api-key",
+		})
 
 		mockCreate.mockImplementationOnce(() => {
 			return {

@@ -71,7 +71,10 @@ export class DirectoryScanner implements IDirectoryScanner {
 		onError?: (error: Error) => void,
 		onBlocksIndexed?: (indexedCount: number) => void,
 		onFileParsed?: (fileBlockCount: number) => void,
-	): Promise<{ stats: { processed: number; skipped: number }; totalBlockCount: number }> {
+	): Promise<{
+		stats: { processed: number; skipped: number }
+		totalBlockCount: number
+	}> {
 		const directoryPath = directory
 		// Capture workspace context at scan start
 		const scanWorkspace = getWorkspacePathForContext(directoryPath)
@@ -116,7 +119,11 @@ export class DirectoryScanner implements IDirectoryScanner {
 		// Shared batch accumulators (protected by mutex)
 		let currentBatchBlocks: CodeBlock[] = []
 		let currentBatchTexts: string[] = []
-		let currentBatchFileInfos: { filePath: string; fileHash: string; isNew: boolean }[] = []
+		let currentBatchFileInfos: {
+			filePath: string
+			fileHash: string
+			isNew: boolean
+		}[] = []
 		const activeBatchPromises = new Set<Promise<void>>()
 		let pendingBatchCount = 0
 
@@ -153,7 +160,10 @@ export class DirectoryScanner implements IDirectoryScanner {
 					}
 
 					// File is new or changed - parse it using the injected parser function
-					const blocks = await this.codeParser.parseFile(filePath, { content, fileHash: currentFileHash })
+					const blocks = await this.codeParser.parseFile(filePath, {
+						content,
+						fileHash: currentFileHash,
+					})
 					const fileBlockCount = blocks.length
 					onFileParsed?.(fileBlockCount)
 					processedCount++
@@ -245,8 +255,9 @@ export class DirectoryScanner implements IDirectoryScanner {
 							error instanceof Error
 								? new Error(`${error.message} (Workspace: ${scanWorkspace}, File: ${filePath})`)
 								: new Error(
-										t("embeddings:scanner.unknownErrorProcessingFile", { filePath }) +
-											` (Workspace: ${scanWorkspace})`,
+										t("embeddings:scanner.unknownErrorProcessingFile", {
+											filePath,
+										}) + ` (Workspace: ${scanWorkspace})`,
 									),
 						)
 					}

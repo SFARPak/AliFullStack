@@ -130,7 +130,13 @@ describe("CustomModeSchema", () => {
 				roleDefinition: "Documentation editing mode",
 				groups: [
 					"read",
-					["edit", { fileRegex: "\\.(md|txt)$", description: "Documentation files only" }],
+					[
+						"edit",
+						{
+							fileRegex: "\\.(md|txt)$",
+							description: "Documentation files only",
+						},
+					],
 					"browser",
 				],
 			}

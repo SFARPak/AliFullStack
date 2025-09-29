@@ -681,7 +681,9 @@ describe("CodeIndexServiceFactory", () => {
 			}
 			mockConfigManager.getConfig.mockReturnValue(testConfig as any)
 			MockedOpenAiEmbedder.mockImplementation(() => mockEmbedderInstance)
-			mockEmbedderInstance.validateConfiguration.mockResolvedValue({ valid: true })
+			mockEmbedderInstance.validateConfiguration.mockResolvedValue({
+				valid: true,
+			})
 
 			// Act
 			const embedder = factory.createEmbedder()
@@ -730,7 +732,9 @@ describe("CodeIndexServiceFactory", () => {
 			}
 			mockConfigManager.getConfig.mockReturnValue(testConfig as any)
 			MockedCodeIndexOllamaEmbedder.mockImplementation(() => mockEmbedderInstance)
-			mockEmbedderInstance.validateConfiguration.mockResolvedValue({ valid: true })
+			mockEmbedderInstance.validateConfiguration.mockResolvedValue({
+				valid: true,
+			})
 
 			// Act
 			const embedder = factory.createEmbedder()
@@ -753,7 +757,9 @@ describe("CodeIndexServiceFactory", () => {
 			}
 			mockConfigManager.getConfig.mockReturnValue(testConfig as any)
 			MockedOpenAICompatibleEmbedder.mockImplementation(() => mockEmbedderInstance)
-			mockEmbedderInstance.validateConfiguration.mockResolvedValue({ valid: true })
+			mockEmbedderInstance.validateConfiguration.mockResolvedValue({
+				valid: true,
+			})
 
 			// Act
 			const embedder = factory.createEmbedder()
@@ -774,7 +780,9 @@ describe("CodeIndexServiceFactory", () => {
 			}
 			mockConfigManager.getConfig.mockReturnValue(testConfig as any)
 			MockedGeminiEmbedder.mockImplementation(() => mockEmbedderInstance)
-			mockEmbedderInstance.validateConfiguration.mockResolvedValue({ valid: true })
+			mockEmbedderInstance.validateConfiguration.mockResolvedValue({
+				valid: true,
+			})
 
 			// Act
 			const embedder = factory.createEmbedder()

@@ -75,7 +75,9 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		if (nestedGitPath) {
 			// Show persistent error message with the offending path
 			const relativePath = path.relative(this.workspaceDir, nestedGitPath)
-			const message = t("common:errors.nested_git_repos_warning", { path: relativePath })
+			const message = t("common:errors.nested_git_repos_warning", {
+				path: relativePath,
+			})
 			vscode.window.showErrorMessage(message)
 
 			throw new Error(
@@ -113,7 +115,9 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 			await git.addConfig("user.email", "noreply@example.com")
 			await this.writeExcludeFile()
 			await this.stageAll(git)
-			const { commit } = await git.commit("initial commit", { "--allow-empty": null })
+			const { commit } = await git.commit("initial commit", {
+				"--allow-empty": null,
+			})
 			this.baseHash = commit
 			created = true
 		}
@@ -165,7 +169,10 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 			// Find all .git/HEAD files that are not at the root level.
 			const args = ["--files", "--hidden", "--follow", "-g", "**/.git/HEAD", this.workspaceDir]
 
-			const gitPaths = await executeRipgrep({ args, workspacePath: this.workspaceDir })
+			const gitPaths = await executeRipgrep({
+				args,
+				workspacePath: this.workspaceDir,
+			})
 
 			// Filter to only include nested git directories (not the root .git).
 			// Since we're searching for HEAD files, we expect type to be "file"
@@ -332,7 +339,10 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 				? await this.git.show([`${to}:${relPath}`]).catch(() => "")
 				: await fs.readFile(absPath, "utf8").catch(() => "")
 
-			result.push({ paths: { relative: relPath, absolute: absPath }, content: { before, after } })
+			result.push({
+				paths: { relative: relPath, absolute: absPath },
+				content: { before, after },
+			})
 		}
 
 		return result
@@ -389,7 +399,10 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		globalStorageDir: string
 		workspaceDir: string
 	}) {
-		const workspaceRepoDir = this.workspaceRepoDir({ globalStorageDir, workspaceDir })
+		const workspaceRepoDir = this.workspaceRepoDir({
+			globalStorageDir,
+			workspaceDir,
+		})
 		const branchName = `roo-${taskId}`
 		const git = simpleGit(workspaceRepoDir)
 		const success = await this.deleteBranch(git, branchName)

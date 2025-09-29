@@ -86,9 +86,15 @@ async function resolveSymLink(
 		const stats = await fs.stat(resolvedTarget)
 		if (stats.isFile()) {
 			// For symlinks to files, store the symlink path as original and target as resolved
-			fileInfo.push({ originalPath: symlinkPath, resolvedPath: resolvedTarget })
+			fileInfo.push({
+				originalPath: symlinkPath,
+				resolvedPath: resolvedTarget,
+			})
 		} else if (stats.isDirectory()) {
-			const anotherEntries = await fs.readdir(resolvedTarget, { withFileTypes: true, recursive: true })
+			const anotherEntries = await fs.readdir(resolvedTarget, {
+				withFileTypes: true,
+				recursive: true,
+			})
 			// Collect promises for recursive calls within the directory
 			const directoryPromises: Promise<void>[] = []
 			for (const anotherEntry of anotherEntries) {
@@ -110,7 +116,10 @@ async function resolveSymLink(
  */
 async function readTextFilesFromDirectory(dirPath: string): Promise<Array<{ filename: string; content: string }>> {
 	try {
-		const entries = await fs.readdir(dirPath, { withFileTypes: true, recursive: true })
+		const entries = await fs.readdir(dirPath, {
+			withFileTypes: true,
+			recursive: true,
+		})
 
 		// Process all entries - regular files and symlinks that might point to files
 		// Store both original path (for sorting) and resolved path (for reading)
@@ -234,7 +243,10 @@ async function loadAgentRulesFile(cwd: string): Promise<string> {
 				const stats = await fs.lstat(agentPath)
 				if (stats.isSymbolicLink()) {
 					// Create a temporary fileInfo array to use with resolveSymLink
-					const fileInfo: Array<{ originalPath: string; resolvedPath: string }> = []
+					const fileInfo: Array<{
+						originalPath: string
+						resolvedPath: string
+					}> = []
 
 					// Use the existing resolveSymLink function to handle symlink resolution
 					await resolveSymLink(agentPath, fileInfo, 0)

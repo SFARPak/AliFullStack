@@ -154,8 +154,14 @@ describe("FileWatcher", () => {
 				{ path: "/mock/workspace/src/file.ts", shouldProcess: true },
 				{ path: "/mock/workspace/.git/config", shouldProcess: false },
 				{ path: "/mock/workspace/.hidden/file.ts", shouldProcess: false },
-				{ path: "/mock/workspace/src/.next/static/file.js", shouldProcess: false },
-				{ path: "/mock/workspace/node_modules/package/index.js", shouldProcess: false },
+				{
+					path: "/mock/workspace/src/.next/static/file.js",
+					shouldProcess: false,
+				},
+				{
+					path: "/mock/workspace/node_modules/package/index.js",
+					shouldProcess: false,
+				},
 				{ path: "/mock/workspace/normal/file.js", shouldProcess: true },
 			]
 
@@ -256,10 +262,22 @@ describe("FileWatcher", () => {
 
 			// Test deeply nested hidden directories
 			const testCases = [
-				{ path: "/mock/workspace/src/components/Button.tsx", shouldProcess: true },
-				{ path: "/mock/workspace/src/.hidden/components/Button.tsx", shouldProcess: false },
-				{ path: "/mock/workspace/.hidden/src/components/Button.tsx", shouldProcess: false },
-				{ path: "/mock/workspace/src/components/.hidden/Button.tsx", shouldProcess: false },
+				{
+					path: "/mock/workspace/src/components/Button.tsx",
+					shouldProcess: true,
+				},
+				{
+					path: "/mock/workspace/src/.hidden/components/Button.tsx",
+					shouldProcess: false,
+				},
+				{
+					path: "/mock/workspace/.hidden/src/components/Button.tsx",
+					shouldProcess: false,
+				},
+				{
+					path: "/mock/workspace/src/components/.hidden/Button.tsx",
+					shouldProcess: false,
+				},
 			]
 
 			// Trigger file creation events

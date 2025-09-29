@@ -79,7 +79,10 @@ beforeEach(() => {
 
 describe("executeCommandTool", () => {
 	// Setup common test variables
-	let mockCline: any & { consecutiveMistakeCount: number; didRejectTool: boolean }
+	let mockCline: any & {
+		consecutiveMistakeCount: number
+		didRejectTool: boolean
+	}
 	let mockAskApproval: any
 	let mockHandleError: any
 	let mockPushToolResult: any

@@ -110,8 +110,8 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
                               selectedChatId,
                             );
                           setMessages(chat.messages);
-                       }
-                     } else {
+                        }
+                      } else {
                         const chat =
                           await IpcClient.getInstance().getChat(selectedChatId);
                         if (chat.initialCommitHash) {

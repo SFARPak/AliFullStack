@@ -92,7 +92,11 @@ describe("webviewMessageHandler delete functionality", () => {
 			// API history has the assistant message but not the user message
 			// This simulates the case where the user message wasn't in API history
 			getCurrentTaskMock.apiConversationHistory = [
-				{ ts: assistantMessageTs, role: "assistant", content: { type: "text", text: "Hi there" } },
+				{
+					ts: assistantMessageTs,
+					role: "assistant",
+					content: { type: "text", text: "Hi there" },
+				},
 				{
 					ts: 1002,
 					role: "assistant",
@@ -126,9 +130,21 @@ describe("webviewMessageHandler delete functionality", () => {
 			]
 
 			getCurrentTaskMock.apiConversationHistory = [
-				{ ts: 900, role: "user", content: { type: "text", text: "Previous message" } },
-				{ ts: messageTs, role: "user", content: { type: "text", text: "Delete this" } },
-				{ ts: 1100, role: "assistant", content: { type: "text", text: "Response" } },
+				{
+					ts: 900,
+					role: "user",
+					content: { type: "text", text: "Previous message" },
+				},
+				{
+					ts: messageTs,
+					role: "user",
+					content: { type: "text", text: "Delete this" },
+				},
+				{
+					ts: 1100,
+					role: "assistant",
+					content: { type: "text", text: "Response" },
+				},
 			]
 
 			// Call delete
@@ -143,7 +159,11 @@ describe("webviewMessageHandler delete functionality", () => {
 			])
 
 			expect(getCurrentTaskMock.overwriteApiConversationHistory).toHaveBeenCalledWith([
-				{ ts: 900, role: "user", content: { type: "text", text: "Previous message" } },
+				{
+					ts: 900,
+					role: "user",
+					content: { type: "text", text: "Previous message" },
+				},
 			])
 		})
 
@@ -173,7 +193,11 @@ describe("webviewMessageHandler delete functionality", () => {
 
 			getCurrentTaskMock.clineMessages = [
 				{ ts: userMessageTs, say: "user", text: "Fix the bug" },
-				{ ts: attemptCompletionTs, say: "assistant", text: "I've fixed the bug" },
+				{
+					ts: attemptCompletionTs,
+					say: "assistant",
+					text: "I've fixed the bug",
+				},
 			]
 
 			// API history has attempt_completion but user message is missing
@@ -218,10 +242,26 @@ describe("webviewMessageHandler delete functionality", () => {
 			]
 
 			getCurrentTaskMock.apiConversationHistory = [
-				{ ts: 1000, role: "user", content: { type: "text", text: "First message" } },
-				{ ts: 1500, role: "assistant", content: { type: "text", text: "First response" } },
-				{ ts: messageTs, role: "user", content: { type: "text", text: "Delete this" } },
-				{ ts: 2500, role: "assistant", content: { type: "text", text: "Response to delete" } },
+				{
+					ts: 1000,
+					role: "user",
+					content: { type: "text", text: "First message" },
+				},
+				{
+					ts: 1500,
+					role: "assistant",
+					content: { type: "text", text: "First response" },
+				},
+				{
+					ts: messageTs,
+					role: "user",
+					content: { type: "text", text: "Delete this" },
+				},
+				{
+					ts: 2500,
+					role: "assistant",
+					content: { type: "text", text: "Response to delete" },
+				},
 			]
 
 			await webviewMessageHandler(provider, {
@@ -237,8 +277,16 @@ describe("webviewMessageHandler delete functionality", () => {
 
 			// API history should be truncated at the exact index
 			expect(getCurrentTaskMock.overwriteApiConversationHistory).toHaveBeenCalledWith([
-				{ ts: 1000, role: "user", content: { type: "text", text: "First message" } },
-				{ ts: 1500, role: "assistant", content: { type: "text", text: "First response" } },
+				{
+					ts: 1000,
+					role: "user",
+					content: { type: "text", text: "First message" },
+				},
+				{
+					ts: 1500,
+					role: "assistant",
+					content: { type: "text", text: "First response" },
+				},
 			])
 		})
 	})

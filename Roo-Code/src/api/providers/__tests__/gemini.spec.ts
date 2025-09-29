@@ -61,7 +61,9 @@ describe("GeminiHandler", () => {
 				[Symbol.asyncIterator]: async function* () {
 					yield { text: "Hello" }
 					yield { text: " world!" }
-					yield { usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 5 } }
+					yield {
+						usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 5 },
+					}
 				},
 			})
 
@@ -76,7 +78,11 @@ describe("GeminiHandler", () => {
 			expect(chunks.length).toBe(3)
 			expect(chunks[0]).toEqual({ type: "text", text: "Hello" })
 			expect(chunks[1]).toEqual({ type: "text", text: " world!" })
-			expect(chunks[2]).toEqual({ type: "usage", inputTokens: 10, outputTokens: 5 })
+			expect(chunks[2]).toEqual({
+				type: "usage",
+				inputTokens: 10,
+				outputTokens: 5,
+			})
 
 			// Verify the call to generateContentStream
 			expect(handler["client"].models.generateContentStream).toHaveBeenCalledWith(
@@ -130,7 +136,9 @@ describe("GeminiHandler", () => {
 			;(handler["client"].models.generateContent as any).mockRejectedValue(mockError)
 
 			await expect(handler.completePrompt("Test prompt")).rejects.toThrow(
-				t("common:errors.gemini.generate_complete_prompt", { error: "Gemini API error" }),
+				t("common:errors.gemini.generate_complete_prompt", {
+					error: "Gemini API error",
+				}),
 			)
 		})
 
@@ -184,14 +192,24 @@ describe("GeminiHandler", () => {
 			const expectedCost =
 				(inputTokens / 1_000_000) * mockInfo.inputPrice! + (outputTokens / 1_000_000) * mockInfo.outputPrice!
 
-			const cost = handler.calculateCost({ info: mockInfo, inputTokens, outputTokens })
+			const cost = handler.calculateCost({
+				info: mockInfo,
+				inputTokens,
+				outputTokens,
+			})
 			expect(cost).toBeCloseTo(expectedCost)
 		})
 
 		it("should return 0 if token counts are zero", () => {
 			// Note: The method expects numbers, not undefined. Passing undefined would be a type error.
 			// The calculateCost method itself returns undefined if prices are missing, but 0 if tokens are 0 and prices exist.
-			expect(handler.calculateCost({ info: mockInfo, inputTokens: 0, outputTokens: 0 })).toBe(0)
+			expect(
+				handler.calculateCost({
+					info: mockInfo,
+					inputTokens: 0,
+					outputTokens: 0,
+				}),
+			).toBe(0)
 		})
 
 		it("should handle only input tokens", () => {
@@ -221,7 +239,11 @@ describe("GeminiHandler", () => {
 				mockInfo.cacheWritesPrice! * (cacheWriteTokens / 1_000_000) * (CACHE_TTL / 60)
 			const expectedCost = expectedInputCost + expectedOutputCost + expectedCacheWriteCost
 
-			const cost = handler.calculateCost({ info: mockInfo, inputTokens, outputTokens })
+			const cost = handler.calculateCost({
+				info: mockInfo,
+				inputTokens,
+				outputTokens,
+			})
 			expect(cost).toBeCloseTo(expectedCost)
 		})
 
@@ -237,14 +259,23 @@ describe("GeminiHandler", () => {
 			const expectedCacheReadCost = mockInfo.cacheReadsPrice! * (cacheReadTokens / 1_000_000)
 			const expectedCost = expectedInputCost + expectedOutputCost + expectedCacheReadCost
 
-			const cost = handler.calculateCost({ info: mockInfo, inputTokens, outputTokens, cacheReadTokens })
+			const cost = handler.calculateCost({
+				info: mockInfo,
+				inputTokens,
+				outputTokens,
+				cacheReadTokens,
+			})
 			expect(cost).toBeCloseTo(expectedCost)
 		})
 
 		it("should return undefined if pricing info is missing", () => {
 			// Create a copy and explicitly set a price to undefined
 			const incompleteInfo: ModelInfo = { ...mockInfo, outputPrice: undefined }
-			const cost = handler.calculateCost({ info: incompleteInfo, inputTokens: 1000, outputTokens: 1000 })
+			const cost = handler.calculateCost({
+				info: incompleteInfo,
+				inputTokens: 1000,
+				outputTokens: 1000,
+			})
 			expect(cost).toBeUndefined()
 		})
 	})

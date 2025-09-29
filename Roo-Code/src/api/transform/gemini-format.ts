@@ -15,7 +15,12 @@ export function convertAnthropicContentToGemini(content: string | Anthropic.Cont
 					throw new Error("Unsupported image source type")
 				}
 
-				return { inlineData: { data: block.source.data, mimeType: block.source.media_type } }
+				return {
+					inlineData: {
+						data: block.source.data,
+						mimeType: block.source.media_type,
+					},
+				}
 			case "tool_use":
 				return {
 					functionCall: {
@@ -33,7 +38,10 @@ export function convertAnthropicContentToGemini(content: string | Anthropic.Cont
 
 				if (typeof block.content === "string") {
 					return {
-						functionResponse: { name: toolName, response: { name: toolName, content: block.content } },
+						functionResponse: {
+							name: toolName,
+							response: { name: toolName, content: block.content },
+						},
 					}
 				}
 
@@ -59,7 +67,12 @@ export function convertAnthropicContentToGemini(content: string | Anthropic.Cont
 
 				// Return function response followed by any images
 				return [
-					{ functionResponse: { name: toolName, response: { name: toolName, content: contentText } } },
+					{
+						functionResponse: {
+							name: toolName,
+							response: { name: toolName, content: contentText },
+						},
+					},
 					...imageParts,
 				]
 			}

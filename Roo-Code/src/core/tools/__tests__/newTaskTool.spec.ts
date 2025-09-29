@@ -389,8 +389,14 @@ describe("newTaskTool", () => {
 			"Test message",
 			expect.arrayContaining([
 				expect.objectContaining({ content: "Pending task", status: "pending" }),
-				expect.objectContaining({ content: "Completed task", status: "completed" }),
-				expect.objectContaining({ content: "In progress task", status: "in_progress" }),
+				expect.objectContaining({
+					content: "Completed task",
+					status: "completed",
+				}),
+				expect.objectContaining({
+					content: "In progress task",
+					status: "in_progress",
+				}),
 			]),
 			"code",
 		)

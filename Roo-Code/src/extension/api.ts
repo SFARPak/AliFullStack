@@ -100,8 +100,15 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 		eventName: K,
 		...args: K extends keyof RooCodeEvents ? RooCodeEvents[K] : never
 	) {
-		const data = { eventName: eventName as RooCodeEventName, payload: args } as TaskEvent
-		this.ipc?.broadcast({ type: IpcMessageType.TaskEvent, origin: IpcOrigin.Server, data })
+		const data = {
+			eventName: eventName as RooCodeEventName,
+			payload: args,
+		} as TaskEvent
+		this.ipc?.broadcast({
+			type: IpcMessageType.TaskEvent,
+			origin: IpcOrigin.Server,
+			data,
+		})
 		return super.emit(eventName, ...args)
 	}
 
@@ -122,7 +129,10 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 			await vscode.commands.executeCommand("workbench.action.files.revert")
 			await vscode.commands.executeCommand("workbench.action.closeAllEditors")
 
-			provider = await openClineInNewTab({ context: this.context, outputChannel: this.outputChannel })
+			provider = await openClineInNewTab({
+				context: this.context,
+				outputChannel: this.outputChannel,
+			})
 			this.registerListeners(provider)
 		} else {
 			await vscode.commands.executeCommand(`${Package.name}.SidebarProvider.focus`)
@@ -132,8 +142,16 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 
 		await provider.removeClineFromStack()
 		await provider.postStateToWebview()
-		await provider.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
-		await provider.postMessageToWebview({ type: "invoke", invoke: "newChat", text, images })
+		await provider.postMessageToWebview({
+			type: "action",
+			action: "chatButtonClicked",
+		})
+		await provider.postMessageToWebview({
+			type: "invoke",
+			invoke: "newChat",
+			text,
+			images,
+		})
 
 		const options: CreateTaskOptions = {
 			consecutiveMistakeLimit: Number.MAX_SAFE_INTEGER,
@@ -151,7 +169,10 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 	public async resumeTask(taskId: string): Promise<void> {
 		const { historyItem } = await this.sidebarProvider.getTaskWithId(taskId)
 		await this.sidebarProvider.createTaskWithHistoryItem(historyItem)
-		await this.sidebarProvider.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
+		await this.sidebarProvider.postMessageToWebview({
+			type: "action",
+			action: "chatButtonClicked",
+		})
 	}
 
 	public async isTaskInHistory(taskId: string): Promise<boolean> {
@@ -186,15 +207,26 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 	}
 
 	public async sendMessage(text?: string, images?: string[]) {
-		await this.sidebarProvider.postMessageToWebview({ type: "invoke", invoke: "sendMessage", text, images })
+		await this.sidebarProvider.postMessageToWebview({
+			type: "invoke",
+			invoke: "sendMessage",
+			text,
+			images,
+		})
 	}
 
 	public async pressPrimaryButton() {
-		await this.sidebarProvider.postMessageToWebview({ type: "invoke", invoke: "primaryButtonClick" })
+		await this.sidebarProvider.postMessageToWebview({
+			type: "invoke",
+			invoke: "primaryButtonClick",
+		})
 	}
 
 	public async pressSecondaryButton() {
-		await this.sidebarProvider.postMessageToWebview({ type: "invoke", invoke: "secondaryButtonClick" })
+		await this.sidebarProvider.postMessageToWebview({
+			type: "invoke",
+			invoke: "secondaryButtonClick",
+		})
 	}
 
 	public isReady() {
@@ -269,7 +301,10 @@ export class API extends EventEmitter<RooCodeEvents> implements RooCodeAPI {
 			// Task Execution
 
 			task.on(RooCodeEventName.Message, async (message) => {
-				this.emit(RooCodeEventName.Message, { taskId: task.taskId, ...message })
+				this.emit(RooCodeEventName.Message, {
+					taskId: task.taskId,
+					...message,
+				})
 
 				if (message.message.partial !== true) {
 					await this.fileLog(`[${new Date().toISOString()}] ${JSON.stringify(message.message, null, 2)}\n`)

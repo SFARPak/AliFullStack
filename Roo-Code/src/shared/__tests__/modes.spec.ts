@@ -152,7 +152,13 @@ describe("isToolAllowedForMode", () => {
 					roleDefinition: "You are a documentation editor",
 					groups: [
 						"read",
-						["edit", { fileRegex: "\\.(md|txt)$", description: "Documentation files only" }],
+						[
+							"edit",
+							{
+								fileRegex: "\\.(md|txt)$",
+								description: "Documentation files only",
+							},
+						],
 						"browser",
 					],
 				},
@@ -581,7 +587,10 @@ describe("getModeSelection", () => {
 	test("customMode's properties are used if customMode exists, ignoring promptComponent's properties", () => {
 		const selection = getModeSelection(
 			"code",
-			{ roleDefinition: "Prompt Role Only", customInstructions: "Prompt Instructions Only" },
+			{
+				roleDefinition: "Prompt Role Only",
+				customInstructions: "Prompt Instructions Only",
+			},
 			customModesList,
 		)
 		const customCodeMode = customModesList.find((m) => m.slug === "code")!
@@ -642,7 +651,9 @@ describe("getModeSelection", () => {
 				groups: ["read"] /* customInstructions undefined */,
 			},
 		]
-		const promptComponentInstrOnly: PromptComponent = { customInstructions: "Prompt Instructions Only" }
+		const promptComponentInstrOnly: PromptComponent = {
+			customInstructions: "Prompt Instructions Only",
+		}
 		// "role-custom" exists in customModeRoleOnlyList
 		const selection = getModeSelection("role-custom", promptComponentInstrOnly, customModeRoleOnlyList)
 		// customMode is chosen.
@@ -661,7 +672,9 @@ describe("getModeSelection", () => {
 				groups: ["read"],
 			},
 		]
-		const promptComponentRoleOnly: PromptComponent = { roleDefinition: "Prompt Role Only" }
+		const promptComponentRoleOnly: PromptComponent = {
+			roleDefinition: "Prompt Role Only",
+		}
 		// "instr-custom" exists in customModeInstrOnlyList
 		const selection = getModeSelection("instr-custom", promptComponentRoleOnly, customModeInstrOnlyList)
 		// customMode is chosen
@@ -671,7 +684,12 @@ describe("getModeSelection", () => {
 
 	test("customMode with empty/undefined fields takes precedence over promptComponent and builtInMode", () => {
 		const customModeMinimal: ModeConfig[] = [
-			{ slug: "ask", name: "Custom Ask Minimal", roleDefinition: "", groups: ["read"] }, // roleDef empty, customInstr undefined
+			{
+				slug: "ask",
+				name: "Custom Ask Minimal",
+				roleDefinition: "",
+				groups: ["read"],
+			}, // roleDef empty, customInstr undefined
 		]
 		const promptComponentMinimal: PromptComponent = {
 			roleDefinition: "Prompt Min Role",

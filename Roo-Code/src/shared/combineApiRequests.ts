@@ -76,7 +76,10 @@ export function combineApiRequests(messages: ClineMessage[]): ClineMessage[] {
 				}
 			} catch (e) {}
 
-			result[startIndex] = { ...startMessage, text: JSON.stringify({ ...startData, ...finishData }) }
+			result[startIndex] = {
+				...startMessage,
+				text: JSON.stringify({ ...startData, ...finishData }),
+			}
 		}
 	}
 

@@ -321,7 +321,9 @@ describe("MarketplaceManager", () => {
 
 			const result = await manager.installMarketplaceItem(item)
 
-			expect(manager["installer"].installItem).toHaveBeenCalledWith(item, { target: "project" })
+			expect(manager["installer"].installItem).toHaveBeenCalledWith(item, {
+				target: "project",
+			})
 			expect(result).toBe("/test/path/.roomodes")
 		})
 
@@ -343,7 +345,9 @@ describe("MarketplaceManager", () => {
 
 			const result = await manager.installMarketplaceItem(item)
 
-			expect(manager["installer"].installItem).toHaveBeenCalledWith(item, { target: "project" })
+			expect(manager["installer"].installItem).toHaveBeenCalledWith(item, {
+				target: "project",
+			})
 			expect(result).toBe("/test/path/.roo/mcp.json")
 		})
 	})
@@ -363,7 +367,9 @@ describe("MarketplaceManager", () => {
 
 			await manager.removeInstalledMarketplaceItem(item)
 
-			expect(manager["installer"].removeItem).toHaveBeenCalledWith(item, { target: "project" })
+			expect(manager["installer"].removeItem).toHaveBeenCalledWith(item, {
+				target: "project",
+			})
 		})
 
 		it("should remove an MCP item", async () => {
@@ -381,7 +387,9 @@ describe("MarketplaceManager", () => {
 
 			await manager.removeInstalledMarketplaceItem(item)
 
-			expect(manager["installer"].removeItem).toHaveBeenCalledWith(item, { target: "project" })
+			expect(manager["installer"].removeItem).toHaveBeenCalledWith(item, {
+				target: "project",
+			})
 		})
 	})
 

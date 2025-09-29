@@ -81,7 +81,11 @@ describe("CodeActionProvider", () => {
 
 		it("should provide fix action instead of fix logic when diagnostics exist", () => {
 			mockContext.diagnostics = [
-				{ message: "test error", severity: vscode.DiagnosticSeverity.Error, range: mockRange },
+				{
+					message: "test error",
+					severity: vscode.DiagnosticSeverity.Error,
+					range: mockRange,
+				},
 			]
 
 			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)

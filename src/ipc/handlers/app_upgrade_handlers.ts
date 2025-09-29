@@ -20,14 +20,16 @@ const availableUpgrades: Omit<AppUpgrade, "isNeeded">[] = [
     title: "Enable select component to edit",
     description:
       "Installs the AliFullStack component tagger Vite plugin and its dependencies.",
-    manualUpgradeUrl: "https://alifullstack.alitech.io/docs/upgrades/select-component",
+    manualUpgradeUrl:
+      "https://alifullstack.alitech.io/docs/upgrades/select-component",
   },
   {
     id: "capacitor",
     title: "Upgrade to hybrid mobile app with Capacitor",
     description:
       "Adds Capacitor to your app lets it run on iOS and Android in addition to the web.",
-    manualUpgradeUrl: "https://alifullstack.alitech.io/docs/guides/mobile-app#upgrade-your-app",
+    manualUpgradeUrl:
+      "https://alifullstack.alitech.io/docs/guides/mobile-app#upgrade-your-app",
   },
 ];
 
@@ -167,7 +169,9 @@ async function applyComponentTagger(appPath: string) {
         logger.info("component-tagger dependency installed successfully");
         resolve();
       } else {
-        logger.warn(`Failed to install component-tagger dependency (exit code ${code}). Continuing without it.`);
+        logger.warn(
+          `Failed to install component-tagger dependency (exit code ${code}). Continuing without it.`,
+        );
         resolve(); // Don't fail the upgrade, just continue without the package
       }
     });

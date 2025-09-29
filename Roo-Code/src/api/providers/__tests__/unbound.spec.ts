@@ -102,7 +102,10 @@ vitest.mock("openai", () => {
 
 						if (args[0].stream) {
 							mockWithResponse.mockReturnValue(
-								Promise.resolve({ data: stream, response: { headers: new Map() } }),
+								Promise.resolve({
+									data: stream,
+									response: { headers: new Map() },
+								}),
 							)
 							result.withResponse = mockWithResponse
 						}
@@ -172,7 +175,11 @@ describe("UnboundHandler", () => {
 			expect(chunks[0]).toEqual({ type: "text", text: "Test response" })
 
 			// Verify regular usage data
-			expect(chunks[1]).toEqual({ type: "usage", inputTokens: 10, outputTokens: 5 })
+			expect(chunks[1]).toEqual({
+				type: "usage",
+				inputTokens: 10,
+				outputTokens: 5,
+			})
 
 			// Verify usage data with cache information
 			expect(chunks[2]).toEqual({
@@ -245,7 +252,9 @@ describe("UnboundHandler", () => {
 		})
 
 		it("should handle empty response", async () => {
-			mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: "" } }] })
+			mockCreate.mockResolvedValueOnce({
+				choices: [{ message: { content: "" } }],
+			})
 			const result = await handler.completePrompt("Test prompt")
 			expect(result).toBe("")
 		})
@@ -312,7 +321,10 @@ describe("UnboundHandler", () => {
 		})
 
 		it("should return default model when invalid model provided", async () => {
-			const handlerWithInvalidModel = new UnboundHandler({ ...mockOptions, unboundModelId: "invalid/model" })
+			const handlerWithInvalidModel = new UnboundHandler({
+				...mockOptions,
+				unboundModelId: "invalid/model",
+			})
 			const modelInfo = await handlerWithInvalidModel.fetchModel()
 			expect(modelInfo.id).toBe("anthropic/claude-3-7-sonnet-20250219")
 			expect(modelInfo.info).toBeDefined()

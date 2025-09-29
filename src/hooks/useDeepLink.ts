@@ -1,11 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 declare global {
   interface Window {
     electron: {
       ipcRenderer: {
-        on: (channel: string, listener: (...args: unknown[]) => void) => () => void;
-        removeListener: (channel: string, listener: (...args: unknown[]) => void) => void;
+        on: (
+          channel: string,
+          listener: (...args: unknown[]) => void,
+        ) => () => void;
+        removeListener: (
+          channel: string,
+          listener: (...args: unknown[]) => void,
+        ) => void;
       };
     };
   }

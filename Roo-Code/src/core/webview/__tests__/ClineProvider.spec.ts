@@ -719,8 +719,14 @@ describe("ClineProvider", () => {
 		// Setup Cline instance with auto-mock from the top of the file
 		const mockCline1 = new Task(defaultTaskOptions) // Create a new mocked instance
 		const mockCline2 = new Task(defaultTaskOptions) // Create a new mocked instance
-		Object.defineProperty(mockCline1, "taskId", { value: "test-task-id-1", writable: true })
-		Object.defineProperty(mockCline2, "taskId", { value: "test-task-id-2", writable: true })
+		Object.defineProperty(mockCline1, "taskId", {
+			value: "test-task-id-1",
+			writable: true,
+		})
+		Object.defineProperty(mockCline2, "taskId", {
+			value: "test-task-id-2",
+			writable: true,
+		})
 
 		// add Cline instances to the stack
 		await provider.addClineToStack(mockCline1)
@@ -882,7 +888,11 @@ describe("ClineProvider", () => {
 		await provider.resolveWebviewView(mockWebviewView)
 		const messageHandler = (mockWebviewView.webview.onDidReceiveMessage as any).mock.calls[0][0]
 
-		const profile: ProviderSettingsEntry = { name: "test-config", id: "test-id", apiProvider: "anthropic" }
+		const profile: ProviderSettingsEntry = {
+			name: "test-config",
+			id: "test-id",
+			apiProvider: "anthropic",
+		}
 
 		;(provider as any).providerSettingsManager = {
 			getModeConfigId: vi.fn().mockResolvedValue("test-id"),
@@ -906,9 +916,13 @@ describe("ClineProvider", () => {
 
 		;(provider as any).providerSettingsManager = {
 			getModeConfigId: vi.fn().mockResolvedValue(undefined),
-			listConfig: vi
-				.fn()
-				.mockResolvedValue([{ name: "current-config", id: "current-id", apiProvider: "anthropic" }]),
+			listConfig: vi.fn().mockResolvedValue([
+				{
+					name: "current-config",
+					id: "current-id",
+					apiProvider: "anthropic",
+				},
+			]),
 			setModeConfig: vi.fn(),
 		} as any
 
@@ -925,7 +939,11 @@ describe("ClineProvider", () => {
 		await provider.resolveWebviewView(mockWebviewView)
 		const messageHandler = (mockWebviewView.webview.onDidReceiveMessage as any).mock.calls[0][0]
 
-		const profile: ProviderSettingsEntry = { apiProvider: "anthropic", id: "new-id", name: "new-config" }
+		const profile: ProviderSettingsEntry = {
+			apiProvider: "anthropic",
+			id: "new-id",
+			name: "new-config",
+		}
 
 		;(provider as any).providerSettingsManager = {
 			activateProfile: vi.fn().mockResolvedValue(profile),
@@ -965,7 +983,10 @@ describe("ClineProvider", () => {
 		await messageHandler({ type: "mode", text: "architect" })
 
 		// Then load the config by ID
-		await messageHandler({ type: "loadApiConfigurationById", text: "config-id-123" })
+		await messageHandler({
+			type: "loadApiConfigurationById",
+			text: "config-id-123",
+		})
 
 		// Should save new config as default for architect mode
 		expect(provider.providerSettingsManager.setModeConfig).toHaveBeenCalledWith("architect", "config-id-123")
@@ -1646,9 +1667,13 @@ describe("ClineProvider", () => {
 		test("saves current config when switching to mode without config", async () => {
 			;(provider as any).providerSettingsManager = {
 				getModeConfigId: vi.fn().mockResolvedValue(undefined),
-				listConfig: vi
-					.fn()
-					.mockResolvedValue([{ name: "current-config", id: "current-id", apiProvider: "anthropic" }]),
+				listConfig: vi.fn().mockResolvedValue([
+					{
+						name: "current-config",
+						id: "current-id",
+						apiProvider: "anthropic",
+					},
+				]),
 				setModeConfig: vi.fn(),
 			} as any
 
@@ -1773,9 +1798,11 @@ describe("ClineProvider", () => {
 				listConfig: vi
 					.fn()
 					.mockResolvedValue([{ name: "test-config", id: "config-id", apiProvider: "anthropic" }]),
-				activateProfile: vi
-					.fn()
-					.mockResolvedValue({ name: "test-config", id: "config-id", apiProvider: "anthropic" }),
+				activateProfile: vi.fn().mockResolvedValue({
+					name: "test-config",
+					id: "config-id",
+					apiProvider: "anthropic",
+				}),
 			}
 
 			// Spy on log method to verify no warning was logged
@@ -1977,7 +2004,12 @@ describe("ClineProvider", () => {
 
 			// Verify state was updated
 			expect(mockContext.globalState.update).toHaveBeenCalledWith("customModes", [
-				{ groups: ["read"], name: "Test Mode", roleDefinition: "Updated role definition", slug: "test-mode" },
+				{
+					groups: ["read"],
+					name: "Test Mode",
+					roleDefinition: "Updated role definition",
+					slug: "test-mode",
+				},
 			])
 
 			// Verify state was posted to webview
@@ -2313,7 +2345,9 @@ describe("Project MCP Settings", () => {
 		})
 
 		// Check that fs.mkdir was called with the correct path
-		expect(mockedFs.mkdir).toHaveBeenCalledWith("/test/workspace/.roo", { recursive: true })
+		expect(mockedFs.mkdir).toHaveBeenCalledWith("/test/workspace/.roo", {
+			recursive: true,
+		})
 
 		// Verify file was created with default content
 		expect(safeWriteJson).toHaveBeenCalledWith("/test/workspace/.roo/mcp.json", { mcpServers: {} })
@@ -2382,7 +2416,9 @@ describe.skip("ContextProxy integration", () => {
 			extension: { packageJSON: { version: "1.0.0" } },
 		} as unknown as vscode.ExtensionContext
 
-		mockOutputChannel = { appendLine: vi.fn() } as unknown as vscode.OutputChannel
+		mockOutputChannel = {
+			appendLine: vi.fn(),
+		} as unknown as vscode.OutputChannel
 		mockContextProxy = new ContextProxy(mockContext)
 		provider = new ClineProvider(mockContext, mockOutputChannel, "sidebar", mockContextProxy)
 	})
@@ -2447,7 +2483,9 @@ describe("getTelemetryProperties", () => {
 			extension: { packageJSON: { version: "1.0.0" } },
 		} as unknown as vscode.ExtensionContext
 
-		mockOutputChannel = { appendLine: vi.fn() } as unknown as vscode.OutputChannel
+		mockOutputChannel = {
+			appendLine: vi.fn(),
+		} as unknown as vscode.OutputChannel
 		provider = new ClineProvider(mockContext, mockOutputChannel, "sidebar", new ContextProxy(mockContext))
 
 		defaultTaskOptions = {
@@ -2680,9 +2718,15 @@ describe("ClineProvider - Router Models", () => {
 
 		// Verify getModels was called for each provider with correct options
 		expect(getModels).toHaveBeenCalledWith({ provider: "openrouter" })
-		expect(getModels).toHaveBeenCalledWith({ provider: "requesty", apiKey: "requesty-key" })
+		expect(getModels).toHaveBeenCalledWith({
+			provider: "requesty",
+			apiKey: "requesty-key",
+		})
 		expect(getModels).toHaveBeenCalledWith({ provider: "glama" })
-		expect(getModels).toHaveBeenCalledWith({ provider: "unbound", apiKey: "unbound-key" })
+		expect(getModels).toHaveBeenCalledWith({
+			provider: "unbound",
+			apiKey: "unbound-key",
+		})
 		expect(getModels).toHaveBeenCalledWith({ provider: "vercel-ai-gateway" })
 		expect(getModels).toHaveBeenCalledWith({
 			provider: "litellm",
@@ -2725,7 +2769,12 @@ describe("ClineProvider - Router Models", () => {
 		} as any)
 
 		const mockModels = {
-			"model-1": { maxTokens: 4096, contextWindow: 8192, description: "Test model", supportsPromptCache: false },
+			"model-1": {
+				maxTokens: 4096,
+				contextWindow: 8192,
+				description: "Test model",
+				supportsPromptCache: false,
+			},
 		}
 		const { getModels } = await import("../../../api/providers/fetchers/modelCache")
 
@@ -2805,7 +2854,12 @@ describe("ClineProvider - Router Models", () => {
 		} as any)
 
 		const mockModels = {
-			"model-1": { maxTokens: 4096, contextWindow: 8192, description: "Test model", supportsPromptCache: false },
+			"model-1": {
+				maxTokens: 4096,
+				contextWindow: 8192,
+				description: "Test model",
+				supportsPromptCache: false,
+			},
 		}
 		const { getModels } = await import("../../../api/providers/fetchers/modelCache")
 		vi.mocked(getModels).mockResolvedValue(mockModels)
@@ -2841,7 +2895,12 @@ describe("ClineProvider - Router Models", () => {
 		} as any)
 
 		const mockModels = {
-			"model-1": { maxTokens: 4096, contextWindow: 8192, description: "Test model", supportsPromptCache: false },
+			"model-1": {
+				maxTokens: 4096,
+				contextWindow: 8192,
+				description: "Test model",
+				supportsPromptCache: false,
+			},
 		}
 		const { getModels } = await import("../../../api/providers/fetchers/modelCache")
 		vi.mocked(getModels).mockResolvedValue(mockModels)
@@ -2886,7 +2945,12 @@ describe("ClineProvider - Router Models", () => {
 		} as any)
 
 		const mockModels = {
-			"model-1": { maxTokens: 4096, contextWindow: 8192, description: "Test model", supportsPromptCache: false },
+			"model-1": {
+				maxTokens: 4096,
+				contextWindow: 8192,
+				description: "Test model",
+				supportsPromptCache: false,
+			},
 		}
 		const { getModels } = await import("../../../api/providers/fetchers/modelCache")
 		vi.mocked(getModels).mockResolvedValue(mockModels)
@@ -2998,7 +3062,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 
 		test("handles editing messages containing images", async () => {
 			const mockMessages = [
-				{ ts: 1000, type: "say", say: "user_feedback", text: "Original message" },
+				{
+					ts: 1000,
+					type: "say",
+					say: "user_feedback",
+					text: "Original message",
+				},
 				{
 					ts: 2000,
 					type: "say",
@@ -3056,7 +3125,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 
 		test("handles editing messages with file attachments", async () => {
 			const mockMessages = [
-				{ ts: 1000, type: "say", say: "user_feedback", text: "Original message" },
+				{
+					ts: 1000,
+					type: "say",
+					say: "user_feedback",
+					text: "Original message",
+				},
 				{
 					ts: 2000,
 					type: "say",
@@ -3117,7 +3191,13 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 		test("handles network timeout during edit submission", async () => {
 			const mockCline = new Task(defaultTaskOptions)
 			mockCline.clineMessages = [
-				{ ts: 1000, type: "say", say: "user_feedback", text: "Original message", value: 2000 },
+				{
+					ts: 1000,
+					type: "say",
+					say: "user_feedback",
+					text: "Original message",
+					value: 2000,
+				},
 				{ ts: 2000, type: "say", say: "text", text: "AI response" },
 			] as ClineMessage[]
 			mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3151,7 +3231,11 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			})
 
 			// Simulate user confirming the edit
-			await messageHandler({ type: "editMessageConfirm", messageTs: 2000, text: "Edited message" })
+			await messageHandler({
+				type: "editMessageConfirm",
+				messageTs: 2000,
+				text: "Edited message",
+			})
 
 			expect(mockCline.overwriteClineMessages).toHaveBeenCalled()
 		})
@@ -3159,7 +3243,13 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 		test("handles connection drops during edit operation", async () => {
 			const mockCline = new Task(defaultTaskOptions)
 			mockCline.clineMessages = [
-				{ ts: 1000, type: "say", say: "user_feedback", text: "Original message", value: 2000 },
+				{
+					ts: 1000,
+					type: "say",
+					say: "user_feedback",
+					text: "Original message",
+					value: 2000,
+				},
 				{ ts: 2000, type: "say", say: "text", text: "AI response" },
 			] as ClineMessage[]
 			mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3193,7 +3283,11 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			})
 
 			// Simulate user confirming the edit
-			await messageHandler({ type: "editMessageConfirm", messageTs: 2000, text: "Edited message" })
+			await messageHandler({
+				type: "editMessageConfirm",
+				messageTs: 2000,
+				text: "Edited message",
+			})
 
 			// The error should be caught and shown
 			expect(vscode.window.showErrorMessage).toHaveBeenCalledWith("errors.message.error_editing_message")
@@ -3209,9 +3303,21 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 		test("handles race conditions with simultaneous edits", async () => {
 			const mockCline = new Task(defaultTaskOptions)
 			mockCline.clineMessages = [
-				{ ts: 1000, type: "say", say: "user_feedback", text: "Message 1", value: 2000 },
+				{
+					ts: 1000,
+					type: "say",
+					say: "user_feedback",
+					text: "Message 1",
+					value: 2000,
+				},
 				{ ts: 2000, type: "say", say: "text", text: "AI response 1" },
-				{ ts: 3000, type: "say", say: "user_feedback", text: "Message 2", value: 4000 },
+				{
+					ts: 3000,
+					type: "say",
+					say: "user_feedback",
+					text: "Message 2",
+					value: 4000,
+				},
 				{ ts: 4000, type: "say", say: "text", text: "AI response 2" },
 			] as ClineMessage[]
 			mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }, { ts: 3000 }, { ts: 4000 }] as any[]
@@ -3258,8 +3364,16 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			})
 
 			// Simulate user confirming both edits
-			await messageHandler({ type: "editMessageConfirm", messageTs: 2000, text: "Edited message 1" })
-			await messageHandler({ type: "editMessageConfirm", messageTs: 4000, text: "Edited message 2" })
+			await messageHandler({
+				type: "editMessageConfirm",
+				messageTs: 2000,
+				text: "Edited message 1",
+			})
+			await messageHandler({
+				type: "editMessageConfirm",
+				messageTs: 4000,
+				text: "Edited message 2",
+			})
 
 			// Both operations should complete without throwing
 			expect(mockCline.overwriteClineMessages).toHaveBeenCalled()
@@ -3291,7 +3405,13 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 		test("handles authorization failures during edit", async () => {
 			const mockCline = new Task(defaultTaskOptions)
 			mockCline.clineMessages = [
-				{ ts: 1000, type: "say", say: "user_feedback", text: "Original message", value: 2000 },
+				{
+					ts: 1000,
+					type: "say",
+					say: "user_feedback",
+					text: "Original message",
+					value: 2000,
+				},
 				{ ts: 2000, type: "say", say: "text", text: "AI response" },
 			] as ClineMessage[]
 			mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3379,7 +3499,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Original message" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Original message",
+					},
 					{ ts: 2000, type: "say", say: "text", text: "AI response" },
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3414,7 +3539,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			test("handles edit operations on deleted messages", async () => {
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Existing message" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Existing message",
+					},
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }] as any[]
 				mockCline.overwriteClineMessages = vi.fn()
@@ -3459,7 +3589,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			test("handles delete operations on non-existent messages", async () => {
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Existing message" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Existing message",
+					},
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }] as any[]
 				mockCline.overwriteClineMessages = vi.fn()
@@ -3502,7 +3637,13 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			test("validates proper cleanup during failed edit operations", async () => {
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Original message", value: 2000 },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Original message",
+						value: 2000,
+					},
 					{ ts: 2000, type: "say", say: "text", text: "AI response" },
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3539,7 +3680,11 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 				})
 
 				// Simulate user confirming the edit
-				await messageHandler({ type: "editMessageConfirm", messageTs: 2000, text: "Edited message" })
+				await messageHandler({
+					type: "editMessageConfirm",
+					messageTs: 2000,
+					text: "Edited message",
+				})
 
 				// Verify cleanup was attempted before failure
 				expect(cleanupSpy).toHaveBeenCalled()
@@ -3549,7 +3694,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			test("validates proper cleanup during failed delete operations", async () => {
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Message to delete" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Message to delete",
+					},
 					{ ts: 2000, type: "say", say: "text", text: "AI response" },
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3597,7 +3747,13 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 				// Create a large message (10KB of text)
 				const largeText = "A".repeat(10000)
 				const mockMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: largeText, value: 2000 },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: largeText,
+						value: 2000,
+					},
 					{ ts: 2000, type: "say", say: "text", text: "AI response" },
 				] as ClineMessage[]
 
@@ -3632,7 +3788,11 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 				})
 
 				// Simulate user confirming the edit
-				await messageHandler({ type: "editMessageConfirm", messageTs: 2000, text: largeEditedContent })
+				await messageHandler({
+					type: "editMessageConfirm",
+					messageTs: 2000,
+					text: largeEditedContent,
+				})
 
 				expect(mockCline.overwriteClineMessages).toHaveBeenCalled()
 				expect(mockCline.submitUserMessage).toHaveBeenCalledWith(largeEditedContent, undefined)
@@ -3642,10 +3802,20 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 				// Create messages with large payloads
 				const largeText = "X".repeat(50000)
 				const mockMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Small message" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Small message",
+					},
 					{ ts: 2000, type: "say", say: "user_feedback", text: largeText },
 					{ ts: 3000, type: "say", say: "text", text: "AI response" },
-					{ ts: 4000, type: "say", say: "user_feedback", text: "Another large message: " + largeText },
+					{
+						ts: 4000,
+						type: "say",
+						say: "user_feedback",
+						text: "Another large message: " + largeText,
+					},
 				] as ClineMessage[]
 
 				const mockCline = new Task(defaultTaskOptions)
@@ -3689,7 +3859,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 			test("provides user feedback for successful operations", async () => {
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Message to delete" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Message to delete",
+					},
 					{ ts: 2000, type: "say", say: "text", text: "AI response" },
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3727,7 +3902,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Message to edit" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Message to edit",
+					},
 					{ ts: 2000, type: "say", say: "text", text: "AI response" },
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 2000 }] as any[]
@@ -3763,8 +3943,18 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 				const mockCline = new Task(defaultTaskOptions)
 				mockCline.clineMessages = [
 					{ ts: 1000, type: "say", say: "user_feedback", text: "Message 1" },
-					{ ts: 1000, type: "say", say: "text", text: "Message 2 (same timestamp)" },
-					{ ts: 1000, type: "say", say: "user_feedback", text: "Message 3 (same timestamp)" },
+					{
+						ts: 1000,
+						type: "say",
+						say: "text",
+						text: "Message 2 (same timestamp)",
+					},
+					{
+						ts: 1000,
+						type: "say",
+						say: "user_feedback",
+						text: "Message 3 (same timestamp)",
+					},
 					{ ts: 2000, type: "say", say: "text", text: "Message 4" },
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [{ ts: 1000 }, { ts: 1000 }, { ts: 1000 }, { ts: 2000 }] as any[]
@@ -3806,7 +3996,12 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 						text: "Future message",
 						value: futureTimestamp + 1000,
 					},
-					{ ts: futureTimestamp + 1000, type: "say", say: "text", text: "AI response" },
+					{
+						ts: futureTimestamp + 1000,
+						type: "say",
+						say: "text",
+						text: "AI response",
+					},
 				] as ClineMessage[]
 				mockCline.apiConversationHistory = [
 					{ ts: 1000 },

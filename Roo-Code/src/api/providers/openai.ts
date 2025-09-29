@@ -57,7 +57,9 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 				baseURL,
 				apiKey,
 				defaultHeaders: headers,
-				defaultQuery: { "api-version": this.options.azureApiVersion || "2024-05-01-preview" },
+				defaultQuery: {
+					"api-version": this.options.azureApiVersion || "2024-05-01-preview",
+				},
 				timeout,
 			})
 		} else if (isAzureOpenAi) {
@@ -268,7 +270,12 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 	override getModel() {
 		const id = this.options.openAiModelId ?? ""
 		const info = this.options.openAiCustomModelInfo ?? openAiModelInfoSaneDefaults
-		const params = getModelParams({ format: "openai", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "openai",
+			modelId: id,
+			model: info,
+			settings: this.options,
+		})
 		return { id, info, ...params }
 	}
 

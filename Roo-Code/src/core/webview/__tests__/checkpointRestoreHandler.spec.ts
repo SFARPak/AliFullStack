@@ -40,7 +40,12 @@ describe("checkpointRestoreHandler", () => {
 					text: "Checkpoint message",
 					checkpoint: { hash: "abc123" },
 				},
-				{ ts: 4, type: "assistant", say: "assistant", text: "After checkpoint" },
+				{
+					ts: 4,
+					type: "assistant",
+					say: "assistant",
+					text: "After checkpoint",
+				},
 			],
 		}
 

@@ -33,7 +33,12 @@ export const BatchFilePermission = memo(({ files = [], onPermissionResponse, ts 
 						<div key={`${file.path}-${ts}`} className="flex items-center gap-2">
 							<ToolUseBlock className="flex-1">
 								<ToolUseBlockHeader
-									onClick={() => vscode.postMessage({ type: "openFile", text: file.content })}>
+									onClick={() =>
+										vscode.postMessage({
+											type: "openFile",
+											text: file.content,
+										})
+									}>
 									{file.path?.startsWith(".") && <span>.</span>}
 									<span className="whitespace-nowrap overflow-hidden text-ellipsis text-left mr-2 rtl">
 										{removeLeadingNonAlphanumeric(file.path ?? "") + "\u200E"}

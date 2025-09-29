@@ -28,7 +28,8 @@ import { RuntimeModeSelector } from "@/components/RuntimeModeSelector";
 export default function SettingsPage() {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
-  const [isDeleteAllAppsDialogOpen, setIsDeleteAllAppsDialogOpen] = useState(false);
+  const [isDeleteAllAppsDialogOpen, setIsDeleteAllAppsDialogOpen] =
+    useState(false);
   const [isDeletingAllApps, setIsDeletingAllApps] = useState(false);
   const appVersion = useAppVersion();
   const { settings, updateSettings } = useSettings();
@@ -203,7 +204,9 @@ export default function SettingsPage() {
                   disabled={isDeletingAllApps}
                   className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {isDeletingAllApps && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isDeletingAllApps && (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  )}
                   {isDeletingAllApps ? "Deleting..." : "Delete All Apps"}
                 </button>
               </div>

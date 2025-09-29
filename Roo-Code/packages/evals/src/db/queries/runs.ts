@@ -49,7 +49,10 @@ export const updateRun = async (id: number, values: UpdateRun) => {
 }
 
 export const getRuns = async () =>
-	db.query.runs.findMany({ orderBy: desc(schema.runs.id), with: { taskMetrics: true } })
+	db.query.runs.findMany({
+		orderBy: desc(schema.runs.id),
+		with: { taskMetrics: true },
+	})
 
 export const finishRun = async (runId: number) => {
 	const [values] = await db

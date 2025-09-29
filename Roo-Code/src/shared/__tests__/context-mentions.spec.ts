@@ -9,30 +9,51 @@ describe("mentionRegex and mentionRegexGlobal", () => {
 		{ input: "@/folder/", expected: ["@/folder/"] },
 
 		// File paths with escaped spaces at line start
-		{ input: "@/path/to/file\\ with\\ spaces.txt", expected: ["@/path/to/file\\ with\\ spaces.txt"] },
-		{ input: "@/users/my\\ project/report\\ final.pdf", expected: ["@/users/my\\ project/report\\ final.pdf"] },
-		{ input: "@/folder\\ with\\ spaces/", expected: ["@/folder\\ with\\ spaces/"] },
+		{
+			input: "@/path/to/file\\ with\\ spaces.txt",
+			expected: ["@/path/to/file\\ with\\ spaces.txt"],
+		},
+		{
+			input: "@/users/my\\ project/report\\ final.pdf",
+			expected: ["@/users/my\\ project/report\\ final.pdf"],
+		},
+		{
+			input: "@/folder\\ with\\ spaces/",
+			expected: ["@/folder\\ with\\ spaces/"],
+		},
 		{ input: "@/a\\ b\\ c.txt", expected: ["@/a\\ b\\ c.txt"] },
 
 		// URLs at line start
 		{ input: "@http://example.com", expected: ["@http://example.com"] },
-		{ input: "@https://example.com/path?query=1", expected: ["@https://example.com/path?query=1"] },
+		{
+			input: "@https://example.com/path?query=1",
+			expected: ["@https://example.com/path?query=1"],
+		},
 
 		// Other mentions at line start
 		{ input: "@problems", expected: ["@problems"] },
 		{ input: "@git-changes", expected: ["@git-changes"] },
 		{ input: "@terminal", expected: ["@terminal"] },
 		{ input: "@a1b2c3d", expected: ["@a1b2c3d"] }, // Git commit hash (short)
-		{ input: "@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", expected: ["@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"] }, // Git commit hash (long)
+		{
+			input: "@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+			expected: ["@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"],
+		}, // Git commit hash (long)
 
 		// Mentions after whitespace (valid)
 		{
 			input: "Check file @/path/to/file\\ with\\ spaces.txt for details.",
 			expected: ["@/path/to/file\\ with\\ spaces.txt"],
 		},
-		{ input: "See @problems and @terminal output.", expected: ["@problems", "@terminal"] },
+		{
+			input: "See @problems and @terminal output.",
+			expected: ["@problems", "@terminal"],
+		},
 		{ input: "URL: @https://example.com.", expected: ["@https://example.com"] }, // After colon and space
-		{ input: "Commit @a1b2c3d, then check @/file.txt", expected: ["@a1b2c3d", "@/file.txt"] },
+		{
+			input: "Commit @a1b2c3d, then check @/file.txt",
+			expected: ["@a1b2c3d", "@/file.txt"],
+		},
 
 		// NEW: Test cases for mentions mid-line without whitespace (should NOT match)
 		{ input: "error@https://example.com/path", expected: null }, // @ mid-word before URL
@@ -43,7 +64,10 @@ describe("mentionRegex and mentionRegexGlobal", () => {
 		{ input: "commit@a1b2c3d", expected: null }, // @ mid-word before git hash
 
 		// NEW: Test cases for pasted logs (should NOT match)
-		{ input: "Failed to fetch@https://api.example.com/endpoint", expected: null },
+		{
+			input: "Failed to fetch@https://api.example.com/endpoint",
+			expected: null,
+		},
 		{ input: "Error loading resource@/assets/image.png", expected: null },
 		{ input: "Stack trace:@/home/user/project/file.js:42", expected: null },
 

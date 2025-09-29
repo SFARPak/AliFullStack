@@ -67,7 +67,10 @@ describe("Vercel AI Gateway Caching", () => {
 					role: "user",
 					content: [
 						{ type: "text", text: "Hello with image" },
-						{ type: "image_url", image_url: { url: "data:image/png;base64,..." } },
+						{
+							type: "image_url",
+							image_url: { url: "data:image/png;base64,..." },
+						},
 					],
 				},
 			]
@@ -111,7 +114,12 @@ describe("Vercel AI Gateway Caching", () => {
 				{ role: "system", content: systemPrompt },
 				{
 					role: "user",
-					content: [{ type: "image_url", image_url: { url: "data:image/png;base64,..." } }],
+					content: [
+						{
+							type: "image_url",
+							image_url: { url: "data:image/png;base64,..." },
+						},
+					],
 				},
 			]
 
@@ -204,7 +212,10 @@ describe("Vercel AI Gateway Caching", () => {
 					role: "user",
 					content: [
 						{ type: "text", text: "First part" },
-						{ type: "image_url", image_url: { url: "data:image/png;base64,..." } },
+						{
+							type: "image_url",
+							image_url: { url: "data:image/png;base64,..." },
+						},
 						{ type: "text", text: "Second part" },
 					],
 				},

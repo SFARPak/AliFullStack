@@ -27,7 +27,11 @@ describe("addCacheBreakpoints (Vertex)", () => {
 		expect(result).toHaveLength(1)
 
 		expect(result[0].content).toEqual([
-			{ type: "text", text: "User message 1", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 1",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result).not.toBe(messages) // Ensure new array.
@@ -43,11 +47,19 @@ describe("addCacheBreakpoints (Vertex)", () => {
 		expect(result).toHaveLength(2)
 
 		expect(result[0].content).toEqual([
-			{ type: "text", text: "User message 1", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 1",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result[1].content).toEqual([
-			{ type: "text", text: "User message 2", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 2",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result).not.toBe(messages) // Ensure new array.
@@ -67,11 +79,19 @@ describe("addCacheBreakpoints (Vertex)", () => {
 		expect(result[0]).toEqual(originalMessage1)
 
 		expect(result[1].content).toEqual([
-			{ type: "text", text: "User message 2", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 2",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result[2].content).toEqual([
-			{ type: "text", text: "User message 3", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 3",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result).not.toBe(messages) // Ensure new array.
@@ -98,13 +118,21 @@ describe("addCacheBreakpoints (Vertex)", () => {
 		expect(result[1]).toEqual(originalAssistant1)
 
 		expect(result[2].content).toEqual([
-			{ type: "text", text: "User message 2", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 2",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result[3]).toEqual(originalAssistant2)
 
 		expect(result[4].content).toEqual([
-			{ type: "text", text: "User message 3", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 3",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result[5]).toEqual(originalAssistant3)
@@ -118,7 +146,10 @@ describe("addCacheBreakpoints (Vertex)", () => {
 				role: "user", // Gets breakpoint.
 				content: [
 					{ type: "text", text: "First text part." }, // No breakpoint.
-					{ type: "image", source: { type: "base64", media_type: "image/png", data: "..." } },
+					{
+						type: "image",
+						source: { type: "base64", media_type: "image/png", data: "..." },
+					},
 					{ type: "text", text: "Last text part." }, // Gets breakpoint.
 				],
 			},
@@ -128,13 +159,24 @@ describe("addCacheBreakpoints (Vertex)", () => {
 		expect(result).toHaveLength(2)
 
 		expect(result[0].content).toEqual([
-			{ type: "text", text: "User message 1", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 1",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		expect(result[1].content).toEqual([
 			{ type: "text", text: "First text part." }, // Unchanged.
-			{ type: "image", source: { type: "base64", media_type: "image/png", data: "..." } }, // Unchanged.
-			{ type: "text", text: "Last text part.", cache_control: { type: "ephemeral" } }, // Breakpoint added.
+			{
+				type: "image",
+				source: { type: "base64", media_type: "image/png", data: "..." },
+			}, // Unchanged.
+			{
+				type: "text",
+				text: "Last text part.",
+				cache_control: { type: "ephemeral" },
+			}, // Breakpoint added.
 		])
 
 		expect(result).not.toBe(messages) // Ensure new array.
@@ -145,7 +187,12 @@ describe("addCacheBreakpoints (Vertex)", () => {
 			{ role: "user", content: "User message 1" }, // Gets breakpoint.
 			{
 				role: "user", // Gets breakpoint, but has no text part to add it to.
-				content: [{ type: "image", source: { type: "base64", media_type: "image/png", data: "..." } }],
+				content: [
+					{
+						type: "image",
+						source: { type: "base64", media_type: "image/png", data: "..." },
+					},
+				],
 			},
 		]
 
@@ -155,7 +202,11 @@ describe("addCacheBreakpoints (Vertex)", () => {
 		expect(result).toHaveLength(2)
 
 		expect(result[0].content).toEqual([
-			{ type: "text", text: "User message 1", cache_control: { type: "ephemeral" } },
+			{
+				type: "text",
+				text: "User message 1",
+				cache_control: { type: "ephemeral" },
+			},
 		])
 
 		// Check second user message - should be unchanged as no text part found.

@@ -168,11 +168,36 @@ describe("list-files symlink support", () => {
 
 		// Root directory with first-level directories
 		mockReaddir.mockResolvedValueOnce([
-			{ name: "a_dir", isDirectory: () => true, isSymbolicLink: () => false, isFile: () => false } as any,
-			{ name: "b_dir", isDirectory: () => true, isSymbolicLink: () => false, isFile: () => false } as any,
-			{ name: "c_dir", isDirectory: () => true, isSymbolicLink: () => false, isFile: () => false } as any,
-			{ name: "file1.txt", isDirectory: () => false, isSymbolicLink: () => false, isFile: () => true } as any,
-			{ name: "file2.txt", isDirectory: () => false, isSymbolicLink: () => false, isFile: () => true } as any,
+			{
+				name: "a_dir",
+				isDirectory: () => true,
+				isSymbolicLink: () => false,
+				isFile: () => false,
+			} as any,
+			{
+				name: "b_dir",
+				isDirectory: () => true,
+				isSymbolicLink: () => false,
+				isFile: () => false,
+			} as any,
+			{
+				name: "c_dir",
+				isDirectory: () => true,
+				isSymbolicLink: () => false,
+				isFile: () => false,
+			} as any,
+			{
+				name: "file1.txt",
+				isDirectory: () => false,
+				isSymbolicLink: () => false,
+				isFile: () => true,
+			} as any,
+			{
+				name: "file2.txt",
+				isDirectory: () => false,
+				isSymbolicLink: () => false,
+				isFile: () => true,
+			} as any,
 		])
 
 		// Mock ripgrep to return many files (simulating hitting the limit)
@@ -265,7 +290,11 @@ describe("hidden directory exclusion", () => {
 			])
 			.mockResolvedValueOnce([
 				// src subdirectories (should be included)
-				{ name: "components", isDirectory: () => true, isSymbolicLink: () => false },
+				{
+					name: "components",
+					isDirectory: () => true,
+					isSymbolicLink: () => false,
+				},
 			])
 			.mockResolvedValueOnce([]) // components/ is empty
 

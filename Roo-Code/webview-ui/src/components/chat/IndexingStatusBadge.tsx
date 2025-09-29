@@ -61,7 +61,9 @@ export const IndexingStatusBadge: React.FC<IndexingStatusBadgeProps> = ({ classN
 			case "Standby":
 				return t("chat:indexingStatus.ready")
 			case "Indexing":
-				return t("chat:indexingStatus.indexing", { percentage: progressPercentage })
+				return t("chat:indexingStatus.indexing", {
+					percentage: progressPercentage,
+				})
 			case "Indexed":
 				return t("chat:indexingStatus.indexed")
 			case "Error":

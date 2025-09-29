@@ -114,7 +114,10 @@ const XLink = () => (
 		href="https://x.com/roo_code"
 		onClick={(e) => {
 			e.preventDefault()
-			vscode.postMessage({ type: "openExternal", url: "https://x.com/roo_code" })
+			vscode.postMessage({
+				type: "openExternal",
+				url: "https://x.com/roo_code",
+			})
 		}}>
 		X
 	</VSCodeLink>
@@ -125,7 +128,10 @@ const DiscordLink = () => (
 		href="https://discord.gg/rCQcvT7Fnt"
 		onClick={(e) => {
 			e.preventDefault()
-			vscode.postMessage({ type: "openExternal", url: "https://discord.gg/rCQcvT7Fnt" })
+			vscode.postMessage({
+				type: "openExternal",
+				url: "https://discord.gg/rCQcvT7Fnt",
+			})
 		}}>
 		Discord
 	</VSCodeLink>
@@ -136,7 +142,10 @@ const RedditLink = () => (
 		href="https://www.reddit.com/r/RooCode/"
 		onClick={(e) => {
 			e.preventDefault()
-			vscode.postMessage({ type: "openExternal", url: "https://www.reddit.com/r/RooCode/" })
+			vscode.postMessage({
+				type: "openExternal",
+				url: "https://www.reddit.com/r/RooCode/",
+			})
 		}}>
 		r/RooCode
 	</VSCodeLink>

@@ -849,7 +849,9 @@ describe("OpenAiNativeHandler", () => {
 			}
 
 			// Second request without metadata - should use stored response ID
-			const stream2 = handler.createMessage(systemPrompt, messages, { taskId: "test-task" })
+			const stream2 = handler.createMessage(systemPrompt, messages, {
+				taskId: "test-task",
+			})
 			for await (const chunk of stream2) {
 				// consume stream
 			}
@@ -867,7 +869,10 @@ describe("OpenAiNativeHandler", () => {
 				.mockResolvedValueOnce({
 					ok: false,
 					status: 400,
-					text: async () => JSON.stringify({ error: { message: "Previous response not found" } }),
+					text: async () =>
+						JSON.stringify({
+							error: { message: "Previous response not found" },
+						}),
 				})
 				// Second call (retry): succeeds
 				.mockResolvedValueOnce({
@@ -993,7 +998,10 @@ describe("OpenAiNativeHandler", () => {
 						{ type: "response.text.delta", delta: " preserved!" },
 						{
 							type: "response.done",
-							response: { id: "resp_new", usage: { prompt_tokens: 150, completion_tokens: 2 } },
+							response: {
+								id: "resp_new",
+								usage: { prompt_tokens: 150, completion_tokens: 2 },
+							},
 						},
 					]),
 				)
@@ -1036,7 +1044,12 @@ describe("OpenAiNativeHandler", () => {
 			expect(firstCallBody.input).toEqual([
 				{
 					role: "user",
-					content: [{ type: "input_text", text: "What number did I ask you to remember?" }],
+					content: [
+						{
+							type: "input_text",
+							text: "What number did I ask you to remember?",
+						},
+					],
 				},
 			])
 
@@ -1056,7 +1069,12 @@ describe("OpenAiNativeHandler", () => {
 				},
 				{
 					role: "user",
-					content: [{ type: "input_text", text: "What number did I ask you to remember?" }],
+					content: [
+						{
+							type: "input_text",
+							text: "What number did I ask you to remember?",
+						},
+					],
 				},
 			])
 		})

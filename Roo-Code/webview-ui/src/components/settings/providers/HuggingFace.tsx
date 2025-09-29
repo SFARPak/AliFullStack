@@ -193,7 +193,9 @@ export const HuggingFace = ({ apiConfiguration, setApiConfigurationField }: Hugg
 					)}
 					{!loading && (
 						<span className="text-xs text-gray-400 ml-2">
-							{t("settings:providers.huggingFaceModelsCount", { count: models.length })}
+							{t("settings:providers.huggingFaceModelsCount", {
+								count: models.length,
+							})}
 						</span>
 					)}
 				</label>
@@ -221,7 +223,10 @@ export const HuggingFace = ({ apiConfiguration, setApiConfigurationField }: Hugg
 						value={selectedProvider}
 						onValueChange={handleProviderSelect}
 						options={[
-							{ value: "auto", label: t("settings:providers.huggingFaceProviderAuto") },
+							{
+								value: "auto",
+								label: t("settings:providers.huggingFaceProviderAuto"),
+							},
 							...availableProviders.map(
 								(mapping): SearchableSelectOption => ({
 									value: mapping.provider,

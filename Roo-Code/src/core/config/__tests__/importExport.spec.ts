@@ -84,9 +84,9 @@ describe("importExport", () => {
 			setProviderSettings: vi.fn(),
 		} as unknown as ReturnType<typeof vi.mocked<ContextProxy>>
 
-		mockCustomModesManager = { updateCustomMode: vi.fn() } as unknown as ReturnType<
-			typeof vi.mocked<CustomModesManager>
-		>
+		mockCustomModesManager = {
+			updateCustomMode: vi.fn(),
+		} as unknown as ReturnType<typeof vi.mocked<CustomModesManager>>
 
 		const map = new Map<string, string>()
 
@@ -108,7 +108,10 @@ describe("importExport", () => {
 				customModesManager: mockCustomModesManager,
 			})
 
-			expect(result).toEqual({ success: false, error: "User cancelled file selection" })
+			expect(result).toEqual({
+				success: false,
+				error: "User cancelled file selection",
+			})
 
 			expect(vscode.window.showOpenDialog).toHaveBeenCalledWith({
 				filters: { JSON: ["json"] },
@@ -126,7 +129,13 @@ describe("importExport", () => {
 			const mockFileContent = JSON.stringify({
 				providerProfiles: {
 					currentApiConfigName: "test",
-					apiConfigs: { test: { apiProvider: "openai" as ProviderName, apiKey: "test-key", id: "test-id" } },
+					apiConfigs: {
+						test: {
+							apiProvider: "openai" as ProviderName,
+							apiKey: "test-key",
+							id: "test-id",
+						},
+					},
 				},
 				globalSettings: { mode: "code", autoApprovalEnabled: true },
 			})
@@ -135,14 +144,23 @@ describe("importExport", () => {
 
 			const previousProviderProfiles = {
 				currentApiConfigName: "default",
-				apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+				apiConfigs: {
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+				},
 			}
 
 			mockProviderSettingsManager.export.mockResolvedValue(previousProviderProfiles)
 
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
 				{ name: "test", id: "test-id", apiProvider: "openai" as ProviderName },
-				{ name: "default", id: "default-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "default",
+					id: "default-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 
 			mockContextProxy.export.mockResolvedValue({ mode: "code" })
@@ -160,18 +178,36 @@ describe("importExport", () => {
 			expect(mockProviderSettingsManager.import).toHaveBeenCalledWith({
 				currentApiConfigName: "test",
 				apiConfigs: {
-					default: { apiProvider: "anthropic" as ProviderName, id: "default-id" },
-					test: { apiProvider: "openai" as ProviderName, apiKey: "test-key", id: "test-id" },
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+					test: {
+						apiProvider: "openai" as ProviderName,
+						apiKey: "test-key",
+						id: "test-id",
+					},
 				},
 				modeApiConfigs: {},
 			})
 
-			expect(mockContextProxy.setValues).toHaveBeenCalledWith({ mode: "code", autoApprovalEnabled: true })
+			expect(mockContextProxy.setValues).toHaveBeenCalledWith({
+				mode: "code",
+				autoApprovalEnabled: true,
+			})
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("currentApiConfigName", "test")
 
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("listApiConfigMeta", [
-				{ name: "test", id: "test-id", apiProvider: "openai" as ProviderName },
-				{ name: "default", id: "default-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "test",
+					id: "test-id",
+					apiProvider: "openai" as ProviderName,
+				},
+				{
+					name: "default",
+					id: "default-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 		})
 
@@ -192,7 +228,10 @@ describe("importExport", () => {
 				customModesManager: mockCustomModesManager,
 			})
 
-			expect(result).toEqual({ success: false, error: "[providerProfiles.currentApiConfigName]: Required" })
+			expect(result).toEqual({
+				success: false,
+				error: "[providerProfiles.currentApiConfigName]: Required",
+			})
 			expect(fs.readFile).toHaveBeenCalledWith("/mock/path/settings.json", "utf-8")
 			expect(mockProviderSettingsManager.import).not.toHaveBeenCalled()
 			expect(mockContextProxy.setValues).not.toHaveBeenCalled()
@@ -204,7 +243,13 @@ describe("importExport", () => {
 			const mockFileContent = JSON.stringify({
 				providerProfiles: {
 					currentApiConfigName: "test",
-					apiConfigs: { test: { apiProvider: "openai" as ProviderName, apiKey: "test-key", id: "test-id" } },
+					apiConfigs: {
+						test: {
+							apiProvider: "openai" as ProviderName,
+							apiKey: "test-key",
+							id: "test-id",
+						},
+					},
 				},
 			})
 
@@ -212,14 +257,23 @@ describe("importExport", () => {
 
 			const previousProviderProfiles = {
 				currentApiConfigName: "default",
-				apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+				apiConfigs: {
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+				},
 			}
 
 			mockProviderSettingsManager.export.mockResolvedValue(previousProviderProfiles)
 
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
 				{ name: "test", id: "test-id", apiProvider: "openai" as ProviderName },
-				{ name: "default", id: "default-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "default",
+					id: "default-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 
 			mockContextProxy.export.mockResolvedValue({ mode: "code" })
@@ -236,8 +290,15 @@ describe("importExport", () => {
 			expect(mockProviderSettingsManager.import).toHaveBeenCalledWith({
 				currentApiConfigName: "test",
 				apiConfigs: {
-					default: { apiProvider: "anthropic" as ProviderName, id: "default-id" },
-					test: { apiProvider: "openai" as ProviderName, apiKey: "test-key", id: "test-id" },
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+					test: {
+						apiProvider: "openai" as ProviderName,
+						apiKey: "test-key",
+						id: "test-id",
+					},
 				},
 				modeApiConfigs: {},
 			})
@@ -246,8 +307,16 @@ describe("importExport", () => {
 			expect(mockContextProxy.setValues).toHaveBeenCalledWith({})
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("currentApiConfigName", "test")
 			expect(mockContextProxy.setValue).toHaveBeenCalledWith("listApiConfigMeta", [
-				{ name: "test", id: "test-id", apiProvider: "openai" as ProviderName },
-				{ name: "default", id: "default-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "test",
+					id: "test-id",
+					apiProvider: "openai" as ProviderName,
+				},
+				{
+					name: "default",
+					id: "default-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 		})
 
@@ -287,7 +356,10 @@ describe("importExport", () => {
 
 		it("should not clobber existing api configs", async () => {
 			const providerSettingsManager = new ProviderSettingsManager(mockExtensionContext)
-			await providerSettingsManager.saveConfig("openai", { apiProvider: "openai", id: "openai" })
+			await providerSettingsManager.saveConfig("openai", {
+				apiProvider: "openai",
+				id: "openai",
+			})
 
 			const configs = await providerSettingsManager.listConfig()
 			expect(configs[0].name).toBe("default")
@@ -298,7 +370,9 @@ describe("importExport", () => {
 				globalSettings: { mode: "code" },
 				providerProfiles: {
 					currentApiConfigName: "anthropic",
-					apiConfigs: { default: { apiProvider: "anthropic" as const, id: "anthropic" } },
+					apiConfigs: {
+						default: { apiProvider: "anthropic" as const, id: "anthropic" },
+					},
 				},
 			})
 
@@ -324,8 +398,18 @@ describe("importExport", () => {
 			;(vscode.window.showOpenDialog as Mock).mockResolvedValue([{ fsPath: "/mock/path/settings.json" }])
 
 			const customModes = [
-				{ slug: "mode1", name: "Mode One", roleDefinition: "Custom role one", groups: [] },
-				{ slug: "mode2", name: "Mode Two", roleDefinition: "Custom role two", groups: [] },
+				{
+					slug: "mode1",
+					name: "Mode One",
+					roleDefinition: "Custom role one",
+					groups: [],
+				},
+				{
+					slug: "mode2",
+					name: "Mode Two",
+					roleDefinition: "Custom role two",
+					groups: [],
+				},
 			]
 
 			const mockFileContent = JSON.stringify({
@@ -361,7 +445,13 @@ describe("importExport", () => {
 			const mockFileContent = JSON.stringify({
 				providerProfiles: {
 					currentApiConfigName: "test",
-					apiConfigs: { test: { apiProvider: "openai" as ProviderName, apiKey: "test-key", id: "test-id" } },
+					apiConfigs: {
+						test: {
+							apiProvider: "openai" as ProviderName,
+							apiKey: "test-key",
+							id: "test-id",
+						},
+					},
 				},
 				globalSettings: { mode: "code", autoApprovalEnabled: true },
 			})
@@ -371,13 +461,22 @@ describe("importExport", () => {
 
 			const previousProviderProfiles = {
 				currentApiConfigName: "default",
-				apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+				apiConfigs: {
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+				},
 			}
 
 			mockProviderSettingsManager.export.mockResolvedValue(previousProviderProfiles)
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
 				{ name: "test", id: "test-id", apiProvider: "openai" as ProviderName },
-				{ name: "default", id: "default-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "default",
+					id: "default-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 			mockContextProxy.export.mockResolvedValue({ mode: "code" })
 
@@ -396,12 +495,22 @@ describe("importExport", () => {
 			expect(mockProviderSettingsManager.import).toHaveBeenCalledWith({
 				currentApiConfigName: "test",
 				apiConfigs: {
-					default: { apiProvider: "anthropic" as ProviderName, id: "default-id" },
-					test: { apiProvider: "openai" as ProviderName, apiKey: "test-key", id: "test-id" },
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+					test: {
+						apiProvider: "openai" as ProviderName,
+						apiKey: "test-key",
+						id: "test-id",
+					},
 				},
 				modeApiConfigs: {},
 			})
-			expect(mockContextProxy.setValues).toHaveBeenCalledWith({ mode: "code", autoApprovalEnabled: true })
+			expect(mockContextProxy.setValues).toHaveBeenCalledWith({
+				mode: "code",
+				autoApprovalEnabled: true,
+			})
 		})
 
 		it("should return error when provided file path does not exist", async () => {
@@ -464,7 +573,9 @@ describe("importExport", () => {
 
 			const mockProviderProfiles = {
 				currentApiConfigName: "test",
-				apiConfigs: { test: { apiProvider: "openai" as ProviderName, id: "test-id" } },
+				apiConfigs: {
+					test: { apiProvider: "openai" as ProviderName, id: "test-id" },
+				},
 				migrations: { rateLimitSecondsMigrated: false },
 			}
 
@@ -499,7 +610,9 @@ describe("importExport", () => {
 
 			const mockProviderProfiles = {
 				currentApiConfigName: "test",
-				apiConfigs: { test: { apiProvider: "openai" as ProviderName, id: "test-id" } },
+				apiConfigs: {
+					test: { apiProvider: "openai" as ProviderName, id: "test-id" },
+				},
 				migrations: { rateLimitSecondsMigrated: false },
 			}
 
@@ -531,7 +644,9 @@ describe("importExport", () => {
 
 			mockProviderSettingsManager.export.mockResolvedValue({
 				currentApiConfigName: "test",
-				apiConfigs: { test: { apiProvider: "openai" as ProviderName, id: "test-id" } },
+				apiConfigs: {
+					test: { apiProvider: "openai" as ProviderName, id: "test-id" },
+				},
 				migrations: { rateLimitSecondsMigrated: false },
 			})
 
@@ -561,7 +676,9 @@ describe("importExport", () => {
 
 			mockProviderSettingsManager.export.mockResolvedValue({
 				currentApiConfigName: "test",
-				apiConfigs: { test: { apiProvider: "openai" as ProviderName, id: "test-id" } },
+				apiConfigs: {
+					test: { apiProvider: "openai" as ProviderName, id: "test-id" },
+				},
 				migrations: { rateLimitSecondsMigrated: false },
 			})
 
@@ -925,7 +1042,12 @@ describe("importExport", () => {
 
 				const previousProviderProfiles = {
 					currentApiConfigName: "default",
-					apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+					apiConfigs: {
+						default: {
+							apiProvider: "anthropic" as ProviderName,
+							id: "default-id",
+						},
+					},
 				}
 
 				mockProviderSettingsManager.export.mockResolvedValue(previousProviderProfiles)
@@ -935,7 +1057,11 @@ describe("importExport", () => {
 						id: "openai-compatible-id",
 						apiProvider: "openai" as ProviderName,
 					},
-					{ name: "default", id: "default-id", apiProvider: "anthropic" as ProviderName },
+					{
+						name: "default",
+						id: "default-id",
+						apiProvider: "anthropic" as ProviderName,
+					},
 				])
 
 				const result = await importSettings({
@@ -994,7 +1120,12 @@ describe("importExport", () => {
 
 				const previousProviderProfiles = {
 					currentApiConfigName: "default",
-					apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+					apiConfigs: {
+						default: {
+							apiProvider: "anthropic" as ProviderName,
+							id: "default-id",
+						},
+					},
 				}
 
 				mockProviderSettingsManager.export.mockResolvedValue(previousProviderProfiles)
@@ -1046,12 +1177,21 @@ describe("importExport", () => {
 
 				const previousProviderProfiles = {
 					currentApiConfigName: "default",
-					apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+					apiConfigs: {
+						default: {
+							apiProvider: "anthropic" as ProviderName,
+							id: "default-id",
+						},
+					},
 				}
 
 				mockProviderSettingsManager.export.mockResolvedValue(previousProviderProfiles)
 				mockProviderSettingsManager.listConfig.mockResolvedValue([
-					{ name: "anthropic-provider", id: "anthropic-id", apiProvider: "anthropic" as ProviderName },
+					{
+						name: "anthropic-provider",
+						id: "anthropic-id",
+						apiProvider: "anthropic" as ProviderName,
+					},
 				])
 
 				const result = await importSettings({
@@ -1136,10 +1276,19 @@ describe("importExport", () => {
 			vi.clearAllMocks()
 			mockProviderSettingsManager.export.mockResolvedValue({
 				currentApiConfigName: "default",
-				apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+				apiConfigs: {
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+				},
 			})
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
-				{ name: "test-openai-compatible", id: "test-id", apiProvider: "openai" as ProviderName },
+				{
+					name: "test-openai-compatible",
+					id: "test-id",
+					apiProvider: "openai" as ProviderName,
+				},
 			])
 
 			// Step 7: Import the settings back
@@ -1224,10 +1373,19 @@ describe("importExport", () => {
 			vi.clearAllMocks()
 			mockProviderSettingsManager.export.mockResolvedValue({
 				currentApiConfigName: "default",
-				apiConfigs: { default: { apiProvider: "anthropic" as ProviderName, id: "default-id" } },
+				apiConfigs: {
+					default: {
+						apiProvider: "anthropic" as ProviderName,
+						id: "default-id",
+					},
+				},
 			})
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
-				{ name: "test-openai-compatible", id: "test-id", apiProvider: "openai" as ProviderName },
+				{
+					name: "test-openai-compatible",
+					id: "test-id",
+					apiProvider: "openai" as ProviderName,
+				},
 			])
 
 			// Import the settings back
@@ -1350,8 +1508,16 @@ describe("importExport", () => {
 
 			mockProviderSettingsManager.export.mockResolvedValue(currentProviderProfiles)
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
-				{ name: "provider-a", id: "provider-a-id", apiProvider: "openai" as ProviderName },
-				{ name: "provider-b", id: "provider-b-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "provider-a",
+					id: "provider-a-id",
+					apiProvider: "openai" as ProviderName,
+				},
+				{
+					name: "provider-b",
+					id: "provider-b-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 
 			// Step 4: Import the settings
@@ -1434,7 +1600,11 @@ describe("importExport", () => {
 					id: "openai-compatible-id",
 					apiProvider: "openai" as ProviderName,
 				},
-				{ name: "anthropic-provider", id: "anthropic-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "anthropic-provider",
+					id: "anthropic-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 			])
 
 			const importResult = await importSettings({
@@ -1514,13 +1684,21 @@ describe("importExport", () => {
 
 			mockProviderSettingsManager.export.mockResolvedValue(currentProviderProfiles)
 			mockProviderSettingsManager.listConfig.mockResolvedValue([
-				{ name: "anthropic-provider", id: "anthropic-id", apiProvider: "anthropic" as ProviderName },
+				{
+					name: "anthropic-provider",
+					id: "anthropic-id",
+					apiProvider: "anthropic" as ProviderName,
+				},
 				{
 					name: "openai-compatible-provider",
 					id: "openai-compatible-id",
 					apiProvider: "openai" as ProviderName,
 				},
-				{ name: "default", id: "default-id", apiProvider: "openai" as ProviderName },
+				{
+					name: "default",
+					id: "default-id",
+					apiProvider: "openai" as ProviderName,
+				},
 			])
 
 			const importResult = await importSettings({

@@ -134,7 +134,10 @@ export class OpenAiEmbedder extends OpenAiNativeHandler implements IEmbedder {
 	private async _embedBatchWithRetries(
 		batchTexts: string[],
 		model: string,
-	): Promise<{ embeddings: number[][]; usage: { promptTokens: number; totalTokens: number } }> {
+	): Promise<{
+		embeddings: number[][]
+		usage: { promptTokens: number; totalTokens: number }
+	}> {
 		for (let attempts = 0; attempts < MAX_RETRIES; attempts++) {
 			try {
 				const response = await this.embeddingsClient.embeddings.create({

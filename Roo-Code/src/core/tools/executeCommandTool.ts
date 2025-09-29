@@ -105,8 +105,14 @@ export async function executeCommandTool(
 
 				pushToolResult(result)
 			} catch (error: unknown) {
-				const status: CommandExecutionStatus = { executionId, status: "fallback" }
-				provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+				const status: CommandExecutionStatus = {
+					executionId,
+					status: "fallback",
+				}
+				provider?.postMessageToWebview({
+					type: "commandExecutionStatus",
+					text: JSON.stringify(status),
+				})
 				await task.say("shell_integration_warning")
 
 				if (error instanceof ShellIntegrationError) {
@@ -192,8 +198,15 @@ export async function executeCommand(
 				terminalOutputLineLimit,
 				terminalOutputCharacterLimit,
 			)
-			const status: CommandExecutionStatus = { executionId, status: "output", output: compressedOutput }
-			provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+			const status: CommandExecutionStatus = {
+				executionId,
+				status: "output",
+				output: compressedOutput,
+			}
+			provider?.postMessageToWebview({
+				type: "commandExecutionStatus",
+				text: JSON.stringify(status),
+			})
 
 			if (runInBackground) {
 				return
@@ -221,12 +234,27 @@ export async function executeCommand(
 		},
 		onShellExecutionStarted: (pid: number | undefined) => {
 			console.log(`[executeCommand] onShellExecutionStarted: ${pid}`)
-			const status: CommandExecutionStatus = { executionId, status: "started", pid, command }
-			provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+			const status: CommandExecutionStatus = {
+				executionId,
+				status: "started",
+				pid,
+				command,
+			}
+			provider?.postMessageToWebview({
+				type: "commandExecutionStatus",
+				text: JSON.stringify(status),
+			})
 		},
 		onShellExecutionComplete: (details: ExitCodeDetails) => {
-			const status: CommandExecutionStatus = { executionId, status: "exited", exitCode: details.exitCode }
-			provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+			const status: CommandExecutionStatus = {
+				executionId,
+				status: "exited",
+				exitCode: details.exitCode,
+			}
+			provider?.postMessageToWebview({
+				type: "commandExecutionStatus",
+				text: JSON.stringify(status),
+			})
 			exitDetails = details
 		},
 	}
@@ -269,9 +297,20 @@ export async function executeCommand(
 			await Promise.race([process, timeoutPromise])
 		} catch (error) {
 			if (isTimedOut) {
-				const status: CommandExecutionStatus = { executionId, status: "timeout" }
-				provider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
-				await task.say("error", t("common:errors:command_timeout", { seconds: commandExecutionTimeoutSeconds }))
+				const status: CommandExecutionStatus = {
+					executionId,
+					status: "timeout",
+				}
+				provider?.postMessageToWebview({
+					type: "commandExecutionStatus",
+					text: JSON.stringify(status),
+				})
+				await task.say(
+					"error",
+					t("common:errors:command_timeout", {
+						seconds: commandExecutionTimeoutSeconds,
+					}),
+				)
 				task.terminalProcess = undefined
 
 				return [

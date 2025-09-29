@@ -82,7 +82,9 @@ export class CodeIndexServiceFactory {
 		}
 
 		throw new Error(
-			t("embeddings:serviceFactory.invalidEmbedderType", { embedderProvider: config.embedderProvider }),
+			t("embeddings:serviceFactory.invalidEmbedderType", {
+				embedderProvider: config.embedderProvider,
+			}),
 		)
 	}
 
@@ -137,7 +139,12 @@ export class CodeIndexServiceFactory {
 					t("embeddings:serviceFactory.vectorDimensionNotDeterminedOpenAiCompatible", { modelId, provider }),
 				)
 			} else {
-				throw new Error(t("embeddings:serviceFactory.vectorDimensionNotDetermined", { modelId, provider }))
+				throw new Error(
+					t("embeddings:serviceFactory.vectorDimensionNotDetermined", {
+						modelId,
+						provider,
+					}),
+				)
 			}
 		}
 

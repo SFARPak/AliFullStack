@@ -595,7 +595,9 @@ describe("ChatTextArea", () => {
 				setInputValue.mockClear()
 
 				// Type something
-				fireEvent.change(textarea, { target: { value: "New input", selectionStart: 9 } })
+				fireEvent.change(textarea, {
+					target: { value: "New input", selectionStart: 9 },
+				})
 
 				// Should reset history navigation
 				expect(setInputValue).toHaveBeenCalledWith("New input")
@@ -644,9 +646,24 @@ describe("ChatTextArea", () => {
 
 			it("should filter history by current workspace", () => {
 				const mixedClineMessages = [
-					{ type: "say", say: "user_feedback", text: "Workspace 1 prompt", ts: 1000 },
-					{ type: "say", say: "user_feedback", text: "Other workspace prompt", ts: 2000 },
-					{ type: "say", say: "user_feedback", text: "Workspace 1 prompt 2", ts: 3000 },
+					{
+						type: "say",
+						say: "user_feedback",
+						text: "Workspace 1 prompt",
+						ts: 1000,
+					},
+					{
+						type: "say",
+						say: "user_feedback",
+						text: "Other workspace prompt",
+						ts: 2000,
+					},
+					{
+						type: "say",
+						say: "user_feedback",
+						text: "Workspace 1 prompt 2",
+						ts: 3000,
+					},
 				]
 
 				;(useExtensionState as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -705,7 +722,12 @@ describe("ChatTextArea", () => {
 					{ type: "say", say: "user_feedback", text: "Valid prompt", ts: 1000 },
 					{ type: "say", say: "user_feedback", text: "", ts: 2000 },
 					{ type: "say", say: "user_feedback", text: "   ", ts: 3000 },
-					{ type: "say", say: "user_feedback", text: "Another valid prompt", ts: 4000 },
+					{
+						type: "say",
+						say: "user_feedback",
+						text: "Another valid prompt",
+						ts: 4000,
+					},
 				]
 
 				;(useExtensionState as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -906,8 +928,16 @@ describe("ChatTextArea", () => {
 	describe("slash command highlighting", () => {
 		const mockCommands = [
 			{ name: "setup", source: "project", description: "Setup the project" },
-			{ name: "deploy", source: "global", description: "Deploy the application" },
-			{ name: "test-command", source: "project", description: "Test command with dash" },
+			{
+				name: "deploy",
+				source: "global",
+				description: "Deploy the application",
+			},
+			{
+				name: "test-command",
+				source: "project",
+				description: "Test command with dash",
+			},
 		]
 
 		beforeEach(() => {

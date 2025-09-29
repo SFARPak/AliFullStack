@@ -64,7 +64,9 @@ export class ToolRepetitionDetector {
 				allowExecution: false,
 				askUser: {
 					messageKey: "mistake_limit_reached",
-					messageDetail: t("tools:toolRepetitionLimitReached", { toolName: currentToolCallBlock.name }),
+					messageDetail: t("tools:toolRepetitionLimitReached", {
+						toolName: currentToolCallBlock.name,
+					}),
 				},
 			}
 		}

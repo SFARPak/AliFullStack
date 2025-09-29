@@ -2,8 +2,8 @@
  * Integration test for DyadMarkdownParser to verify terminal command handling
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Test content that simulates what would come from AI
 const testContent = `
@@ -24,7 +24,7 @@ All commands executed successfully. The directory structure looks good.
 
 // Simulate the parseCustomTags function logic
 function testParseCustomTags(content) {
-  console.log('🧪 Testing DyadMarkdownParser parseCustomTags function...\n');
+  console.log("🧪 Testing DyadMarkdownParser parseCustomTags function...\n");
 
   const customTagNames = [
     "dyad-write",
@@ -54,7 +54,7 @@ function testParseCustomTags(content) {
   let lastIndex = 0;
   let match;
 
-  console.log('📝 Parsing content with terminal command tags...\n');
+  console.log("📝 Parsing content with terminal command tags...\n");
 
   while ((match = tagPattern.exec(content)) !== null) {
     const [fullMatch, tag, attributesStr, tagContent] = match;
@@ -66,7 +66,7 @@ function testParseCustomTags(content) {
       if (markdownContent.trim()) {
         contentPieces.push({
           type: "markdown",
-          content: markdownContent.trim()
+          content: markdownContent.trim(),
         });
       }
     }
@@ -100,7 +100,7 @@ function testParseCustomTags(content) {
     if (remainingContent.trim()) {
       contentPieces.push({
         type: "markdown",
-        content: remainingContent.trim()
+        content: remainingContent.trim(),
       });
     }
   }
@@ -152,40 +152,49 @@ function testRenderCustomTag(tagInfo) {
 
 // Main test function
 function runIntegrationTest() {
-  console.log('🚀 DyadMarkdownParser Integration Test\n');
-  console.log('=' .repeat(60));
+  console.log("🚀 DyadMarkdownParser Integration Test\n");
+  console.log("=".repeat(60));
 
   // Test 1: Parse the content
-  console.log('📋 TEST 1: Content Parsing');
-  console.log('-'.repeat(40));
+  console.log("📋 TEST 1: Content Parsing");
+  console.log("-".repeat(40));
   const contentPieces = testParseCustomTags(testContent);
 
   console.log(`✅ Content parsed into ${contentPieces.length} pieces:`);
   contentPieces.forEach((piece, index) => {
     if (piece.type === "markdown") {
-      console.log(`  ${index + 1}. [MARKDOWN]: "${piece.content.substring(0, 60)}${piece.content.length > 60 ? '...' : ''}"`);
+      console.log(
+        `  ${index + 1}. [MARKDOWN]: "${piece.content.substring(0, 60)}${piece.content.length > 60 ? "..." : ""}"`,
+      );
     } else {
-      console.log(`  ${index + 1}. [${piece.tagInfo.tag.toUpperCase()} TAG]: ${piece.tagInfo.content}`);
+      console.log(
+        `  ${index + 1}. [${piece.tagInfo.tag.toUpperCase()} TAG]: ${piece.tagInfo.content}`,
+      );
     }
   });
 
   // Test 2: Render simulation
-  console.log('\n📋 TEST 2: Render Simulation');
-  console.log('-'.repeat(40));
+  console.log("\n📋 TEST 2: Render Simulation");
+  console.log("-".repeat(40));
 
-  const terminalTags = contentPieces.filter(p => p.type === "custom-tag");
-  const terminalCommandTags = terminalTags.filter(p =>
-    p.tagInfo.tag === "run_terminal_cmd" ||
-    p.tagInfo.tag === "dyad-run-backend-terminal-cmd" ||
-    p.tagInfo.tag === "dyad-run-frontend-terminal-cmd"
+  const terminalTags = contentPieces.filter((p) => p.type === "custom-tag");
+  const terminalCommandTags = terminalTags.filter(
+    (p) =>
+      p.tagInfo.tag === "run_terminal_cmd" ||
+      p.tagInfo.tag === "dyad-run-backend-terminal-cmd" ||
+      p.tagInfo.tag === "dyad-run-frontend-terminal-cmd",
   );
 
-  console.log(`✅ Found ${terminalCommandTags.length} terminal command tags to render:`);
+  console.log(
+    `✅ Found ${terminalCommandTags.length} terminal command tags to render:`,
+  );
 
   let allReturnNull = true;
   terminalCommandTags.forEach((piece, index) => {
     const rendered = testRenderCustomTag(piece.tagInfo);
-    console.log(`  ${index + 1}. <${piece.tagInfo.tag}> renders as: ${rendered}`);
+    console.log(
+      `  ${index + 1}. <${piece.tagInfo.tag}> renders as: ${rendered}`,
+    );
 
     if (rendered !== null) {
       allReturnNull = false;
@@ -193,44 +202,55 @@ function runIntegrationTest() {
   });
 
   // Test 3: Verify markdown content is preserved
-  console.log('\n📋 TEST 3: Markdown Content Preservation');
-  console.log('-'.repeat(40));
+  console.log("\n📋 TEST 3: Markdown Content Preservation");
+  console.log("-".repeat(40));
 
-  const markdownPieces = contentPieces.filter(p => p.type === "markdown");
+  const markdownPieces = contentPieces.filter((p) => p.type === "markdown");
   console.log(`✅ Found ${markdownPieces.length} markdown sections:`);
 
   markdownPieces.forEach((piece, index) => {
-    console.log(`  ${index + 1}. "${piece.content.substring(0, 80)}${piece.content.length > 80 ? '...' : ''}"`);
+    console.log(
+      `  ${index + 1}. "${piece.content.substring(0, 80)}${piece.content.length > 80 ? "..." : ""}"`,
+    );
   });
 
   // Summary
-  console.log('\n' + '=' .repeat(60));
-  console.log('📊 INTEGRATION TEST SUMMARY');
-  console.log('-'.repeat(40));
+  console.log("\n" + "=".repeat(60));
+  console.log("📊 INTEGRATION TEST SUMMARY");
+  console.log("-".repeat(40));
 
   const parsingSuccess = contentPieces.length === 7; // Should have 4 markdown + 3 terminal tags
   const renderingSuccess = allReturnNull; // All terminal tags should return null
   const markdownPreserved = markdownPieces.length === 4; // Should have 4 markdown sections
 
-  console.log(`✅ Content Parsing: ${parsingSuccess ? 'PASS' : 'FAIL'}`);
-  console.log(`✅ Terminal Tag Rendering: ${renderingSuccess ? 'PASS' : 'FAIL'}`);
-  console.log(`✅ Markdown Preservation: ${markdownPreserved ? 'PASS' : 'FAIL'}`);
+  console.log(`✅ Content Parsing: ${parsingSuccess ? "PASS" : "FAIL"}`);
+  console.log(
+    `✅ Terminal Tag Rendering: ${renderingSuccess ? "PASS" : "FAIL"}`,
+  );
+  console.log(
+    `✅ Markdown Preservation: ${markdownPreserved ? "PASS" : "FAIL"}`,
+  );
 
-  const allTestsPassed = parsingSuccess && renderingSuccess && markdownPreserved;
+  const allTestsPassed =
+    parsingSuccess && renderingSuccess && markdownPreserved;
 
-  console.log(`\nOverall Result: ${allTestsPassed ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}`);
+  console.log(
+    `\nOverall Result: ${allTestsPassed ? "✅ ALL TESTS PASSED" : "❌ SOME TESTS FAILED"}`,
+  );
 
   if (allTestsPassed) {
-    console.log('\n🎉 SUCCESS: DyadMarkdownParser correctly handles terminal commands!');
-    console.log('   - Terminal command tags are parsed correctly');
-    console.log('   - Tags return null (not rendered in UI)');
-    console.log('   - Markdown content is preserved');
-    console.log('   - Commands will execute silently in terminals');
+    console.log(
+      "\n🎉 SUCCESS: DyadMarkdownParser correctly handles terminal commands!",
+    );
+    console.log("   - Terminal command tags are parsed correctly");
+    console.log("   - Tags return null (not rendered in UI)");
+    console.log("   - Markdown content is preserved");
+    console.log("   - Commands will execute silently in terminals");
   } else {
-    console.log('\n⚠️  WARNING: Some tests failed. Check the implementation.');
+    console.log("\n⚠️  WARNING: Some tests failed. Check the implementation.");
   }
 
-  console.log('=' .repeat(60));
+  console.log("=".repeat(60));
 
   return allTestsPassed;
 }
@@ -243,5 +263,5 @@ if (require.main === module) {
 module.exports = {
   testParseCustomTags,
   testRenderCustomTag,
-  runIntegrationTest
+  runIntegrationTest,
 };

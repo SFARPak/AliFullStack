@@ -64,7 +64,12 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 			workspaceGit = repo.git
 			testFile = repo.testFile
 
-			service = await klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
+			service = await klass.create({
+				taskId,
+				shadowDir,
+				workspaceDir,
+				log: () => {},
+			})
 			await service.initShadowGit()
 		})
 
@@ -93,14 +98,20 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				expect(diff1[0].content.before).toBe("Hello, world!")
 				expect(diff1[0].content.after).toBe("Ahoy, world!")
 
-				const diff2 = await service.getDiff({ from: service.baseHash, to: commit2!.commit })
+				const diff2 = await service.getDiff({
+					from: service.baseHash,
+					to: commit2!.commit,
+				})
 				expect(diff2).toHaveLength(1)
 				expect(diff2[0].paths.relative).toBe("test.txt")
 				expect(diff2[0].paths.absolute).toBe(testFile)
 				expect(diff2[0].content.before).toBe("Hello, world!")
 				expect(diff2[0].content.after).toBe("Goodbye, world!")
 
-				const diff12 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit })
+				const diff12 = await service.getDiff({
+					from: commit1!.commit,
+					to: commit2!.commit,
+				})
 				expect(diff12).toHaveLength(1)
 				expect(diff12[0].paths.relative).toBe("test.txt")
 				expect(diff12[0].paths.absolute).toBe(testFile)
@@ -131,7 +142,10 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				const commit2 = await service.saveCheckpoint("Delete file")
 				expect(commit2?.commit).toBeTruthy()
 
-				const changes = await service.getDiff({ from: commit1!.commit, to: commit2!.commit })
+				const changes = await service.getDiff({
+					from: commit1!.commit,
+					to: commit2!.commit,
+				})
 				const change = changes.find((c) => c.paths.relative === "new.txt")
 				expect(change).toBeDefined()
 				expect(change!.content.before).toBe("New file content")
@@ -151,7 +165,10 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				await fs.writeFile(testFile, "Hola, world!")
 				const commit2 = await service.saveCheckpoint("Second checkpoint")
 				expect(commit2?.commit).toBeTruthy()
-				const details2 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit })
+				const details2 = await service.getDiff({
+					from: commit1!.commit,
+					to: commit2!.commit,
+				})
 				expect(details2[0].content.before).toContain("Ahoy, world!")
 				expect(details2[0].content.after).toContain("Hola, world!")
 
@@ -352,7 +369,12 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				expect(await fs.readFile(newTestFile, "utf-8")).toBe("Hello, world!")
 
 				// Ensure the git repository was initialized.
-				const newService = await klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
+				const newService = await klass.create({
+					taskId,
+					shadowDir,
+					workspaceDir,
+					log: () => {},
+				})
 				const { created } = await newService.initShadowGit()
 				expect(created).toBeTruthy()
 
@@ -373,7 +395,10 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				await newService.restoreCheckpoint(commit1!.commit)
 				expect(await fs.readFile(newTestFile, "utf-8")).toBe("Ahoy, world!")
 
-				await fs.rm(newService.checkpointsDir, { recursive: true, force: true })
+				await fs.rm(newService.checkpointsDir, {
+					recursive: true,
+					force: true,
+				})
 				await fs.rm(newService.workspaceDir, { recursive: true, force: true })
 			})
 		})
@@ -498,7 +523,12 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				const emitSpy = vitest.spyOn(EventEmitter.prototype, "emit")
 
 				// Create the service - this will trigger the initialize event.
-				const newService = await klass.create({ taskId, shadowDir, workspaceDir, log: () => {} })
+				const newService = await klass.create({
+					taskId,
+					shadowDir,
+					workspaceDir,
+					log: () => {},
+				})
 				await newService.initShadowGit()
 
 				// Find the initialize event in the emit calls.
@@ -652,7 +682,9 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 		describe(`${klass.name}#saveCheckpoint with allowEmpty option`, () => {
 			it("creates checkpoint with allowEmpty=true even when no changes", async () => {
 				// No changes made, but force checkpoint creation
-				const result = await service.saveCheckpoint("Empty checkpoint", { allowEmpty: true })
+				const result = await service.saveCheckpoint("Empty checkpoint", {
+					allowEmpty: true,
+				})
 
 				expect(result).toBeDefined()
 				expect(result?.commit).toBeTruthy()
@@ -660,7 +692,9 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 			})
 
 			it("does not create checkpoint with allowEmpty=false when no changes", async () => {
-				const result = await service.saveCheckpoint("No changes checkpoint", { allowEmpty: false })
+				const result = await service.saveCheckpoint("No changes checkpoint", {
+					allowEmpty: false,
+				})
 
 				expect(result).toBeUndefined()
 			})
@@ -711,14 +745,18 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				const checkpointHandler = vitest.fn()
 				service.on("checkpoint", checkpointHandler)
 
-				const result = await service.saveCheckpoint("No changes, no event", { allowEmpty: false })
+				const result = await service.saveCheckpoint("No changes, no event", {
+					allowEmpty: false,
+				})
 
 				expect(result).toBeUndefined()
 				expect(checkpointHandler).not.toHaveBeenCalled()
 			})
 
 			it("handles multiple empty checkpoints correctly", async () => {
-				const commit1 = await service.saveCheckpoint("First empty checkpoint", { allowEmpty: true })
+				const commit1 = await service.saveCheckpoint("First empty checkpoint", {
+					allowEmpty: true,
+				})
 				expect(commit1?.commit).toBeTruthy()
 
 				const commit2 = await service.saveCheckpoint("Second empty checkpoint", { allowEmpty: true })
@@ -738,7 +776,9 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				})
 				await testService.initShadowGit()
 
-				await testService.saveCheckpoint("Test logging with allowEmpty", { allowEmpty: true })
+				await testService.saveCheckpoint("Test logging with allowEmpty", {
+					allowEmpty: true,
+				})
 
 				const saveCheckpointLogs = logMessages.filter(
 					(msg) => msg.includes("starting checkpoint save") && msg.includes("allowEmpty: true"),
@@ -760,7 +800,9 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				expect(regularCommit?.commit).toBeTruthy()
 
 				// Create an empty checkpoint
-				const emptyCommit = await service.saveCheckpoint("Empty checkpoint", { allowEmpty: true })
+				const emptyCommit = await service.saveCheckpoint("Empty checkpoint", {
+					allowEmpty: true,
+				})
 				expect(emptyCommit?.commit).toBeTruthy()
 
 				// Create another regular checkpoint
@@ -787,7 +829,9 @@ describe.each([[RepoPerTaskCheckpointService, "RepoPerTaskCheckpointService"]])(
 				expect(beforeEmpty?.commit).toBeTruthy()
 
 				// Create an empty checkpoint
-				const emptyCommit = await service.saveCheckpoint("Empty checkpoint", { allowEmpty: true })
+				const emptyCommit = await service.saveCheckpoint("Empty checkpoint", {
+					allowEmpty: true,
+				})
 				expect(emptyCommit?.commit).toBeTruthy()
 
 				// Get diff between regular commit and empty commit

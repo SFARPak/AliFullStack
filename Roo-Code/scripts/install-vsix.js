@@ -62,7 +62,9 @@ async function main() {
 		console.log(`\nProceeding with installation using '${editorCommand}' command...`)
 
 		try {
-			execSync(`${editorCommand} --uninstall-extension ${extensionId}`, { stdio: "inherit" })
+			execSync(`${editorCommand} --uninstall-extension ${extensionId}`, {
+				stdio: "inherit",
+			})
 		} catch (e) {
 			console.log("Extension not installed, skipping uninstall step")
 		}
@@ -74,7 +76,9 @@ async function main() {
 			process.exit(1)
 		}
 
-		execSync(`${editorCommand} --install-extension ${vsixFileName}`, { stdio: "inherit" })
+		execSync(`${editorCommand} --install-extension ${vsixFileName}`, {
+			stdio: "inherit",
+		})
 
 		console.log(`\n✅ Successfully installed extension from ${vsixFileName}`)
 		console.log("\n⚠️  IMPORTANT: You need to restart VS Code for the changes to take effect.")

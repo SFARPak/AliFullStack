@@ -150,7 +150,12 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 					outputTokens,
 					cacheReadTokens,
 					reasoningTokens,
-					totalCost: this.calculateCost({ info, inputTokens, outputTokens, cacheReadTokens }),
+					totalCost: this.calculateCost({
+						info,
+						inputTokens,
+						outputTokens,
+						cacheReadTokens,
+					}),
 				}
 			}
 		} catch (error) {
@@ -166,13 +171,22 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 		const modelId = this.options.apiModelId
 		let id = modelId && modelId in geminiModels ? (modelId as GeminiModelId) : geminiDefaultModelId
 		let info: ModelInfo = geminiModels[id]
-		const params = getModelParams({ format: "gemini", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "gemini",
+			modelId: id,
+			model: info,
+			settings: this.options,
+		})
 
 		// The `:thinking` suffix indicates that the model is a "Hybrid"
 		// reasoning model and that reasoning is required to be enabled.
 		// The actual model ID honored by Gemini's API does not have this
 		// suffix.
-		return { id: id.endsWith(":thinking") ? id.replace(":thinking", "") : id, info, ...params }
+		return {
+			id: id.endsWith(":thinking") ? id.replace(":thinking", "") : id,
+			info,
+			...params,
+		}
 	}
 
 	private extractGroundingSources(groundingMetadata?: GroundingMetadata): GroundingSource[] {
@@ -247,7 +261,11 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 			return text
 		} catch (error) {
 			if (error instanceof Error) {
-				throw new Error(t("common:errors.gemini.generate_complete_prompt", { error: error.message }))
+				throw new Error(
+					t("common:errors.gemini.generate_complete_prompt", {
+						error: error.message,
+					}),
+				)
 			}
 
 			throw error
@@ -323,12 +341,24 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 		const totalCost = inputTokensCost + outputTokensCost + cacheReadCost
 
 		const trace: Record<string, { price: number; tokens: number; cost: number }> = {
-			input: { price: inputPrice, tokens: uncachedInputTokens, cost: inputTokensCost },
-			output: { price: outputPrice, tokens: outputTokens, cost: outputTokensCost },
+			input: {
+				price: inputPrice,
+				tokens: uncachedInputTokens,
+				cost: inputTokensCost,
+			},
+			output: {
+				price: outputPrice,
+				tokens: outputTokens,
+				cost: outputTokensCost,
+			},
 		}
 
 		if (cacheReadTokens > 0) {
-			trace.cacheRead = { price: cacheReadsPrice, tokens: cacheReadTokens, cost: cacheReadCost }
+			trace.cacheRead = {
+				price: cacheReadsPrice,
+				tokens: cacheReadTokens,
+				cost: cacheReadCost,
+			}
 		}
 
 		// console.log(`[GeminiHandler] calculateCost -> ${totalCost}`, trace)

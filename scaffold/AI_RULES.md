@@ -21,10 +21,10 @@ Available packages and libraries:
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them. -->
 
-
 # Extended Tech & AI Development Rules
 
 ## TL;DR Quick Rules
+
 - Use **React + TypeScript**.
 - Keep routes in `src/App.tsx`.
 - Pages → `src/pages/`, Components → `src/components/`.
@@ -42,6 +42,7 @@ Available packages and libraries:
 ---
 
 ## Core Tech Stack
+
 - **React (TypeScript)** for building the application.
 - **React Router** for routing. Keep routes defined in `src/App.tsx`.
 - **File structure**:
@@ -58,6 +59,7 @@ Available packages and libraries:
 ---
 
 ## UI/UX Component Libraries
+
 - **shadcn/ui** → primary component library.
 - **Radix UI** → for low-level primitives (accessible modals, popovers, menus).
 - **lucide-react** → for modern, lightweight icons.
@@ -65,6 +67,7 @@ Available packages and libraries:
 ---
 
 ## Additional Recommended Open-Source Libraries
+
 - **Framer Motion** → animations & transitions (cards, modals, page transitions, staggered lists).
 - **react-spring** → physics-based animations (optional alternative to Framer Motion).
 - **tailwindcss-animate** → prebuilt animation utilities for Tailwind.
@@ -79,6 +82,7 @@ Available packages and libraries:
 ---
 
 ## Visualization & Data Display
+
 - **Recharts** or **Nivo** → interactive and modern charts.
 - **react-leaflet** → maps (already installed).
 - **react-confetti** or **canvas-confetti** → celebratory UI moments (gamification touch).
@@ -86,6 +90,7 @@ Available packages and libraries:
 ---
 
 ## Forms & Validation
+
 - **react-hook-form** → lightweight form handling.
 - **zod** → schema validation, can be paired with react-hook-form.
 - **@tanstack/react-query** → API data fetching, caching, optimistic updates.
@@ -93,6 +98,7 @@ Available packages and libraries:
 ---
 
 ## Animations & Effects (Modern SaaS Feel)
+
 - Use **Framer Motion** for page transitions, modals, and list animations.
 - Add **gradient backgrounds** (Tailwind + gradient utilities).
 - Use **glassmorphism overlays** (blurred translucent cards).
@@ -103,6 +109,7 @@ Available packages and libraries:
 ---
 
 ## AI Rules (Extended)
+
 1. Always prioritize **accessibility** (ARIA roles, keyboard navigation).
 2. Default to **shadcn/ui** components. Extend only with modern libraries when needed.
 3. **Animations should be smooth & subtle**, not overwhelming (300–500ms duration).

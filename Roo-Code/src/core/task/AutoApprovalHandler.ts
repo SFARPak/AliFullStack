@@ -22,7 +22,11 @@ export class AutoApprovalHandler {
 		askForApproval: (
 			type: ClineAsk,
 			data: string,
-		) => Promise<{ response: ClineAskResponse; text?: string; images?: string[] }>,
+		) => Promise<{
+			response: ClineAskResponse
+			text?: string
+			images?: string[]
+		}>,
 	): Promise<AutoApprovalResult> {
 		// Check request count limit
 		const requestResult = await this.checkRequestLimit(state, askForApproval)
@@ -43,7 +47,11 @@ export class AutoApprovalHandler {
 		askForApproval: (
 			type: ClineAsk,
 			data: string,
-		) => Promise<{ response: ClineAskResponse; text?: string; images?: string[] }>,
+		) => Promise<{
+			response: ClineAskResponse
+			text?: string
+			images?: string[]
+		}>,
 	): Promise<AutoApprovalResult> {
 		const maxRequests = state?.allowedMaxRequests || Infinity
 
@@ -87,7 +95,11 @@ export class AutoApprovalHandler {
 		askForApproval: (
 			type: ClineAsk,
 			data: string,
-		) => Promise<{ response: ClineAskResponse; text?: string; images?: string[] }>,
+		) => Promise<{
+			response: ClineAskResponse
+			text?: string
+			images?: string[]
+		}>,
 	): Promise<AutoApprovalResult> {
 		const maxCost = state?.allowedMaxCost || Infinity
 
