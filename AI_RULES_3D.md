@@ -7,6 +7,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## Core Tech Stack
+
 - **React + TypeScript** (strict mode).
 - **React Three Fiber (r3f)** for Three.js integration.
 - **@react-three/drei** for helpers, controls, and loaders.
@@ -20,6 +21,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## File & Code Organization
+
 - `src/pages/` → All main page layouts.
 - `src/components/` → UI components (Hero, Navbar, Footer, CTA).
 - `src/components/3d/` → 3D scene components (CanvasWrapper, HeroScene, Models).
@@ -30,6 +32,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## 3D & Animation Rules
+
 1. Use **React Three Fiber** for all 3D rendering.
 2. Use **drei helpers** (OrbitControls, Environment, Text, ContactShadows).
 3. Optimize 3D models before adding (Blender, glTF compression).
@@ -43,6 +46,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## Modern Design Guidelines
+
 - **Hero Section** → Fullscreen 3D canvas with a call-to-action overlay.
 - **Navigation** → Sticky navbar with smooth scroll + animated underline.
 - **Sections** → Use gradient backgrounds + glassmorphism cards.
@@ -54,6 +58,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## Performance Rules
+
 1. Use **GLTF/GLB** optimized models only.
 2. Use `useMemo` and `useFrame` wisely for animations.
 3. Leverage `drei/PerformanceMonitor` for adaptive quality.
@@ -64,6 +69,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## Deployment & Build
+
 - Deploy via **Vercel/Netlify** with CDN asset hosting.
 - Preload critical assets but lazy load non-essentials.
 - Ensure PWA support (manifest.json, service worker).
@@ -72,6 +78,7 @@ These rules define how to create a **modern 3D landing page** with Webflow-like 
 ---
 
 ## TL;DR Quick Setup
+
 - `CanvasWrapper` + `HeroScene` in `src/components/3d/`.
 - Navbar, Hero, Features, CTA, Footer inside `src/pages/Index.tsx`.
 - Use **r3f + drei** for 3D, **Framer Motion** for UI, **Tailwind** for styling.
