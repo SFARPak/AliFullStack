@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "vue": "^3.4.0",
-    "axios": "^1.7.0"
+    "axios": "^1.7.0",
+    "leaflet": "^1.9.4",
+    "@vue-leaflet/vue-leaflet": "^0.10.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.0",
