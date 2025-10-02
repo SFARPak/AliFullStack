@@ -36,15 +36,33 @@ export function useParseRouter(appId: number | null) {
     refreshFile,
   } = useLoadAppFile(appId, "src/App.tsx");
 
-  // Use frontend router content if available, otherwise fallback to root
-  const finalRouterContent = frontendRouterContent || routerContent;
-  const finalRouterLoading = frontendRouterFileLoading || routerFileLoading;
-  const finalRouterError = frontendRouterFileError || routerFileError;
+  const {
+    content: vueRouterContent,
+    loading: vueRouterLoading,
+    error: vueRouterError,
+  } = useLoadAppFile(appId, "src/router/index.js");
+
+  const {
+    content: vueAppContent,
+    loading: vueAppLoading,
+    error: vueAppError,
+  } = useLoadAppFile(appId, "src/App.vue");
+
+  // Use frontend router content if available, otherwise fallback to root or Vue specific
+  const finalRouterContent = isVueApp ? vueAppContent : (frontendRouterContent || routerContent);
+  const finalRouterLoading = frontendRouterFileLoading || routerFileLoading || (isVueApp ? vueAppLoading : false);
+  const finalRouterError = frontendRouterFileError || routerFileError || (isVueApp ? vueAppError : false);
 
   // Detect Next.js app by presence of next.config.* in file list
   const isNextApp = useMemo(() => {
     if (!app?.files) return false;
     return app.files.some((f) => f.toLowerCase().includes("next.config"));
+  }, [app?.files]);
+
+  // Detect Vue app by presence of .vue files
+  const isVueApp = useMemo(() => {
+    if (!app?.files) return false;
+    return app.files.some((f) => f.toLowerCase().endsWith(".vue"));
   }, [app?.files]);
 
   // Parse routes either from Next.js file-based routing or from router file
@@ -157,15 +175,42 @@ export function useParseRouter(appId: number | null) {
       }
     };
 
-    if (isNextApp && app?.files) {
+    const setFromVueRouterFile = (content: string | null) => {
+      if (!content) {
+        setRoutes([]);
+        return;
+      }
+
+      try {
+        const parsedRoutes: ParsedRoute[] = [];
+        const routeRegex = /path:\s*['"`]([^'"`]+)['"`]/g;
+        let match: RegExpExecArray | null;
+
+        while ((match = routeRegex.exec(content)) !== null) {
+          const path = match[1];
+          const label = buildLabel(path);
+          if (!parsedRoutes.some((r) => r.path === path)) {
+            parsedRoutes.push({ path, label });
+          }
+        }
+        setRoutes(parsedRoutes);
+      } catch (e) {
+        console.error("Error parsing Vue router file:", e);
+        setRoutes([]);
+      }
+    };
+
+    if (isVueApp) {
+      setFromVueRouterFile(vueRouterContent ?? null);
+    } else if (isNextApp && app?.files) {
       setFromNextFiles(app.files);
     } else {
       setFromRouterFile(finalRouterContent ?? null);
     }
-  }, [isNextApp, app?.files, finalRouterContent]);
+  }, [isVueApp, isNextApp, app?.files, finalRouterContent, vueRouterContent]);
 
-  const combinedLoading = appLoading || finalRouterLoading;
-  const combinedError = appError || finalRouterError || null;
+  const combinedLoading = appLoading || finalRouterLoading || vueRouterLoading || vueAppLoading;
+  const combinedError = appError || finalRouterError || vueRouterError || vueAppError || null;
   const refresh = async () => {
     await Promise.allSettled([refreshApp(), refreshFile()]);
     // Also refresh frontend router file if it exists

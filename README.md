@@ -38,7 +38,7 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 ### 🎨 Frontend Frameworks
 - [x] [ReactJS](https://reactjs.org)
 - [x] [NextJS](https://nextjs.org)
-- [ ] [Vue 3](https://vuejs.org)
+- [x] [Vue 3](https://vuejs.org)
 - [ ] [Angular](https://angular.io)
 - [ ] Svelte *(planned)*
 - [ ] SolidJS *(planned)*

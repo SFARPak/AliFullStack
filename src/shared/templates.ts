@@ -46,6 +46,14 @@ export const localTemplatesData: Template[] = [
     isFrontend: true,
   },
   {
+    id: "vue",
+    title: "Vue.js Template",
+    description: "Uses Vue.js 3, Vite, and TypeScript.",
+    imageUrl: "https://vuejs.org/logo.svg",
+    isOfficial: true,
+    isFrontend: true,
+  },
+  {
     id: PORTAL_MINI_STORE_ID,
     title: "Portal: Mini Store Template",
     description: "Uses Neon DB, Payload CMS, Next.js",

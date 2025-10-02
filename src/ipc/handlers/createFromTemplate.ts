@@ -227,7 +227,7 @@ async function createMinimalReactFiles(frontendPath: string): Promise<void> {
   await fs.ensureDir(pagesPath);
   await fs.ensureDir(publicPath);
 
-  // Create AI_RULES.md
+  // Create AI_RULES.md (defaulting to React for fallback)
   const aiRulesContent = `# Tech Stack
 - You are building a React application.
 - Use TypeScript.
@@ -520,22 +520,27 @@ export async function createFromTemplate({
     if (!selectedBackendFramework) {
       throw new Error("Backend framework must be selected for Full Stack app creation. Please select a backend framework in the Hub first.");
     }
-    // Use scaffold copying for frontend (React) and backend framework setup
+    // Use scaffold copying for frontend (React/Vue) and backend framework setup
     logger.info(`Full stack mode: Using scaffold for frontend and ${selectedBackendFramework} for backend`);
-    // For React template, put the frontend code in the frontend folder
-    logger.info(`Setting up React scaffold in frontend folder`);
+
+    // Determine which scaffold to use based on templateId
+    let scaffoldPath: string;
+    if (templateId === "vue") {
+      scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold-vue";
+      logger.info(`Setting up Vue scaffold in frontend folder`);
+    } else {
+      scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+      logger.info(`Setting up React scaffold in frontend folder`);
+    }
 
     // EMERGENCY DEBUG: Create a debug file immediately
     try {
-      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}`;
+      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}\nTemplate: ${templateId}\nScaffold Path: ${scaffoldPath}`;
       await fs.writeFile(path.join(frontendPath, 'DEBUG_FULL_STACK.txt'), debugContent);
       logger.info('✅ DEBUG: Full stack debug file created');
     } catch (debugError) {
       logger.error('❌ DEBUG: Failed to create debug file:', debugError);
     }
-
-    // Use the known absolute path to the scaffold directory
-    const scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
 
     logger.info(`Using scaffold path: ${scaffoldPath}`);
     logger.info(`Scaffold exists: ${fs.existsSync(scaffoldPath)}`);
@@ -916,12 +921,17 @@ Available packages and libraries:
   const template = await getTemplateOrThrow(templateId);
   logger.info(`Template found: ${template.title}, isFrontend: ${template.isFrontend}, githubUrl: ${template.githubUrl}`);
 
-  // For templates without GitHub URL (like "react"), use scaffold copying
+  // For templates without GitHub URL (like "react", "vue"), use scaffold copying
   if (!template.githubUrl) {
-    if (templateId === "react") {
+    if (templateId === "react" || templateId === "vue") {
       logger.info(`Template ${templateId} has no GitHub URL, using scaffold copying`);
-      // Use scaffold copying for React template
-      const scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+      // Use scaffold copying for React/Vue template
+      let scaffoldPath: string;
+      if (templateId === "vue") {
+        scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold-vue";
+      } else {
+        scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+      }
 
       logger.info(`Using scaffold path: ${scaffoldPath}`);
       if (!fs.existsSync(scaffoldPath)) {
