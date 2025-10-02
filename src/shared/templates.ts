@@ -68,4 +68,12 @@ export const localTemplatesData: Template[] = [
     isOfficial: true,
     isFrontend: true,
   },
+  {
+    id: "vue",
+    title: "Vue.js Template",
+    description: "Uses Vue.js 3, Vite, Tailwind CSS and TypeScript.",
+    imageUrl: "https://vuejs.org/logo.svg",
+    isOfficial: true,
+    isFrontend: true,
+  },
 ];

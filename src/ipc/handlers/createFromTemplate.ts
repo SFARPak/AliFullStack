@@ -14,6 +14,7 @@ const logger = log.scope("createFromTemplate");
  */
 async function createEssentialFilesImmediately(
   frontendPath: string,
+  templateId?: string,
 ): Promise<void> {
   logger.info(`🔧 Creating essential files immediately in ${frontendPath}`);
 
@@ -32,8 +33,30 @@ async function createEssentialFilesImmediately(
     );
   }
 
-  // Create package.json first (most critical)
-  const packageJson = `{
+  // Create package.json first (most critical) - template-aware
+  const isVue = templateId === "vue";
+  const packageJson = isVue ? `{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.0",
+    "@vue/tsconfig": "^0.5.1",
+    "typescript": "^5.5.3",
+    "vite": "^6.3.4",
+    "vue-tsc": "^2.0.13"
+  }
+}` : `{
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -255,9 +278,9 @@ async function copyCriticalFilesIndividually(
 }
 
 /**
- * Create minimal React files as last resort when all copy methods fail
+ * Create minimal files as last resort when all copy methods fail
  */
-async function createMinimalReactFiles(frontendPath: string): Promise<void> {
+async function createMinimalFiles(frontendPath: string, templateId?: string): Promise<void> {
   logger.info(`🔧 Creating minimal React files in ${frontendPath}`);
 
   // Ensure directories exist
@@ -269,8 +292,24 @@ async function createMinimalReactFiles(frontendPath: string): Promise<void> {
   await fs.ensureDir(pagesPath);
   await fs.ensureDir(publicPath);
 
-  // Create AI_RULES.md
-  const aiRulesContent = `# Tech Stack
+  // Create AI_RULES.md - template-aware
+  const aiRulesContent = isVue ? `# Tech Stack
+- You are building a Vue.js application.
+- Use TypeScript.
+- Use Vue Router. KEEP the routes in src/router/index.ts
+- Always put source code in the src folder.
+- Put pages into src/pages/
+- Put components into src/components/
+- The main page (default page) is src/pages/Index.vue
+- UPDATE the main page to include the new components. OTHERWISE, the user can NOT see any components!
+- Use Vue 3 Composition API with <script setup> syntax.
+- Tailwind CSS: always use Tailwind CSS for styling components. Utilize Tailwind classes extensively for layout, spacing, colors, and other design aspects.
+
+Available packages and libraries:
+
+- The lucide-vue-next package is installed for icons.
+- You have Vue 3 and its ecosystem available.
+- Use modern Vue 3 patterns and best practices.` : `# Tech Stack
 - You are building a React application.
 - Use TypeScript.
 - Use React Router. KEEP the routes in src/App.tsx
@@ -310,8 +349,30 @@ Available packages and libraries:
     throw error;
   }
 
-  // Create package.json
-  const packageJson = `{
+  // Create package.json - template-aware
+  const isVue = templateId === "vue";
+  const packageJson = isVue ? `{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "vue": "^3.4.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.0",
+    "@vue/tsconfig": "^0.5.1",
+    "typescript": "^5.5.3",
+    "vite": "^6.3.4",
+    "vue-tsc": "^2.0.13"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  }
+}` : `{
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -337,7 +398,20 @@ Available packages and libraries:
   await fs.writeFile(path.join(frontendPath, "package.json"), packageJson);
 
   // Create index.html
-  const indexHtml = `<!doctype html>
+  const isVueTemplate = templateId === "vue";
+  const indexHtml = isVueTemplate ? `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AliFullStack App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>` : `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -352,8 +426,37 @@ Available packages and libraries:
 </html>`;
   await fs.writeFile(path.join(frontendPath, "index.html"), indexHtml);
 
-  // Create main.tsx
-  const mainTsx = `import { StrictMode } from 'react'
+  if (isVueTemplate) {
+    // Create main.ts for Vue
+    const mainTs = `import { createApp } from 'vue'
+import App from './App.vue'
+
+createApp(App).mount('#app')`;
+    await fs.writeFile(path.join(srcPath, "main.ts"), mainTs);
+
+    // Create App.vue
+    const appVue = `<template>
+  <div id="app">
+    <router-view />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+</script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+</style>`;
+    await fs.writeFile(path.join(srcPath, "App.vue"), appVue);
+  } else {
+    // Create main.tsx for React
+    const mainTsx = `import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 
@@ -362,10 +465,10 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )`;
-  await fs.writeFile(path.join(srcPath, "main.tsx"), mainTsx);
+    await fs.writeFile(path.join(srcPath, "main.tsx"), mainTsx);
 
-  // Create App.tsx
-  const appTsx = `import { BrowserRouter, Routes, Route } from "react-router-dom";
+    // Create App.tsx for React
+    const appTsx = `import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -381,7 +484,8 @@ function App() {
 }
 
 export default App;`;
-  await fs.writeFile(path.join(srcPath, "App.tsx"), appTsx);
+    await fs.writeFile(path.join(srcPath, "App.tsx"), appTsx);
+  }
 
   // Create Index.tsx
   const indexTsx = `const Index = () => {
@@ -418,8 +522,23 @@ export default Index;`;
 export default NotFound;`;
   await fs.writeFile(path.join(pagesPath, "NotFound.tsx"), notFoundTsx);
 
-  // Create vite.config.ts
-  const viteConfig = `import { defineConfig } from 'vite'
+  // Create vite.config.ts - template-aware
+  const viteConfig = isVue ? `import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import path from "path";
+
+export default defineConfig(() => ({
+  server: {
+    host: "::",
+    port: 8080,
+  },
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+}));` : `import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -578,16 +697,24 @@ export async function createFromTemplate({
         "Backend framework must be selected for Full Stack app creation. Please select a backend framework in the Hub first.",
       );
     }
-    // Use scaffold copying for frontend (React) and backend framework setup
-    logger.info(
-      `Full stack mode: Using scaffold for frontend and ${selectedBackendFramework} for backend`,
-    );
-    // For React template, put the frontend code in the frontend folder
-    logger.info(`Setting up React scaffold in frontend folder`);
+
+    // Determine which frontend scaffold to use based on templateId
+    let scaffoldPath: string;
+    if (templateId === "vue") {
+      scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold-vue";
+      logger.info(`Full stack mode: Using Vue scaffold for frontend and ${selectedBackendFramework} for backend`);
+    } else {
+      // Default to React scaffold for other templates or when templateId is "react"
+      scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+      logger.info(`Full stack mode: Using React scaffold for frontend and ${selectedBackendFramework} for backend`);
+    }
+
+    // For the selected template, put the frontend code in the frontend folder
+    logger.info(`Setting up ${templateId} scaffold in frontend folder`);
 
     // EMERGENCY DEBUG: Create a debug file immediately
     try {
-      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}`;
+      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nTemplate: ${templateId}\nBackend Framework: ${selectedBackendFramework}\nScaffold Path: ${scaffoldPath}`;
       await fs.writeFile(
         path.join(frontendPath, "DEBUG_FULL_STACK.txt"),
         debugContent,
@@ -596,9 +723,6 @@ export async function createFromTemplate({
     } catch (debugError) {
       logger.error("❌ DEBUG: Failed to create debug file:", debugError);
     }
-
-    // Use the known absolute path to the scaffold directory
-    const scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
 
     logger.info(`Using scaffold path: ${scaffoldPath}`);
     logger.info(`Scaffold exists: ${fs.existsSync(scaffoldPath)}`);
@@ -659,7 +783,7 @@ export async function createFromTemplate({
     }
 
     try {
-      await createEssentialFilesImmediately(frontendPath);
+      await createEssentialFilesImmediately(frontendPath, templateId);
       logger.info(`✅ Essential files created immediately`);
 
       // Add debug file to confirm immediate creation worked
@@ -875,7 +999,7 @@ export async function createFromTemplate({
       // Last resort: try to create basic files manually
       logger.warn("Attempting manual file creation as last resort");
       try {
-        await createMinimalReactFiles(frontendPath);
+        await createMinimalFiles(frontendPath, templateId);
         logger.info("✅ Manual file creation completed");
       } catch (manualError) {
         logger.error(
@@ -1095,6 +1219,50 @@ Available packages and libraries:
       } catch (installError) {
         logger.warn(
           `Failed to install React scaffold dependencies:`,
+          installError,
+        );
+      }
+
+      return;
+    } else if (templateId === "vue") {
+      logger.info(
+        `Template ${templateId} has no GitHub URL, using scaffold copying`,
+      );
+      // Use scaffold copying for Vue template
+      const scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold-vue";
+
+      logger.info(`Using scaffold path: ${scaffoldPath}`);
+      if (!fs.existsSync(scaffoldPath)) {
+        logger.error(`Scaffold directory not found at: ${scaffoldPath}`);
+        throw new Error(`Scaffold directory not found at: ${scaffoldPath}`);
+      }
+
+      // Copy scaffold to frontend
+      await fs.copy(scaffoldPath, frontendPath, {
+        overwrite: true,
+        filter: (src, dest) => {
+          const relativePath = path.relative(scaffoldPath, src);
+          return (
+            !relativePath.includes("node_modules") &&
+            !relativePath.includes(".git")
+          );
+        },
+      });
+
+      logger.info(`Successfully copied scaffold to ${frontendPath}`);
+
+      // Install frontend dependencies
+      try {
+        const packageJsonPath = path.join(frontendPath, "package.json");
+        if (fs.existsSync(packageJsonPath)) {
+          logger.info(
+            `Installing Vue scaffold dependencies in ${frontendPath}`,
+          );
+          await installDependenciesForFramework(frontendPath, "nodejs");
+        }
+      } catch (installError) {
+        logger.warn(
+          `Failed to install Vue scaffold dependencies:`,
           installError,
         );
       }

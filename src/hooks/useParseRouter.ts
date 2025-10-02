@@ -21,31 +21,40 @@ export function useParseRouter(appId: number | null) {
     refreshApp,
   } = useLoadApp(appId);
 
+  // Detect Next.js app by presence of next.config.* in file list
+  const isNextApp = useMemo(() => {
+    if (!app?.files) return false;
+    return app.files.some((f) => f.toLowerCase().includes("next.config"));
+  }, [app?.files]);
+
+  // Detect Vue app by presence of .vue files in src/ or frontend/src/
+  const isVueApp = useMemo(() => {
+    if (!app?.files) return false;
+    return app.files.some((f) => f.includes('.vue'));
+  }, [app?.files]);
+
   // Load router related file to extract routes for non-Next apps
-  // First try frontend/src/App.tsx (new structure), then fallback to src/App.tsx
+  // For Vue apps, try .vue files; for React/other, try .tsx files
+  const primaryRouterPath = isVueApp ? "frontend/src/App.vue" : "frontend/src/App.tsx";
+  const fallbackRouterPath = isVueApp ? "src/App.vue" : "src/App.tsx";
+
   const {
     content: frontendRouterContent,
     loading: frontendRouterFileLoading,
     error: frontendRouterFileError,
-  } = useLoadAppFile(appId, "frontend/src/App.tsx");
+  } = useLoadAppFile(appId, primaryRouterPath);
 
   const {
     content: routerContent,
     loading: routerFileLoading,
     error: routerFileError,
     refreshFile,
-  } = useLoadAppFile(appId, "src/App.tsx");
+  } = useLoadAppFile(appId, fallbackRouterPath);
 
   // Use frontend router content if available, otherwise fallback to root
   const finalRouterContent = frontendRouterContent || routerContent;
   const finalRouterLoading = frontendRouterFileLoading || routerFileLoading;
   const finalRouterError = frontendRouterFileError || routerFileError;
-
-  // Detect Next.js app by presence of next.config.* in file list
-  const isNextApp = useMemo(() => {
-    if (!app?.files) return false;
-    return app.files.some((f) => f.toLowerCase().includes("next.config"));
-  }, [app?.files]);
 
   // Parse routes either from Next.js file-based routing or from router file
   useEffect(() => {
@@ -140,16 +149,41 @@ export function useParseRouter(appId: number | null) {
 
       try {
         const parsedRoutes: ParsedRoute[] = [];
-        const routePathsRegex = /<Route\s+(?:[^>]*\s+)?path=["']([^"']+)["']/g;
-        let match: RegExpExecArray | null;
 
-        while ((match = routePathsRegex.exec(content)) !== null) {
-          const path = match[1];
-          const label = buildLabel(path);
-          if (!parsedRoutes.some((r) => r.path === path)) {
-            parsedRoutes.push({ path, label });
+        if (isVueApp) {
+          // For Vue apps, look for route definitions in various formats
+          // Vue Router routes can be defined in different ways
+          const vueRouteRegexes = [
+            // Vue Router createRouter format: path: '/home'
+            /path:\s*["']([^"']+)["']/g,
+            // Vue Router route object: { path: '/home' }
+            /{[^}]*path:\s*["']([^"']+)["'][^}]*}/g,
+          ];
+
+          for (const regex of vueRouteRegexes) {
+            let match: RegExpExecArray | null;
+            while ((match = regex.exec(content)) !== null) {
+              const path = match[1];
+              const label = buildLabel(path);
+              if (!parsedRoutes.some((r) => r.path === path)) {
+                parsedRoutes.push({ path, label });
+              }
+            }
+          }
+        } else {
+          // React-style route parsing
+          const routePathsRegex = /<Route\s+(?:[^>]*\s+)?path=["']([^"']+)["']/g;
+          let match: RegExpExecArray | null;
+
+          while ((match = routePathsRegex.exec(content)) !== null) {
+            const path = match[1];
+            const label = buildLabel(path);
+            if (!parsedRoutes.some((r) => r.path === path)) {
+              parsedRoutes.push({ path, label });
+            }
           }
         }
+
         setRoutes(parsedRoutes);
       } catch (e) {
         console.error("Error parsing router file:", e);

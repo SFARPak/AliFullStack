@@ -1,0 +1,29 @@
+{
+  "name": "scaffold-vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "build:dev": "vue-tsc && vite build --mode development",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.0",
+    "@vue/tsconfig": "^0.5.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.9.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.11",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.5.3",
+    "vite": "^6.3.4",
+    "vue-tsc": "^2.0.13"
+  }
+}

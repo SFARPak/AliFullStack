@@ -39,7 +39,7 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 
 - [x] [ReactJS](https://reactjs.org)
 - [x] [NextJS](https://nextjs.org)
-- [ ] [Vue 3](https://vuejs.org)
+- [x] [Vue 3](https://vuejs.org)
 - [ ] [Angular](https://angular.io)
 - [ ] Svelte _(planned)_
 - [ ] SolidJS _(planned)_
@@ -51,6 +51,7 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 - [x] [FastAPI](https://fastapi.tiangolo.com)
 - [x] [Flask](https://flask.palletsprojects.com)
 - [x] [Node.js](https://nodejs.org)
+- [ ] Rust _(planned)_
 - [ ] Ruby on Rails _(planned)_
 - [ ] Go _(planned)_
 - [ ] Laravel _(planned)_

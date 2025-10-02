@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from ..schemas import Item, ItemCreate
+from ..schemas import Item, ItemCreate, Todo, TodoCreate
 
 router = APIRouter()
 
@@ -7,6 +7,10 @@ router = APIRouter()
 # In production, use a proper database
 items_db = []
 item_id_counter = 1
+
+# Todo storage for Vue apps
+todos_db = []
+todo_id_counter = 1
 
 @router.get("/items", response_model=list[Item])
 async def get_items():
@@ -48,3 +52,37 @@ async def delete_item(item_id: int):
             del items_db[i]
             return {"message": "Item deleted successfully"}
     raise HTTPException(status_code=404, detail="Item not found")
+
+# Todo routes for Vue app compatibility
+@router.get("/todos", response_model=list[Todo])
+async def get_todos():
+    """Get all todos"""
+    return todos_db
+
+@router.post("/todos", response_model=Todo)
+async def create_todo(todo: TodoCreate):
+    """Create a new todo"""
+    global todo_id_counter
+    new_todo = Todo(id=todo_id_counter, **todo.model_dump())
+    todos_db.append(new_todo)
+    todo_id_counter += 1
+    return new_todo
+
+@router.put("/todos/{todo_id}", response_model=Todo)
+async def update_todo(todo_id: int, todo: TodoCreate):
+    """Update an existing todo"""
+    for i, existing_todo in enumerate(todos_db):
+        if existing_todo.id == todo_id:
+            updated_todo = Todo(id=todo_id, **todo.model_dump())
+            todos_db[i] = updated_todo
+            return updated_todo
+    raise HTTPException(status_code=404, detail="Todo not found")
+
+@router.delete("/todos/{todo_id}")
+async def delete_todo(todo_id: int):
+    """Delete a todo"""
+    for i, todo in enumerate(todos_db):
+        if todo.id == todo_id:
+            del todos_db[i]
+            return {"message": "Todo deleted successfully"}
+    raise HTTPException(status_code=404, detail="Todo not found")
