@@ -1599,7 +1599,7 @@ describe("read_file tool with image support", () => {
 			// Make the test platform-agnostic by checking the call was made (path normalization can vary)
 			expect(mockedExtractTextFromFile).toHaveBeenCalledTimes(1)
 			const callArgs = mockedExtractTextFromFile.mock.calls[0]
-			expect(callArgs[0]).toMatch(/[\\\/]test[\\\/]document\.pdf$/)
+			expect(callArgs[0]).toMatch(/[\\/]test[\\/]document\.pdf$/)
 		})
 
 		it("should handle unknown binary formats", async () => {

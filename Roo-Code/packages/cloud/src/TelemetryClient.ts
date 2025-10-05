@@ -60,7 +60,7 @@ abstract class BaseTelemetryClient implements TelemetryClient {
 		// Event properties take precedence in case of conflicts.
 		const mergedProperties = {
 			...providerProperties,
-			...(event.properties || {}),
+			...event.properties,
 		}
 
 		// Filter out properties that shouldn't be captured by this client

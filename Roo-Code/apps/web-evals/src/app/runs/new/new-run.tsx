@@ -94,7 +94,7 @@ export function NewRun() {
 		async (values: CreateRun) => {
 			try {
 				if (mode === "openrouter") {
-					values.settings = { ...(values.settings || {}), openRouterModelId: model }
+					values.settings = { ...values.settings, openRouterModelId: model }
 				}
 
 				const { id } = await createRun(values)

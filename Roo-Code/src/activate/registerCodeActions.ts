@@ -40,7 +40,7 @@ const registerCodeAction = (context: vscode.ExtensionContext, command: CodeActio
 			}
 
 			const params = {
-				...{ filePath, selectedText },
+				 filePath, selectedText,
 				...(startLine !== undefined ? { startLine: startLine.toString() } : {}),
 				...(endLine !== undefined ? { endLine: endLine.toString() } : {}),
 				...(diagnostics ? { diagnostics } : {}),

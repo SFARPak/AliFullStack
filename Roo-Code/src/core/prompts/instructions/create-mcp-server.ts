@@ -77,7 +77,7 @@ weather-server/
 				...
 				"type": "module", // added by default, uses ES module syntax (import/export) rather than CommonJS (require/module.exports) (Important to know if you create additional scripts in this server repository like a get-refresh-token.js script)
 				"scripts": {
-					"build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+					"build": "tsc && node -e "require('fs').chmodSync('build/index.js', '755')"",
 					...
 				}
 				...
@@ -294,7 +294,7 @@ IMPORTANT: Regardless of what else you see in the MCP settings file, you must de
 }
 \`\`\`
 
-(Note: the user may also ask you to install the MCP server to the Claude desktop app, in which case you would read then modify \`~/Library/Application\ Support/Claude/claude_desktop_config.json\` on macOS for example. It follows the same format of a top level \`mcpServers\` object.)
+(Note: the user may also ask you to install the MCP server to the Claude desktop app, in which case you would read then modify \`~/Library/Application Support/Claude/claude_desktop_config.json\` on macOS for example. It follows the same format of a top level \`mcpServers\` object.)
 
 6. After you have edited the MCP settings configuration file, the system will automatically run all the servers and expose the available tools and resources in the 'Connected MCP Servers' section.
 

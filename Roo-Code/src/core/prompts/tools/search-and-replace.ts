@@ -31,7 +31,7 @@ Examples:
 2. Case-insensitive regex pattern:
 <search_and_replace>
 <path>example.ts</path>
-<search>old\w+</search>
+<search>oldw+</search>
 <replace>new$&</replace>
 <use_regex>true</use_regex>
 <ignore_case>true</ignore_case>

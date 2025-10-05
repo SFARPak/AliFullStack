@@ -681,7 +681,7 @@ export class McpHub {
 					cwd: configInjected.cwd,
 					env: {
 						...getDefaultEnvironment(),
-						...(configInjected.env || {}),
+						...configInjected.env,
 					},
 					stderr: "pipe",
 				})
@@ -771,7 +771,7 @@ export class McpHub {
 					max_retry_time: 5000, // Maximum retry time in milliseconds
 					withCredentials: configInjected.headers?.["Authorization"] ? true : false, // Enable credentials if Authorization header exists
 					fetch: (url: string | URL, init: RequestInit) => {
-						const headers = new Headers({ ...(init?.headers || {}), ...(configInjected.headers || {}) })
+						const headers = new Headers({ ...init?.headers, ...configInjected.headers })
 						return fetch(url, {
 							...init,
 							headers,
