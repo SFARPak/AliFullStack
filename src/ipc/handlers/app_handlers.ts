@@ -825,7 +825,27 @@ async function executeAppLocalNode({
 
   // For frontend, override with dynamic port and host binding for proxy access
   if (workingDir === frontendPath && serverPort > 0) {
-    command = `npx vite --port ${serverPort} --host`;
+    // Check if this is a Next.js app
+    const packageJsonPath = path.join(workingDir, "package.json");
+    let isNextJs = false;
+    try {
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+        isNextJs = packageJson.dependencies && packageJson.dependencies.next;
+      }
+    } catch (error) {
+      logger.warn(`Could not read package.json to detect Next.js: ${error}`);
+    }
+
+    if (isNextJs) {
+      // For Next.js, use the built-in dev server
+      command = `npm run dev -- --port ${serverPort} --hostname 0.0.0.0`;
+      logger.info(`Detected Next.js app, using command: ${command}`);
+    } else {
+      // For Vite-based apps (React scaffold)
+      command = `npx vite --port ${serverPort} --host`;
+      logger.info(`Detected Vite app, using command: ${command}`);
+    }
   }
 
   const spawnedProcess = spawn(command, [], {
@@ -948,6 +968,12 @@ function listenToProcess({
         /(?:Server running at\s+)(https?:\/\/\S+:\d+)/i,
         /(?:App listening at\s+)(https?:\/\/\S+:\d+)/i,
         /Ready\sat\s(https?:\/\/\S+:\d+)/i,
+        // Next.js specific patterns
+        /Ready\s*-\s*started server on\s+\S+:\d+,\s*url:\s*(https?:\/\/\S+:\d+)/i,
+        /Local:\s*(https?:\/\/\S+:\d+)/i,
+        /started server on\s+\S+:\d+,\s*url:\s*(https?:\/\/\S+:\d+)/i,
+        /server started on\s*(https?:\/\/\S+:\d+)/i,
+        /listening on\s*(https?:\/\/\S+:\d+)/i,
         /(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|(?:\d{1,3}\.){3}\d{1,3}):\d+(?:\/\S*)?)/i,
         /(https?:\/\/\S+:\d+(?:\/\S*)?)/i,
       ];
