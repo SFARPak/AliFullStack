@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { chatMessagesAtom, chatStreamCountAtom } from "../../atoms/chatAtoms";
+import { isTodoPanelOpenAtom } from "../../atoms/todoAtoms";
 import { IpcClient } from "@/ipc/ipc_client";
 
 import { BackendChatHeader } from "./BackendChatHeader";
@@ -8,6 +9,7 @@ import { BackendMessagesList } from "./BackendMessagesList";
 import { BackendChatInput } from "./BackendChatInput";
 import { BackendVersionPane } from "./BackendVersionPane";
 import { ChatError } from "../chat/ChatError";
+import { TodoListPanel } from "../TodoListPanel";
 
 interface BackendChatPanelProps {
   chatId?: number;
@@ -22,8 +24,12 @@ export function BackendChatPanel({
 }: BackendChatPanelProps) {
   const [messages, setMessages] = useAtom(chatMessagesAtom);
   const [isVersionPaneOpen, setIsVersionPaneOpen] = useState(false);
+  const [isTodoPanelOpen, setIsTodoPanelOpen] = useAtom(isTodoPanelOpenAtom);
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
+
+  // Debug logging
+  console.log("BackendChatPanel render:", { isTodoPanelOpen });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -114,30 +120,40 @@ export function BackendChatPanel({
   }, [messages, isUserScrolling]);
 
   return (
-    <div className="flex flex-col h-full">
-      <BackendChatHeader
-        isVersionPaneOpen={isVersionPaneOpen}
-        isPreviewOpen={isPreviewOpen}
-        onTogglePreview={onTogglePreview}
-        onVersionClick={() => setIsVersionPaneOpen(!isVersionPaneOpen)}
-      />
-      <div className="flex flex-1 overflow-hidden">
-        {!isVersionPaneOpen && (
-          <div className="flex-1 flex flex-col min-w-0">
-            <BackendMessagesList
-              messages={messages}
-              messagesEndRef={messagesEndRef}
-              ref={messagesContainerRef}
-            />
-            <ChatError error={error} onDismiss={() => setError(null)} />
-            <BackendChatInput chatId={chatId} />
-          </div>
-        )}
-        <BackendVersionPane
-          isVisible={isVersionPaneOpen}
-          onClose={() => setIsVersionPaneOpen(false)}
+    <div className="flex h-full">
+      <div className="flex flex-col flex-1">
+        <BackendChatHeader
+          isVersionPaneOpen={isVersionPaneOpen}
+          isPreviewOpen={isPreviewOpen}
+          onTogglePreview={onTogglePreview}
+          onVersionClick={() => setIsVersionPaneOpen(!isVersionPaneOpen)}
+          isTodoPanelOpen={isTodoPanelOpen}
+          onToggleTodo={() => setIsTodoPanelOpen(!isTodoPanelOpen)}
         />
+        <div className="flex flex-1 overflow-hidden">
+          {!isVersionPaneOpen && (
+            <div className="flex-1 flex flex-col min-w-0">
+              <BackendMessagesList
+                messages={messages}
+                messagesEndRef={messagesEndRef}
+                ref={messagesContainerRef}
+              />
+              <ChatError error={error} onDismiss={() => setError(null)} />
+              <BackendChatInput chatId={chatId} />
+            </div>
+          )}
+          <BackendVersionPane
+            isVisible={isVersionPaneOpen}
+            onClose={() => setIsVersionPaneOpen(false)}
+          />
+        </div>
       </div>
+      {isTodoPanelOpen && (
+        <TodoListPanel
+          isOpen={isTodoPanelOpen}
+          onClose={() => setIsTodoPanelOpen(false)}
+        />
+      )}
     </div>
   );
 }

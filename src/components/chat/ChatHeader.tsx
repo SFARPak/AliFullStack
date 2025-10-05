@@ -4,6 +4,7 @@ import {
   PlusCircle,
   GitBranch,
   Info,
+  CheckSquare,
 } from "lucide-react";
 import { PanelRightClose } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
@@ -34,6 +35,9 @@ interface ChatHeaderProps {
   isPreviewOpen: boolean;
   onTogglePreview: () => void;
   onVersionClick: () => void;
+  showTodoToggle?: boolean;
+  isTodoPanelOpen?: boolean;
+  onToggleTodo?: () => void;
 }
 
 export function ChatHeader({
@@ -41,6 +45,9 @@ export function ChatHeader({
   isPreviewOpen,
   onTogglePreview,
   onVersionClick,
+  showTodoToggle = false,
+  isTodoPanelOpen = false,
+  onToggleTodo,
 }: ChatHeaderProps) {
   const appId = useAtomValue(selectedAppIdAtom);
   const { versions, loading: versionsLoading } = useVersions(appId);
@@ -201,17 +208,28 @@ export function ChatHeader({
           </Button>
         </div>
 
-        <button
-          data-testid="toggle-preview-panel-button"
-          onClick={onTogglePreview}
-          className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
-        >
-          {isPreviewOpen ? (
-            <PanelRightClose size={20} />
-          ) : (
-            <PanelRightOpen size={20} />
+        <div className="flex items-center gap-2">
+          {showTodoToggle && onToggleTodo && (
+            <button
+              data-testid="toggle-todo-panel-button"
+              onClick={onToggleTodo}
+              className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
+            >
+              <CheckSquare size={20} className={isTodoPanelOpen ? "text-primary" : ""} />
+            </button>
           )}
-        </button>
+          <button
+            data-testid="toggle-preview-panel-button"
+            onClick={onTogglePreview}
+            className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
+          >
+            {isPreviewOpen ? (
+              <PanelRightClose size={20} />
+            ) : (
+              <PanelRightOpen size={20} />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
