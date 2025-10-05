@@ -4,6 +4,7 @@ import { chatMessagesAtom, chatStreamCountAtom } from "../atoms/chatAtoms";
 import { isTodoPanelOpenAtom } from "../atoms/todoAtoms";
 import { IpcClient } from "@/ipc/ipc_client";
 import { useSettings } from "@/hooks/useSettings";
+import { AppOutput } from "@/ipc/ipc_types";
 
 import { ChatHeader } from "./chat/ChatHeader";
 import { MessagesList } from "./chat/MessagesList";
@@ -36,6 +37,9 @@ export function ChatPanel({
   const [isVersionPaneOpen, setIsVersionPaneOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
+
+  // State to track system messages for auto-scrolling
+  const [systemMessageCount, setSystemMessageCount] = useState(0);
 
   // Debug logging
   console.log("ChatPanel render:", { isBackendMode, isFullstackMode, isFrontendMode, isTodoPanelOpen, showTodoToggle: isFullstackMode || isFrontendMode });
@@ -78,6 +82,43 @@ export function ChatPanel({
     console.log("streamCount", streamCount);
     scrollToBottom();
   }, [streamCount]);
+
+  // Set up system message handler for auto-scrolling
+  useEffect(() => {
+    const handleAppOutput = (output: AppOutput) => {
+      // Increment counter to trigger auto-scroll for system messages
+      setSystemMessageCount(prev => prev + 1);
+    };
+
+    // Register the callback with IpcClient
+    if (chatId) {
+      IpcClient.getInstance().runApp(chatId, handleAppOutput);
+    }
+
+    // Cleanup function
+    return () => {
+      if (chatId) {
+        IpcClient.getInstance().stopApp(chatId);
+      }
+    };
+  }, [chatId]);
+
+  // Auto-scroll when system messages arrive
+  useEffect(() => {
+    if (!isUserScrolling && systemMessageCount > 0) {
+      const { scrollTop, clientHeight, scrollHeight } =
+        messagesContainerRef.current || { scrollTop: 0, clientHeight: 0, scrollHeight: 0 };
+      const threshold = 280;
+      const isNearBottom =
+        scrollHeight - (scrollTop + clientHeight) <= threshold;
+
+      if (isNearBottom) {
+        requestAnimationFrame(() => {
+          scrollToBottom("instant");
+        });
+      }
+    }
+  }, [systemMessageCount, isUserScrolling]);
 
   useEffect(() => {
     const container = messagesContainerRef.current;

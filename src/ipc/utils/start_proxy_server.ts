@@ -24,6 +24,7 @@ export async function startProxy(
     onStarted?: (proxyUrl: string) => void;
     appId?: number; // Add appId to route proxy logs to appropriate terminal
     terminalType?: "frontend" | "backend" | "main"; // Add terminalType to determine routing
+    onError?: (error: Error) => void; // Add error callback
   } = {},
 ) {
   if (!/^https?:\/\//.test(targetOrigin))
@@ -34,6 +35,7 @@ export async function startProxy(
     // host = "localhost",
     // env = {}, // additional env vars to pass to the worker
     onStarted,
+    onError,
     appId,
     terminalType,
   } = opts;
@@ -51,6 +53,7 @@ export async function startProxy(
   }
 
   logToConsole(`Starting proxy worker from path: ${workerPath}`, "info");
+  logToConsole(`Proxy will forward ${targetOrigin} to port ${port}`, "info");
 
   const worker = new Worker(workerPath, {
     workerData: {

@@ -148,64 +148,43 @@ async function copyCriticalFilesIndividually(scaffoldPath: string, frontendPath:
     'vercel.json'
   ];
 
-  // Copy critical files
-  for (const file of criticalFiles) {
-    const srcFile = path.join(scaffoldPath, file);
-    const destFile = path.join(frontendPath, file);
+  // Copy critical files and directories using robust approach
+  // Get all files and directories from scaffold
+  const scaffoldContents = await fs.readdir(scaffoldPath, { withFileTypes: true });
 
-    if (fs.existsSync(srcFile)) {
-      try {
-        await fs.copy(srcFile, destFile);
-        logger.info(`✅ Copied ${file}`);
-      } catch (error) {
-        logger.warn(`⚠️ Failed to copy ${file}:`, error instanceof Error ? error.message : String(error));
-      }
-    } else {
-      logger.warn(`⚠️ Source file not found: ${file}`);
+  // Copy each item individually for better control and error handling
+  for (const item of scaffoldContents) {
+    const srcPath = path.join(scaffoldPath, item.name);
+    const destPath = path.join(frontendPath, item.name);
+
+    // Skip node_modules and .git directories
+    if (item.name === 'node_modules' || item.name === '.git') {
+      logger.debug(`Skipping ${item.name} directory`);
+      continue;
     }
-  }
 
-  // Copy directories with full structure
-  const directoriesToCopy = ['src', 'public'];
-
-  for (const dir of directoriesToCopy) {
-    const srcDir = path.join(scaffoldPath, dir);
-    const destDir = path.join(frontendPath, dir);
-
-    if (fs.existsSync(srcDir)) {
-      try {
-        // Ensure destination directory exists
-        await fs.ensureDir(destDir);
-
-        await fs.copy(srcDir, destDir, {
-          recursive: true,
+    try {
+      if (item.isDirectory()) {
+        logger.debug(`Copying directory: ${item.name}`);
+        await fs.ensureDir(destPath);
+        await fs.copy(srcPath, destPath, {
           overwrite: true,
+          recursive: true,
           filter: (src, dest) => {
-            const relativePath = path.relative(srcDir, src);
-            return !relativePath.includes('node_modules') && !relativePath.includes('.git') && !relativePath.includes('.DS_Store');
+            // Exclude .git and node_modules from subdirectories too
+            const relativePath = path.relative(srcPath, src);
+            return !relativePath.includes('.git') && !relativePath.includes('node_modules') && !relativePath.includes('.DS_Store');
           }
         });
-
-        // Verify directory was copied properly
-        if (fs.existsSync(destDir)) {
-          const destContents = fs.readdirSync(destDir);
-          logger.info(`✅ Copied directory ${dir} (${destContents.length} items)`);
-        } else {
-          throw new Error(`Destination directory ${destDir} not found after copy`);
-        }
-      } catch (error) {
-        logger.warn(`⚠️ Failed to copy directory ${dir}:`, error instanceof Error ? error.message : String(error));
-
-        // Try to create minimal directory structure if full copy fails
-        try {
-          await fs.ensureDir(destDir);
-          logger.info(`✅ Created empty ${dir} directory as fallback`);
-        } catch (fallbackError) {
-          logger.error(`❌ Failed to create fallback ${dir} directory:`, fallbackError);
-        }
+        logger.info(`✅ Copied directory ${item.name}`);
+      } else {
+        logger.debug(`Copying file: ${item.name}`);
+        await fs.copy(srcPath, destPath, { overwrite: true });
+        logger.info(`✅ Copied file ${item.name}`);
       }
-    } else {
-      logger.warn(`⚠️ Source directory not found: ${dir}`);
+    } catch (itemError) {
+      logger.warn(`⚠️ Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+      // Continue with other files
     }
   }
 
@@ -524,12 +503,14 @@ export async function createFromTemplate({
     logger.info(`Full stack mode: Using scaffold for frontend and ${selectedBackendFramework} for backend`);
 
     // Determine which scaffold to use based on templateId
+    // Use the app's directory path instead of hardcoded path
+    const appPath = path.dirname(path.dirname(path.dirname(__dirname)));
     let scaffoldPath: string;
     if (templateId === "vue") {
-      scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold-vue";
+      scaffoldPath = path.join(appPath, "scaffold-vue");
       logger.info(`Setting up Vue scaffold in frontend folder`);
     } else {
-      scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+      scaffoldPath = path.join(appPath, "scaffold");
       logger.info(`Setting up React scaffold in frontend folder`);
     }
 
@@ -620,22 +601,46 @@ export async function createFromTemplate({
     try {
       logger.info(`Starting scaffold copy from ${actualScaffoldPath} to ${frontendPath}`);
 
-      // Use fs-extra copy with detailed error handling
-      await fs.copy(actualScaffoldPath, frontendPath, {
-        overwrite: true,
-        errorOnExist: false,
-        filter: (src, dest) => {
-          // Exclude node_modules and .git directories
-          const relativePath = path.relative(actualScaffoldPath, src);
-          const shouldExclude = relativePath.includes('node_modules') || relativePath.includes('.git');
+      // Use a more robust copying approach - copy entire directory contents
+      await fs.ensureDir(frontendPath);
 
-          if (shouldExclude) {
-            logger.debug(`Excluding ${src} from copy`);
-          }
+      // Get all files and directories from scaffold
+      const scaffoldContents = await fs.readdir(actualScaffoldPath, { withFileTypes: true });
 
-          return !shouldExclude;
+      // Copy each item individually for better control and error handling
+      for (const item of scaffoldContents) {
+        const srcPath = path.join(actualScaffoldPath, item.name);
+        const destPath = path.join(frontendPath, item.name);
+
+        // Skip node_modules and .git directories
+        if (item.name === 'node_modules' || item.name === '.git') {
+          logger.debug(`Skipping ${item.name} directory`);
+          continue;
         }
-      });
+
+        try {
+          if (item.isDirectory()) {
+            logger.debug(`Copying directory: ${item.name}`);
+            await fs.copy(srcPath, destPath, {
+              overwrite: true,
+              recursive: true,
+              filter: (src, dest) => {
+                // Exclude .git and node_modules from subdirectories too
+                const relativePath = path.relative(srcPath, src);
+                return !relativePath.includes('.git') && !relativePath.includes('node_modules');
+              }
+            });
+          } else {
+            logger.debug(`Copying file: ${item.name}`);
+            await fs.copy(srcPath, destPath, { overwrite: true });
+          }
+        } catch (itemError) {
+          logger.warn(`Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+          // Continue with other files
+        }
+      }
+
+      logger.info(`Successfully completed scaffold copy operation`);
 
       logger.info(`Successfully completed scaffold copy operation`);
 
@@ -926,11 +931,13 @@ Available packages and libraries:
     if (templateId === "react" || templateId === "vue") {
       logger.info(`Template ${templateId} has no GitHub URL, using scaffold copying`);
       // Use scaffold copying for React/Vue template
+      // Use the app's directory path instead of hardcoded path
+      const appPath = path.dirname(path.dirname(path.dirname(__dirname)));
       let scaffoldPath: string;
       if (templateId === "vue") {
-        scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold-vue";
+        scaffoldPath = path.join(appPath, "scaffold-vue");
       } else {
-        scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+        scaffoldPath = path.join(appPath, "scaffold");
       }
 
       logger.info(`Using scaffold path: ${scaffoldPath}`);
@@ -939,14 +946,44 @@ Available packages and libraries:
         throw new Error(`Scaffold directory not found at: ${scaffoldPath}`);
       }
 
-      // Copy scaffold to frontend
-      await fs.copy(scaffoldPath, frontendPath, {
-        overwrite: true,
-        filter: (src, dest) => {
-          const relativePath = path.relative(scaffoldPath, src);
-          return !relativePath.includes('node_modules') && !relativePath.includes('.git');
+      // Copy scaffold to frontend using robust approach
+      await fs.ensureDir(frontendPath);
+
+      // Get all files and directories from scaffold
+      const scaffoldContents = await fs.readdir(scaffoldPath, { withFileTypes: true });
+
+      // Copy each item individually for better control and error handling
+      for (const item of scaffoldContents) {
+        const srcPath = path.join(scaffoldPath, item.name);
+        const destPath = path.join(frontendPath, item.name);
+
+        // Skip node_modules and .git directories
+        if (item.name === 'node_modules' || item.name === '.git') {
+          logger.debug(`Skipping ${item.name} directory`);
+          continue;
         }
-      });
+
+        try {
+          if (item.isDirectory()) {
+            logger.debug(`Copying directory: ${item.name}`);
+            await fs.copy(srcPath, destPath, {
+              overwrite: true,
+              recursive: true,
+              filter: (src, dest) => {
+                // Exclude .git and node_modules from subdirectories too
+                const relativePath = path.relative(srcPath, src);
+                return !relativePath.includes('.git') && !relativePath.includes('node_modules');
+              }
+            });
+          } else {
+            logger.debug(`Copying file: ${item.name}`);
+            await fs.copy(srcPath, destPath, { overwrite: true });
+          }
+        } catch (itemError) {
+          logger.warn(`Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+          // Continue with other files
+        }
+      }
 
       logger.info(`Successfully copied scaffold to ${frontendPath}`);
 
@@ -1183,7 +1220,9 @@ export async function setupBackendFramework(backendPath: string, framework: stri
 
   try {
     // Check if scaffold-backend exists for this framework
-    const scaffoldPath = path.join("/Volumes/Farhan/Desktop/AliFullstack", "scaffold-backend", framework);
+    // Use the app's directory path instead of hardcoded path
+    const appPath = path.dirname(path.dirname(path.dirname(__dirname)));
+    const scaffoldPath = path.join(appPath, "scaffold-backend", framework);
 
     if (fs.existsSync(scaffoldPath)) {
       logger.info(`Found scaffold for ${framework} at ${scaffoldPath}, copying to ${backendPath}`);

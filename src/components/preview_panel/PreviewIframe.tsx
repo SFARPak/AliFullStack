@@ -557,19 +557,27 @@ export const PreviewIframe = ({ loading }: { loading: boolean }) => {
             </p>
           </div>
         ) : (
-          <iframe
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-downloads"
-            data-testid="preview-iframe-element"
-            onLoad={() => {
-              setErrorMessage(undefined);
-            }}
-            ref={iframeRef}
-            key={reloadKey}
-            title={`Preview for App ${selectedAppId}`}
-            className="w-full h-full border-none bg-white dark:bg-gray-950"
-            src={appUrl}
-            allow="clipboard-read; clipboard-write; fullscreen; microphone; camera; display-capture; geolocation; autoplay; picture-in-picture"
-          />
+          <>
+            {console.log(`[IFRAME] Rendering with URL: ${appUrl}`)}
+            <iframe
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-downloads"
+              data-testid="preview-iframe-element"
+              onLoad={() => {
+                console.log(`[IFRAME] Successfully loaded URL: ${appUrl}`);
+                setErrorMessage(undefined);
+              }}
+              onError={(e) => {
+                console.error(`[IFRAME] Error loading: ${appUrl}`, e);
+                setErrorMessage(`Failed to load app preview: ${e}`);
+              }}
+              ref={iframeRef}
+              key={reloadKey}
+              title={`Preview for App ${selectedAppId}`}
+              className="w-full h-full border-none bg-white dark:bg-gray-950"
+              src={appUrl}
+              allow="clipboard-read; clipboard-write; fullscreen; microphone; camera; display-capture; geolocation; autoplay; picture-in-picture"
+            />
+          </>
         )}
       </div>
     </div>

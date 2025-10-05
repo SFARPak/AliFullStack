@@ -436,10 +436,98 @@ async function executeAppLocalNode({
           logger.error(`Failed to install vite dependency in ${frontendPath} even with robust method`);
           safeSend(event.sender, "app:output", {
             type: "stdout",
-            message: `❌ Failed to install frontend dependencies even with multiple retry methods. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
+            message: `🔧 Detected failed frontend dependency installation. Attempting comprehensive auto-fix...`,
             appId,
           });
-          return;
+
+          // Comprehensive auto-fix: try multiple installation strategies
+          const fixStrategies = [
+            {
+              command: "npm install --legacy-peer-deps",
+              description: "npm install with legacy peer deps",
+              cwd: frontendPath
+            },
+            {
+              command: "npm install --force",
+              description: "npm install with force flag",
+              cwd: frontendPath
+            },
+            {
+              command: "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
+              description: "clean install with legacy peer deps",
+              cwd: frontendPath
+            },
+            {
+              command: "rm -rf node_modules && npm install",
+              description: "clean standard install",
+              cwd: frontendPath
+            }
+          ];
+
+          let fixSucceeded = false;
+
+          for (const strategy of fixStrategies) {
+            try {
+              logger.info(`Attempting auto-fix strategy: ${strategy.description} in ${strategy.cwd}`);
+
+              await new Promise<void>((resolve, reject) => {
+                const fixProcess = spawn(strategy.command, [], {
+                  cwd: strategy.cwd,
+                  shell: true,
+                  stdio: "pipe",
+                });
+
+                let fixOutput = "";
+                let fixError = "";
+
+                fixProcess.stdout?.on("data", (data) => {
+                  fixOutput += data.toString();
+                });
+
+                fixProcess.stderr?.on("data", (data) => {
+                  fixError += data.toString();
+                });
+
+                fixProcess.on("close", (code) => {
+                  if (code === 0) {
+                    logger.info(`Successfully auto-fixed frontend dependencies using: ${strategy.description}`);
+                    safeSend(event.sender, "app:output", {
+                      type: "stdout",
+                      message: `✅ Frontend dependencies successfully installed using ${strategy.description}. The app should now work properly.`,
+                      appId,
+                    });
+                    resolve();
+                  } else {
+                    logger.warn(`Auto-fix strategy "${strategy.description}" failed (code: ${code}): ${fixError}`);
+                    reject(new Error(`Strategy failed: ${fixError}`));
+                  }
+                });
+
+                fixProcess.on("error", (err) => {
+                  logger.error(`Failed to start auto-fix strategy "${strategy.description}":`, err);
+                  reject(err);
+                });
+              });
+
+              // If we get here, the strategy succeeded
+              fixSucceeded = true;
+              break;
+
+            } catch (strategyError) {
+              logger.warn(`Auto-fix strategy "${strategy.description}" failed, trying next approach...`);
+              // Continue to next strategy
+            }
+          }
+
+          if (!fixSucceeded) {
+            logger.error(`All auto-fix strategies failed for frontend dependencies`);
+            safeSend(event.sender, "app:output", {
+              type: "stdout",
+              message: `❌ All auto-fix methods failed. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
+              appId,
+            });
+            // Continue with app startup despite dependency issues
+          }
         }
         logger.info(`Frontend dependencies installed successfully with robust method`);
       } else {
@@ -457,29 +545,61 @@ async function executeAppLocalNode({
 
     // Determine backend framework for proper server command
     let backendFramework: string | null = null;
-    if (fs.existsSync(path.join(backendPath, "package.json"))) {
-      backendFramework = "nodejs";
-    } else if (fs.existsSync(path.join(backendPath, "requirements.txt"))) {
+
+    // First check for Python frameworks (more specific check)
+    if (fs.existsSync(path.join(backendPath, "requirements.txt"))) {
+      logger.info(`Found requirements.txt in ${backendPath}, detecting Python framework`);
       // Check for framework-specific files
       if (fs.existsSync(path.join(backendPath, "manage.py"))) {
         backendFramework = "django";
+        logger.info(`Detected Django framework based on manage.py file`);
       } else {
         // Read Python files to detect framework imports
         backendFramework = await detectPythonFramework(backendPath);
+        logger.info(`Detected Python framework: ${backendFramework}`);
       }
+    } else if (fs.existsSync(path.join(backendPath, "package.json"))) {
+      // Only if no Python files exist, check for Node.js
+      backendFramework = "nodejs";
+      logger.info(`Detected Node.js framework based on package.json file`);
+    } else {
+      logger.warn(`No framework files found in ${backendPath} - checking directory contents`);
+      const backendFiles = fs.readdirSync(backendPath);
+      logger.info(`Backend directory contents: ${backendFiles.join(', ')}`);
     }
 
     // Start backend server first
     try {
       let backendCommand: string;
-      if (backendFramework) {
+      logger.info(`Starting backend server with framework: ${backendFramework || 'unknown'}`);
+
+      if (backendFramework && backendFramework !== "nodejs") {
+        // For Python frameworks, get the proper start command
+        logger.info(`Getting start command for Python framework: ${backendFramework}`);
         backendCommand = await getStartCommandForFramework(backendFramework);
+        logger.info(`Got command for ${backendFramework}: ${backendCommand}`);
         if (!backendCommand) {
-          backendCommand = getCommand({ installCommand, startCommand }); // Fallback
+          // Fallback to default Python command
+          backendCommand = "python app.py";
+          logger.info(`Using fallback command: ${backendCommand}`);
         }
+      } else if (backendFramework === "nodejs") {
+        // For Node.js backends, use custom commands or default
+        backendCommand = getCommand({ installCommand, startCommand });
+        logger.info(`Using Node.js command: ${backendCommand}`);
       } else {
-        backendCommand = getCommand({ installCommand, startCommand }); // Fallback
+        // No framework detected, try to guess
+        logger.warn(`No backend framework detected, trying to guess`);
+        if (fs.existsSync(path.join(backendPath, "requirements.txt"))) {
+          backendCommand = "python app.py";
+          logger.info(`Guessed Python command: ${backendCommand}`);
+        } else {
+          backendCommand = getCommand({ installCommand, startCommand }); // Fallback to Node.js
+          logger.info(`Guessed Node.js command: ${backendCommand}`);
+        }
       }
+
+      logger.info(`Final backend command: ${backendCommand}`);
 
       const backendProcess = spawn(backendCommand, [], {
         cwd: backendPath,
@@ -512,6 +632,25 @@ async function executeAppLocalNode({
           appId,
         });
 
+        // Also send backend startup logs to system messages for visibility
+        backendProcess.stdout?.on("data", (data) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `[BACKEND] ${message}`,
+            appId,
+          });
+        });
+
+        backendProcess.stderr?.on("data", (data) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stderr",
+            message: `[BACKEND] ${message}`,
+            appId,
+          });
+        });
+
         logToConsole(`Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`, "info");
       }
     } catch (error) {
@@ -526,18 +665,8 @@ async function executeAppLocalNode({
 
     // Start frontend server
     try {
-      // Double-check that we have the necessary dependencies before starting
-      const viteAvailable = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
-      if (!viteAvailable) {
-        safeSend(event.sender, "app:output", {
-          type: "stdout",
-          message: `❌ Cannot start frontend server: vite package not found. Please ensure dependencies are installed.`,
-          appId,
-        });
-        return;
-      }
-
       const frontendCommand = `npx vite --port ${frontendPort} --host`;
+      logger.info(`Starting frontend server with command: ${frontendCommand} in ${frontendPath}`);
       const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
@@ -568,6 +697,25 @@ async function executeAppLocalNode({
           type: "stdout",
           message: `✅ Frontend server started (PID: ${frontendProcess.pid}, Port: ${frontendPort})`,
           appId,
+        });
+
+        // Also send frontend startup logs to system messages for visibility
+        frontendProcess.stdout?.on("data", (data) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `[FRONTEND] ${message}`,
+            appId,
+          });
+        });
+
+        frontendProcess.stderr?.on("data", (data) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stderr",
+            message: `[FRONTEND] ${message}`,
+            appId,
+          });
         });
 
         // Send summary message
@@ -677,16 +825,6 @@ async function executeAppLocalNode({
 
   // For frontend, override with dynamic port and host binding for proxy access
   if (workingDir === frontendPath && serverPort > 0) {
-    // Double-check that we have the necessary dependencies before starting
-    const viteAvailable = fs.existsSync(path.join(frontendPath, "node_modules", "vite"));
-    if (!viteAvailable) {
-      safeSend(event.sender, "app:output", {
-        type: "stdout",
-        message: `❌ Cannot start frontend server: vite package not found. Please ensure dependencies are installed.`,
-        appId,
-      });
-      return;
-    }
     command = `npx vite --port ${serverPort} --host`;
   }
 
@@ -754,6 +892,8 @@ function listenToProcess({
 }) {
   let urlDetectionTimeout: NodeJS.Timeout | null = null;
   let urlDetected = false;
+  let lastDetectedUrl: string | null = null;
+  let urlDetectionDebounce: NodeJS.Timeout | null = null;
 
   // Start a timeout to inform the user if no URL is detected
   urlDetectionTimeout = setTimeout(() => {
@@ -796,8 +936,6 @@ function listenToProcess({
     } else {
       routeTerminalOutput(event, appId, terminalType || "main", "stdout", message);
 
-      if (urlDetected) return;
-
       const urlPatterns = [
         /(?:➜\s*Local:\s*)(https?:\/\/\S+:\d+)/i,
         /(?:➜\s*Network:\s*)(https?:\/\/\S+:\d+)/i,
@@ -813,9 +951,9 @@ function listenToProcess({
         /(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|(?:\d{1,3}\.){3}\d{1,3}):\d+(?:\/\S*)?)/i,
         /(https?:\/\/\S+:\d+(?:\/\S*)?)/i,
       ];
-
+ 
       logger.debug(`[${terminalType || 'main'}] Checking for URLs in: ${rawMessage}`);
-
+ 
       let detectedUrl = null;
       for (const pattern of urlPatterns) {
         const match = rawMessage.match(pattern);
@@ -826,45 +964,70 @@ function listenToProcess({
         }
       }
 
+      if (!detectedUrl) {
+        logger.debug(`[${terminalType || 'main'}] No URL detected in: ${rawMessage.substring(0, 100)}...`);
+      }
+ 
       const shouldCreatePreview = !terminalType || terminalType === "frontend";
-
-      if (detectedUrl && shouldCreatePreview) {
-        urlDetected = true;
-        if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
-
-        try {
-          if (proxyWorker) {
-            logger.info("Terminating existing proxy worker to create new one for frontend");
-            proxyWorker.terminate();
-            proxyWorker = null;
-          }
-
-          proxyWorker = await startProxy(detectedUrl, {
-            appId,
-            terminalType: terminalType || "frontend", // Pass the terminalType for routing
-            onStarted: (proxyUrl) => {
-              const originalUrl = new URL(detectedUrl);
-              const proxyUrlObj = new URL(proxyUrl);
-              const localPort = originalUrl.port;
-              const proxyPort = proxyUrlObj.port;
-
+ 
+      // Update last detected URL
+      if (detectedUrl) {
+        lastDetectedUrl = detectedUrl;
+      }
+ 
+      // Use debouncing for frontend proxy creation to handle server restarts
+      if (detectedUrl && shouldCreatePreview && !urlDetected) {
+        // Clear any existing debounce timer
+        if (urlDetectionDebounce) {
+          clearTimeout(urlDetectionDebounce);
+        }
+ 
+        // Set a debounce timer to wait for potential newer URLs
+        urlDetectionDebounce = setTimeout(async () => {
+          if (!urlDetected && lastDetectedUrl) {
+            urlDetected = true;
+            if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
+ 
+            try {
+              if (proxyWorker) {
+                logger.info("Terminating existing proxy worker to create new one for frontend");
+                proxyWorker.terminate();
+                proxyWorker = null;
+              }
+ 
+              logger.info(`Creating proxy for URL: ${lastDetectedUrl}`);
+              proxyWorker = await startProxy(lastDetectedUrl, {
+                appId,
+                terminalType: terminalType || "frontend", // Pass the terminalType for routing
+                onStarted: (proxyUrl) => {
+                  const originalUrl = new URL(lastDetectedUrl!);
+                  const proxyUrlObj = new URL(proxyUrl);
+                  const localPort = originalUrl.port;
+                  const proxyPort = proxyUrlObj.port;
+   
+                  logger.info(`Proxy started: ${proxyUrl} -> ${lastDetectedUrl}`);
+                  const proxyMessage = `🚀 App preview available at http://localhost:${proxyPort} (proxied from local port ${localPort})`;
+                  logger.info(`Sending proxy message: ${proxyMessage}`);
+                  safeSend(event.sender, "app:output", {
+                    type: "stdout",
+                    message: proxyMessage,
+                    appId,
+                  });
+                },
+              });
+ 
+            } catch (error) {
+              logger.error(`Failed to start proxy for URL ${lastDetectedUrl}:`, error);
               safeSend(event.sender, "app:output", {
                 type: "stdout",
-                message: `🚀 App preview available at http://localhost:${proxyPort} (proxied from local port ${localPort})`,
+                message: `⚠️ Proxy failed, but server is running. Access directly at: ${lastDetectedUrl}`,
                 appId,
               });
-            },
-          });
-
-        } catch (error) {
-          logger.error(`Failed to start proxy for URL ${detectedUrl}:`, error);
-          safeSend(event.sender, "app:output", {
-            type: "stdout",
-            message: `⚠️ Proxy failed, but server is running. Access directly at: ${detectedUrl}`,
-            appId,
-          });
-        }
+            }
+          }
+        }, 2000); // Wait 2 seconds for potential newer URLs
       } else if (detectedUrl && terminalType === "backend") {
+        // For backend, don't debounce - show immediately
         urlDetected = true;
         if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
         safeSend(event.sender, "app:output", {
@@ -949,6 +1112,11 @@ function listenToProcess({
     logger.log(
       `App ${appId} (PID: ${spawnedProcess.pid}) process closed with code ${code}, signal ${signal}.`,
     );
+    // Clean up debounce timer
+    if (urlDetectionDebounce) {
+      clearTimeout(urlDetectionDebounce);
+      urlDetectionDebounce = null;
+    }
     removeAppIfCurrentProcess(appId, spawnedProcess);
   });
 
@@ -957,6 +1125,11 @@ function listenToProcess({
     logger.error(
       `Error in app ${appId} (PID: ${spawnedProcess.pid}) process: ${err.message}`,
     );
+    // Clean up debounce timer
+    if (urlDetectionDebounce) {
+      clearTimeout(urlDetectionDebounce);
+      urlDetectionDebounce = null;
+    }
     removeAppIfCurrentProcess(appId, spawnedProcess);
     // Note: We don't throw here as the error is asynchronous. The caller got a success response already.
     // Consider adding ipcRenderer event emission to notify UI of the error.

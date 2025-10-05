@@ -33,6 +33,7 @@ export function useRunApp() {
       const proxyUrl = newFormatMatch[1];
       const localPort = newFormatMatch[2];
       const originalUrl = `http://localhost:${localPort}`;
+      console.log(`[PROXY] Setting app URL to proxy: ${proxyUrl} (original: ${originalUrl})`);
       setAppUrlObj({
         appUrl: proxyUrl,
         appId: output.appId,

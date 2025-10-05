@@ -76,7 +76,7 @@ export function addTerminalOutput(appId: number, terminal: "frontend" | "backend
 }
 
 // Function to add output to appropriate terminal based on terminalType (used by app handlers)
-export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: number, terminalType: "frontend" | "backend" | "main", type: "stdout" | "stderr", message: string) {
+export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: number, terminalType: "frontend" | "backend" | "main", type: "stdout" | "stderr" | "info" | "client-error" | "input-requested", message: string) {
   // Route to appropriate terminal - handle "main" type by routing to both frontend and backend terminals
   let targetTerminals: ("frontend" | "backend")[] = [];
 
