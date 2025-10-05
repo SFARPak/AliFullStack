@@ -108,7 +108,7 @@ export function ChatHeader({
   // REMINDER: KEEP UP TO DATE WITH app_handlers.ts
   const versionPostfix = versions.length === 100_000 ? `+` : "";
 
-  const isNotMainBranch = branchInfo && branchInfo.branch !== "main";
+  const isNotMainBranch = branchInfo && branchInfo.branch !== "main" && branchInfo.branch !== "<no-git-repo>";
 
   const currentBranchName = branchInfo?.branch;
 
@@ -147,6 +147,26 @@ export function ChatHeader({
                           {isAnyCheckoutVersionInProgress
                             ? "Version checkout is currently in progress"
                             : "Checkout main branch, otherwise changes will not be saved properly"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </>
+              )}
+              {currentBranchName === "<no-git-repo>" && (
+                <>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex items-center gap-1">
+                          <strong>Info:</strong>
+                          <span>Version control not initialized</span>
+                          <Info size={14} />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          This app does not have git version control initialized yet.
                         </p>
                       </TooltipContent>
                     </Tooltip>

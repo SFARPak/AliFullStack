@@ -129,7 +129,9 @@ export function registerVersionHandlers() {
 
       // Return appropriate result if the app is not a git repo
       if (!fs.existsSync(path.join(appPath, ".git"))) {
-        throw new Error("Not a git repository");
+        return {
+          branch: "<no-git-repo>",
+        };
       }
 
       try {
