@@ -477,6 +477,15 @@ export async function createFromTemplate({
   logger.info(`Creating frontend directory: ${frontendPath}`);
   await fs.ensureDir(frontendPath);
 
+  // Set proper permissions for frontend directory (755 - rwxr-xr-x)
+  try {
+    const { execSync } = require('child_process');
+    execSync(`chmod 755 "${frontendPath}"`, { stdio: 'ignore' });
+    logger.info(`Set permissions 755 for frontend directory: ${frontendPath}`);
+  } catch (permError) {
+    logger.warn(`Failed to set permissions for frontend directory:`, permError instanceof Error ? permError.message : String(permError));
+  }
+
   // For full stack, always create both frontend and backend
   // For frontend-only, create frontend and optionally backend
   // For backend-only, create backend
@@ -486,12 +495,31 @@ export async function createFromTemplate({
     backendPath = path.join(fullAppPath, "backend");
     logger.info(`Creating backend directory: ${backendPath}`);
     await fs.ensureDir(backendPath);
+
+    // Set proper permissions for backend directory (755 - rwxr-xr-x)
+    try {
+      const { execSync } = require('child_process');
+      execSync(`chmod 755 "${backendPath}"`, { stdio: 'ignore' });
+      logger.info(`Set permissions 755 for backend directory: ${backendPath}`);
+    } catch (permError) {
+      logger.warn(`Failed to set permissions for backend directory:`, permError instanceof Error ? permError.message : String(permError));
+    }
   }
 
   // Set up selected backend framework if specified
   if ((isFullStack || selectedBackendFramework) && backendPath) {
     logger.info(`Setting up backend framework: ${selectedBackendFramework}`);
     await setupBackendFramework(backendPath, selectedBackendFramework!);
+
+    // Set proper permissions for all backend subdirectories after setup
+    try {
+      const { execSync } = require('child_process');
+      execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+      execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+      logger.info(`Set proper permissions for all backend subdirectories and files`);
+    } catch (permError) {
+      logger.warn(`Failed to set permissions for backend subdirectories:`, permError instanceof Error ? permError.message : String(permError));
+    }
   }
 
   // For full stack, skip template processing and use scaffold copying directly
@@ -753,6 +781,16 @@ export async function createFromTemplate({
 
       logger.info('✅ Scaffold copy verification PASSED');
       logger.info(`Successfully copied scaffold from ${actualScaffoldPath} to ${frontendPath}`);
+
+      // Set proper permissions for all subdirectories in frontend
+      try {
+        const { execSync } = require('child_process');
+        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+        logger.info(`Set proper permissions for all frontend subdirectories and files`);
+      } catch (permError) {
+        logger.warn(`Failed to set permissions for frontend subdirectories:`, permError instanceof Error ? permError.message : String(permError));
+      }
 
     } catch (copyError) {
       logger.error(`Failed to copy scaffold directory:`, copyError);
@@ -1033,6 +1071,16 @@ Available packages and libraries:
     try {
       await copyRepoToApp(repoCachePath, frontendPath);
 
+      // Set proper permissions for frontend template subdirectories
+      try {
+        const { execSync } = require('child_process');
+        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+        logger.info(`Set proper permissions for frontend template subdirectories and files`);
+      } catch (permError) {
+        logger.warn(`Failed to set permissions for frontend template:`, permError instanceof Error ? permError.message : String(permError));
+      }
+
       // Verify the copy worked
       if (fs.existsSync(frontendPath)) {
         const destContents = fs.readdirSync(frontendPath);
@@ -1082,6 +1130,16 @@ Available packages and libraries:
     if (backendPath) {
       logger.info(`Copying backend/fullstack template to backend folder: ${backendPath}`);
       await copyRepoToApp(repoCachePath, backendPath);
+
+      // Set proper permissions for backend template subdirectories
+      try {
+        const { execSync } = require('child_process');
+        execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+        execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+        logger.info(`Set proper permissions for backend template subdirectories and files`);
+      } catch (permError) {
+        logger.warn(`Failed to set permissions for backend template:`, permError instanceof Error ? permError.message : String(permError));
+      }
 
       // Install backend dependencies if requirements.txt or package.json exists
       try {

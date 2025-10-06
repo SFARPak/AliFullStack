@@ -23,7 +23,11 @@ const ignore = (file: string) => {
     return false;
   }
 
-  if (file.startsWith("/worker") && !file.startsWith("/workers")) {
+  if (file.startsWith("/workers")) {
+    return false;
+  }
+  // Keep worker directory in ASAR but unpack it
+  if (file.startsWith("/worker")) {
     return false;
   }
   if (file.startsWith("/node_modules/stacktrace-js")) {
