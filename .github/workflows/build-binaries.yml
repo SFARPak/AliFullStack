@@ -33,10 +33,19 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Clean up
+      - name: Clean up (Unix)
+        if: runner.os != 'Windows'
         run: |
           rm -rf node_modules package-lock.json || true
           npm cache clean --force || true
+
+      - name: Clean up (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
+          if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }
+          npm cache clean --force
+        shell: pwsh
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund --progress=false
