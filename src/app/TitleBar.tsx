@@ -77,31 +77,39 @@ export const TitleBar = () => {
 
   return (
     <>
-      <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center">
-        <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
+      <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center justify-between">
+        <div className="flex items-center">
+          <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
+          <img src={logo} alt="AliFullStack Logo" className="w-[75%] h-[75%]" />
+          <Button
+            data-testid="title-bar-app-name-button"
+            variant="outline"
+            size="sm"
+            className={`hidden @2xl:block no-app-region-drag text-xs max-w-38 truncate font-medium ${
+              selectedApp ? "cursor-pointer" : ""
+            }`}
+            onClick={handleAppClick}
+          >
+            {displayText}
+          </Button>
+        </div>
 
-        <img src={logo} alt="AliFullStack Logo" className="w-6 h-6 mr-0.5" />
-        <Button
-          data-testid="title-bar-app-name-button"
-          variant="outline"
-          size="sm"
-          className={`hidden @2xl:block no-app-region-drag text-xs max-w-38 truncate font-medium ${
-            selectedApp ? "cursor-pointer" : ""
-          }`}
-          onClick={handleAppClick}
-        >
-          {displayText}
-        </Button>
-        {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}
+        <div className="flex-1 flex justify-center items-center">
+          <span className="text-lg font-semibold no-app-region-drag">AliFullStack</span>
+        </div>
 
-        {/* Preview Header */}
-        {location.pathname === "/chat" && (
-          <div className="flex-1 flex justify-end">
-            <PreviewHeader />
-          </div>
-        )}
+        <div className="flex items-center">
+          {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}
 
-        {showWindowControls && <WindowsControls />}
+          {/* Preview Header */}
+          {location.pathname === "/chat" && (
+            <div className="flex justify-end">
+              <PreviewHeader />
+            </div>
+          )}
+
+          {showWindowControls && <WindowsControls />}
+        </div>
       </div>
 
       <DyadProSuccessDialog

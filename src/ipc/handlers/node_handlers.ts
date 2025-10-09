@@ -2,7 +2,7 @@ import { ipcMain } from "electron";
 import { execSync } from "child_process";
 import { platform, arch } from "os";
 import { NodeSystemInfo } from "../ipc_types";
-import fixPath from "fix-path";
+import { getExtendedPath } from "./app_handlers";
 import { runShellCommand } from "../utils/runShellCommand";
 import log from "electron-log";
 
@@ -50,7 +50,7 @@ export function registerNodeHandlers() {
       }).trim();
       process.env.PATH = newPath;
     } else {
-      fixPath();
+      getExtendedPath();
     }
     logger.debug("Reloaded env path, now:", process.env.PATH);
   });

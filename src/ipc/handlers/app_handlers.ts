@@ -13,7 +13,7 @@ import type {
 import fs from "node:fs";
 import path from "node:path";
 import { getDyadAppPath, getUserDataPath } from "../../paths/paths";
-import { ChildProcess, spawn } from "node:child_process";
+import { ChildProcess, spawn, execSync } from "node:child_process";
 import git from "isomorphic-git";
 import { promises as fsPromises } from "node:fs";
 
@@ -30,7 +30,82 @@ import {
 import { getEnvVar } from "../utils/read_env";
 import { readSettings } from "../../main/settings";
 
-import fixPath from "fix-path";
+// Cache for the dynamically captured PATH
+let cachedExtendedPath: string | undefined;
+let cachedShellEnv: NodeJS.ProcessEnv | undefined;
+
+/**
+ * Dynamically captures the PATH environment variable from a login shell.
+ * This ensures that tools installed via pyenv, conda, or other environment managers
+ * are accessible to child processes spawned by the Electron app.
+ *
+ * The result is cached to avoid repeatedly spawning a login shell.
+ *
+ * @returns The PATH string from the user's login shell.
+ */
+export function getExtendedPath(): string {
+  if (cachedExtendedPath) {
+    return cachedExtendedPath;
+  }
+
+  try {
+    // Spawn a login shell and get its environment
+    // For macOS, 'login -il <shell>' is used to get a login shell.
+    // For Linux, 'bash -lc "env"' or 'zsh -lc "env"' might be used.
+    // We'll try to detect the user's default shell.
+    const shell = process.env.SHELL || "/bin/bash";
+    let command: string;
+
+    if (process.platform === "darwin") {
+      // On macOS, a login shell is crucial for tools like Homebrew, pyenv, nvm
+      command = `login -il ${shell} -c "env"`;
+    } else {
+      // For Linux/Windows, a non-login shell might be sufficient, but -l ensures full environment
+      command = `${shell} -lc "env"`;
+    }
+
+    logger.info(`Attempting to capture PATH from login shell using command: ${command}`);
+    const output = execSync(command, { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }); // 10MB buffer
+
+    const env: NodeJS.ProcessEnv = {};
+    output.split("\n").forEach((line) => {
+      const parts = line.split("=");
+      if (parts.length >= 2) {
+        const key = parts[0];
+        const value = parts.slice(1).join("=");
+        env[key] = value;
+      }
+    });
+
+    cachedShellEnv = env;
+    cachedExtendedPath = env.PATH || process.env.PATH || "";
+    logger.info(`Successfully captured PATH from login shell: ${cachedExtendedPath}`);
+    return cachedExtendedPath;
+  } catch (error) {
+    logger.error(`Failed to capture PATH from login shell: ${error}. Falling back to current process PATH.`);
+    cachedExtendedPath = process.env.PATH || "";
+    cachedShellEnv = process.env; // Fallback to current process env
+    return cachedExtendedPath;
+  }
+}
+
+/**
+ * Dynamically captures the complete environment variables from a login shell.
+ * This ensures that all environment variables (not just PATH) set by tools
+ * like pyenv, conda, or other environment managers are accessible.
+ *
+ * The result is cached to avoid repeatedly spawning a login shell.
+ *
+ * @returns The complete environment variables from the user's login shell.
+ */
+function getShellEnv(): NodeJS.ProcessEnv {
+  if (cachedShellEnv) {
+    return cachedShellEnv;
+  }
+  // Call getExtendedPath to populate cachedShellEnv
+  getExtendedPath();
+  return cachedShellEnv || process.env;
+}
 
 import killPort from "kill-port";
 import util from "util";
@@ -90,7 +165,7 @@ let proxyWorker: Worker | null = null;
 
 // Needed, otherwise electron in MacOS/Linux will not be able
 // to find node/pnpm.
-fixPath();
+getExtendedPath();
 
 /**
  * Check if a port is available
@@ -475,6 +550,7 @@ async function executeAppLocalNode({
                   cwd: strategy.cwd,
                   shell: true,
                   stdio: "pipe",
+                  env: getShellEnv(),
                 });
 
                 let fixOutput = "";
@@ -606,6 +682,7 @@ async function executeAppLocalNode({
         shell: true,
         stdio: "pipe",
         detached: false,
+        env: getShellEnv(),
       });
 
       if (backendProcess.pid) {
@@ -672,6 +749,7 @@ async function executeAppLocalNode({
         shell: true,
         stdio: "pipe",
         detached: false,
+        env: getShellEnv(),
       });
 
       if (frontendProcess.pid) {
@@ -1182,7 +1260,7 @@ async function executeAppInDocker({
   // First, check if Docker is available
   try {
     await new Promise<void>((resolve, reject) => {
-      const checkDocker = spawn("docker", ["--version"], { stdio: "pipe" });
+      const checkDocker = spawn("docker", ["--version"], { stdio: "pipe", env: getShellEnv() });
       checkDocker.on("close", (code) => {
         if (code === 0) {
           resolve();
@@ -1205,10 +1283,12 @@ async function executeAppInDocker({
     await new Promise<void>((resolve) => {
       const stopContainer = spawn("docker", ["stop", containerName], {
         stdio: "pipe",
+        env: getShellEnv(),
       });
       stopContainer.on("close", () => {
         const removeContainer = spawn("docker", ["rm", containerName], {
           stdio: "pipe",
+          env: getShellEnv(),
         });
         removeContainer.on("close", () => resolve());
         removeContainer.on("error", () => resolve()); // Container might not exist
@@ -1245,6 +1325,7 @@ RUN npm install -g pnpm
     {
       cwd: appPath,
       stdio: "pipe",
+      env: getShellEnv(),
     },
   );
 
@@ -1315,6 +1396,7 @@ RUN npm install -g pnpm
     {
       stdio: "pipe",
       detached: false,
+      env: getShellEnv(),
     },
   );
 
@@ -1364,6 +1446,7 @@ async function stopDockerContainersOnPort(port: number): Promise<void> {
     // List container IDs that publish the given port
     const list = spawn("docker", ["ps", "--filter", `publish=${port}`, "-q"], {
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     let stdout = "";
@@ -1390,7 +1473,7 @@ async function stopDockerContainersOnPort(port: number): Promise<void> {
       containerIds.map(
         (id) =>
           new Promise<void>((resolve) => {
-            const stop = spawn("docker", ["stop", id], { stdio: "pipe" });
+            const stop = spawn("docker", ["stop", id], { stdio: "pipe", env: getShellEnv() });
             stop.on("close", () => resolve());
             stop.on("error", () => resolve());
           }),
@@ -2717,6 +2800,7 @@ async function installDependencies(projectPath: string, framework: string) {
       cwd: projectPath,
       shell: true,
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     logger.info(`Running install command: ${installCommand} in ${projectPath}`);
@@ -2786,6 +2870,7 @@ async function installDependenciesAuto(projectPath: string, componentType: strin
         cwd: projectPath,
         shell: true,
         stdio: "pipe",
+        env: getShellEnv(),
       });
 
       logger.info(`Installing dependencies with: ${installCommand} in ${projectPath}`);
@@ -2835,6 +2920,7 @@ async function installNodejsDependenciesRobust(projectPath: string, componentTyp
           cwd: projectPath,
           shell: true,
           stdio: "pipe",
+          env: getShellEnv(),
         });
 
         let installOutput = "";
@@ -2894,6 +2980,7 @@ async function installNodejsDependenciesRobust(projectPath: string, componentTyp
           cwd: projectPath,
           shell: true,
           stdio: "pipe",
+          env: getShellEnv(),
         });
 
         cleanupProcess.on("close", (code) => {
@@ -2926,6 +3013,7 @@ async function installSpecificPackage(projectPath: string, packageName: string):
       cwd: projectPath,
       shell: true,
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     logger.info(`Installing specific package: ${installCommand} in ${projectPath}`);
@@ -2967,6 +3055,7 @@ async function installDependenciesAutoFallback(projectPath: string, componentTyp
       cwd: projectPath,
       shell: true,
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     logger.info(`Fallback auto-installing dependencies with: ${installCommand} in ${projectPath}`);
