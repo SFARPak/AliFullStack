@@ -80,7 +80,7 @@ export const TitleBar = () => {
       <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center justify-between">
         <div className="flex items-center">
           <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
-          <img src={logo} alt="AliFullStack Logo" className="w-[75%] h-[75%]" />
+          <img src={logo} alt="AliFullStack Logo" className="w-12 h-8" />
           <Button
             data-testid="title-bar-app-name-button"
             variant="outline"
