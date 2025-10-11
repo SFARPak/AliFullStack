@@ -35,7 +35,22 @@ jobs:
         with:
           node-version: 20
       - name: Clean up
-        run: node -e "const fs = require('fs'); const path = require('path'); const nodeModules = path.join(process.cwd(), 'node_modules'); try { if (fs.existsSync(nodeModules)) { fs.rmSync(nodeModules, { recursive: true, force: true }); console.log('Removed node_modules'); } else { console.log('node_modules not found'); } } catch (e) { console.log('Error removing node_modules:', e.message); }"
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const nodeModules = path.join(process.cwd(), 'node_modules');
+          try {
+            if (fs.existsSync(nodeModules)) {
+              fs.rmSync(nodeModules, { recursive: true, force: true });
+              console.log('Removed node_modules');
+            } else {
+              console.log('node_modules not found');
+            }
+          } catch (e) {
+            console.log('Error removing node_modules:', e.message);
+          }
+          "
       - run: npm ci
       - name: add macos cert
         if: contains(matrix.os.name, 'macos')
