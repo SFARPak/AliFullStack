@@ -184,7 +184,7 @@ export function ChatPanel({
   // Default frontend mode
   return (
     <div className="flex h-full">
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 min-w-0" style={{ minWidth: '300px' }}>
         <ChatHeader
           isVersionPaneOpen={isVersionPaneOpen}
           isPreviewOpen={isPreviewOpen}
@@ -196,7 +196,7 @@ export function ChatPanel({
         />
         <div className="flex flex-1 overflow-hidden">
           {!isVersionPaneOpen && (
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className={`${(isFullstackMode || isFrontendMode) && isTodoPanelOpen ? 'min-w-0' : 'flex-1'} flex flex-col min-w-0`}>
               <MessagesList
                 messages={messages}
                 messagesEndRef={messagesEndRef}
@@ -212,7 +212,7 @@ export function ChatPanel({
           />
         </div>
       </div>
-      {(isFullstackMode || isFrontendMode) && (
+      {(isFullstackMode || isFrontendMode) && isTodoPanelOpen && (
         <TodoListPanel
           isOpen={isTodoPanelOpen}
           onClose={() => setIsTodoPanelOpen(false)}

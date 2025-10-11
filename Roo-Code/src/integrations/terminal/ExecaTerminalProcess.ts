@@ -1,9 +1,12 @@
 import { execa, ExecaError } from "execa"
 import psTree from "ps-tree"
 import process from "process"
+import os from "os"
+import fs from "fs/promises"
 
 import type { RooTerminal } from "./types"
 import { BaseTerminalProcess } from "./BaseTerminalProcess"
+import { createAndExecuteScript, getShell } from "../../utils/shell"
 
 export class ExecaTerminalProcess extends BaseTerminalProcess {
 	private terminalRef: WeakRef<RooTerminal>
@@ -35,6 +38,27 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 	public override async run(command: string) {
 		this.command = command
 
+		let commandToExecute = command
+		let scriptPath: string | undefined
+
+		// Detect complex commands that might need a script file
+		const shellOperators = ["&&", "||", ";", "source ", "`", "$("]
+		const needsScript = shellOperators.some((op) => command.includes(op))
+
+		if (needsScript) {
+			try {
+				scriptPath = await createAndExecuteScript(command, this.terminal.getCurrentWorkingDirectory())
+				commandToExecute = `${getShell()} ${scriptPath}` // Execute the script using the detected shell
+				console.log(`[ExecaTerminalProcess#run] Executing complex command via script: ${scriptPath}`)
+			} catch (error) {
+				console.error(`[ExecaTerminalProcess#run] Failed to create and execute script: ${error}`)
+				this.emit("shell_execution_complete", { exitCode: 1 })
+				this.emit("completed", this.fullOutput)
+				this.emit("continue")
+				return
+			}
+		}
+
 		try {
 			this.isHot = true
 
@@ -48,7 +72,7 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 					LANG: "en_US.UTF-8",
 					LC_ALL: "en_US.UTF-8",
 				},
-			})`${command}`
+			})`${commandToExecute}`
 
 			this.pid = this.subprocess.pid
 
@@ -148,6 +172,16 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 		this.emit("completed", this.fullOutput)
 		this.emit("continue")
 		this.subprocess = undefined
+
+		// Clean up the temporary script file if it was created
+		if (scriptPath) {
+			try {
+				await fs.unlink(scriptPath)
+				console.log(`[ExecaTerminalProcess#run] Cleaned up temporary script: ${scriptPath}`)
+			} catch (cleanupError) {
+				console.warn(`[ExecaTerminalProcess#run] Failed to clean up temporary script ${scriptPath}: ${cleanupError}`)
+			}
+		}
 	}
 
 	public override continue() {

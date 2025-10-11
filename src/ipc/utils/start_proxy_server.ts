@@ -41,8 +41,9 @@ export async function startProxy(
   } = opts;
 
   // Get the correct path to the worker file in both development and production
-  let workerPath: string;
   const electron = getElectron();
+
+  let workerPath: string;
 
   if (electron && !process.env.NODE_ENV?.includes("development")) {
     // In production/built app, the worker is inside the ASAR archive
@@ -55,19 +56,21 @@ export async function startProxy(
       path.resolve(process.resourcesPath, "app.asar", "worker", "proxy_server.js"), // Explicit ASAR path
     ];
 
+    let foundPath: string | null = null;
     for (const testPath of possiblePaths) {
       try {
         require.resolve(testPath);
-        workerPath = testPath;
+        foundPath = testPath;
         break;
       } catch (e) {
         // Continue to next path
       }
     }
 
-    if (!workerPath) {
+    if (!foundPath) {
       throw new Error(`Could not find proxy_server.js worker file. Tried paths: ${possiblePaths.join(', ')}`);
     }
+    workerPath = foundPath;
   } else {
     // In development, use the project root
     workerPath = path.resolve(process.cwd(), "worker", "proxy_server.js");

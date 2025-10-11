@@ -138,7 +138,7 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="w-80 h-full bg-background border-l border-border flex flex-col flex-shrink-0">
+    <div className="w-64 sm:w-72 md:w-80 lg:w-96 h-full bg-background border-l border-border flex flex-col flex-shrink-0">
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Todo List</h2>
