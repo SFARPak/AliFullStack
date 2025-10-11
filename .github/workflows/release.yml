@@ -40,6 +40,14 @@ jobs:
           # and cache cleaning can break native binaries
           echo "Clean state provided by npm ci"
       - run: npm install --include=optional
+      - run: npm rebuild @rollup/rollup-linux-x64-gnu || true
+        if: contains(matrix.os.name, 'linux')
+      - run: npm rebuild @rollup/rollup-darwin-x64 || true
+        if: contains(matrix.os.name, 'macos-intel')
+      - run: npm rebuild @rollup/rollup-darwin-arm64 || true
+        if: contains(matrix.os.name, 'macos')
+      - run: npm rebuild @rollup/rollup-win32-x64-msvc || true
+        if: contains(matrix.os.name, 'windows')
       # - name: add macos cert
       #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
       #   env:
