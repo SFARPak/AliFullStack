@@ -36,8 +36,13 @@ jobs:
           node-version: 20
       - name: Clean up
         run: |
-          rm -rf node_modules || true
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
+          else
+            rm -rf node_modules || true
+          fi
           npm cache clean --force || true
+        shell: bash
       - run: npm ci
       - name: add macos cert
         if: contains(matrix.os.name, 'macos')
