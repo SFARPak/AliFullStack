@@ -39,7 +39,7 @@ jobs:
           # Skip all cleanup since npm ci provides clean state
           # and cache cleaning can break native binaries
           echo "Clean state provided by npm ci"
-      - run: npm ci
+      - run: npm install --include=optional
       # - name: add macos cert
       #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
       #   env:
