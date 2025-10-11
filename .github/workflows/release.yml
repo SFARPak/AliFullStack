@@ -36,9 +36,9 @@ jobs:
           node-version: 20
       - name: Clean up
         run: |
-          # Skip node_modules removal since npm ci provides clean state
-          # and removing it breaks native binaries needed for build
-          npm cache clean --force || true
+          # Skip all cleanup since npm ci provides clean state
+          # and cache cleaning can break native binaries
+          echo "Clean state provided by npm ci"
       - run: npm ci
       # - name: add macos cert
       #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
