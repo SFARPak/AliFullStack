@@ -1,16 +1,32 @@
 import { spawn } from "child_process";
 import log from "electron-log";
+import { executeComplexCommand } from "../handlers/app_handlers";
+import { getShellEnv } from "../handlers/app_handlers";
 
 const logger = log.scope("runShellCommand");
 
-export function runShellCommand(command: string): Promise<string | null> {
+export function runShellCommand(command: string, workingDir?: string): Promise<string | null> {
   logger.log(`Running command: ${command}`);
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     let output = "";
-    const process = spawn(command, {
-      shell: true,
-      stdio: ["ignore", "pipe", "pipe"], // ignore stdin, pipe stdout/stderr
-    });
+    const cwd = workingDir || process.cwd();
+
+    // Check if the command contains shell operators that require script execution
+    const hasShellOperators = /(&&|\|\||source|\||;|\$\(|`.*`)/.test(command);
+
+    let process;
+    if (hasShellOperators) {
+      logger.debug(`Using executeComplexCommand for complex command: ${command}`);
+      process = await executeComplexCommand(command, cwd, getShellEnv());
+    } else {
+      logger.debug(`Using spawn for simple command: ${command}`);
+      process = spawn(command, {
+        shell: true,
+        stdio: ["ignore", "pipe", "pipe"], // ignore stdin, pipe stdout/stderr
+        cwd,
+        env: getShellEnv(),
+      });
+    }
 
     process.stdout?.on("data", (data) => {
       output += data.toString();

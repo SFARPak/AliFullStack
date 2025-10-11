@@ -10,6 +10,7 @@ import { DyadAddIntegration } from "./DyadAddIntegration";
 import { DyadEdit } from "./DyadEdit";
 import { DyadCodebaseContext } from "./DyadCodebaseContext";
 import { DyadThink } from "./DyadThink";
+import { DyadSearchReplace } from "./DyadSearchReplace";
 import { CodeHighlight } from "./CodeHighlight";
 import { useAtomValue } from "jotai";
 import { isStreamingAtom } from "@/atoms/chatAtoms";
@@ -124,6 +125,7 @@ function preprocessUnclosedTags(content: string): {
     "dyad-codebase-context",
     "think",
     "dyad-command",
+    "search_replace",
   ];
 
   let processedContent = content;
@@ -192,6 +194,7 @@ function parseCustomTags(content: string): ContentPiece[] {
     "think",
     "dyad-command",
     "run_terminal_cmd",
+    "search_replace",
   ];
 
   const tagPattern = new RegExp(
@@ -428,6 +431,19 @@ function renderCustomTag(
     case "run_terminal_cmd":
       // Don't render anything for run_terminal_cmd tags in chat stream
       return null;
+
+    case "search_replace":
+      return (
+        <DyadSearchReplace
+          node={{
+            properties: {
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadSearchReplace>
+      );
 
     default:
       return null;

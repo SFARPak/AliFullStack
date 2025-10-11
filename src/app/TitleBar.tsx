@@ -77,15 +77,15 @@ export const TitleBar = () => {
 
   return (
     <>
-      <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center justify-between">
-        <div className="flex items-center">
+      <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center">
+        <div className="flex items-center flex-shrink-0">
           <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
           <img src={logo} alt="AliFullStack Logo" className="w-12 h-8" />
           <Button
             data-testid="title-bar-app-name-button"
             variant="outline"
             size="sm"
-            className={`hidden @2xl:block no-app-region-drag text-xs max-w-38 truncate font-medium ${
+            className={`hidden @2xl:block no-app-region-drag text-xs max-w-38 truncate font-medium ml-2 ${
               selectedApp ? "cursor-pointer" : ""
             }`}
             onClick={handleAppClick}
@@ -94,11 +94,11 @@ export const TitleBar = () => {
           </Button>
         </div>
 
-        <div className="flex-1 flex justify-center items-center">
-          <span className="text-lg font-semibold no-app-region-drag">AliFullStack</span>
+        <div className="flex-1 flex justify-center items-center absolute inset-0 pointer-events-none">
+          <span className="text-lg font-semibold no-app-region-drag pointer-events-auto">AliFullStack</span>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0 ml-auto">
           {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}
 
           {/* Preview Header */}

@@ -282,17 +282,21 @@ export function getSearchReplaceTags(fullResponse: string): {
   file: string;
   old_string: string;
   new_string: string;
+  description?: string;
 }[] {
-  // Match the search_replace format: <search_replace file="..." old_string="...">content</search_replace>
-  const searchReplaceRegex = /<search_replace\s+file="([^"]+)"\s+old_string="([^"]*)">([\s\S]*?)<\/search_replace>/g;
+  // Match the search_replace format: <search_replace file="..." old_string="..."[ description="..."]>content</search_replace>
+  const searchReplaceRegex = /<search_replace\s+file="([^"]+)"\s+old_string="([^"]*)"(\s+description="([^"]*)")?>([\s\S]*?)<\/search_replace>/g;
+  const descriptionRegex = /description="([^"]+)"/;
 
   let match;
-  const tags: { file: string; old_string: string; new_string: string }[] = [];
+  const tags: { file: string; old_string: string; new_string: string; description?: string }[] = [];
 
   while ((match = searchReplaceRegex.exec(fullResponse)) !== null) {
     const file = match[1];
     const old_string = match[2];
-    let new_string = match[3].trim();
+    const descriptionAttr = match[3]; // The optional description attribute group
+    const description = match[4]; // The description value
+    let new_string = match[5].trim();
 
     // Remove leading/trailing whitespace and markdown code blocks
     const contentLines = new_string.split("\n");
@@ -304,7 +308,12 @@ export function getSearchReplaceTags(fullResponse: string): {
     }
     new_string = contentLines.join("\n");
 
-    tags.push({ file: normalizePath(file), old_string, new_string });
+    tags.push({
+      file: normalizePath(file),
+      old_string,
+      new_string,
+      description: description || undefined
+    });
   }
 
   return tags;

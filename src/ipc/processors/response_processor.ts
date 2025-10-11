@@ -235,7 +235,7 @@ export async function processFullResponseActions(
           // We need to import and use the backendTerminalOutputAtom
           // For now, we'll use a more direct approach by sending IPC messages to update the UI
 
-          const result = await runShellCommand(`cd "${cwd}" && ${cmdTag.command}`);
+          const result = await runShellCommand(cmdTag.command, cwd);
 
           if (result === null) {
             errors.push({
@@ -277,7 +277,7 @@ export async function processFullResponseActions(
 
           logger.log(`Executing frontend terminal command: ${cmdTag.command} in ${cwd}`);
 
-          const result = await runShellCommand(`cd "${cwd}" && ${cmdTag.command}`);
+          const result = await runShellCommand(cmdTag.command, cwd);
 
           if (result === null) {
             errors.push({
@@ -420,7 +420,7 @@ export async function processFullResponseActions(
 
            logger.log(`Executing general terminal command: ${cleanCommand} in ${cwd} (routing to ${terminalType} terminal)`);
 
-           const result = await runShellCommand(`cd "${cwd}" && ${cleanCommand}`);
+           const result = await runShellCommand(cleanCommand, cwd);
 
            if (result === null) {
              errors.push({

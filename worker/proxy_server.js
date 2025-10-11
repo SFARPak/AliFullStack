@@ -151,6 +151,8 @@ function buildTargetURL(clientReq) {
 const server = http.createServer((clientReq, clientRes) => {
   parentPort?.postMessage(`[proxy] Request: ${clientReq.method} ${clientReq.url}`);
 
+  let responseSent = false; // Track if response has been initiated
+
   // Handle preflight OPTIONS requests
   if (clientReq.method === 'OPTIONS') {
     clientRes.writeHead(200, {
@@ -159,6 +161,7 @@ const server = http.createServer((clientReq, clientRes) => {
       "access-control-allow-headers": "content-type, authorization, x-requested-with",
       "access-control-max-age": "86400"
     });
+    responseSent = true;
     return clientRes.end();
   }
 
@@ -170,6 +173,7 @@ const server = http.createServer((clientReq, clientRes) => {
       "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
       "access-control-allow-headers": "*"
     });
+    responseSent = true;
     return clientRes.end(JSON.stringify({
       status: "ok",
       upstream: rememberedOrigin,
@@ -183,8 +187,12 @@ const server = http.createServer((clientReq, clientRes) => {
     parentPort?.postMessage(`[proxy] Forwarding to: ${target.href}`);
   } catch (err) {
     parentPort?.postMessage(`[proxy] Error building target URL: ${err.message}`);
-    clientRes.writeHead(400, { "content-type": "text/plain" });
-    return void clientRes.end("Bad request: " + err.message);
+    if (!responseSent) {
+      clientRes.writeHead(400, { "content-type": "text/plain" });
+      responseSent = true;
+      clientRes.end("Bad request: " + err.message);
+    }
+    return;
   }
 
   const isTLS = target.protocol === "https:";
@@ -227,8 +235,12 @@ const server = http.createServer((clientReq, clientRes) => {
       // Add CORS headers to proxied responses
       const headers = { ...upRes.headers };
       headers['access-control-allow-origin'] = '*';
-      clientRes.writeHead(upRes.statusCode, headers);
-      return void upRes.pipe(clientRes);
+      if (!responseSent) {
+        clientRes.writeHead(upRes.statusCode, headers);
+        responseSent = true;
+        upRes.pipe(clientRes);
+      }
+      return;
     }
 
     const chunks = [];
@@ -248,22 +260,33 @@ const server = http.createServer((clientReq, clientRes) => {
         // Also, remove ETag as content has changed
         delete hdrs["etag"];
 
-        clientRes.writeHead(upRes.statusCode, hdrs);
-        clientRes.end(patched);
+        if (!responseSent) {
+          clientRes.writeHead(upRes.statusCode, hdrs);
+          responseSent = true;
+          clientRes.end(patched);
+        }
       } catch (e) {
         parentPort?.postMessage(`[proxy] Injection failed: ${e.message}`);
-        clientRes.writeHead(500, { "content-type": "text/plain" });
-        clientRes.end("Injection failed: " + e.message);
+        if (!responseSent) {
+          clientRes.writeHead(500, { "content-type": "text/plain" });
+          responseSent = true;
+          clientRes.end("Injection failed: " + e.message);
+        }
       }
     });
   });
 
   // Add timeout to prevent hanging requests
+  let timeoutHandled = false;
   upReq.setTimeout(30000, () => {
+    if (timeoutHandled) return; // Prevent multiple timeout handlers
+    timeoutHandled = true;
     parentPort?.postMessage(`[proxy] Request timeout for ${target.href}`);
     upReq.destroy();
-    if (!clientRes.headersSent) {
+    // Prevent writing headers if response has already been sent
+    if (!responseSent) {
       clientRes.writeHead(504, { "content-type": "text/plain" });
+      responseSent = true;
       clientRes.end("Gateway timeout: upstream server took too long to respond");
     }
   });
@@ -271,6 +294,10 @@ const server = http.createServer((clientReq, clientRes) => {
   clientReq.pipe(upReq);
   upReq.on("error", (e) => {
     parentPort?.postMessage(`[proxy] Upstream error: ${e.message} for ${target?.href || 'unknown'}`);
+    // Prevent writing headers if response has already been sent
+    if (responseSent) {
+      return;
+    }
     // Check if this is a connection refused error (server not running on that port)
     if (e.code === 'ECONNREFUSED') {
       clientRes.writeHead(503, {
@@ -278,6 +305,7 @@ const server = http.createServer((clientReq, clientRes) => {
         "retry-after": "5",
         "access-control-allow-origin": "*"
       });
+      responseSent = true;
       clientRes.end(`
         <!DOCTYPE html>
         <html>
@@ -300,6 +328,7 @@ const server = http.createServer((clientReq, clientRes) => {
         "content-type": "text/plain",
         "access-control-allow-origin": "*"
       });
+      responseSent = true;
       clientRes.end("Upstream error: " + e.message);
     }
   });
@@ -344,7 +373,10 @@ server.on("upgrade", (req, socket, _head) => {
     upSocket.pipe(socket).pipe(upSocket);
   });
 
-  upReq.on("error", () => socket.destroy());
+  upReq.on("error", (e) => {
+    parentPort?.postMessage(`[proxy] WebSocket upgrade error: ${e.message}`);
+    socket.destroy();
+  });
 
   // Add timeout to WebSocket upgrade requests
   upReq.setTimeout(10000, () => {

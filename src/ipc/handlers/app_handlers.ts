@@ -760,17 +760,8 @@ async function executeAppLocalNode({
 
       logger.info(`Final backend command: ${backendCommand}`);
 
-      // Check if the command contains shell operators that require script execution
-      const hasShellOperators = /(&&|\|\||source|\||;|\$\(|`.*`)/.test(backendCommand);
-      const backendProcess = hasShellOperators
-        ? await executeComplexCommand(backendCommand, backendPath, getShellEnv())
-        : spawn(backendCommand, [], {
-            cwd: backendPath,
-            shell: true,
-            stdio: "pipe",
-            detached: false,
-            env: getShellEnv(),
-          });
+      // Always use executeComplexCommand for backend commands as they may be complex
+      const backendProcess = await executeComplexCommand(backendCommand, backendPath, getShellEnv());
 
       if (backendProcess.pid) {
         const backendProcessId = processCounter.increment();
@@ -1290,6 +1281,102 @@ function listenToProcess({
               });
             });
         });
+    }
+
+    // Auto-fix common backend errors
+    if (terminalType === "backend") {
+      // Check for common backend startup failures
+      const isBackendError =
+        message.includes("ModuleNotFoundError") ||
+        message.includes("ImportError") ||
+        message.includes("No module named") ||
+        message.includes("uvicorn") ||
+        message.includes("fastapi") ||
+        message.includes("flask") ||
+        message.includes("django") ||
+        message.includes("Command not found") ||
+        message.includes("command not found");
+
+      if (isBackendError) {
+        logger.info(`Detected backend error for app ${appId}, attempting auto-fix: ${message}`);
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `🔧 Detected backend startup error, attempting automatic fix...`,
+          appId,
+        });
+
+        // Determine backend directory
+        const backendPath = path.join(appPath, "backend");
+        if (!fs.existsSync(backendPath)) {
+          logger.warn(`Backend directory not found at ${backendPath}`);
+          return;
+        }
+
+        // Determine framework and attempt fixes
+        let framework = "python"; // default
+        let hasRequirements = fs.existsSync(path.join(backendPath, "requirements.txt"));
+        let hasPackageJson = fs.existsSync(path.join(backendPath, "package.json"));
+
+        if (hasRequirements) {
+          framework = "python";
+        } else if (hasPackageJson) {
+          framework = "nodejs";
+        }
+
+        // Attempt to install missing dependencies
+        const installPromise = framework === "python"
+          ? installPythonDependencies(backendPath)
+          : installNodejsDependenciesRobust(backendPath, "backend");
+
+        installPromise
+          .then(() => {
+            safeSend(event.sender, "app:output", {
+              type: "stdout",
+              message: `✅ Backend dependencies installed successfully. Please restart the backend server.`,
+              appId,
+            });
+          })
+          .catch((error) => {
+            logger.warn(`Backend auto-fix failed: ${error.message}`);
+
+            // Try alternative fixes based on error type
+            if (message.includes("No module named") || message.includes("ModuleNotFoundError")) {
+              // Try to detect and install specific missing packages
+              const missingModule = message.match(/No module named ['"]([^'"]+)['"]/);
+              if (missingModule) {
+                const moduleName = missingModule[1];
+                logger.info(`Attempting to install missing Python module: ${moduleName}`);
+                installSpecificPythonPackage(backendPath, moduleName)
+                  .then(() => {
+                    safeSend(event.sender, "app:output", {
+                      type: "stdout",
+                      message: `✅ Installed missing module '${moduleName}'. Please restart the backend server.`,
+                      appId,
+                    });
+                  })
+                  .catch(() => {
+                    safeSend(event.sender, "app:output", {
+                      type: "stdout",
+                      message: `⚠️ Backend auto-fix failed. The error may require manual intervention.`,
+                      appId,
+                    });
+                  });
+              } else {
+                safeSend(event.sender, "app:output", {
+                  type: "stdout",
+                  message: `⚠️ Backend auto-fix failed. Please check your backend dependencies and restart.`,
+                  appId,
+                });
+              }
+            } else {
+              safeSend(event.sender, "app:output", {
+                type: "stdout",
+                message: `⚠️ Backend auto-fix failed. The error may require manual intervention.`,
+                appId,
+              });
+            }
+          });
+      }
     }
   });
 
@@ -3184,4 +3271,92 @@ function getInstallCommand(framework: string): string {
       logger.warn(`Unknown framework for dependency installation: ${framework}`);
       return "";
   }
+}
+
+async function installPythonDependencies(projectPath: string): Promise<void> {
+  const requirementsPath = path.join(projectPath, "requirements.txt");
+
+  if (!fs.existsSync(requirementsPath)) {
+    throw new Error("No requirements.txt found in backend directory");
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn("pip install -r requirements.txt", [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+      env: getShellEnv(),
+    });
+
+    logger.info(`Installing Python dependencies in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully installed Python dependencies in ${projectPath}`);
+        resolve();
+      } else {
+        const errorMsg = `Python dependency installation failed (code: ${code}): ${installError}`;
+        logger.error(errorMsg);
+        reject(new Error(errorMsg));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      const errorMsg = `Failed to start Python dependency installation: ${err.message}`;
+      logger.error(errorMsg);
+      reject(new Error(errorMsg));
+    });
+  });
+}
+
+async function installSpecificPythonPackage(projectPath: string, packageName: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn(`pip install ${packageName}`, [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+      env: getShellEnv(),
+    });
+
+    logger.info(`Installing specific Python package: ${packageName} in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully installed Python package ${packageName} in ${projectPath}`);
+        resolve();
+      } else {
+        const errorMsg = `Failed to install Python package ${packageName} (code: ${code}): ${installError}`;
+        logger.warn(errorMsg);
+        reject(new Error(errorMsg));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      const errorMsg = `Failed to start installation of Python package ${packageName}: ${err.message}`;
+      logger.error(errorMsg);
+      reject(new Error(errorMsg));
+    });
+  });
 }
