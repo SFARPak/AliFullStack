@@ -52,12 +52,12 @@ jobs:
           }
           "
       - run: npm ci
-      - name: add macos cert
-        if: contains(matrix.os.name, 'macos')
-        env:
-          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
-          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-        run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
+      # - name: add macos cert
+      #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
+      #   env:
+      #     MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+      #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+      #   run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
       # Windows only
       - name: Set up certificate
         if: contains(matrix.os.name, 'windows')
