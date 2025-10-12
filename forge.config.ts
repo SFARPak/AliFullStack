@@ -77,6 +77,7 @@ const config: ForgeConfig = {
   },
   makers: [
     new MakerZIP({}, ["darwin"]),
+    new MakerZIP({}, ["win32"]),
     new MakerRpm({}),
     new MakerDeb({
       options: {
