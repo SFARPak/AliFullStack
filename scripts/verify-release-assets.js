@@ -25,34 +25,94 @@ async function verifyReleaseAssets() {
       throw new Error("GITHUB_TOKEN environment variable is required");
     }
 
-    // Fetch all releases (including drafts)
+    // Fetch all releases (including drafts) with retry logic
     const tagName = `v${version}`;
+    const maxRetries = 5;
+    const baseDelay = 10000; // 10 seconds
 
-    console.log(`📡 Fetching all releases to find: ${tagName}`);
+    let release = null;
+    let lastError = null;
 
-    const allReleasesUrl = `https://api.github.com/repos/${owner}/${repo}/releases`;
-    const response = await fetch(allReleasesUrl, {
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "dyad-release-verifier",
-      },
-    });
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`📡 Attempt ${attempt}/${maxRetries}: Fetching all releases to find: ${tagName}`);
+        console.log(`🔗 API URL: https://api.github.com/repos/${owner}/${repo}/releases`);
 
-    if (!response.ok) {
-      throw new Error(
-        `GitHub API error: ${response.status} ${response.statusText}`,
-      );
+        const allReleasesUrl = `https://api.github.com/repos/${owner}/${repo}/releases`;
+        const response = await fetch(allReleasesUrl, {
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json",
+            "User-Agent": "dyad-release-verifier",
+          },
+        });
+
+        console.log(`📡 API Response Status: ${response.status} ${response.statusText}`);
+
+        if (!response.ok) {
+          console.error(`❌ GitHub API error details:`);
+          console.error(`   Status: ${response.status}`);
+          console.error(`   Status Text: ${response.statusText}`);
+          console.error(`   URL: ${allReleasesUrl}`);
+          console.error(`   Headers:`, Object.fromEntries(response.headers.entries()));
+
+          // Try to get response body for more details
+          try {
+            const errorBody = await response.text();
+            console.error(`   Response Body: ${errorBody}`);
+          } catch (e) {
+            console.error(`   Could not read error response body: ${e.message}`);
+          }
+
+          throw new Error(
+            `GitHub API error: ${response.status} ${response.statusText}`,
+          );
+        }
+
+        const allReleases = await response.json();
+        console.log(`📦 Total releases found: ${allReleases.length}`);
+        console.log(`🔍 Available release tags:`, allReleases.map(r => r.tag_name).slice(0, 10));
+
+        release = allReleases.find((r) => r.tag_name === tagName);
+
+        if (release) {
+          console.log(`✅ Found release on attempt ${attempt}: ${release.tag_name} (${release.draft ? 'DRAFT' : 'PUBLISHED'})`);
+          break;
+        } else {
+          console.warn(`⚠️  Release ${tagName} not found on attempt ${attempt}. Available releases (first 10):`);
+          allReleases.slice(0, 10).forEach(r => {
+            console.warn(`   - ${r.tag_name} (${r.draft ? 'DRAFT' : 'PUBLISHED'})`);
+          });
+
+          if (attempt < maxRetries) {
+            const delay = baseDelay * attempt; // Exponential backoff: 10s, 20s, 30s, 40s, 50s
+            console.log(`⏳ Waiting ${delay / 1000} seconds before retry...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      } catch (error) {
+        lastError = error;
+        console.error(`❌ Attempt ${attempt} failed:`, error.message);
+
+        if (attempt < maxRetries) {
+          const delay = baseDelay * attempt;
+          console.log(`⏳ Waiting ${delay / 1000} seconds before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
-
-    const allReleases = await response.json();
-    const release = allReleases.find((r) => r.tag_name === tagName);
 
     if (!release) {
+      console.error(`❌ Release ${tagName} not found after ${maxRetries} attempts!`);
+      if (lastError) {
+        console.error(`Last error: ${lastError.message}`);
+      }
       throw new Error(
-        `Release ${tagName} not found in published releases or drafts. Make sure the release exists.`,
+        `Release ${tagName} not found in published releases or drafts after retries. Make sure the release exists.`,
       );
     }
+
+    console.log(`✅ Found release: ${release.tag_name} (${release.draft ? 'DRAFT' : 'PUBLISHED'})`);
 
     const assets = release.assets || [];
 
