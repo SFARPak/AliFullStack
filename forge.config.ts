@@ -64,6 +64,8 @@ const config: ForgeConfig = {
     ],
     icon: "./assets/icon/logo",
 
+    executableName: "alifullstack",
+
     osxSign: undefined, // Temporarily disable signing for development build
     osxNotarize: undefined, // Temporarily disable notarization for development build
     asar: true,
