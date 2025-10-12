@@ -36,9 +36,10 @@ jobs:
           node-version: 20
       - name: Clean up
         run: |
-          # Skip all cleanup since npm ci provides clean state
-          # and cache cleaning can break native binaries
-          echo "Clean state provided by npm ci"
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm cache clean --force
+        shell: bash
       - run: npm install --include=optional
       - run: npm rebuild @rollup/rollup-linux-x64-gnu || true
         if: contains(matrix.os.name, 'linux')
