@@ -18,11 +18,34 @@ async function verifyReleaseAssets() {
 
     // GitHub API configuration
     const owner = "SFARPak";
-    const repo = "dyad";
+    const repo = "AliFullStack";
     const token = process.env.GITHUB_TOKEN;
 
     if (!token) {
       throw new Error("GITHUB_TOKEN environment variable is required");
+    }
+
+    // Log token permissions for debugging
+    console.log(`🔐 Checking token permissions...`);
+    try {
+      const userResponse = await fetch("https://api.github.com/user", {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "dyad-release-verifier",
+        },
+      });
+
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        console.log(`👤 Authenticated as: ${userData.login}`);
+        console.log(`🔑 Token scopes:`, userResponse.headers.get("x-oauth-scopes") || "Not available");
+        console.log(`📋 Accepted permissions:`, userResponse.headers.get("x-accepted-github-permissions") || "Not available");
+      } else {
+        console.warn(`⚠️  Could not verify token permissions: ${userResponse.status} ${userResponse.statusText}`);
+      }
+    } catch (error) {
+      console.warn(`⚠️  Error checking token permissions: ${error.message}`);
     }
 
     // Fetch all releases (including drafts) with retry logic
@@ -48,6 +71,8 @@ async function verifyReleaseAssets() {
         });
 
         console.log(`📡 API Response Status: ${response.status} ${response.statusText}`);
+        console.log(`🔑 Token scopes:`, response.headers.get("x-oauth-scopes") || "Not available");
+        console.log(`📋 Accepted permissions:`, response.headers.get("x-accepted-github-permissions") || "Not available");
 
         if (!response.ok) {
           console.error(`❌ GitHub API error details:`);
@@ -72,6 +97,17 @@ async function verifyReleaseAssets() {
         const allReleases = await response.json();
         console.log(`📦 Total releases found: ${allReleases.length}`);
         console.log(`🔍 Available release tags:`, allReleases.map(r => r.tag_name).slice(0, 10));
+
+        // Check if release exists at all
+        const releaseExists = allReleases.some(r => r.tag_name === tagName);
+        if (!releaseExists) {
+          console.error(`❌ Release ${tagName} does not exist in the repository!`);
+          console.error(`📋 All available releases:`);
+          allReleases.forEach(r => {
+            console.error(`   - ${r.tag_name} (${r.draft ? 'DRAFT' : 'PUBLISHED'})`);
+          });
+          throw new Error(`Release ${tagName} not found in repository`);
+        }
 
         release = allReleases.find((r) => r.tag_name === tagName);
 
