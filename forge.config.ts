@@ -1,5 +1,4 @@
 import type { ForgeConfig } from "@electron-forge/shared-types";
-import { MakerSquirrel } from "@electron-forge/maker-squirrel";
 import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
@@ -23,7 +22,11 @@ const ignore = (file: string) => {
     return false;
   }
 
-  if (file.startsWith("/worker") && !file.startsWith("/workers")) {
+  if (file.startsWith("/workers")) {
+    return false;
+  }
+  // Keep worker directory in ASAR but unpack it
+  if (file.startsWith("/worker")) {
     return false;
   }
   if (file.startsWith("/node_modules/stacktrace-js")) {
@@ -60,18 +63,10 @@ const config: ForgeConfig = {
     ],
     icon: "./assets/icon/logo",
 
-    osxSign: isEndToEndTestBuild
-      ? undefined
-      : {
-          identity: process.env.APPLE_TEAM_ID,
-        },
-    osxNotarize: isEndToEndTestBuild
-      ? undefined
-      : {
-          appleId: process.env.APPLE_ID!,
-          appleIdPassword: process.env.APPLE_PASSWORD!,
-          teamId: process.env.APPLE_TEAM_ID!,
-        },
+    executableName: "alifullstack",
+
+    osxSign: undefined, // Temporarily disable signing for development build
+    osxNotarize: undefined, // Temporarily disable notarization for development build
     asar: true,
     ignore,
     // ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
@@ -81,10 +76,8 @@ const config: ForgeConfig = {
     force: true,
   },
   makers: [
-    new MakerSquirrel({
-      signWithParams: `/sha1 ${process.env.SM_CODE_SIGNING_CERT_SHA1_HASH} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256`,
-    }),
     new MakerZIP({}, ["darwin"]),
+    new MakerZIP({}, ["win32"]),
     new MakerRpm({}),
     new MakerDeb({
       options: {

@@ -1,0 +1,139 @@
+name: Build Binaries
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      # Prevent race conditions with multiple releases
+      max-parallel: 1
+      matrix:
+        os: [
+            { name: "windows", image: "windows-latest" },
+            { name: "linux", image: "ubuntu-22.04" },
+            { name: "macos-intel", image: "macos-13" },
+            { name: "macos", image: "macos-latest" },
+          ]
+    runs-on: ${{ matrix.os.image }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Clean up
+        run: |
+          rm -rf node_modules package-lock.json || true
+          npm cache clean --force || true
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --progress=false
+
+      - name: Add macOS certificate
+        if: contains(matrix.os.name, 'macos')
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
+
+      # Windows certificate setup
+      - name: Set up certificate (Windows)
+        if: contains(matrix.os.name, 'windows')
+        run: |
+          echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
+        shell: bash
+
+      - name: Set Windows signing variables
+        if: contains(matrix.os.name, 'windows')
+        id: variables
+        run: |
+          echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
+          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
+          echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
+          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Code signing with Software Trust Manager (Windows)
+        if: contains(matrix.os.name, 'windows')
+        uses: digicert/ssm-code-signing@v1.1.0
+
+      - name: Sync certificate (Windows)
+        if: contains(matrix.os.name, 'windows')
+        run: |
+          smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
+        shell: bash
+
+      - name: Build binaries
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+          SM_CODE_SIGNING_CERT_SHA1_HASH: ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+        run: npm run make
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: AliFullStack-${{ matrix.os.name }}-${{ github.run_number }}
+          path: out/make/
+          retention-days: 30
+
+  verify-artifacts:
+    name: Verify Build Artifacts
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version: 20
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: List all downloaded artifacts
+        run: |
+          echo "Build artifacts:"
+          find artifacts/ -type f -name "*.zip" -o -name "*.exe" -o -name "*.deb" -o -name "*.rpm" | sort
+
+      - name: Verify expected binaries exist
+        run: |
+          # Check for Windows binary
+          if [ ! -f "artifacts/AliFullStack-windows-${{ github.run_number }}/zip/win32/x64/AliFullStack-win32-x64-*.zip" ]; then
+            echo "❌ Windows binary not found"
+            exit 1
+          fi
+
+          # Check for Linux binaries
+          if [ ! -f "artifacts/AliFullStack-linux-${{ github.run_number }}/zip/linux/x64/AliFullStack-linux-x64-*.zip" ]; then
+            echo "❌ Linux ZIP binary not found"
+            exit 1
+          fi
+
+          # Check for macOS binaries
+          if [ ! -f "artifacts/AliFullStack-macos-${{ github.run_number }}/zip/darwin/x64/AliFullStack-darwin-x64-*.zip" ] && \
+             [ ! -f "artifacts/AliFullStack-macos-intel-${{ github.run_number }}/zip/darwin/x64/AliFullStack-darwin-x64-*.zip" ]; then
+            echo "❌ macOS binary not found"
+            exit 1
+          fi
+
+          echo "✅ All expected binaries found:"
+          find artifacts/ -type f \( -name "*.zip" -o -name "*.exe" -o -name "*.deb" -o -name "*.rpm" \) -exec basename {} \;

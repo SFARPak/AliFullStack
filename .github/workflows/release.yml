@@ -19,14 +19,17 @@ jobs:
       # which prevents the race.
       # max-parallel: 1
       matrix:
+        # See https://github.com/SFARPak/dyad/issues/96
         os: [
             { name: "windows", image: "windows-latest" },
-            # See https://github.com/SFARPak/dyad/issues/96
             { name: "linux", image: "ubuntu-22.04" },
             { name: "macos-intel", image: "macos-13" },
             { name: "macos", image: "macos-latest" },
           ]
     runs-on: ${{ matrix.os.image }}
+    # env:
+      # CSC_LINK: ${{ secrets.CSC_LINK }}
+      # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
     steps:
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -36,43 +39,48 @@ jobs:
           node-version: 20
       - name: Clean up
         run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
-          else
-            rm -rf node_modules || true
-          fi
-          npm cache clean --force || true
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm cache clean --force
         shell: bash
-      - run: npm ci
-      - name: add macos cert
+      - run: npm install --include=optional
+      - run: npm rebuild @rollup/rollup-linux-x64-gnu || true
+        if: contains(matrix.os.name, 'linux')
+      - run: npm rebuild @rollup/rollup-darwin-x64 || true
+        if: contains(matrix.os.name, 'macos-intel')
+      - run: npm rebuild @rollup/rollup-darwin-arm64 || true
         if: contains(matrix.os.name, 'macos')
-        env:
-          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
-          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-        run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
+      - run: npm rebuild @rollup/rollup-win32-x64-msvc || true
+        if: contains(matrix.os.name, 'windows')
+      # - name: add macos cert
+      #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
+      #   env:
+      #     MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+      #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+      #   run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
       # Windows only
-      - name: Set up certificate
-        if: contains(matrix.os.name, 'windows')
-        run: |
-          echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
-        shell: bash
-      - name: Set variables
-        if: contains(matrix.os.name, 'windows')
-        id: variables
-        run: |
-          echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV" 
-          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV" 
-          echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV" 
-          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
-        shell: bash
-      - name: Code signing with Software Trust Manager
-        if: contains(matrix.os.name, 'windows')
-        uses: digicert/ssm-code-signing@v1.1.0
-      - name: Sync certificate (Windows)
-        if: contains(matrix.os.name, 'windows')
-        run: |
-          smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
-        shell: bash
+      # - name: Set up certificate
+      #   if: contains(matrix.os.name, 'windows')
+      #   run: |
+      #     echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
+      #   shell: bash
+      # - name: Set variables
+      #   if: contains(matrix.os.name, 'windows')
+      #   id: variables
+      #   run: |
+      #     echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
+      #     echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
+      #     echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
+      #     echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
+      #   shell: bash
+      # - name: Code signing with Software Trust Manager
+      #   if: contains(matrix.os.name, 'windows')
+      #   uses: digicert/ssm-code-signing@v1.1.0
+      # - name: Sync certificate (Windows)
+      #   if: contains(matrix.os.name, 'windows')
+      #   run: |
+      #     smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
+      #   shell: bash
         # Publish (all platforms)
       - name: Publish app
         env:
@@ -82,13 +90,59 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          # CSC_LINK: ${{ secrets.CSC_LINK }}
+          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
         run: npm run publish
 
   verify-assets:
     name: Verify Release Assets
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      actions: read
     steps:
+      - name: Check token permissions
+        run: |
+          echo "🔐 Checking GITHUB_TOKEN permissions..."
+          echo "📡 Making API call to: https://api.github.com/user"
+
+          # Capture full response for detailed logging
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               -H "User-Agent: dyad-release-workflow" \
+               https://api.github.com/user)
+
+          # Extract status code
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+          JSON_RESPONSE=$(echo "$RESPONSE" | sed '/HTTP_STATUS:/d')
+
+          echo "📡 API Response Status: $HTTP_STATUS"
+
+          # Log token scopes and permissions from headers (if available)
+          echo "🔑 Token scopes: $(curl -s -I \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/user | grep -i "x-oauth-scopes:" | sed 's/.*: //' || echo "Not available")"
+
+          echo "📋 Accepted permissions: $(curl -s -I \
+               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/user | grep -i "x-accepted-github-permissions:" | sed 's/.*: //' || echo "Not available")"
+
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Token authentication successful"
+            echo "👤 User data:"
+            echo "$JSON_RESPONSE" | jq '.login // "Not available"'
+            echo "📋 Permissions:"
+            echo "$JSON_RESPONSE" | jq '.permissions // empty'
+          else
+            echo "❌ Token authentication failed with status: $HTTP_STATUS"
+            echo "🔍 Response body: $JSON_RESPONSE"
+            exit 1
+          fi
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Use Node.js

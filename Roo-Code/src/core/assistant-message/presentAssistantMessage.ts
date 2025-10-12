@@ -351,7 +351,7 @@ export async function presentAssistantMessage(cline: Task) {
 				// - Matches '<' or '</' optionally followed by any subset of
 				//   characters from the tag name.
 				const tagRegex = new RegExp(
-					`\\s?<\/?${tag
+					`\\s?</?${tag
 						.split("")
 						.map((char) => `(?:${char})?`)
 						.join("")}$`,

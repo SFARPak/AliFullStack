@@ -129,7 +129,9 @@ export function registerVersionHandlers() {
 
       // Return appropriate result if the app is not a git repo
       if (!fs.existsSync(path.join(appPath, ".git"))) {
-        throw new Error("Not a git repository");
+        return {
+          branch: "<no-git-repo>",
+        };
       }
 
       try {
@@ -168,15 +170,51 @@ export function registerVersionHandlers() {
 
         const appPath = getDyadAppPath(app.path);
         // Get the current commit hash before reverting
+        // Try to resolve the main branch, but fallback to other common branch names
+        let currentRef = "main";
+        try {
+          await git.resolveRef({
+            fs,
+            dir: appPath,
+            ref: "main",
+          });
+        } catch {
+          // Try master branch if main doesn't exist
+          try {
+            await git.resolveRef({
+              fs,
+              dir: appPath,
+              ref: "master",
+            });
+            currentRef = "master";
+          } catch {
+            // Try to get current branch name
+            try {
+              const currentBranch = await git.currentBranch({
+                fs,
+                dir: appPath,
+                fullname: false,
+              });
+              if (currentBranch) {
+                currentRef = currentBranch;
+              } else {
+                throw new Error("Could not determine current branch");
+              }
+            } catch {
+              throw new Error("Could not resolve any branch reference");
+            }
+          }
+        }
+
         const currentCommitHash = await git.resolveRef({
           fs,
           dir: appPath,
-          ref: "main",
+          ref: currentRef,
         });
 
         await gitCheckout({
           path: appPath,
-          ref: "main",
+          ref: currentRef,
         });
 
         if (app.neonProjectId && app.neonDevelopmentBranchId) {
@@ -339,7 +377,9 @@ export function registerVersionHandlers() {
           app.neonDevelopmentBranchId &&
           app.neonPreviewBranchId
         ) {
-          if (gitRef === "main") {
+          // Check if the gitRef matches any of the common default branch names
+          const isDefaultBranch = ["main", "master", "develop", "development"].includes(gitRef);
+          if (isDefaultBranch) {
             logger.info(
               `Switching Postgres to development branch for app ${appId}`,
             );

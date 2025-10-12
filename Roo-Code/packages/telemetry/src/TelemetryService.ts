@@ -217,7 +217,7 @@ export class TelemetryService {
 			itemType,
 			itemName,
 			target,
-			...(properties || {}),
+			...properties,
 		})
 	}
 

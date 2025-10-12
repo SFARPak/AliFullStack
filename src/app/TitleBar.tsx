@@ -78,8 +78,23 @@ export const TitleBar = () => {
   return (
     <>
       <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center">
-        <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
+        <div className="flex items-center flex-shrink-0">
+          <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
+          <img src={logo} alt="AliFullStack Logo" className="w-12 h-8" />
+          <Button
+            data-testid="title-bar-app-name-button"
+            variant="outline"
+            size="sm"
+            className={`hidden @2xl:block no-app-region-drag text-xs max-w-38 truncate font-medium ml-2 ${
+              selectedApp ? "cursor-pointer" : ""
+            }`}
+            onClick={handleAppClick}
+          >
+            {displayText}
+          </Button>
+        </div>
 
+<<<<<<< HEAD
         <img src={logo} alt="AliFullStack Logo" className="w-6 h-6 mr-0.5" />
         <Button
           data-testid="title-bar-app-name-button"
@@ -95,15 +110,24 @@ export const TitleBar = () => {
         {isDyadPro && (
           <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />
         )}
+=======
+        <div className="flex-1 flex justify-center items-center absolute inset-0 pointer-events-none">
+          <span className="text-lg font-semibold no-app-region-drag pointer-events-auto">AliFullStack</span>
+        </div>
+>>>>>>> release/v0.0.5
 
-        {/* Preview Header */}
-        {location.pathname === "/chat" && (
-          <div className="flex-1 flex justify-end">
-            <PreviewHeader />
-          </div>
-        )}
+        <div className="flex items-center flex-shrink-0 ml-auto">
+          {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}
 
-        {showWindowControls && <WindowsControls />}
+          {/* Preview Header */}
+          {location.pathname === "/chat" && (
+            <div className="flex justify-end">
+              <PreviewHeader />
+            </div>
+          )}
+
+          {showWindowControls && <WindowsControls />}
+        </div>
       </div>
 
       <DyadProSuccessDialog

@@ -29,6 +29,7 @@ export async function startProxy(
     onStarted?: (proxyUrl: string) => void;
     appId?: number; // Add appId to route proxy logs to appropriate terminal
     terminalType?: "frontend" | "backend" | "main"; // Add terminalType to determine routing
+    onError?: (error: Error) => void; // Add error callback
   } = {},
 ) {
   if (!/^https?:\/\//.test(targetOrigin))
@@ -39,15 +40,18 @@ export async function startProxy(
     // host = "localhost",
     // env = {}, // additional env vars to pass to the worker
     onStarted,
+    onError,
     appId,
     terminalType,
   } = opts;
 
   // Get the correct path to the worker file in both development and production
-  let workerPath: string;
   const electron = getElectron();
 
+  let workerPath: string;
+
   if (electron && !process.env.NODE_ENV?.includes("development")) {
+<<<<<<< HEAD
     // In production/built app, use the app's resource path
     workerPath = path.resolve(
       __dirname,
@@ -57,12 +61,40 @@ export async function startProxy(
       "worker",
       "proxy_server.js",
     );
+=======
+    // In production/built app, the worker is inside the ASAR archive
+    // __dirname will be inside the ASAR, so we need to navigate to the worker directory
+
+    // Try multiple possible locations for the worker
+    const possiblePaths = [
+      path.resolve(__dirname, "..", "..", "..", "worker", "proxy_server.js"), // Inside ASAR
+      path.resolve(process.resourcesPath, "worker", "proxy_server.js"), // In Resources
+      path.resolve(process.resourcesPath, "app.asar", "worker", "proxy_server.js"), // Explicit ASAR path
+    ];
+
+    let foundPath: string | null = null;
+    for (const testPath of possiblePaths) {
+      try {
+        require.resolve(testPath);
+        foundPath = testPath;
+        break;
+      } catch (e) {
+        // Continue to next path
+      }
+    }
+
+    if (!foundPath) {
+      throw new Error(`Could not find proxy_server.js worker file. Tried paths: ${possiblePaths.join(', ')}`);
+    }
+    workerPath = foundPath;
+>>>>>>> release/v0.0.5
   } else {
     // In development, use the project root
     workerPath = path.resolve(process.cwd(), "worker", "proxy_server.js");
   }
 
   logToConsole(`Starting proxy worker from path: ${workerPath}`, "info");
+  logToConsole(`Proxy will forward ${targetOrigin} to port ${port}`, "info");
 
   const worker = new Worker(workerPath, {
     workerData: {

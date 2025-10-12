@@ -12,8 +12,9 @@ import type {
 } from "../ipc_types";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { getDyadAppPath, getUserDataPath } from "../../paths/paths";
-import { ChildProcess, spawn } from "node:child_process";
+import { ChildProcess, spawn, execSync } from "node:child_process";
 import git from "isomorphic-git";
 import { promises as fsPromises } from "node:fs";
 
@@ -30,7 +31,82 @@ import {
 import { getEnvVar } from "../utils/read_env";
 import { readSettings } from "../../main/settings";
 
-import fixPath from "fix-path";
+// Cache for the dynamically captured PATH
+let cachedExtendedPath: string | undefined;
+let cachedShellEnv: NodeJS.ProcessEnv | undefined;
+
+/**
+ * Dynamically captures the PATH environment variable from a login shell.
+ * This ensures that tools installed via pyenv, conda, or other environment managers
+ * are accessible to child processes spawned by the Electron app.
+ *
+ * The result is cached to avoid repeatedly spawning a login shell.
+ *
+ * @returns The PATH string from the user's login shell.
+ */
+export function getExtendedPath(): string {
+  if (cachedExtendedPath) {
+    return cachedExtendedPath;
+  }
+
+  try {
+    // Spawn a login shell and get its environment
+    // For macOS, 'login -il <shell>' is used to get a login shell.
+    // For Linux, 'bash -lc "env"' or 'zsh -lc "env"' might be used.
+    // We'll try to detect the user's default shell.
+    const shell = process.env.SHELL || "/bin/bash";
+    let command: string;
+
+    if (process.platform === "darwin") {
+      // On macOS, a login shell is crucial for tools like Homebrew, pyenv, nvm
+      command = `login -il ${shell} -c "env"`;
+    } else {
+      // For Linux/Windows, a non-login shell might be sufficient, but -l ensures full environment
+      command = `${shell} -lc "env"`;
+    }
+
+    logger.info(`Attempting to capture PATH from login shell using command: ${command}`);
+    const output = execSync(command, { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }); // 10MB buffer
+
+    const env: NodeJS.ProcessEnv = {};
+    output.split("\n").forEach((line) => {
+      const parts = line.split("=");
+      if (parts.length >= 2) {
+        const key = parts[0];
+        const value = parts.slice(1).join("=");
+        env[key] = value;
+      }
+    });
+
+    cachedShellEnv = env;
+    cachedExtendedPath = env.PATH || process.env.PATH || "";
+    logger.info(`Successfully captured PATH from login shell: ${cachedExtendedPath}`);
+    return cachedExtendedPath;
+  } catch (error) {
+    logger.error(`Failed to capture PATH from login shell: ${error}. Falling back to current process PATH.`);
+    cachedExtendedPath = process.env.PATH || "";
+    cachedShellEnv = process.env; // Fallback to current process env
+    return cachedExtendedPath;
+  }
+}
+
+/**
+ * Dynamically captures the complete environment variables from a login shell.
+ * This ensures that all environment variables (not just PATH) set by tools
+ * like pyenv, conda, or other environment managers are accessible.
+ *
+ * The result is cached to avoid repeatedly spawning a login shell.
+ *
+ * @returns The complete environment variables from the user's login shell.
+ */
+export function getShellEnv(): NodeJS.ProcessEnv {
+  if (cachedShellEnv) {
+    return cachedShellEnv;
+  }
+  // Call getExtendedPath to populate cachedShellEnv
+  getExtendedPath();
+  return cachedShellEnv || process.env;
+}
 
 import killPort from "kill-port";
 import util from "util";
@@ -100,7 +176,7 @@ let proxyWorker: Worker | null = null;
 
 // Needed, otherwise electron in MacOS/Linux will not be able
 // to find node/pnpm.
-fixPath();
+getExtendedPath();
 
 /**
  * Check if a port is available
@@ -412,6 +488,88 @@ with app.app_context():
   }
 }
 
+/**
+ * Execute a command, using a temporary script file for complex commands with shell operators.
+ * This allows handling of multi-line commands, pipes, conditionals, and other shell features.
+ */
+export async function executeComplexCommand(
+  command: string,
+  workingDir: string,
+  env: NodeJS.ProcessEnv
+): Promise<ChildProcess> {
+  // Check if the command contains shell operators that require script execution
+  const hasShellOperators = /(&&|\|\||source|\||;|\$\(|`.*`)/.test(command);
+
+  if (!hasShellOperators) {
+    // For simple commands, use spawn directly
+    logger.debug(`Using spawn for simple command: ${command}`);
+    return spawn(command, [], {
+      cwd: workingDir,
+      shell: true,
+      stdio: "pipe",
+      detached: false,
+      env,
+    });
+  }
+
+  // For complex commands, create a temporary script file
+  logger.debug(`Using script file for complex command: ${command}`);
+
+  try {
+    // Create temporary script file
+    const tempDir = os.tmpdir();
+    const scriptName = `dyad-script-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.sh`;
+    const scriptPath = path.join(tempDir, scriptName);
+
+    // Write the command to the script file
+    const scriptContent = `#!/bin/bash
+# Temporary script generated by AliFullStack
+cd "${workingDir}"
+${command}
+`;
+
+    await fsPromises.writeFile(scriptPath, scriptContent, 'utf-8');
+
+    // Make the script executable
+    await fsPromises.chmod(scriptPath, 0o755);
+
+    logger.debug(`Created temporary script: ${scriptPath}`);
+
+    // Execute the script
+    const process = spawn(scriptPath, [], {
+      cwd: workingDir,
+      shell: true,
+      stdio: "pipe",
+      detached: false,
+      env,
+    });
+
+    // Clean up the script file after the process exits
+    process.on('exit', async (code, signal) => {
+      try {
+        await fsPromises.unlink(scriptPath);
+        logger.debug(`Cleaned up temporary script: ${scriptPath}`);
+      } catch (cleanupError) {
+        logger.warn(`Failed to clean up temporary script ${scriptPath}:`, cleanupError);
+      }
+    });
+
+    process.on('error', async (error) => {
+      try {
+        await fsPromises.unlink(scriptPath);
+        logger.debug(`Cleaned up temporary script after error: ${scriptPath}`);
+      } catch (cleanupError) {
+        logger.warn(`Failed to clean up temporary script ${scriptPath}:`, cleanupError);
+      }
+    });
+
+    return process;
+  } catch (error) {
+    logger.error(`Failed to create temporary script for complex command:`, error);
+    throw error;
+  }
+}
+
 async function executeAppLocalNode({
   appPath,
   appId,
@@ -555,10 +713,99 @@ async function executeAppLocalNode({
           );
           safeSend(event.sender, "app:output", {
             type: "stdout",
-            message: `❌ Failed to install frontend dependencies even with multiple retry methods. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
+            message: `🔧 Detected failed frontend dependency installation. Attempting comprehensive auto-fix...`,
             appId,
           });
-          return;
+
+          // Comprehensive auto-fix: try multiple installation strategies
+          const fixStrategies = [
+            {
+              command: "npm install --legacy-peer-deps",
+              description: "npm install with legacy peer deps",
+              cwd: frontendPath
+            },
+            {
+              command: "npm install --force",
+              description: "npm install with force flag",
+              cwd: frontendPath
+            },
+            {
+              command: "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
+              description: "clean install with legacy peer deps",
+              cwd: frontendPath
+            },
+            {
+              command: "rm -rf node_modules && npm install",
+              description: "clean standard install",
+              cwd: frontendPath
+            }
+          ];
+
+          let fixSucceeded = false;
+
+          for (const strategy of fixStrategies) {
+            try {
+              logger.info(`Attempting auto-fix strategy: ${strategy.description} in ${strategy.cwd}`);
+
+              await new Promise<void>((resolve, reject) => {
+                const fixProcess = spawn(strategy.command, [], {
+                  cwd: strategy.cwd,
+                  shell: true,
+                  stdio: "pipe",
+                  env: getShellEnv(),
+                });
+
+                let fixOutput = "";
+                let fixError = "";
+
+                fixProcess.stdout?.on("data", (data) => {
+                  fixOutput += data.toString();
+                });
+
+                fixProcess.stderr?.on("data", (data) => {
+                  fixError += data.toString();
+                });
+
+                fixProcess.on("close", (code) => {
+                  if (code === 0) {
+                    logger.info(`Successfully auto-fixed frontend dependencies using: ${strategy.description}`);
+                    safeSend(event.sender, "app:output", {
+                      type: "stdout",
+                      message: `✅ Frontend dependencies successfully installed using ${strategy.description}. The app should now work properly.`,
+                      appId,
+                    });
+                    resolve();
+                  } else {
+                    logger.warn(`Auto-fix strategy "${strategy.description}" failed (code: ${code}): ${fixError}`);
+                    reject(new Error(`Strategy failed: ${fixError}`));
+                  }
+                });
+
+                fixProcess.on("error", (err) => {
+                  logger.error(`Failed to start auto-fix strategy "${strategy.description}":`, err);
+                  reject(err);
+                });
+              });
+
+              // If we get here, the strategy succeeded
+              fixSucceeded = true;
+              break;
+
+            } catch (strategyError) {
+              logger.warn(`Auto-fix strategy "${strategy.description}" failed, trying next approach...`);
+              // Continue to next strategy
+            }
+          }
+
+          if (!fixSucceeded) {
+            logger.error(`All auto-fix strategies failed for frontend dependencies`);
+            safeSend(event.sender, "app:output", {
+              type: "stdout",
+              message: `❌ All auto-fix methods failed. Please run 'npm install --legacy-peer-deps' manually in the frontend directory.`,
+              appId,
+            });
+            // Continue with app startup despite dependency issues
+          }
         }
         logger.info(
           `Frontend dependencies installed successfully with robust method`,
@@ -582,36 +829,64 @@ async function executeAppLocalNode({
 
     // Determine backend framework for proper server command
     let backendFramework: string | null = null;
-    if (fs.existsSync(path.join(backendPath, "package.json"))) {
-      backendFramework = "nodejs";
-    } else if (fs.existsSync(path.join(backendPath, "requirements.txt"))) {
+
+    // First check for Python frameworks (more specific check)
+    if (fs.existsSync(path.join(backendPath, "requirements.txt"))) {
+      logger.info(`Found requirements.txt in ${backendPath}, detecting Python framework`);
       // Check for framework-specific files
       if (fs.existsSync(path.join(backendPath, "manage.py"))) {
         backendFramework = "django";
+        logger.info(`Detected Django framework based on manage.py file`);
       } else {
         // Read Python files to detect framework imports
         backendFramework = await detectPythonFramework(backendPath);
+        logger.info(`Detected Python framework: ${backendFramework}`);
       }
+    } else if (fs.existsSync(path.join(backendPath, "package.json"))) {
+      // Only if no Python files exist, check for Node.js
+      backendFramework = "nodejs";
+      logger.info(`Detected Node.js framework based on package.json file`);
+    } else {
+      logger.warn(`No framework files found in ${backendPath} - checking directory contents`);
+      const backendFiles = fs.readdirSync(backendPath);
+      logger.info(`Backend directory contents: ${backendFiles.join(', ')}`);
     }
 
     // Start backend server first
     try {
       let backendCommand: string;
-      if (backendFramework) {
+      logger.info(`Starting backend server with framework: ${backendFramework || 'unknown'}`);
+
+      if (backendFramework && backendFramework !== "nodejs") {
+        // For Python frameworks, get the proper start command
+        logger.info(`Getting start command for Python framework: ${backendFramework}`);
         backendCommand = await getStartCommandForFramework(backendFramework);
+        logger.info(`Got command for ${backendFramework}: ${backendCommand}`);
         if (!backendCommand) {
-          backendCommand = getCommand({ installCommand, startCommand }); // Fallback
+          // Fallback to default Python command
+          backendCommand = "python app.py";
+          logger.info(`Using fallback command: ${backendCommand}`);
         }
+      } else if (backendFramework === "nodejs") {
+        // For Node.js backends, use custom commands or default
+        backendCommand = getCommand({ installCommand, startCommand });
+        logger.info(`Using Node.js command: ${backendCommand}`);
       } else {
-        backendCommand = getCommand({ installCommand, startCommand }); // Fallback
+        // No framework detected, try to guess
+        logger.warn(`No backend framework detected, trying to guess`);
+        if (fs.existsSync(path.join(backendPath, "requirements.txt"))) {
+          backendCommand = "python app.py";
+          logger.info(`Guessed Python command: ${backendCommand}`);
+        } else {
+          backendCommand = getCommand({ installCommand, startCommand }); // Fallback to Node.js
+          logger.info(`Guessed Node.js command: ${backendCommand}`);
+        }
       }
 
-      const backendProcess = spawn(backendCommand, [], {
-        cwd: backendPath,
-        shell: true,
-        stdio: "pipe",
-        detached: false,
-      });
+      logger.info(`Final backend command: ${backendCommand}`);
+
+      // Always use executeComplexCommand for backend commands as they may be complex
+      const backendProcess = await executeComplexCommand(backendCommand, backendPath, getShellEnv());
 
       if (backendProcess.pid) {
         const backendProcessId = processCounter.increment();
@@ -637,10 +912,33 @@ async function executeAppLocalNode({
           appId,
         });
 
+<<<<<<< HEAD
         logToConsole(
           `Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`,
           "info",
         );
+=======
+        // Also send backend startup logs to system messages for visibility
+        backendProcess.stdout?.on("data", (data: Buffer) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `[BACKEND] ${message}`,
+            appId,
+          });
+        });
+
+        backendProcess.stderr?.on("data", (data: Buffer) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stderr",
+            message: `[BACKEND] ${message}`,
+            appId,
+          });
+        });
+
+        logToConsole(`Backend server started for fullstack app ${appId} (PID: ${backendProcess.pid})`, "info");
+>>>>>>> release/v0.0.5
       }
     } catch (error) {
       logger.error(
@@ -657,6 +955,7 @@ async function executeAppLocalNode({
 
     // Start frontend server
     try {
+<<<<<<< HEAD
       // Double-check that we have the necessary dependencies before starting
       const viteAvailable = fs.existsSync(
         path.join(frontendPath, "node_modules", "vite"),
@@ -670,12 +969,16 @@ async function executeAppLocalNode({
         return;
       }
 
+=======
+>>>>>>> release/v0.0.5
       const frontendCommand = `npx vite --port ${frontendPort} --host`;
+      logger.info(`Starting frontend server with command: ${frontendCommand} in ${frontendPath}`);
       const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
         stdio: "pipe",
         detached: false,
+        env: getShellEnv(),
       });
 
       if (frontendProcess.pid) {
@@ -701,6 +1004,25 @@ async function executeAppLocalNode({
           type: "stdout",
           message: `✅ Frontend server started (PID: ${frontendProcess.pid}, Port: ${frontendPort})`,
           appId,
+        });
+
+        // Also send frontend startup logs to system messages for visibility
+        frontendProcess.stdout?.on("data", (data: Buffer) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `[FRONTEND] ${message}`,
+            appId,
+          });
+        });
+
+        frontendProcess.stderr?.on("data", (data: Buffer) => {
+          const message = util.stripVTControlCharacters(data.toString());
+          safeSend(event.sender, "app:output", {
+            type: "stderr",
+            message: `[FRONTEND] ${message}`,
+            appId,
+          });
         });
 
         // Send summary message
@@ -836,6 +1158,7 @@ async function executeAppLocalNode({
 
   // For frontend, override with dynamic port and host binding for proxy access
   if (workingDir === frontendPath && serverPort > 0) {
+<<<<<<< HEAD
     // Double-check that we have the necessary dependencies before starting
     const viteAvailable = fs.existsSync(
       path.join(frontendPath, "node_modules", "vite"),
@@ -847,22 +1170,38 @@ async function executeAppLocalNode({
         appId,
       });
       return;
+=======
+    // Check if this is a Next.js app
+    const packageJsonPath = path.join(workingDir, "package.json");
+    let isNextJs = false;
+    try {
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+        isNextJs = packageJson.dependencies && packageJson.dependencies.next;
+      }
+    } catch (error) {
+      logger.warn(`Could not read package.json to detect Next.js: ${error}`);
     }
-    command = `npx vite --port ${serverPort} --host`;
+
+    if (isNextJs) {
+      // For Next.js, use the built-in dev server
+      command = `npm run dev -- --port ${serverPort} --hostname 0.0.0.0`;
+      logger.info(`Detected Next.js app, using command: ${command}`);
+    } else {
+      // For Vite-based apps (React scaffold)
+      command = `npx vite --port ${serverPort} --host`;
+      logger.info(`Detected Vite app, using command: ${command}`);
+>>>>>>> release/v0.0.5
+    }
   }
 
-  const spawnedProcess = spawn(command, [], {
-    cwd: workingDir,
-    shell: true,
-    stdio: "pipe", // Ensure stdio is piped so we can capture output/errors and detect close
-    detached: false, // Ensure child process is attached to the main process lifecycle unless explicitly backgrounded
-  });
+  const spawnedProcess = await executeComplexCommand(command, workingDir, getShellEnv());
 
   // Check if process spawned correctly
   if (!spawnedProcess.pid) {
     // Attempt to capture any immediate errors if possible
     let errorOutput = "";
-    spawnedProcess.stderr?.on("data", (data) => (errorOutput += data));
+    spawnedProcess.stderr?.on("data", (data: Buffer) => (errorOutput += data));
     await new Promise((resolve) => spawnedProcess.on("error", resolve)); // Wait for error event
     throw new Error(
       `Failed to spawn process for app ${appId}. Error: ${
@@ -915,6 +1254,8 @@ function listenToProcess({
 }) {
   let urlDetectionTimeout: NodeJS.Timeout | null = null;
   let urlDetected = false;
+  let lastDetectedUrl: string | null = null;
+  let urlDetectionDebounce: NodeJS.Timeout | null = null;
 
   // Start a timeout to inform the user if no URL is detected
   urlDetectionTimeout = setTimeout(() => {
@@ -929,7 +1270,7 @@ function listenToProcess({
   }, 15000); // 15 seconds
 
   // Log output
-  spawnedProcess.stdout?.on("data", async (data) => {
+  spawnedProcess.stdout?.on("data", async (data: Buffer) => {
     const rawMessage = util.stripVTControlCharacters(data.toString());
     const message = rawMessage; // Remove prefix since addTerminalOutput handles it
 
@@ -966,8 +1307,6 @@ function listenToProcess({
         message,
       );
 
-      if (urlDetected) return;
-
       const urlPatterns = [
         /(?:➜\s*Local:\s*)(https?:\/\/\S+:\d+)/i,
         /(?:➜\s*Network:\s*)(https?:\/\/\S+:\d+)/i,
@@ -980,14 +1319,26 @@ function listenToProcess({
         /(?:Server running at\s+)(https?:\/\/\S+:\d+)/i,
         /(?:App listening at\s+)(https?:\/\/\S+:\d+)/i,
         /Ready\sat\s(https?:\/\/\S+:\d+)/i,
+        // Next.js specific patterns
+        /Ready\s*-\s*started server on\s+\S+:\d+,\s*url:\s*(https?:\/\/\S+:\d+)/i,
+        /Local:\s*(https?:\/\/\S+:\d+)/i,
+        /started server on\s+\S+:\d+,\s*url:\s*(https?:\/\/\S+:\d+)/i,
+        /server started on\s*(https?:\/\/\S+:\d+)/i,
+        /listening on\s*(https?:\/\/\S+:\d+)/i,
         /(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|(?:\d{1,3}\.){3}\d{1,3}):\d+(?:\/\S*)?)/i,
         /(https?:\/\/\S+:\d+(?:\/\S*)?)/i,
       ];
+<<<<<<< HEAD
 
       logger.debug(
         `[${terminalType || "main"}] Checking for URLs in: ${rawMessage}`,
       );
 
+=======
+ 
+      logger.debug(`[${terminalType || 'main'}] Checking for URLs in: ${rawMessage}`);
+ 
+>>>>>>> release/v0.0.5
       let detectedUrl = null;
       for (const pattern of urlPatterns) {
         const match = rawMessage.match(pattern);
@@ -1000,7 +1351,12 @@ function listenToProcess({
         }
       }
 
+      if (!detectedUrl) {
+        logger.debug(`[${terminalType || 'main'}] No URL detected in: ${rawMessage.substring(0, 100)}...`);
+      }
+ 
       const shouldCreatePreview = !terminalType || terminalType === "frontend";
+<<<<<<< HEAD
 
       if (detectedUrl && shouldCreatePreview) {
         urlDetected = true;
@@ -1024,11 +1380,63 @@ function listenToProcess({
               const localPort = originalUrl.port;
               const proxyPort = proxyUrlObj.port;
 
+=======
+ 
+      // Update last detected URL
+      if (detectedUrl) {
+        lastDetectedUrl = detectedUrl;
+      }
+ 
+      // Use debouncing for frontend proxy creation to handle server restarts
+      if (detectedUrl && shouldCreatePreview && !urlDetected) {
+        // Clear any existing debounce timer
+        if (urlDetectionDebounce) {
+          clearTimeout(urlDetectionDebounce);
+        }
+ 
+        // Set a debounce timer to wait for potential newer URLs
+        urlDetectionDebounce = setTimeout(async () => {
+          if (!urlDetected && lastDetectedUrl) {
+            urlDetected = true;
+            if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
+ 
+            try {
+              if (proxyWorker) {
+                logger.info("Terminating existing proxy worker to create new one for frontend");
+                proxyWorker.terminate();
+                proxyWorker = null;
+              }
+ 
+              logger.info(`Creating proxy for URL: ${lastDetectedUrl}`);
+              proxyWorker = await startProxy(lastDetectedUrl, {
+                appId,
+                terminalType: terminalType || "frontend", // Pass the terminalType for routing
+                onStarted: (proxyUrl) => {
+                  const originalUrl = new URL(lastDetectedUrl!);
+                  const proxyUrlObj = new URL(proxyUrl);
+                  const localPort = originalUrl.port;
+                  const proxyPort = proxyUrlObj.port;
+   
+                  logger.info(`Proxy started: ${proxyUrl} -> ${lastDetectedUrl}`);
+                  const proxyMessage = `🚀 App preview available at http://localhost:${proxyPort} (proxied from local port ${localPort})`;
+                  logger.info(`Sending proxy message: ${proxyMessage}`);
+                  safeSend(event.sender, "app:output", {
+                    type: "stdout",
+                    message: proxyMessage,
+                    appId,
+                  });
+                },
+              });
+ 
+            } catch (error) {
+              logger.error(`Failed to start proxy for URL ${lastDetectedUrl}:`, error);
+>>>>>>> release/v0.0.5
               safeSend(event.sender, "app:output", {
                 type: "stdout",
-                message: `🚀 App preview available at http://localhost:${proxyPort} (proxied from local port ${localPort})`,
+                message: `⚠️ Proxy failed, but server is running. Access directly at: ${lastDetectedUrl}`,
                 appId,
               });
+<<<<<<< HEAD
             },
           });
         } catch (error) {
@@ -1039,7 +1447,13 @@ function listenToProcess({
             appId,
           });
         }
+=======
+            }
+          }
+        }, 2000); // Wait 2 seconds for potential newer URLs
+>>>>>>> release/v0.0.5
       } else if (detectedUrl && terminalType === "backend") {
+        // For backend, don't debounce - show immediately
         urlDetected = true;
         if (urlDetectionTimeout) clearTimeout(urlDetectionTimeout);
         safeSend(event.sender, "app:output", {
@@ -1148,6 +1562,102 @@ function listenToProcess({
             });
         });
     }
+
+    // Auto-fix common backend errors
+    if (terminalType === "backend") {
+      // Check for common backend startup failures
+      const isBackendError =
+        message.includes("ModuleNotFoundError") ||
+        message.includes("ImportError") ||
+        message.includes("No module named") ||
+        message.includes("uvicorn") ||
+        message.includes("fastapi") ||
+        message.includes("flask") ||
+        message.includes("django") ||
+        message.includes("Command not found") ||
+        message.includes("command not found");
+
+      if (isBackendError) {
+        logger.info(`Detected backend error for app ${appId}, attempting auto-fix: ${message}`);
+        safeSend(event.sender, "app:output", {
+          type: "stdout",
+          message: `🔧 Detected backend startup error, attempting automatic fix...`,
+          appId,
+        });
+
+        // Determine backend directory
+        const backendPath = path.join(appPath, "backend");
+        if (!fs.existsSync(backendPath)) {
+          logger.warn(`Backend directory not found at ${backendPath}`);
+          return;
+        }
+
+        // Determine framework and attempt fixes
+        let framework = "python"; // default
+        let hasRequirements = fs.existsSync(path.join(backendPath, "requirements.txt"));
+        let hasPackageJson = fs.existsSync(path.join(backendPath, "package.json"));
+
+        if (hasRequirements) {
+          framework = "python";
+        } else if (hasPackageJson) {
+          framework = "nodejs";
+        }
+
+        // Attempt to install missing dependencies
+        const installPromise = framework === "python"
+          ? installPythonDependencies(backendPath)
+          : installNodejsDependenciesRobust(backendPath, "backend");
+
+        installPromise
+          .then(() => {
+            safeSend(event.sender, "app:output", {
+              type: "stdout",
+              message: `✅ Backend dependencies installed successfully. Please restart the backend server.`,
+              appId,
+            });
+          })
+          .catch((error) => {
+            logger.warn(`Backend auto-fix failed: ${error.message}`);
+
+            // Try alternative fixes based on error type
+            if (message.includes("No module named") || message.includes("ModuleNotFoundError")) {
+              // Try to detect and install specific missing packages
+              const missingModule = message.match(/No module named ['"]([^'"]+)['"]/);
+              if (missingModule) {
+                const moduleName = missingModule[1];
+                logger.info(`Attempting to install missing Python module: ${moduleName}`);
+                installSpecificPythonPackage(backendPath, moduleName)
+                  .then(() => {
+                    safeSend(event.sender, "app:output", {
+                      type: "stdout",
+                      message: `✅ Installed missing module '${moduleName}'. Please restart the backend server.`,
+                      appId,
+                    });
+                  })
+                  .catch(() => {
+                    safeSend(event.sender, "app:output", {
+                      type: "stdout",
+                      message: `⚠️ Backend auto-fix failed. The error may require manual intervention.`,
+                      appId,
+                    });
+                  });
+              } else {
+                safeSend(event.sender, "app:output", {
+                  type: "stdout",
+                  message: `⚠️ Backend auto-fix failed. Please check your backend dependencies and restart.`,
+                  appId,
+                });
+              }
+            } else {
+              safeSend(event.sender, "app:output", {
+                type: "stdout",
+                message: `⚠️ Backend auto-fix failed. The error may require manual intervention.`,
+                appId,
+              });
+            }
+          });
+      }
+    }
   });
 
   // Handle process exit/close
@@ -1155,6 +1665,11 @@ function listenToProcess({
     logger.log(
       `App ${appId} (PID: ${spawnedProcess.pid}) process closed with code ${code}, signal ${signal}.`,
     );
+    // Clean up debounce timer
+    if (urlDetectionDebounce) {
+      clearTimeout(urlDetectionDebounce);
+      urlDetectionDebounce = null;
+    }
     removeAppIfCurrentProcess(appId, spawnedProcess);
   });
 
@@ -1163,6 +1678,11 @@ function listenToProcess({
     logger.error(
       `Error in app ${appId} (PID: ${spawnedProcess.pid}) process: ${err.message}`,
     );
+    // Clean up debounce timer
+    if (urlDetectionDebounce) {
+      clearTimeout(urlDetectionDebounce);
+      urlDetectionDebounce = null;
+    }
     removeAppIfCurrentProcess(appId, spawnedProcess);
     // Note: We don't throw here as the error is asynchronous. The caller got a success response already.
     // Consider adding ipcRenderer event emission to notify UI of the error.
@@ -1189,7 +1709,7 @@ async function executeAppInDocker({
   // First, check if Docker is available
   try {
     await new Promise<void>((resolve, reject) => {
-      const checkDocker = spawn("docker", ["--version"], { stdio: "pipe" });
+      const checkDocker = spawn("docker", ["--version"], { stdio: "pipe", env: getShellEnv() });
       checkDocker.on("close", (code) => {
         if (code === 0) {
           resolve();
@@ -1212,10 +1732,12 @@ async function executeAppInDocker({
     await new Promise<void>((resolve) => {
       const stopContainer = spawn("docker", ["stop", containerName], {
         stdio: "pipe",
+        env: getShellEnv(),
       });
       stopContainer.on("close", () => {
         const removeContainer = spawn("docker", ["rm", containerName], {
           stdio: "pipe",
+          env: getShellEnv(),
         });
         removeContainer.on("close", () => resolve());
         removeContainer.on("error", () => resolve()); // Container might not exist
@@ -1252,6 +1774,7 @@ RUN npm install -g pnpm
     {
       cwd: appPath,
       stdio: "pipe",
+      env: getShellEnv(),
     },
   );
 
@@ -1322,6 +1845,7 @@ RUN npm install -g pnpm
     {
       stdio: "pipe",
       detached: false,
+      env: getShellEnv(),
     },
   );
 
@@ -1371,6 +1895,7 @@ async function stopDockerContainersOnPort(port: number): Promise<void> {
     // List container IDs that publish the given port
     const list = spawn("docker", ["ps", "--filter", `publish=${port}`, "-q"], {
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     let stdout = "";
@@ -1397,7 +1922,7 @@ async function stopDockerContainersOnPort(port: number): Promise<void> {
       containerIds.map(
         (id) =>
           new Promise<void>((resolve) => {
-            const stop = spawn("docker", ["stop", id], { stdio: "pipe" });
+            const stop = spawn("docker", ["stop", id], { stdio: "pipe", env: getShellEnv() });
             stop.on("close", () => resolve());
             stop.on("error", () => resolve());
           }),
@@ -1558,6 +2083,7 @@ export function registerAppHandlers() {
         logger.warn(`App ${app.id} created without Git repository`);
       }
 
+<<<<<<< HEAD
       // Start autonomous development process
       try {
         logger.info(`Starting autonomous development for app ${app.id}`);
@@ -1579,6 +2105,26 @@ export function registerAppHandlers() {
           `App ${app.id} created but autonomous development failed to start`,
         );
       }
+=======
+      // Start autonomous development process asynchronously to prevent UI blocking
+      setTimeout(() => {
+        try {
+          logger.info(`Starting autonomous development for app ${app.id}`);
+          const requirements: string[] = []; // Requirements will be gathered during development
+          developmentOrchestrator.startAutonomousDevelopment(
+            app.id,
+            "react", // default frontend framework
+            params.selectedBackendFramework || undefined,
+            requirements
+          );
+          logger.info(`Autonomous development started for app ${app.id}`);
+        } catch (devError) {
+          logger.error(`Failed to start autonomous development for app ${app.id}:`, devError);
+          // Don't fail app creation if autonomous development fails to start
+          logger.warn(`App ${app.id} created but autonomous development failed to start`);
+        }
+      }, 0);
+>>>>>>> release/v0.0.5
 
       return { app, chatId: chat.id };
     },
@@ -2771,6 +3317,7 @@ async function installDependencies(projectPath: string, framework: string) {
       cwd: projectPath,
       shell: true,
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     logger.info(`Running install command: ${installCommand} in ${projectPath}`);
@@ -2843,6 +3390,7 @@ async function installDependenciesAuto(
         cwd: projectPath,
         shell: true,
         stdio: "pipe",
+        env: getShellEnv(),
       });
 
       logger.info(
@@ -2912,6 +3460,7 @@ async function installNodejsDependenciesRobust(
           cwd: projectPath,
           shell: true,
           stdio: "pipe",
+          env: getShellEnv(),
         });
 
         let installOutput = "";
@@ -2976,6 +3525,7 @@ async function installNodejsDependenciesRobust(
           cwd: projectPath,
           shell: true,
           stdio: "pipe",
+          env: getShellEnv(),
         });
 
         cleanupProcess.on("close", (code) => {
@@ -3017,6 +3567,7 @@ async function installSpecificPackage(
       cwd: projectPath,
       shell: true,
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     logger.info(
@@ -3065,6 +3616,7 @@ async function installDependenciesAutoFallback(
       cwd: projectPath,
       shell: true,
       stdio: "pipe",
+      env: getShellEnv(),
     });
 
     logger.info(
@@ -3120,4 +3672,92 @@ function getInstallCommand(framework: string): string {
       );
       return "";
   }
+}
+
+async function installPythonDependencies(projectPath: string): Promise<void> {
+  const requirementsPath = path.join(projectPath, "requirements.txt");
+
+  if (!fs.existsSync(requirementsPath)) {
+    throw new Error("No requirements.txt found in backend directory");
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn("pip install -r requirements.txt", [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+      env: getShellEnv(),
+    });
+
+    logger.info(`Installing Python dependencies in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully installed Python dependencies in ${projectPath}`);
+        resolve();
+      } else {
+        const errorMsg = `Python dependency installation failed (code: ${code}): ${installError}`;
+        logger.error(errorMsg);
+        reject(new Error(errorMsg));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      const errorMsg = `Failed to start Python dependency installation: ${err.message}`;
+      logger.error(errorMsg);
+      reject(new Error(errorMsg));
+    });
+  });
+}
+
+async function installSpecificPythonPackage(projectPath: string, packageName: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const installProcess = spawn(`pip install ${packageName}`, [], {
+      cwd: projectPath,
+      shell: true,
+      stdio: "pipe",
+      env: getShellEnv(),
+    });
+
+    logger.info(`Installing specific Python package: ${packageName} in ${projectPath}`);
+
+    let installOutput = "";
+    let installError = "";
+
+    installProcess.stdout?.on("data", (data) => {
+      installOutput += data.toString();
+    });
+
+    installProcess.stderr?.on("data", (data) => {
+      installError += data.toString();
+    });
+
+    installProcess.on("close", (code) => {
+      if (code === 0) {
+        logger.info(`Successfully installed Python package ${packageName} in ${projectPath}`);
+        resolve();
+      } else {
+        const errorMsg = `Failed to install Python package ${packageName} (code: ${code}): ${installError}`;
+        logger.warn(errorMsg);
+        reject(new Error(errorMsg));
+      }
+    });
+
+    installProcess.on("error", (err) => {
+      const errorMsg = `Failed to start installation of Python package ${packageName}: ${err.message}`;
+      logger.error(errorMsg);
+      reject(new Error(errorMsg));
+    });
+  });
 }

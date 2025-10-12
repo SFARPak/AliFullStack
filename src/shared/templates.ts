@@ -41,7 +41,14 @@ export const localTemplatesData: Template[] = [
     description: "Uses Next.js, React.js, Shadcn, Tailwind and TypeScript.",
     imageUrl:
       "https://github.com/user-attachments/assets/96258e4f-abce-4910-a62a-a9dff77965f2",
-    githubUrl: "https://github.com/SFARPak/nextjs-template",
+    isOfficial: true,
+    isFrontend: true,
+  },
+  {
+    id: "vue",
+    title: "Vue.js Template",
+    description: "Uses Vue.js 3, Vite, and TypeScript.",
+    imageUrl: "https://vuejs.org/logo.svg",
     isOfficial: true,
     isFrontend: true,
   },

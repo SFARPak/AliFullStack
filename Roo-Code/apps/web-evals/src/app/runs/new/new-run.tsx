@@ -97,10 +97,14 @@ export function NewRun() {
 		async (values: CreateRun) => {
 			try {
 				if (mode === "openrouter") {
+<<<<<<< HEAD
 					values.settings = {
 						...(values.settings || {}),
 						openRouterModelId: model,
 					}
+=======
+					values.settings = { ...values.settings, openRouterModelId: model }
+>>>>>>> release/v0.0.5
 				}
 
 				const { id } = await createRun(values)

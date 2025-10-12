@@ -46,7 +46,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 
 		const headers = {
 			...DEFAULT_HEADERS,
-			...(this.options.openAiHeaders || {}),
+			...this.options.openAiHeaders,
 		}
 
 		const timeout = getApiRequestTimeout()
@@ -466,7 +466,7 @@ export async function getOpenAiModels(baseUrl?: string, apiKey?: string, openAiH
 		const config: Record<string, any> = {}
 		const headers: Record<string, string> = {
 			...DEFAULT_HEADERS,
-			...(openAiHeaders || {}),
+			...openAiHeaders,
 		}
 
 		if (apiKey) {

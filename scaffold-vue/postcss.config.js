@@ -3,4 +3,8 @@ export default {
     tailwindcss: {},
     autoprefixer: {},
   },
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> release/v0.0.5

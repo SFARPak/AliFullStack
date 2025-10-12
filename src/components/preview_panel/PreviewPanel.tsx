@@ -73,8 +73,7 @@ export function PreviewPanel() {
   useEffect(() => {
     if (
       settings?.selectedChatMode === "backend" &&
-      previewMode === "preview" &&
-      settings?.fullstackDevelopmentMode !== true
+      previewMode === "preview"
     ) {
       setPreviewMode("code");
     }
@@ -82,7 +81,6 @@ export function PreviewPanel() {
     settings?.selectedChatMode,
     previewMode,
     setPreviewMode,
-    settings?.fullstackDevelopmentMode,
   ]);
 
   useEffect(() => {

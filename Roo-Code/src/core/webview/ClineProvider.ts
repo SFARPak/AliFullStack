@@ -1419,10 +1419,15 @@ export class ClineProvider
 		try {
 			const baseUrl = apiConfiguration.openRouterBaseUrl || "https://openrouter.ai/api/v1"
 			// Extract the base domain for the auth endpoint.
+<<<<<<< HEAD
 			const baseUrlDomain = baseUrl.match(/^(https?:\/\/[^\/]+)/)?.[1] || "https://openrouter.ai"
 			const response = await axios.post(`${baseUrlDomain}/api/v1/auth/keys`, {
 				code,
 			})
+=======
+			const baseUrlDomain = baseUrl.match(/^(https?:\/\/[^/]+)/)?.[1] || "https://openrouter.ai"
+			const response = await axios.post(`${baseUrlDomain}/api/v1/auth/keys`, { code })
+>>>>>>> release/v0.0.5
 
 			if (response.data && response.data.key) {
 				apiKey = response.data.key

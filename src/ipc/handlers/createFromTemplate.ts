@@ -196,11 +196,11 @@ async function copyCriticalFilesIndividually(
     "vercel.json",
   ];
 
-  // Copy critical files
-  for (const file of criticalFiles) {
-    const srcFile = path.join(scaffoldPath, file);
-    const destFile = path.join(frontendPath, file);
+  // Copy critical files and directories using robust approach
+  // Get all files and directories from scaffold
+  const scaffoldContents = await fs.readdir(scaffoldPath, { withFileTypes: true });
 
+<<<<<<< HEAD
     if (fs.existsSync(srcFile)) {
       try {
         await fs.copy(srcFile, destFile);
@@ -213,9 +213,20 @@ async function copyCriticalFilesIndividually(
       }
     } else {
       logger.warn(`⚠️ Source file not found: ${file}`);
-    }
-  }
+=======
+  // Copy each item individually for better control and error handling
+  for (const item of scaffoldContents) {
+    const srcPath = path.join(scaffoldPath, item.name);
+    const destPath = path.join(frontendPath, item.name);
 
+    // Skip node_modules and .git directories
+    if (item.name === 'node_modules' || item.name === '.git') {
+      logger.debug(`Skipping ${item.name} directory`);
+      continue;
+>>>>>>> release/v0.0.5
+    }
+
+<<<<<<< HEAD
   // Copy directories with full structure
   const directoriesToCopy = ["src", "public"];
 
@@ -230,8 +241,17 @@ async function copyCriticalFilesIndividually(
 
         await fs.copy(srcDir, destDir, {
           recursive: true,
+=======
+    try {
+      if (item.isDirectory()) {
+        logger.debug(`Copying directory: ${item.name}`);
+        await fs.ensureDir(destPath);
+        await fs.copy(srcPath, destPath, {
+>>>>>>> release/v0.0.5
           overwrite: true,
+          recursive: true,
           filter: (src, dest) => {
+<<<<<<< HEAD
             const relativePath = path.relative(srcDir, src);
             return (
               !relativePath.includes("node_modules") &&
@@ -268,9 +288,22 @@ async function copyCriticalFilesIndividually(
             fallbackError,
           );
         }
+=======
+            // Exclude .git and node_modules from subdirectories too
+            const relativePath = path.relative(srcPath, src);
+            return !relativePath.includes('.git') && !relativePath.includes('node_modules') && !relativePath.includes('.DS_Store');
+          }
+        });
+        logger.info(`✅ Copied directory ${item.name}`);
+      } else {
+        logger.debug(`Copying file: ${item.name}`);
+        await fs.copy(srcPath, destPath, { overwrite: true });
+        logger.info(`✅ Copied file ${item.name}`);
+>>>>>>> release/v0.0.5
       }
-    } else {
-      logger.warn(`⚠️ Source directory not found: ${dir}`);
+    } catch (itemError) {
+      logger.warn(`⚠️ Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+      // Continue with other files
     }
   }
 
@@ -292,6 +325,7 @@ async function createMinimalFiles(frontendPath: string, templateId?: string): Pr
   await fs.ensureDir(pagesPath);
   await fs.ensureDir(publicPath);
 
+<<<<<<< HEAD
   // Create AI_RULES.md - template-aware
   const aiRulesContent = isVue ? `# Tech Stack
 - You are building a Vue.js application.
@@ -310,6 +344,10 @@ Available packages and libraries:
 - The lucide-vue-next package is installed for icons.
 - You have Vue 3 and its ecosystem available.
 - Use modern Vue 3 patterns and best practices.` : `# Tech Stack
+=======
+  // Create AI_RULES.md (defaulting to React for fallback)
+  const aiRulesContent = `# Tech Stack
+>>>>>>> release/v0.0.5
 - You are building a React application.
 - Use TypeScript.
 - Use React Router. KEEP the routes in src/App.tsx
@@ -673,6 +711,15 @@ export async function createFromTemplate({
   logger.info(`Creating frontend directory: ${frontendPath}`);
   await fs.ensureDir(frontendPath);
 
+  // Set proper permissions for frontend directory (755 - rwxr-xr-x)
+  try {
+    const { execSync } = require('child_process');
+    execSync(`chmod 755 "${frontendPath}"`, { stdio: 'ignore' });
+    logger.info(`Set permissions 755 for frontend directory: ${frontendPath}`);
+  } catch (permError) {
+    logger.warn(`Failed to set permissions for frontend directory:`, permError instanceof Error ? permError.message : String(permError));
+  }
+
   // For full stack, always create both frontend and backend
   // For frontend-only, create frontend and optionally backend
   // For backend-only, create backend
@@ -682,12 +729,31 @@ export async function createFromTemplate({
     backendPath = path.join(fullAppPath, "backend");
     logger.info(`Creating backend directory: ${backendPath}`);
     await fs.ensureDir(backendPath);
+
+    // Set proper permissions for backend directory (755 - rwxr-xr-x)
+    try {
+      const { execSync } = require('child_process');
+      execSync(`chmod 755 "${backendPath}"`, { stdio: 'ignore' });
+      logger.info(`Set permissions 755 for backend directory: ${backendPath}`);
+    } catch (permError) {
+      logger.warn(`Failed to set permissions for backend directory:`, permError instanceof Error ? permError.message : String(permError));
+    }
   }
 
   // Set up selected backend framework if specified
   if ((isFullStack || selectedBackendFramework) && backendPath) {
     logger.info(`Setting up backend framework: ${selectedBackendFramework}`);
     await setupBackendFramework(backendPath, selectedBackendFramework!);
+
+    // Set proper permissions for all backend subdirectories after setup
+    try {
+      const { execSync } = require('child_process');
+      execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+      execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+      logger.info(`Set proper permissions for all backend subdirectories and files`);
+    } catch (permError) {
+      logger.warn(`Failed to set permissions for backend subdirectories:`, permError instanceof Error ? permError.message : String(permError));
+    }
   }
 
   // For full stack, skip template processing and use scaffold copying directly
@@ -697,6 +763,7 @@ export async function createFromTemplate({
         "Backend framework must be selected for Full Stack app creation. Please select a backend framework in the Hub first.",
       );
     }
+<<<<<<< HEAD
 
     // Determine which frontend scaffold to use based on templateId
     let scaffoldPath: string;
@@ -720,6 +787,28 @@ export async function createFromTemplate({
         debugContent,
       );
       logger.info("✅ DEBUG: Full stack debug file created");
+=======
+    // Use scaffold copying for frontend (React/Vue) and backend framework setup
+    logger.info(`Full stack mode: Using scaffold for frontend and ${selectedBackendFramework} for backend`);
+
+    // Determine which scaffold to use based on templateId
+    // Use Electron's app.getAppPath() to get the correct app directory
+    const appPath = app.getAppPath();
+    let scaffoldPath: string;
+    if (templateId === "vue") {
+      scaffoldPath = path.join(appPath, "scaffold-vue");
+      logger.info(`Setting up Vue scaffold in frontend folder`);
+    } else {
+      scaffoldPath = path.join(appPath, "scaffold");
+      logger.info(`Setting up React scaffold in frontend folder`);
+    }
+
+    // EMERGENCY DEBUG: Create a debug file immediately
+    try {
+      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}\nTemplate: ${templateId}\nScaffold Path: ${scaffoldPath}`;
+      await fs.writeFile(path.join(frontendPath, 'DEBUG_FULL_STACK.txt'), debugContent);
+      logger.info('✅ DEBUG: Full stack debug file created');
+>>>>>>> release/v0.0.5
     } catch (debugError) {
       logger.error("❌ DEBUG: Failed to create debug file:", debugError);
     }
@@ -829,6 +918,7 @@ export async function createFromTemplate({
         `Starting scaffold copy from ${actualScaffoldPath} to ${frontendPath}`,
       );
 
+<<<<<<< HEAD
       // Use fs-extra copy with detailed error handling
       await fs.copy(actualScaffoldPath, frontendPath, {
         overwrite: true,
@@ -839,14 +929,54 @@ export async function createFromTemplate({
           const shouldExclude =
             relativePath.includes("node_modules") ||
             relativePath.includes(".git");
+=======
+      // Use a more robust copying approach - copy entire directory contents
+      await fs.ensureDir(frontendPath);
+>>>>>>> release/v0.0.5
 
-          if (shouldExclude) {
-            logger.debug(`Excluding ${src} from copy`);
-          }
+      // Get all files and directories from scaffold
+      const scaffoldContents = await fs.readdir(actualScaffoldPath, { withFileTypes: true });
 
+<<<<<<< HEAD
           return !shouldExclude;
         },
       });
+=======
+      // Copy each item individually for better control and error handling
+      for (const item of scaffoldContents) {
+        const srcPath = path.join(actualScaffoldPath, item.name);
+        const destPath = path.join(frontendPath, item.name);
+
+        // Skip node_modules and .git directories
+        if (item.name === 'node_modules' || item.name === '.git') {
+          logger.debug(`Skipping ${item.name} directory`);
+          continue;
+        }
+
+        try {
+          if (item.isDirectory()) {
+            logger.debug(`Copying directory: ${item.name}`);
+            await fs.copy(srcPath, destPath, {
+              overwrite: true,
+              recursive: true,
+              filter: (src, dest) => {
+                // Exclude .git and node_modules from subdirectories too
+                const relativePath = path.relative(srcPath, src);
+                return !relativePath.includes('.git') && !relativePath.includes('node_modules');
+              }
+            });
+          } else {
+            logger.debug(`Copying file: ${item.name}`);
+            await fs.copy(srcPath, destPath, { overwrite: true });
+          }
+        } catch (itemError) {
+          logger.warn(`Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+          // Continue with other files
+        }
+      }
+
+      logger.info(`Successfully completed scaffold copy operation`);
+>>>>>>> release/v0.0.5
 
       logger.info(`Successfully completed scaffold copy operation`);
 
@@ -980,10 +1110,26 @@ export async function createFromTemplate({
         }
       }
 
+<<<<<<< HEAD
       logger.info("✅ Scaffold copy verification PASSED");
       logger.info(
         `Successfully copied scaffold from ${actualScaffoldPath} to ${frontendPath}`,
       );
+=======
+      logger.info('✅ Scaffold copy verification PASSED');
+      logger.info(`Successfully copied scaffold from ${actualScaffoldPath} to ${frontendPath}`);
+
+      // Set proper permissions for all subdirectories in frontend
+      try {
+        const { execSync } = require('child_process');
+        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+        logger.info(`Set proper permissions for all frontend subdirectories and files`);
+      } catch (permError) {
+        logger.warn(`Failed to set permissions for frontend subdirectories:`, permError instanceof Error ? permError.message : String(permError));
+      }
+
+>>>>>>> release/v0.0.5
     } catch (copyError) {
       logger.error(`Failed to copy scaffold directory:`, copyError);
       logger.error(`Copy error details:`, JSON.stringify(copyError, null, 2));
@@ -1178,14 +1324,30 @@ Available packages and libraries:
     `Template found: ${template.title}, isFrontend: ${template.isFrontend}, githubUrl: ${template.githubUrl}`,
   );
 
-  // For templates without GitHub URL (like "react"), use scaffold copying
+  // For templates without GitHub URL (like "react", "vue", "next"), use scaffold copying
   if (!template.githubUrl) {
+<<<<<<< HEAD
     if (templateId === "react") {
       logger.info(
         `Template ${templateId} has no GitHub URL, using scaffold copying`,
       );
       // Use scaffold copying for React template
       const scaffoldPath = "/Volumes/Farhan/Desktop/AliFullstack/scaffold";
+=======
+    if (templateId === "react" || templateId === "vue" || templateId === "next") {
+      logger.info(`Template ${templateId} has no GitHub URL, using scaffold copying`);
+      // Use scaffold copying for React/Vue/Next.js templates
+      // Use Electron's app.getAppPath() to get the correct app directory
+      const appPath = app.getAppPath();
+      let scaffoldPath: string;
+      if (templateId === "vue") {
+        scaffoldPath = path.join(appPath, "scaffold-vue");
+      } else if (templateId === "next") {
+        scaffoldPath = path.join(appPath, "scaffold-nextjs");
+      } else {
+        scaffoldPath = path.join(appPath, "scaffold");
+      }
+>>>>>>> release/v0.0.5
 
       logger.info(`Using scaffold path: ${scaffoldPath}`);
       if (!fs.existsSync(scaffoldPath)) {
@@ -1193,6 +1355,7 @@ Available packages and libraries:
         throw new Error(`Scaffold directory not found at: ${scaffoldPath}`);
       }
 
+<<<<<<< HEAD
       // Copy scaffold to frontend
       await fs.copy(scaffoldPath, frontendPath, {
         overwrite: true,
@@ -1204,6 +1367,46 @@ Available packages and libraries:
           );
         },
       });
+=======
+      // Copy scaffold to frontend using robust approach
+      await fs.ensureDir(frontendPath);
+
+      // Get all files and directories from scaffold
+      const scaffoldContents = await fs.readdir(scaffoldPath, { withFileTypes: true });
+
+      // Copy each item individually for better control and error handling
+      for (const item of scaffoldContents) {
+        const srcPath = path.join(scaffoldPath, item.name);
+        const destPath = path.join(frontendPath, item.name);
+
+        // Skip node_modules and .git directories
+        if (item.name === 'node_modules' || item.name === '.git') {
+          logger.debug(`Skipping ${item.name} directory`);
+          continue;
+        }
+
+        try {
+          if (item.isDirectory()) {
+            logger.debug(`Copying directory: ${item.name}`);
+            await fs.copy(srcPath, destPath, {
+              overwrite: true,
+              recursive: true,
+              filter: (src, dest) => {
+                // Exclude .git and node_modules from subdirectories too
+                const relativePath = path.relative(srcPath, src);
+                return !relativePath.includes('.git') && !relativePath.includes('node_modules');
+              }
+            });
+          } else {
+            logger.debug(`Copying file: ${item.name}`);
+            await fs.copy(srcPath, destPath, { overwrite: true });
+          }
+        } catch (itemError) {
+          logger.warn(`Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+          // Continue with other files
+        }
+      }
+>>>>>>> release/v0.0.5
 
       logger.info(`Successfully copied scaffold to ${frontendPath}`);
 
@@ -1282,8 +1485,35 @@ Available packages and libraries:
       `Copying frontend template to frontend folder: ${frontendPath}`,
     );
 
+    // Add debug information for Next.js template issues
+    if (templateId === 'next') {
+      logger.info(`🔍 DEBUG: Processing Next.js template`);
+      logger.info(`🔍 DEBUG: Repo cache path: ${repoCachePath}`);
+      logger.info(`🔍 DEBUG: Frontend path: ${frontendPath}`);
+      logger.info(`🔍 DEBUG: Repo cache exists: ${fs.existsSync(repoCachePath)}`);
+
+      if (fs.existsSync(repoCachePath)) {
+        try {
+          const repoContents = fs.readdirSync(repoCachePath).slice(0, 10); // First 10 items
+          logger.info(`🔍 DEBUG: Repo cache contents (first 10): ${repoContents.join(', ')}`);
+        } catch (listError) {
+          logger.error(`🔍 DEBUG: Could not list repo cache contents:`, listError);
+        }
+      }
+    }
+
     try {
       await copyRepoToApp(repoCachePath, frontendPath);
+
+      // Set proper permissions for frontend template subdirectories
+      try {
+        const { execSync } = require('child_process');
+        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+        logger.info(`Set proper permissions for frontend template subdirectories and files`);
+      } catch (permError) {
+        logger.warn(`Failed to set permissions for frontend template:`, permError instanceof Error ? permError.message : String(permError));
+      }
 
       // Verify the copy worked
       if (fs.existsSync(frontendPath)) {
@@ -1291,6 +1521,10 @@ Available packages and libraries:
         logger.info(
           `Frontend template copied successfully, ${destContents.length} items in destination`,
         );
+
+        if (templateId === 'next') {
+          logger.info(`🔍 DEBUG: Next.js template copied successfully, contents: ${destContents.join(', ')}`);
+        }
 
         // Check for package.json
         const packageJsonPath = path.join(frontendPath, "package.json");
@@ -1308,6 +1542,10 @@ Available packages and libraries:
       }
     } catch (copyError) {
       logger.error(`Failed to copy frontend template:`, copyError);
+
+      if (templateId === 'next') {
+        logger.error(`🔍 DEBUG: Next.js template copy failed:`, copyError instanceof Error ? copyError.message : String(copyError));
+      }
 
       // As fallback, create basic React files (since this is frontend development)
       logger.warn(
@@ -1343,6 +1581,16 @@ Available packages and libraries:
         `Copying backend/fullstack template to backend folder: ${backendPath}`,
       );
       await copyRepoToApp(repoCachePath, backendPath);
+
+      // Set proper permissions for backend template subdirectories
+      try {
+        const { execSync } = require('child_process');
+        execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
+        execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
+        logger.info(`Set proper permissions for backend template subdirectories and files`);
+      } catch (permError) {
+        logger.warn(`Failed to set permissions for backend template:`, permError instanceof Error ? permError.message : String(permError));
+      }
 
       // Install backend dependencies if requirements.txt or package.json exists
       try {
@@ -1503,6 +1751,14 @@ async function cloneRepo(repoUrl: string): Promise<string> {
   fs.ensureDirSync(path.dirname(cachePath));
 
   logger.info(`Cloning ${repoUrl} to ${cachePath}`);
+
+  // Add special debug for Next.js template
+  if (repoUrl.includes('nextjs-template')) {
+    logger.info(`🔍 DEBUG: Cloning Next.js template`);
+    logger.info(`🔍 DEBUG: Cache path exists before clone: ${fs.existsSync(cachePath)}`);
+    logger.info(`🔍 DEBUG: Cache directory exists: ${fs.existsSync(path.dirname(cachePath))}`);
+  }
+
   try {
     await git.clone({
       fs,
@@ -1513,8 +1769,32 @@ async function cloneRepo(repoUrl: string): Promise<string> {
       depth: 1,
     });
     logger.info(`Successfully cloned ${repoUrl} to ${cachePath}`);
+
+    // Debug: Check what was cloned
+    if (repoUrl.includes('nextjs-template')) {
+      try {
+        const clonedContents = fs.readdirSync(cachePath);
+        logger.info(`🔍 DEBUG: Next.js template cloned contents: ${clonedContents.join(', ')}`);
+
+        // Check for critical files
+        const criticalFiles = ['package.json', 'next.config.js', 'src', 'app'];
+        for (const file of criticalFiles) {
+          const filePath = path.join(cachePath, file);
+          const exists = fs.existsSync(filePath);
+          logger.info(`🔍 DEBUG: ${file} exists: ${exists}`);
+        }
+      } catch (debugError) {
+        logger.error(`🔍 DEBUG: Error checking cloned contents:`, debugError);
+      }
+    }
+
   } catch (err) {
     logger.error(`Failed to clone ${repoUrl} to ${cachePath}: `, err);
+
+    if (repoUrl.includes('nextjs-template')) {
+      logger.error(`🔍 DEBUG: Next.js template cloning failed:`, err instanceof Error ? err.message : String(err));
+    }
+
     throw err; // Re-throw the error after logging
   }
   return cachePath;
@@ -1528,11 +1808,17 @@ export async function setupBackendFramework(
 
   try {
     // Check if scaffold-backend exists for this framework
+<<<<<<< HEAD
     const scaffoldPath = path.join(
       "/Volumes/Farhan/Desktop/AliFullstack",
       "scaffold-backend",
       framework,
     );
+=======
+    // Use Electron's app.getAppPath() to get the correct app directory
+    const appPath = app.getAppPath();
+    const scaffoldPath = path.join(appPath, "scaffold-backend", framework);
+>>>>>>> release/v0.0.5
 
     if (fs.existsSync(scaffoldPath)) {
       logger.info(
@@ -2572,6 +2858,7 @@ app.listen(port, '0.0.0.0', () => {
 async function copyRepoToApp(repoCachePath: string, appPath: string) {
   logger.info(`Copying from ${repoCachePath} to ${appPath}`);
   try {
+<<<<<<< HEAD
     await fs.copy(repoCachePath, appPath, {
       overwrite: true,
       filter: (src, dest) => {
@@ -2582,11 +2869,61 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
           relativePath.includes(".git");
         if (shouldExclude) {
           logger.info(`Excluding ${src} from copy`);
+=======
+    // First ensure destination directory exists
+    await fs.ensureDir(appPath);
+
+    // Get all files and directories from repository cache
+    const repoContents = await fs.readdir(repoCachePath, { withFileTypes: true });
+
+    logger.info(`Found ${repoContents.length} items in repository cache`);
+
+    // Copy each item individually for better control and error handling
+    for (const item of repoContents) {
+      const srcPath = path.join(repoCachePath, item.name);
+      const destPath = path.join(appPath, item.name);
+
+      // Skip node_modules and .git directories
+      if (item.name === 'node_modules' || item.name === '.git') {
+        logger.debug(`Skipping ${item.name} directory`);
+        continue;
+      }
+
+      try {
+        if (item.isDirectory()) {
+          logger.debug(`Copying directory: ${item.name}`);
+          await fs.copy(srcPath, destPath, {
+            overwrite: true,
+            recursive: true,
+            filter: (src, dest) => {
+              // Exclude .git and node_modules from subdirectories too
+              const relativePath = path.relative(srcPath, src);
+              return !relativePath.includes('.git') && !relativePath.includes('node_modules') && !relativePath.includes('.DS_Store');
+            }
+          });
+          logger.info(`✅ Copied directory ${item.name}`);
+        } else {
+          logger.debug(`Copying file: ${item.name}`);
+          await fs.copy(srcPath, destPath, { overwrite: true });
+          logger.info(`✅ Copied file ${item.name}`);
+>>>>>>> release/v0.0.5
         }
-        return !shouldExclude;
-      },
-    });
-    logger.info("Finished copying repository contents.");
+      } catch (itemError) {
+        logger.warn(`⚠️ Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+        // Continue with other files - don't fail the entire operation
+      }
+    }
+
+    logger.info(`✅ Finished copying repository contents from ${repoCachePath} to ${appPath}`);
+
+    // Verify the copy worked
+    try {
+      const copiedContents = fs.readdirSync(appPath);
+      logger.info(`✅ Verification: ${copiedContents.length} items copied successfully`);
+    } catch (verifyError) {
+      logger.warn(`⚠️ Could not verify copied contents:`, verifyError instanceof Error ? verifyError.message : String(verifyError));
+    }
+
   } catch (err) {
     logger.error(
       `Error copying repository from ${repoCachePath} to ${appPath}: `,

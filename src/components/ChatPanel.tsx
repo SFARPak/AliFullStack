@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { chatMessagesAtom, chatStreamCountAtom } from "../atoms/chatAtoms";
+import { isTodoPanelOpenAtom } from "../atoms/todoAtoms";
 import { IpcClient } from "@/ipc/ipc_client";
 import { useSettings } from "@/hooks/useSettings";
+import { AppOutput } from "@/ipc/ipc_types";
 
 import { ChatHeader } from "./chat/ChatHeader";
 import { MessagesList } from "./chat/MessagesList";
 import { ChatInput } from "./chat/ChatInput";
 import { VersionPane } from "./chat/VersionPane";
 import { ChatError } from "./chat/ChatError";
+import { TodoListPanel } from "./TodoListPanel";
 
 // Backend components
 import { BackendChatPanel as BackendChatPanelComponent } from "./backend-chat/BackendChatPanel";
@@ -26,11 +29,20 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const { settings } = useSettings();
   const isBackendMode = settings?.selectedChatMode === "backend";
+  const isFullstackMode = settings?.selectedChatMode === "fullstack";
+  const isFrontendMode = settings?.selectedChatMode === "build";
 
   const [messages, setMessages] = useAtom(chatMessagesAtom);
+  const [isTodoPanelOpen, setIsTodoPanelOpen] = useAtom(isTodoPanelOpenAtom);
   const [isVersionPaneOpen, setIsVersionPaneOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
+
+  // State to track system messages for auto-scrolling
+  const [systemMessageCount, setSystemMessageCount] = useState(0);
+
+  // Debug logging
+  console.log("ChatPanel render:", { isBackendMode, isFullstackMode, isFrontendMode, isTodoPanelOpen, showTodoToggle: isFullstackMode || isFrontendMode });
   // Reference to store the processed prompt so we don't submit it twice
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -70,6 +82,43 @@ export function ChatPanel({
     console.log("streamCount", streamCount);
     scrollToBottom();
   }, [streamCount]);
+
+  // Set up system message handler for auto-scrolling
+  useEffect(() => {
+    const handleAppOutput = (output: AppOutput) => {
+      // Increment counter to trigger auto-scroll for system messages
+      setSystemMessageCount(prev => prev + 1);
+    };
+
+    // Register the callback with IpcClient
+    if (chatId) {
+      IpcClient.getInstance().runApp(chatId, handleAppOutput);
+    }
+
+    // Cleanup function
+    return () => {
+      if (chatId) {
+        IpcClient.getInstance().stopApp(chatId);
+      }
+    };
+  }, [chatId]);
+
+  // Auto-scroll when system messages arrive
+  useEffect(() => {
+    if (!isUserScrolling && systemMessageCount > 0) {
+      const { scrollTop, clientHeight, scrollHeight } =
+        messagesContainerRef.current || { scrollTop: 0, clientHeight: 0, scrollHeight: 0 };
+      const threshold = 280;
+      const isNearBottom =
+        scrollHeight - (scrollTop + clientHeight) <= threshold;
+
+      if (isNearBottom) {
+        requestAnimationFrame(() => {
+          scrollToBottom("instant");
+        });
+      }
+    }
+  }, [systemMessageCount, isUserScrolling]);
 
   useEffect(() => {
     const container = messagesContainerRef.current;
@@ -134,30 +183,41 @@ export function ChatPanel({
 
   // Default frontend mode
   return (
-    <div className="flex flex-col h-full">
-      <ChatHeader
-        isVersionPaneOpen={isVersionPaneOpen}
-        isPreviewOpen={isPreviewOpen}
-        onTogglePreview={onTogglePreview}
-        onVersionClick={() => setIsVersionPaneOpen(!isVersionPaneOpen)}
-      />
-      <div className="flex flex-1 overflow-hidden">
-        {!isVersionPaneOpen && (
-          <div className="flex-1 flex flex-col min-w-0">
-            <MessagesList
-              messages={messages}
-              messagesEndRef={messagesEndRef}
-              ref={messagesContainerRef}
-            />
-            <ChatError error={error} onDismiss={() => setError(null)} />
-            <ChatInput chatId={chatId} />
-          </div>
-        )}
-        <VersionPane
-          isVisible={isVersionPaneOpen}
-          onClose={() => setIsVersionPaneOpen(false)}
+    <div className="flex h-full">
+      <div className="flex flex-col flex-1 min-w-0" style={{ minWidth: '300px' }}>
+        <ChatHeader
+          isVersionPaneOpen={isVersionPaneOpen}
+          isPreviewOpen={isPreviewOpen}
+          onTogglePreview={onTogglePreview}
+          onVersionClick={() => setIsVersionPaneOpen(!isVersionPaneOpen)}
+          showTodoToggle={isFullstackMode || isFrontendMode}
+          isTodoPanelOpen={isTodoPanelOpen}
+          onToggleTodo={() => setIsTodoPanelOpen(!isTodoPanelOpen)}
         />
+        <div className="flex flex-1 overflow-hidden">
+          {!isVersionPaneOpen && (
+            <div className={`${(isFullstackMode || isFrontendMode) && isTodoPanelOpen ? 'min-w-0' : 'flex-1'} flex flex-col min-w-0`}>
+              <MessagesList
+                messages={messages}
+                messagesEndRef={messagesEndRef}
+                ref={messagesContainerRef}
+              />
+              <ChatError error={error} onDismiss={() => setError(null)} />
+              <ChatInput chatId={chatId} />
+            </div>
+          )}
+          <VersionPane
+            isVisible={isVersionPaneOpen}
+            onClose={() => setIsVersionPaneOpen(false)}
+          />
+        </div>
       </div>
+      {(isFullstackMode || isFrontendMode) && isTodoPanelOpen && (
+        <TodoListPanel
+          isOpen={isTodoPanelOpen}
+          onClose={() => setIsTodoPanelOpen(false)}
+        />
+      )}
     </div>
   );
 }

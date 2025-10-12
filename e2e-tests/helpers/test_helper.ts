@@ -1020,6 +1020,73 @@ export class PageObject {
     await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
+// Helper functions for e2e tests
+
+export async function createApp(page: Page, appName: string, options: { isFullStack: boolean; selectedBackendFramework: string }): Promise<number> {
+  await page.getByRole("link", { name: "Chat" }).click();
+  const prompt = `Create a ${options.isFullStack ? 'fullstack' : 'frontend'} app named ${appName}${options.isFullStack ? ` with ${options.selectedBackendFramework} backend` : ''}`;
+  await page.getByRole("textbox", { name: "Ask AliFullStack to build..." }).fill(prompt);
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.waitForSelector('[data-testid="retry-button"]', { timeout: Timeout.MEDIUM });
+  return 0;
+}
+
+export async function deleteApp(page: Page, appId: number): Promise<void> {
+  await page.getByRole("link", { name: "Apps" }).click();
+  const appItems = page.locator('[data-testid^="app-list-item-"]');
+  await appItems.nth(appId).click();
+  await page.getByTestId("app-details-more-options-button").click();
+  await page.getByRole("button", { name: "Delete" }).click();
+  await page.getByRole("button", { name: "Delete App" }).click();
+}
+
+export async function startApp(page: Page, appId: number, mode: string): Promise<void> {
+  await page.getByRole("link", { name: "Chat" }).click();
+  const prompt = `Start the app in ${mode} mode`;
+  await page.getByRole("textbox", { name: "Ask AliFullStack to build..." }).fill(prompt);
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.waitForSelector('[data-testid="retry-button"]', { timeout: Timeout.MEDIUM });
+}
+
+export async function stopApp(page: Page, appId: number): Promise<void> {
+  await page.getByRole("link", { name: "Chat" }).click();
+  const prompt = `Stop the app`;
+  await page.getByRole("textbox", { name: "Ask AliFullStack to build..." }).fill(prompt);
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.waitForSelector('[data-testid="retry-button"]', { timeout: Timeout.MEDIUM });
+}
+
+export async function getAppOutput(page: Page, appId: number): Promise<string> {
+  const messagesList = page.getByTestId("messages-list");
+  return (await messagesList.textContent()) || '';
+}
+
+export async function switchTerminal(page: Page, terminal: string): Promise<void> {
+  await page.getByRole("tab", { name: terminal }).click();
+}
+
+export async function getTerminalOutput(page: Page, appId: number, terminal: string): Promise<string> {
+  // Assume the terminal content is in a locator after switching
+  // This might need adjustment based on actual UI
+  const terminalLocator = page.locator('.terminal');
+  return (await terminalLocator.textContent()) || '';
+}
+
+export async function createBackendFile(page: Page, appId: number, filePath: string, content: string): Promise<void> {
+  await page.getByRole("link", { name: "Chat" }).click();
+  const prompt = `Create a backend file ${filePath} with the following content:\n${content}`;
+  await page.getByRole("textbox", { name: "Ask AliFullStack to build..." }).fill(prompt);
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.waitForSelector('[data-testid="retry-button"]', { timeout: Timeout.MEDIUM });
+}
+
+export async function createFrontendFile(page: Page, appId: number, filePath: string, content: string): Promise<void> {
+  await page.getByRole("link", { name: "Chat" }).click();
+  const prompt = `Create a frontend file ${filePath} with the following content:\n${content}`;
+  await page.getByRole("textbox", { name: "Ask AliFullStack to build..." }).fill(prompt);
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.waitForSelector('[data-testid="retry-button"]', { timeout: Timeout.MEDIUM });
+}
 
 interface ElectronConfig {
   preLaunchHook?: ({ userDataDir }: { userDataDir: string }) => Promise<void>;

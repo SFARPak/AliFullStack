@@ -18,7 +18,7 @@ const defaultModelInfo: ModelInfo = {
 const createConfig = (overrides: Partial<CacheStrategyConfig> = {}): CacheStrategyConfig => ({
 	modelInfo: {
 		...defaultModelInfo,
-		...(overrides.modelInfo || {}),
+		...overrides.modelInfo,
 	},
 	systemPrompt: "You are a helpful assistant",
 	messages: [],

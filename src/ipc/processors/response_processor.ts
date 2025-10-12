@@ -510,6 +510,7 @@ export async function processFullResponseActions(
 
           const result = await runShellCommand(cleanCommand, cwd);
 
+<<<<<<< HEAD
           if (result === null) {
             errors.push({
               message: `Terminal command failed: ${cmdTag.description || cleanCommand}`,
@@ -526,6 +527,9 @@ export async function processFullResponseActions(
             logger.log(
               `Terminal command succeeded: ${cmdTag.description || cleanCommand}`,
             );
+=======
+           const result = await runShellCommand(cleanCommand, cwd);
+>>>>>>> release/v0.0.5
 
             // Add command and result to appropriate terminal
             addTerminalOutput(

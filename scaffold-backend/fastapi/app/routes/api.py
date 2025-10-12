@@ -1,5 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from ..schemas import Item, ItemCreate, Todo, TodoCreate
+<<<<<<< HEAD
+=======
+from datetime import datetime
+>>>>>>> release/v0.0.5
 
 router = APIRouter()
 
@@ -8,7 +12,10 @@ router = APIRouter()
 items_db = []
 item_id_counter = 1
 
+<<<<<<< HEAD
 # Todo storage for Vue apps
+=======
+>>>>>>> release/v0.0.5
 todos_db = []
 todo_id_counter = 1
 
@@ -53,17 +60,36 @@ async def delete_item(item_id: int):
             return {"message": "Item deleted successfully"}
     raise HTTPException(status_code=404, detail="Item not found")
 
+<<<<<<< HEAD
 # Todo routes for Vue app compatibility
+=======
+>>>>>>> release/v0.0.5
 @router.get("/todos", response_model=list[Todo])
 async def get_todos():
     """Get all todos"""
     return todos_db
 
+<<<<<<< HEAD
+=======
+@router.get("/todos/{todo_id}", response_model=Todo)
+async def get_todo(todo_id: int):
+    """Get a specific todo by ID"""
+    for todo in todos_db:
+        if todo.id == todo_id:
+            return todo
+    raise HTTPException(status_code=404, detail="Todo not found")
+
+>>>>>>> release/v0.0.5
 @router.post("/todos", response_model=Todo)
 async def create_todo(todo: TodoCreate):
     """Create a new todo"""
     global todo_id_counter
+<<<<<<< HEAD
     new_todo = Todo(id=todo_id_counter, **todo.model_dump())
+=======
+    now = datetime.now()
+    new_todo = Todo(id=todo_id_counter, created_at=now, updated_at=now, **todo.model_dump())
+>>>>>>> release/v0.0.5
     todos_db.append(new_todo)
     todo_id_counter += 1
     return new_todo
@@ -73,7 +99,12 @@ async def update_todo(todo_id: int, todo: TodoCreate):
     """Update an existing todo"""
     for i, existing_todo in enumerate(todos_db):
         if existing_todo.id == todo_id:
+<<<<<<< HEAD
             updated_todo = Todo(id=todo_id, **todo.model_dump())
+=======
+            now = datetime.now()
+            updated_todo = Todo(id=todo_id, created_at=existing_todo.created_at, updated_at=now, **todo.model_dump())
+>>>>>>> release/v0.0.5
             todos_db[i] = updated_todo
             return updated_todo
     raise HTTPException(status_code=404, detail="Todo not found")

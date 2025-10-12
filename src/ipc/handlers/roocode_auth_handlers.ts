@@ -208,7 +208,7 @@ export async function handleRooCodeAuthCallback(
     }
 
     // Exchange code for credentials
-    credentials = await clerkSignIn(code);
+    const credentials = await clerkSignIn(code);
 
     // Save credentials
     saveAuthData({ credentials });

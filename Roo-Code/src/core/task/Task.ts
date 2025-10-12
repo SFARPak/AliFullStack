@@ -1787,13 +1787,16 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 				if (response === "messageResponse") {
 					currentUserContent.push(
+<<<<<<< HEAD
 						...[
 							{
 								type: "text" as const,
 								text: formatResponse.tooManyMistakes(text),
 							},
+=======
+						{ type: "text" as const, text: formatResponse.tooManyMistakes(text) },
+>>>>>>> release/v0.0.5
 							...formatResponse.imageBlocks(images),
-						],
 					)
 
 					await this.say("user_feedback", text, images)
@@ -2912,7 +2915,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					msg.metadata = {}
 				}
 				const gpt5Metadata: Gpt5Metadata = {
-					...(msg.metadata.gpt5 ?? {}),
+					...msg.metadata.gpt5,
 					previous_response_id: lastResponseId,
 					instructions: this.lastUsedInstructions,
 					reasoning_summary: (reasoningMessage ?? "").trim() || undefined,
