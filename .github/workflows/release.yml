@@ -56,28 +56,28 @@ jobs:
       #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
       #   run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
       # Windows only
-      - name: Set up certificate
-        if: contains(matrix.os.name, 'windows')
-        run: |
-          echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
-        shell: bash
-      - name: Set variables
-        if: contains(matrix.os.name, 'windows')
-        id: variables
-        run: |
-          echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV" 
-          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV" 
-          echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV" 
-          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
-        shell: bash
-      - name: Code signing with Software Trust Manager
-        if: contains(matrix.os.name, 'windows')
-        uses: digicert/ssm-code-signing@v1.1.0
-      - name: Sync certificate (Windows)
-        if: contains(matrix.os.name, 'windows')
-        run: |
-          smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
-        shell: bash
+      # - name: Set up certificate
+      #   if: contains(matrix.os.name, 'windows')
+      #   run: |
+      #     echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
+      #   shell: bash
+      # - name: Set variables
+      #   if: contains(matrix.os.name, 'windows')
+      #   id: variables
+      #   run: |
+      #     echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
+      #     echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
+      #     echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
+      #     echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
+      #   shell: bash
+      # - name: Code signing with Software Trust Manager
+      #   if: contains(matrix.os.name, 'windows')
+      #   uses: digicert/ssm-code-signing@v1.1.0
+      # - name: Sync certificate (Windows)
+      #   if: contains(matrix.os.name, 'windows')
+      #   run: |
+      #     smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
+      #   shell: bash
         # Publish (all platforms)
       - name: Publish app
         env:
