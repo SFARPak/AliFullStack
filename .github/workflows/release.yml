@@ -27,6 +27,9 @@ jobs:
             { name: "macos", image: "macos-latest" },
           ]
     runs-on: ${{ matrix.os.image }}
+    env:
+      # CSC_LINK: ${{ secrets.CSC_LINK }}
+      # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
     steps:
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
