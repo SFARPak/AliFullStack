@@ -99,7 +99,7 @@ export function getExtendedPath(): string {
  *
  * @returns The complete environment variables from the user's login shell.
  */
-function getShellEnv(): NodeJS.ProcessEnv {
+export function getShellEnv(): NodeJS.ProcessEnv {
   if (cachedShellEnv) {
     return cachedShellEnv;
   }
@@ -403,7 +403,7 @@ python app.py
  * Execute a command, using a temporary script file for complex commands with shell operators.
  * This allows handling of multi-line commands, pipes, conditionals, and other shell features.
  */
-async function executeComplexCommand(
+export async function executeComplexCommand(
   command: string,
   workingDir: string,
   env: NodeJS.ProcessEnv
