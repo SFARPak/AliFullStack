@@ -1,24 +1,6 @@
 {
   "files": [],
   "references": [
-<<<<<<< HEAD
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
-  }
-}
-=======
     {
       "path": "./tsconfig.node.json"
     },
@@ -27,4 +9,3 @@
     }
   ]
 }
->>>>>>> release/v0.0.5
