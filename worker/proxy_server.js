@@ -149,9 +149,7 @@ function buildTargetURL(clientReq) {
 /* ----------------------------------------------------------------------- */
 
 const server = http.createServer((clientReq, clientRes) => {
-  parentPort?.postMessage(
-    `[proxy] Request: ${clientReq.method} ${clientReq.url}`,
-  );
+  parentPort?.postMessage(`[proxy] Request: ${clientReq.method} ${clientReq.url}`);
 
   let responseSent = false; // Track if response has been initiated
 
@@ -188,13 +186,6 @@ const server = http.createServer((clientReq, clientRes) => {
     target = buildTargetURL(clientReq);
     parentPort?.postMessage(`[proxy] Forwarding to: ${target.href}`);
   } catch (err) {
-<<<<<<< HEAD
-    parentPort?.postMessage(
-      `[proxy] Error building target URL: ${err.message}`,
-    );
-    clientRes.writeHead(400, { "content-type": "text/plain" });
-    return void clientRes.end("Bad request: " + err.message);
-=======
     parentPort?.postMessage(`[proxy] Error building target URL: ${err.message}`);
     if (!responseSent) {
       clientRes.writeHead(400, { "content-type": "text/plain" });
@@ -202,7 +193,6 @@ const server = http.createServer((clientReq, clientRes) => {
       clientRes.end("Bad request: " + err.message);
     }
     return;
->>>>>>> release/v0.0.5
   }
 
   const isTLS = target.protocol === "https:";
@@ -237,9 +227,7 @@ const server = http.createServer((clientReq, clientRes) => {
   };
 
   const upReq = lib.request(upOpts, (upRes) => {
-    parentPort?.postMessage(
-      `[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`,
-    );
+    parentPort?.postMessage(`[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`);
 
     const inject = needsInjection(target.pathname);
 
@@ -305,13 +293,6 @@ const server = http.createServer((clientReq, clientRes) => {
 
   clientReq.pipe(upReq);
   upReq.on("error", (e) => {
-<<<<<<< HEAD
-    parentPort?.postMessage(
-      `[proxy] Upstream error: ${e.message} for ${target?.href || "unknown"}`,
-    );
-    clientRes.writeHead(502, { "content-type": "text/plain" });
-    clientRes.end("Upstream error: " + e.message);
-=======
     parentPort?.postMessage(`[proxy] Upstream error: ${e.message} for ${target?.href || 'unknown'}`);
     // Prevent writing headers if response has already been sent
     if (responseSent) {
@@ -350,7 +331,6 @@ const server = http.createServer((clientReq, clientRes) => {
       responseSent = true;
       clientRes.end("Upstream error: " + e.message);
     }
->>>>>>> release/v0.0.5
   });
 });
 

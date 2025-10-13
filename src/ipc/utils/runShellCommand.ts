@@ -4,26 +4,11 @@ import { executeComplexCommand, getShellEnv } from "../handlers/app_handlers";
 
 const logger = log.scope("runShellCommand");
 
-<<<<<<< HEAD
-export function runShellCommand(
-  command: string,
-  cwd?: string,
-): Promise<string | null> {
-  logger.log(`Running command: ${command}${cwd ? ` in ${cwd}` : ""}`);
-  return new Promise((resolve) => {
-    let output = "";
-    const process = spawn(command, [], {
-      shell: true,
-      stdio: ["ignore", "pipe", "pipe"], // ignore stdin, pipe stdout/stderr
-      cwd: cwd, // Set working directory if provided
-    });
-=======
 export function runShellCommand(command: string, workingDir?: string): Promise<string | null> {
   logger.log(`Running command: ${command}`);
   return new Promise(async (resolve) => {
     let output = "";
     const cwd = workingDir || process.cwd();
->>>>>>> release/v0.0.5
 
     // Check if the command contains shell operators that require script execution
     const hasShellOperators = /(&&|\|\||source|\||;|\$\(|`.*`)/.test(command);

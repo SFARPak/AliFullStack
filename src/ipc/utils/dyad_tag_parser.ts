@@ -45,11 +45,7 @@ export function getDyadWriteTags(fullResponse: string): {
 
       // Add nested write_to_file tags
       for (const tag of writeToFileTags) {
-        tags.push({
-          path: tag.path,
-          content: tag.content,
-          description: undefined,
-        });
+        tags.push({ path: tag.path, content: tag.content, description: undefined });
       }
 
       // Add nested search_replace tags (convert to write operations)
@@ -59,7 +55,7 @@ export function getDyadWriteTags(fullResponse: string): {
         tags.push({
           path: tag.file,
           content: `SEARCH_REPLACE:${tag.old_string}:${tag.new_string}`,
-          description: undefined,
+          description: undefined
         });
       }
 
@@ -176,8 +172,7 @@ export function getDyadRunBackendTerminalCmdTags(fullResponse: string): {
   const descriptionRegex = /description="([^"]+)"/;
 
   let match;
-  const commands: { command: string; cwd?: string; description?: string }[] =
-    [];
+  const commands: { command: string; cwd?: string; description?: string }[] = [];
 
   while ((match = dyadRunBackendTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
@@ -206,12 +201,9 @@ export function getDyadRunFrontendTerminalCmdTags(fullResponse: string): {
   const descriptionRegex = /description="([^"]+)"/;
 
   let match;
-  const commands: { command: string; cwd?: string; description?: string }[] =
-    [];
+  const commands: { command: string; cwd?: string; description?: string }[] = [];
 
-  while (
-    (match = dyadRunFrontendTerminalCmdRegex.exec(fullResponse)) !== null
-  ) {
+  while ((match = dyadRunFrontendTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
     const command = match[2].trim();
 
@@ -238,8 +230,7 @@ export function getDyadRunTerminalCmdTags(fullResponse: string): {
   const descriptionRegex = /description="([^"]+)"/;
 
   let match;
-  const commands: { command: string; cwd?: string; description?: string }[] =
-    [];
+  const commands: { command: string; cwd?: string; description?: string }[] = [];
 
   while ((match = dyadRunTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
@@ -261,8 +252,7 @@ export function getWriteToFileTags(fullResponse: string): {
   path: string;
   content: string;
 }[] {
-  const writeToFileRegex =
-    /<write_to_file path="([^"]+)">([\s\S]*?)<\/write_to_file>/g;
+  const writeToFileRegex = /<write_to_file path="([^"]+)">([\s\S]*?)<\/write_to_file>/g;
 
   let match;
   const tags: { path: string; content: string }[] = [];
@@ -294,15 +284,9 @@ export function getSearchReplaceTags(fullResponse: string): {
   new_string: string;
   description?: string;
 }[] {
-<<<<<<< HEAD
-  // Match the search_replace format: <search_replace file="..." old_string="...">content</search_replace>
-  const searchReplaceRegex =
-    /<search_replace\s+file="([^"]+)"\s+old_string="([^"]*)">([\s\S]*?)<\/search_replace>/g;
-=======
   // Match the search_replace format: <search_replace file="..." old_string="..."[ description="..."]>content</search_replace>
   const searchReplaceRegex = /<search_replace\s+file="([^"]+)"\s+old_string="([^"]*)"(\s+description="([^"]*)")?>([\s\S]*?)<\/search_replace>/g;
   const descriptionRegex = /description="([^"]+)"/;
->>>>>>> release/v0.0.5
 
   let match;
   const tags: { file: string; old_string: string; new_string: string; description?: string }[] = [];

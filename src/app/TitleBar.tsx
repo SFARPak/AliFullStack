@@ -94,27 +94,9 @@ export const TitleBar = () => {
           </Button>
         </div>
 
-<<<<<<< HEAD
-        <img src={logo} alt="AliFullStack Logo" className="w-6 h-6 mr-0.5" />
-        <Button
-          data-testid="title-bar-app-name-button"
-          variant="outline"
-          size="sm"
-          className={`hidden @2xl:block no-app-region-drag text-xs max-w-38 truncate font-medium ${
-            selectedApp ? "cursor-pointer" : ""
-          }`}
-          onClick={handleAppClick}
-        >
-          {displayText}
-        </Button>
-        {isDyadPro && (
-          <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />
-        )}
-=======
         <div className="flex-1 flex justify-center items-center absolute inset-0 pointer-events-none">
           <span className="text-lg font-semibold no-app-region-drag pointer-events-auto">AliFullStack</span>
         </div>
->>>>>>> release/v0.0.5
 
         <div className="flex items-center flex-shrink-0 ml-auto">
           {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}

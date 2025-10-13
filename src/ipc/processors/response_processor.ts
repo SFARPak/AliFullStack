@@ -21,25 +21,17 @@ import { gitCommit } from "../utils/git_utils";
 
 // Helper function to handle git operations with timeout
 function createSafeGitOperation(warnings: Output[], errors: Output[]) {
-  return async function safeGitOperation(
-    operation: () => Promise<any>,
-    operationName: string,
-    filePath?: string,
-  ): Promise<any> {
+  return async function safeGitOperation(operation: () => Promise<any>, operationName: string, filePath?: string): Promise<any> {
     try {
       // Set a timeout for git operations (30 seconds)
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(
-          () =>
-            reject(new Error(`${operationName} timed out after 30 seconds`)),
-          30000,
-        );
+        setTimeout(() => reject(new Error(`${operationName} timed out after 30 seconds`)), 30000);
       });
 
       const result = await Promise.race([operation(), timeoutPromise]);
       return result;
     } catch (error) {
-      const errorMessage = `${operationName} failed${filePath ? ` for ${filePath}` : ""}: ${error}`;
+      const errorMessage = `${operationName} failed${filePath ? ` for ${filePath}` : ''}: ${error}`;
       logger.warn(errorMessage);
       warnings.push({
         message: errorMessage,
@@ -162,10 +154,8 @@ export async function processFullResponseActions(
     const dyadExecuteSqlQueries = chatWithApp.app.supabaseProjectId
       ? getDyadExecuteSqlTags(fullResponse)
       : [];
-    const dyadRunBackendTerminalCmdTags =
-      getDyadRunBackendTerminalCmdTags(fullResponse);
-    const dyadRunFrontendTerminalCmdTags =
-      getDyadRunFrontendTerminalCmdTags(fullResponse);
+    const dyadRunBackendTerminalCmdTags = getDyadRunBackendTerminalCmdTags(fullResponse);
+    const dyadRunFrontendTerminalCmdTags = getDyadRunFrontendTerminalCmdTags(fullResponse);
     const dyadRunTerminalCmdTags = getDyadRunTerminalCmdTags(fullResponse);
 
     // Determine the chat mode to route general terminal commands appropriately
@@ -175,8 +165,7 @@ export async function processFullResponseActions(
       const backendPath = path.join(appPath, "backend");
       const hasBackend = fs.existsSync(backendPath);
       if (hasBackend) {
-        chatMode =
-          settings.selectedChatMode === "fullstack" ? "fullstack" : "backend";
+        chatMode = settings.selectedChatMode === "fullstack" ? "fullstack" : "backend";
       }
     }
 
@@ -226,7 +215,7 @@ export async function processFullResponseActions(
         }
       }
       logger.log(`Executed ${dyadExecuteSqlQueries.length} SQL queries`);
-    }
+     }
 
     // Handle backend terminal command tags
     if (dyadRunBackendTerminalCmdTags.length > 0) {
@@ -236,17 +225,11 @@ export async function processFullResponseActions(
           // Ensure backend directory exists
           if (!fs.existsSync(backendPath)) {
             fs.mkdirSync(backendPath, { recursive: true });
-            logger.log(
-              `Created backend directory: ${backendPath} for backend terminal command`,
-            );
+            logger.log(`Created backend directory: ${backendPath} for backend terminal command`);
           }
-          const cwd = cmdTag.cwd
-            ? path.join(backendPath, cmdTag.cwd)
-            : backendPath;
+          const cwd = cmdTag.cwd ? path.join(backendPath, cmdTag.cwd) : backendPath;
 
-          logger.log(
-            `Executing backend terminal command: ${cmdTag.command} in ${cwd}`,
-          );
+          logger.log(`Executing backend terminal command: ${cmdTag.command} in ${cwd}`);
 
           // Add command to backend terminal output
           // We need to import and use the backendTerminalOutputAtom
@@ -260,40 +243,18 @@ export async function processFullResponseActions(
               error: `Command execution failed in ${cwd}`,
             });
             // Add error to main terminal
-            addTerminalOutput(
-              chatWithApp.app.id,
-              "backend",
-              `❌ Error: ${cmdTag.description || cmdTag.command}`,
-              "error",
-            );
+            addTerminalOutput(chatWithApp.app.id, "backend", `❌ Error: ${cmdTag.description || cmdTag.command}`, "error");
           } else {
-            logger.log(
-              `Backend terminal command succeeded: ${cmdTag.description || cmdTag.command}`,
-            );
+            logger.log(`Backend terminal command succeeded: ${cmdTag.description || cmdTag.command}`);
 
             // Add command and result to main terminal
-            addTerminalOutput(
-              chatWithApp.app.id,
-              "backend",
-              `$ ${cmdTag.command}`,
-              "command",
-            );
+            addTerminalOutput(chatWithApp.app.id, "backend", `$ ${cmdTag.command}`, "command");
 
             if (result.trim()) {
-              addTerminalOutput(
-                chatWithApp.app.id,
-                "backend",
-                result,
-                "output",
-              );
+              addTerminalOutput(chatWithApp.app.id, "backend", result, "output");
             }
 
-            addTerminalOutput(
-              chatWithApp.app.id,
-              "backend",
-              `✅ ${cmdTag.description || cmdTag.command} completed successfully`,
-              "success",
-            );
+            addTerminalOutput(chatWithApp.app.id, "backend", `✅ ${cmdTag.description || cmdTag.command} completed successfully`, "success");
           }
         } catch (error) {
           errors.push({
@@ -301,31 +262,20 @@ export async function processFullResponseActions(
             error: error,
           });
           // Add error to backend terminal
-          addTerminalOutput(
-            chatWithApp.app.id,
-            "backend",
-            `❌ Error: ${error}`,
-            "error",
-          );
+          addTerminalOutput(chatWithApp.app.id, "backend", `❌ Error: ${error}`, "error");
         }
       }
-      logger.log(
-        `Executed ${dyadRunBackendTerminalCmdTags.length} backend terminal commands`,
-      );
-    }
+      logger.log(`Executed ${dyadRunBackendTerminalCmdTags.length} backend terminal commands`);
+     }
 
     // Handle frontend terminal command tags
     if (dyadRunFrontendTerminalCmdTags.length > 0) {
       for (const cmdTag of dyadRunFrontendTerminalCmdTags) {
         try {
           const frontendPath = path.join(appPath, "frontend");
-          const cwd = cmdTag.cwd
-            ? path.join(frontendPath, cmdTag.cwd)
-            : frontendPath;
+          const cwd = cmdTag.cwd ? path.join(frontendPath, cmdTag.cwd) : frontendPath;
 
-          logger.log(
-            `Executing frontend terminal command: ${cmdTag.command} in ${cwd}`,
-          );
+          logger.log(`Executing frontend terminal command: ${cmdTag.command} in ${cwd}`);
 
           const result = await runShellCommand(cmdTag.command, cwd);
 
@@ -335,40 +285,18 @@ export async function processFullResponseActions(
               error: `Command execution failed in ${cwd}`,
             });
             // Add error to frontend terminal
-            addTerminalOutput(
-              chatWithApp.app.id,
-              "frontend",
-              `❌ Error: ${cmdTag.description || cmdTag.command}`,
-              "error",
-            );
+            addTerminalOutput(chatWithApp.app.id, "frontend", `❌ Error: ${cmdTag.description || cmdTag.command}`, "error");
           } else {
-            logger.log(
-              `Frontend terminal command succeeded: ${cmdTag.description || cmdTag.command}`,
-            );
+            logger.log(`Frontend terminal command succeeded: ${cmdTag.description || cmdTag.command}`);
 
             // Add command and result to frontend terminal
-            addTerminalOutput(
-              chatWithApp.app.id,
-              "frontend",
-              `$ ${cmdTag.command}`,
-              "command",
-            );
+            addTerminalOutput(chatWithApp.app.id, "frontend", `$ ${cmdTag.command}`, "command");
 
             if (result.trim()) {
-              addTerminalOutput(
-                chatWithApp.app.id,
-                "frontend",
-                result,
-                "output",
-              );
+              addTerminalOutput(chatWithApp.app.id, "frontend", result, "output");
             }
 
-            addTerminalOutput(
-              chatWithApp.app.id,
-              "frontend",
-              `✅ ${cmdTag.description || cmdTag.command} completed successfully`,
-              "success",
-            );
+            addTerminalOutput(chatWithApp.app.id, "frontend", `✅ ${cmdTag.description || cmdTag.command} completed successfully`, "success");
           }
         } catch (error) {
           errors.push({
@@ -376,203 +304,154 @@ export async function processFullResponseActions(
             error: error,
           });
           // Add error to frontend terminal
-          addTerminalOutput(
-            chatWithApp.app.id,
-            "frontend",
-            `❌ Error: ${error}`,
-            "error",
-          );
+          addTerminalOutput(chatWithApp.app.id, "frontend", `❌ Error: ${error}`, "error");
         }
       }
-      logger.log(
-        `Executed ${dyadRunFrontendTerminalCmdTags.length} frontend terminal commands`,
-      );
-    }
+      logger.log(`Executed ${dyadRunFrontendTerminalCmdTags.length} frontend terminal commands`);
+     }
 
-    // Handle general terminal command tags - route based on chat mode
-    if (dyadRunTerminalCmdTags.length > 0) {
-      for (const cmdTag of dyadRunTerminalCmdTags) {
-        // Clean up the command - remove any "cmd:" prefix that AI might add
-        let cleanCommand = cmdTag.command.trim();
-        if (cleanCommand.startsWith("cmd:")) {
-          cleanCommand = cleanCommand.substring(4).trim();
-        }
-        if (cleanCommand.startsWith("command:")) {
-          cleanCommand = cleanCommand.substring(8).trim();
-        }
+     // Handle general terminal command tags - route based on chat mode
+     if (dyadRunTerminalCmdTags.length > 0) {
+       for (const cmdTag of dyadRunTerminalCmdTags) {
+         // Clean up the command - remove any "cmd:" prefix that AI might add
+         let cleanCommand = cmdTag.command.trim();
+         if (cleanCommand.startsWith("cmd:")) {
+           cleanCommand = cleanCommand.substring(4).trim();
+         }
+         if (cleanCommand.startsWith("command:")) {
+           cleanCommand = cleanCommand.substring(8).trim();
+         }
 
-        try {
-          // Determine which terminal to route to based on chat mode
-          let terminalType: "frontend" | "backend" = "backend"; // default
-          let cwd = cmdTag.cwd ? path.join(appPath, cmdTag.cwd) : appPath;
+         try {
 
-          // Check if this is a Python command - always route to backend
-          const isPythonCommand =
-            cleanCommand.toLowerCase().includes("python") ||
-            cleanCommand.toLowerCase().includes("pip") ||
-            cleanCommand.toLowerCase().includes("conda") ||
-            cleanCommand.toLowerCase().includes("venv") ||
-            cleanCommand.toLowerCase().includes("py ");
+           // Determine which terminal to route to based on chat mode
+           let terminalType: "frontend" | "backend" = "backend"; // default
+           let cwd = cmdTag.cwd ? path.join(appPath, cmdTag.cwd) : appPath;
 
-          // Check if this is a Node.js command - always route to frontend
-          const isNodeCommand =
-            cleanCommand.toLowerCase().includes("npm") ||
-            cleanCommand.toLowerCase().includes("yarn") ||
-            cleanCommand.toLowerCase().includes("pnpm") ||
-            cleanCommand.toLowerCase().includes("node") ||
-            cleanCommand.toLowerCase().includes("npx") ||
-            cleanCommand.toLowerCase().includes("vite") ||
-            cleanCommand.toLowerCase().includes("next") ||
-            cleanCommand.toLowerCase().includes("react") ||
-            cleanCommand.toLowerCase().includes("webpack");
+           // Check if this is a Python command - always route to backend
+           const isPythonCommand = cleanCommand.toLowerCase().includes("python") ||
+                                  cleanCommand.toLowerCase().includes("pip") ||
+                                  cleanCommand.toLowerCase().includes("conda") ||
+                                  cleanCommand.toLowerCase().includes("venv") ||
+                                  cleanCommand.toLowerCase().includes("py ");
 
-          if (isPythonCommand) {
-            terminalType = "backend";
-            if (!cmdTag.cwd) {
-              cwd = path.join(appPath, "backend");
-              // Ensure backend directory exists for Python commands
-              if (!fs.existsSync(cwd)) {
-                fs.mkdirSync(cwd, { recursive: true });
-                logger.log(
-                  `Created backend directory: ${cwd} for Python command execution`,
-                );
-              }
-              // Strip backend/ prefix from command if present
-              if (cleanCommand.startsWith("backend/")) {
-                cleanCommand = cleanCommand.substring(8).trim();
-              }
-            }
-          } else if (isNodeCommand) {
-            terminalType = "frontend";
-            if (!cmdTag.cwd) {
-              cwd = path.join(appPath, "frontend");
-              // Ensure frontend directory exists for Node.js commands
-              if (!fs.existsSync(cwd)) {
-                fs.mkdirSync(cwd, { recursive: true });
-                logger.log(
-                  `Created frontend directory: ${cwd} for Node.js command execution`,
-                );
-              }
-              // Strip frontend/ prefix from command if present
-              if (cleanCommand.startsWith("frontend/")) {
-                cleanCommand = cleanCommand.substring(9).trim();
-              }
-            }
-          } else if (chatMode === "ask") {
-            // For ask mode, route to frontend terminal (most common for general commands)
-            terminalType = "frontend";
-            if (!cmdTag.cwd) {
-              cwd = path.join(appPath, "frontend");
-            }
-          } else if (chatMode === "backend") {
-            terminalType = "backend";
-            // For backend mode, adjust cwd to backend directory if not already specified
-            if (!cmdTag.cwd) {
-              cwd = path.join(appPath, "backend");
-              // Strip backend/ prefix from command if present
-              if (cleanCommand.startsWith("backend/")) {
-                cleanCommand = cleanCommand.substring(8).trim();
-              }
-            }
-          } else if (chatMode === "fullstack") {
-            // For fullstack mode, check for Node.js commands first, then default to backend
-            if (isNodeCommand) {
-              terminalType = "frontend";
-              if (!cmdTag.cwd) {
-                cwd = path.join(appPath, "frontend");
-                // Strip frontend/ prefix from command if present
-                if (cleanCommand.startsWith("frontend/")) {
-                  cleanCommand = cleanCommand.substring(9).trim();
-                }
-              }
-            } else {
-              terminalType = "backend";
-              if (!cmdTag.cwd) {
-                cwd = path.join(appPath, "backend");
-                // Ensure backend directory exists for backend commands
-                if (!fs.existsSync(cwd)) {
-                  fs.mkdirSync(cwd, { recursive: true });
-                  logger.log(
-                    `Created backend directory: ${cwd} for terminal command execution`,
-                  );
-                }
-                // Strip backend/ prefix from command if present
-                if (cleanCommand.startsWith("backend/")) {
-                  cleanCommand = cleanCommand.substring(8).trim();
-                }
-              }
-            }
-          }
+           // Check if this is a Node.js command - always route to frontend
+           const isNodeCommand = cleanCommand.toLowerCase().includes("npm") ||
+                                cleanCommand.toLowerCase().includes("yarn") ||
+                                cleanCommand.toLowerCase().includes("pnpm") ||
+                                cleanCommand.toLowerCase().includes("node") ||
+                                cleanCommand.toLowerCase().includes("npx") ||
+                                cleanCommand.toLowerCase().includes("vite") ||
+                                cleanCommand.toLowerCase().includes("next") ||
+                                cleanCommand.toLowerCase().includes("react") ||
+                                cleanCommand.toLowerCase().includes("webpack");
 
-          logger.log(
-            `Executing general terminal command: ${cleanCommand} in ${cwd} (routing to ${terminalType} terminal)`,
-          );
+           if (isPythonCommand) {
+             terminalType = "backend";
+             if (!cmdTag.cwd) {
+               cwd = path.join(appPath, "backend");
+               // Ensure backend directory exists for Python commands
+               if (!fs.existsSync(cwd)) {
+                 fs.mkdirSync(cwd, { recursive: true });
+                 logger.log(`Created backend directory: ${cwd} for Python command execution`);
+               }
+               // Strip backend/ prefix from command if present
+               if (cleanCommand.startsWith("backend/")) {
+                 cleanCommand = cleanCommand.substring(8).trim();
+               }
+             }
+           } else if (isNodeCommand) {
+             terminalType = "frontend";
+             if (!cmdTag.cwd) {
+               cwd = path.join(appPath, "frontend");
+               // Ensure frontend directory exists for Node.js commands
+               if (!fs.existsSync(cwd)) {
+                 fs.mkdirSync(cwd, { recursive: true });
+                 logger.log(`Created frontend directory: ${cwd} for Node.js command execution`);
+               }
+               // Strip frontend/ prefix from command if present
+               if (cleanCommand.startsWith("frontend/")) {
+                 cleanCommand = cleanCommand.substring(9).trim();
+               }
+             }
+           } else if (chatMode === "ask") {
+             // For ask mode, route to frontend terminal (most common for general commands)
+             terminalType = "frontend";
+             if (!cmdTag.cwd) {
+               cwd = path.join(appPath, "frontend");
+             }
+           } else if (chatMode === "backend") {
+             terminalType = "backend";
+             // For backend mode, adjust cwd to backend directory if not already specified
+             if (!cmdTag.cwd) {
+               cwd = path.join(appPath, "backend");
+               // Strip backend/ prefix from command if present
+               if (cleanCommand.startsWith("backend/")) {
+                 cleanCommand = cleanCommand.substring(8).trim();
+               }
+             }
+           } else if (chatMode === "fullstack") {
+             // For fullstack mode, check for Node.js commands first, then default to backend
+             if (isNodeCommand) {
+               terminalType = "frontend";
+               if (!cmdTag.cwd) {
+                 cwd = path.join(appPath, "frontend");
+                 // Strip frontend/ prefix from command if present
+                 if (cleanCommand.startsWith("frontend/")) {
+                   cleanCommand = cleanCommand.substring(9).trim();
+                 }
+               }
+             } else {
+               terminalType = "backend";
+               if (!cmdTag.cwd) {
+                 cwd = path.join(appPath, "backend");
+                 // Ensure backend directory exists for backend commands
+                 if (!fs.existsSync(cwd)) {
+                   fs.mkdirSync(cwd, { recursive: true });
+                   logger.log(`Created backend directory: ${cwd} for terminal command execution`);
+                 }
+                 // Strip backend/ prefix from command if present
+                 if (cleanCommand.startsWith("backend/")) {
+                   cleanCommand = cleanCommand.substring(8).trim();
+                 }
+               }
+             }
+           }
 
-          const result = await runShellCommand(cleanCommand, cwd);
+           logger.log(`Executing general terminal command: ${cleanCommand} in ${cwd} (routing to ${terminalType} terminal)`);
 
-<<<<<<< HEAD
-          if (result === null) {
-            errors.push({
-              message: `Terminal command failed: ${cmdTag.description || cleanCommand}`,
-              error: `Command execution failed in ${cwd}`,
-            });
-            // Add error to appropriate terminal
-            addTerminalOutput(
-              chatWithApp.app.id,
-              terminalType,
-              `❌ Error: ${cmdTag.description || cleanCommand}`,
-              "error",
-            );
-          } else {
-            logger.log(
-              `Terminal command succeeded: ${cmdTag.description || cleanCommand}`,
-            );
-=======
            const result = await runShellCommand(cleanCommand, cwd);
->>>>>>> release/v0.0.5
 
-            // Add command and result to appropriate terminal
-            addTerminalOutput(
-              chatWithApp.app.id,
-              terminalType,
-              `$ ${cleanCommand}`,
-              "command",
-            );
+           if (result === null) {
+             errors.push({
+               message: `Terminal command failed: ${cmdTag.description || cleanCommand}`,
+               error: `Command execution failed in ${cwd}`,
+             });
+             // Add error to appropriate terminal
+             addTerminalOutput(chatWithApp.app.id, terminalType, `❌ Error: ${cmdTag.description || cleanCommand}`, "error");
+           } else {
+             logger.log(`Terminal command succeeded: ${cmdTag.description || cleanCommand}`);
 
-            if (result.trim()) {
-              addTerminalOutput(
-                chatWithApp.app.id,
-                terminalType,
-                result,
-                "output",
-              );
-            }
+             // Add command and result to appropriate terminal
+             addTerminalOutput(chatWithApp.app.id, terminalType, `$ ${cleanCommand}`, "command");
 
-            addTerminalOutput(
-              chatWithApp.app.id,
-              terminalType,
-              `✅ ${cmdTag.description || cleanCommand} completed successfully`,
-              "success",
-            );
-          }
-        } catch (error) {
-          errors.push({
-            message: `Terminal command failed: ${cmdTag.description || cleanCommand}`,
-            error: error,
-          });
-          // Add error to appropriate terminal (default to backend for errors)
-          addTerminalOutput(
-            chatWithApp.app.id,
-            "backend",
-            `❌ Error: ${error}`,
-            "error",
-          );
-        }
+             if (result.trim()) {
+               addTerminalOutput(chatWithApp.app.id, terminalType, result, "output");
+             }
+
+             addTerminalOutput(chatWithApp.app.id, terminalType, `✅ ${cmdTag.description || cleanCommand} completed successfully`, "success");
+           }
+         } catch (error) {
+           errors.push({
+             message: `Terminal command failed: ${cmdTag.description || cleanCommand}`,
+             error: error,
+           });
+           // Add error to appropriate terminal (default to backend for errors)
+           addTerminalOutput(chatWithApp.app.id, "backend", `❌ Error: ${error}`, "error");
+         }
+       }
+       logger.log(`Executed ${dyadRunTerminalCmdTags.length} general terminal commands`);
       }
-      logger.log(
-        `Executed ${dyadRunTerminalCmdTags.length} general terminal commands`,
-      );
-    }
 
     // Handle add dependency tags
     if (dyadAddDependencyPackages.length > 0) {
@@ -601,8 +480,7 @@ export async function processFullResponseActions(
         });
         // Don't mark package files as written if installation failed
         warnings.push({
-          message:
-            "Package installation failed - package.json and lock files not committed",
+          message: "Package installation failed - package.json and lock files not committed",
           error: null,
         });
       }
@@ -636,25 +514,19 @@ export async function processFullResponseActions(
           deletedFiles.push(filePath);
 
           // Remove the file from git and commit immediately
-          const commitResult = await safeGitOperation(
-            async () => {
-              await git.remove({
-                fs,
-                dir: appPath,
-                filepath: filePath,
-              });
-              const commitHash = await gitCommit({
-                path: appPath,
-                message: `[alifullstack] Deleted file: ${filePath}`,
-              });
-              logger.log(
-                `Committed file deletion: ${filePath} with hash ${commitHash}`,
-              );
-              return commitHash;
-            },
-            "File deletion commit",
-            filePath,
-          );
+          const commitResult = await safeGitOperation(async () => {
+            await git.remove({
+              fs,
+              dir: appPath,
+              filepath: filePath,
+            });
+            const commitHash = await gitCommit({
+              path: appPath,
+              message: `[alifullstack] Deleted file: ${filePath}`,
+            });
+            logger.log(`Committed file deletion: ${filePath} with hash ${commitHash}`);
+            return commitHash;
+          }, "File deletion commit", filePath);
         } else {
           logger.warn(`File to delete does not exist: ${fullFilePath}`);
         }
@@ -697,66 +569,49 @@ export async function processFullResponseActions(
           renamedFiles.push(tag.to);
 
           // Add the new file, remove the old one, and commit immediately
-          const renameCommitResult = await safeGitOperation(
-            async () => {
-              await git.add({
+          const renameCommitResult = await safeGitOperation(async () => {
+            await git.add({
+              fs,
+              dir: appPath,
+              filepath: tag.to,
+            });
+            try {
+              await git.remove({
                 fs,
                 dir: appPath,
-                filepath: tag.to,
+                filepath: tag.from,
               });
-              try {
-                await git.remove({
-                  fs,
-                  dir: appPath,
-                  filepath: tag.from,
-                });
-              } catch (removeError) {
-                logger.warn(
-                  `Failed to git remove old file ${tag.from}:`,
-                  removeError,
-                );
-              }
-              const commitHash = await gitCommit({
-                path: appPath,
-                message: `[alifullstack] Renamed file: ${tag.from} -> ${tag.to}`,
-              });
-              logger.log(
-                `Committed file rename: ${tag.from} -> ${tag.to} with hash ${commitHash}`,
-              );
-              return commitHash;
-            },
-            "File rename commit",
-            `${tag.from} -> ${tag.to}`,
-          );
+            } catch (removeError) {
+              logger.warn(`Failed to git remove old file ${tag.from}:`, removeError);
+            }
+            const commitHash = await gitCommit({
+              path: appPath,
+              message: `[alifullstack] Renamed file: ${tag.from} -> ${tag.to}`,
+            });
+            logger.log(`Committed file rename: ${tag.from} -> ${tag.to} with hash ${commitHash}`);
+            return commitHash;
+          }, "File rename commit", `${tag.from} -> ${tag.to}`);
         } else {
           logger.warn(`Source file for rename does not exist: ${fromPath}`);
         }
 
         // Handle Supabase functions
         if (isServerFunction(tag.from)) {
-          await safeGitOperation(
-            async () => {
-              await deleteSupabaseFunction({
-                supabaseProjectId: chatWithApp.app.supabaseProjectId!,
-                functionName: getFunctionNameFromPath(tag.from),
-              });
-            },
-            "Supabase function deletion",
-            tag.from,
-          );
+          await safeGitOperation(async () => {
+            await deleteSupabaseFunction({
+              supabaseProjectId: chatWithApp.app.supabaseProjectId!,
+              functionName: getFunctionNameFromPath(tag.from),
+            });
+          }, "Supabase function deletion", tag.from);
         }
         if (isServerFunction(tag.to)) {
-          await safeGitOperation(
-            async () => {
-              await deploySupabaseFunctions({
-                supabaseProjectId: chatWithApp.app.supabaseProjectId!,
-                functionName: getFunctionNameFromPath(tag.to),
-                content: await readFileFromFunctionPath(toPath),
-              });
-            },
-            "Supabase function deployment",
-            tag.to,
-          );
+          await safeGitOperation(async () => {
+            await deploySupabaseFunctions({
+              supabaseProjectId: chatWithApp.app.supabaseProjectId!,
+              functionName: getFunctionNameFromPath(tag.to),
+              content: await readFileFromFunctionPath(toPath),
+            });
+          }, "Supabase function deployment", tag.to);
         }
       } catch (error) {
         errors.push({
@@ -772,11 +627,11 @@ export async function processFullResponseActions(
     const terminalTagRemovalRegexes = [
       /<dyad-run-backend-terminal-cmd[^>]*>[\s\S]*?<\/dyad-run-backend-terminal-cmd>/gi,
       /<dyad-run-frontend-terminal-cmd[^>]*>[\s\S]*?<\/dyad-run-frontend-terminal-cmd>/gi,
-      /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/gi,
+      /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/gi
     ];
 
     for (const regex of terminalTagRemovalRegexes) {
-      fullResponse = fullResponse.replace(regex, "");
+      fullResponse = fullResponse.replace(regex, '');
     }
 
     // Process all dyad-write tags one by one
@@ -787,10 +642,7 @@ export async function processFullResponseActions(
 
       try {
         // Check if this is a search_replace operation
-        if (
-          typeof content === "string" &&
-          content.startsWith("SEARCH_REPLACE:")
-        ) {
+        if (typeof content === "string" && content.startsWith("SEARCH_REPLACE:")) {
           // Handle search_replace operation
           const parts = content.split(":");
           if (parts.length >= 3) {
@@ -798,40 +650,30 @@ export async function processFullResponseActions(
             const newString = parts.slice(2).join(":");
 
             if (fs.existsSync(fullFilePath)) {
-              let fileContent = fs.readFileSync(fullFilePath, "utf8");
+              let fileContent = fs.readFileSync(fullFilePath, 'utf8');
 
               if (fileContent.includes(oldString)) {
                 fileContent = fileContent.replace(oldString, newString);
                 fs.writeFileSync(fullFilePath, fileContent);
-                logger.log(
-                  `Successfully applied search_replace to file: ${fullFilePath}`,
-                );
+                logger.log(`Successfully applied search_replace to file: ${fullFilePath}`);
                 writtenFiles.push(filePath);
 
                 // Commit immediately
-                await safeGitOperation(
-                  async () => {
-                    await git.add({
-                      fs,
-                      dir: appPath,
-                      filepath: filePath,
-                    });
-                    const commitHash = await gitCommit({
-                      path: appPath,
-                      message: `[alifullstack] Applied search_replace to: ${filePath}`,
-                    });
-                    logger.log(
-                      `Committed search_replace operation: ${filePath} with hash ${commitHash}`,
-                    );
-                    return commitHash;
-                  },
-                  "Search replace commit",
-                  filePath,
-                );
+                await safeGitOperation(async () => {
+                  await git.add({
+                    fs,
+                    dir: appPath,
+                    filepath: filePath,
+                  });
+                  const commitHash = await gitCommit({
+                    path: appPath,
+                    message: `[alifullstack] Applied search_replace to: ${filePath}`,
+                  });
+                  logger.log(`Committed search_replace operation: ${filePath} with hash ${commitHash}`);
+                  return commitHash;
+                }, "Search replace commit", filePath);
               } else {
-                logger.warn(
-                  `Old string not found in file for search_replace: ${fullFilePath}`,
-                );
+                logger.warn(`Old string not found in file for search_replace: ${fullFilePath}`);
                 warnings.push({
                   message: `Search string not found in file: ${filePath}`,
                   error: null,
@@ -882,41 +724,30 @@ export async function processFullResponseActions(
 
           // Handle Supabase function deployment
           if (isServerFunction(filePath)) {
-            const contentString =
-              typeof content === "string" ? content : content.toString();
-            await safeGitOperation(
-              async () => {
-                await deploySupabaseFunctions({
-                  supabaseProjectId: chatWithApp.app.supabaseProjectId!,
-                  functionName: path.basename(path.dirname(filePath)),
-                  content: contentString,
-                });
-              },
-              "Supabase function deployment",
-              filePath,
-            );
+            const contentString = typeof content === "string" ? content : content.toString();
+            await safeGitOperation(async () => {
+              await deploySupabaseFunctions({
+                supabaseProjectId: chatWithApp.app.supabaseProjectId!,
+                functionName: path.basename(path.dirname(filePath)),
+                content: contentString,
+              });
+            }, "Supabase function deployment", filePath);
           }
 
           // Commit immediately
-          await safeGitOperation(
-            async () => {
-              await git.add({
-                fs,
-                dir: appPath,
-                filepath: filePath,
-              });
-              const commitHash = await gitCommit({
-                path: appPath,
-                message: `[alifullstack] Wrote file: ${filePath}`,
-              });
-              logger.log(
-                `Committed file write: ${filePath} with hash ${commitHash}`,
-              );
-              return commitHash;
-            },
-            "File write commit",
-            filePath,
-          );
+          await safeGitOperation(async () => {
+            await git.add({
+              fs,
+              dir: appPath,
+              filepath: filePath,
+            });
+            const commitHash = await gitCommit({
+              path: appPath,
+              message: `[alifullstack] Wrote file: ${filePath}`,
+            });
+            logger.log(`Committed file write: ${filePath} with hash ${commitHash}`);
+            return commitHash;
+          }, "File write commit", filePath);
         }
       } catch (error) {
         errors.push({
@@ -963,48 +794,35 @@ export async function processFullResponseActions(
 
         // Write file content
         fs.writeFileSync(fullFilePath, content);
-        logger.log(
-          `Successfully wrote file via write_to_file tag: ${fullFilePath}`,
-        );
+        logger.log(`Successfully wrote file via write_to_file tag: ${fullFilePath}`);
         writtenFiles.push(filePath);
 
         // Handle Supabase function deployment
         if (isServerFunction(filePath)) {
-          const contentString =
-            typeof content === "string" ? content : content.toString();
-          await safeGitOperation(
-            async () => {
-              await deploySupabaseFunctions({
-                supabaseProjectId: chatWithApp.app.supabaseProjectId!,
-                functionName: path.basename(path.dirname(filePath)),
-                content: contentString,
-              });
-            },
-            "Supabase function deployment",
-            filePath,
-          );
+          const contentString = typeof content === "string" ? content : content.toString();
+          await safeGitOperation(async () => {
+            await deploySupabaseFunctions({
+              supabaseProjectId: chatWithApp.app.supabaseProjectId!,
+              functionName: path.basename(path.dirname(filePath)),
+              content: contentString,
+            });
+          }, "Supabase function deployment", filePath);
         }
 
         // Commit immediately
-        await safeGitOperation(
-          async () => {
-            await git.add({
-              fs,
-              dir: appPath,
-              filepath: filePath,
-            });
-            const commitHash = await gitCommit({
-              path: appPath,
-              message: `[alifullstack] Wrote file via write_to_file tag: ${filePath}`,
-            });
-            logger.log(
-              `Committed write_to_file tag: ${filePath} with hash ${commitHash}`,
-            );
-            return commitHash;
-          },
-          "Write to file commit",
-          filePath,
-        );
+        await safeGitOperation(async () => {
+          await git.add({
+            fs,
+            dir: appPath,
+            filepath: filePath,
+          });
+          const commitHash = await gitCommit({
+            path: appPath,
+            message: `[alifullstack] Wrote file via write_to_file tag: ${filePath}`,
+          });
+          logger.log(`Committed write_to_file tag: ${filePath} with hash ${commitHash}`);
+          return commitHash;
+        }, "Write to file commit", filePath);
       } catch (error) {
         errors.push({
           message: `Failed to write file via write_to_file tag: ${filePath}`,
@@ -1020,52 +838,34 @@ export async function processFullResponseActions(
 
       try {
         if (fs.existsSync(fullFilePath)) {
-          let fileContent = fs.readFileSync(fullFilePath, "utf8");
+          let fileContent = fs.readFileSync(fullFilePath, 'utf8');
 
           // Replace old_string with new_string
-          const oldString = tag.old_string
-            .replace(/"/g, '"')
-            .replace(/</g, "<")
-            .replace(/>/g, ">")
-            .replace(/&/g, "&");
-          const newString = tag.new_string
-            .replace(/"/g, '"')
-            .replace(/</g, "<")
-            .replace(/>/g, ">")
-            .replace(/&/g, "&");
+          const oldString = tag.old_string.replace(/"/g, '"').replace(/</g, '<').replace(/>/g, '>').replace(/&/g, '&');
+          const newString = tag.new_string.replace(/"/g, '"').replace(/</g, '<').replace(/>/g, '>').replace(/&/g, '&');
 
           if (fileContent.includes(oldString)) {
             fileContent = fileContent.replace(oldString, newString);
             fs.writeFileSync(fullFilePath, fileContent);
-            logger.log(
-              `Successfully applied search_replace to file: ${fullFilePath}`,
-            );
+            logger.log(`Successfully applied search_replace to file: ${fullFilePath}`);
             writtenFiles.push(filePath);
 
             // Commit immediately
-            await safeGitOperation(
-              async () => {
-                await git.add({
-                  fs,
-                  dir: appPath,
-                  filepath: filePath,
-                });
-                const commitHash = await gitCommit({
-                  path: appPath,
-                  message: `[alifullstack] Applied search_replace to: ${filePath}`,
-                });
-                logger.log(
-                  `Committed search_replace: ${filePath} with hash ${commitHash}`,
-                );
-                return commitHash;
-              },
-              "Search replace commit",
-              filePath,
-            );
+            await safeGitOperation(async () => {
+              await git.add({
+                fs,
+                dir: appPath,
+                filepath: filePath,
+              });
+              const commitHash = await gitCommit({
+                path: appPath,
+                message: `[alifullstack] Applied search_replace to: ${filePath}`,
+              });
+              logger.log(`Committed search_replace: ${filePath} with hash ${commitHash}`);
+              return commitHash;
+            }, "Search replace commit", filePath);
           } else {
-            logger.warn(
-              `Old string not found in file for search_replace: ${fullFilePath}`,
-            );
+            logger.warn(`Old string not found in file for search_replace: ${fullFilePath}`);
             warnings.push({
               message: `Search string not found in file: ${filePath}`,
               error: null,
@@ -1079,10 +879,7 @@ export async function processFullResponseActions(
           });
         }
       } catch (error) {
-        logger.error(
-          `Failed to apply search_replace to file: ${fullFilePath}`,
-          error,
-        );
+        logger.error(`Failed to apply search_replace to file: ${fullFilePath}`, error);
         errors.push({
           message: `Failed to apply search_replace to file: ${filePath}`,
           error: error,
@@ -1140,9 +937,7 @@ export async function processFullResponseActions(
       try {
         // The invalidation will be handled by the React Query client in the renderer process
         // This ensures the file tree shows both frontend and backend directories
-        logger.log(
-          "File changes detected, UI will refresh to show updated file tree",
-        );
+        logger.log("File changes detected, UI will refresh to show updated file tree");
       } catch (error) {
         logger.warn("Could not invalidate app query:", error);
       }
@@ -1150,10 +945,7 @@ export async function processFullResponseActions(
 
     return {
       updatedFiles: hasChanges,
-      extraFiles:
-        uncommittedFiles && uncommittedFiles.length > 0
-          ? uncommittedFiles
-          : undefined,
+      extraFiles: (uncommittedFiles && uncommittedFiles.length > 0) ? uncommittedFiles : undefined,
       extraFilesError,
     };
   } catch (error: unknown) {

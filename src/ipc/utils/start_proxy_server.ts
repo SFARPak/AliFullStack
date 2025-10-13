@@ -10,14 +10,9 @@ import { addTerminalOutput } from "../handlers/terminal_handlers";
 const logger = log.scope("start_proxy_server");
 
 // Helper function to log to both electron-log and console
-function logToConsole(
-  message: string,
-  level: "info" | "warn" | "error" | "debug" = "info",
-) {
+function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
   logger[level](message);
-  console.log(
-    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
-  );
+  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
 }
 
 export async function startProxy(
@@ -51,17 +46,6 @@ export async function startProxy(
   let workerPath: string;
 
   if (electron && !process.env.NODE_ENV?.includes("development")) {
-<<<<<<< HEAD
-    // In production/built app, use the app's resource path
-    workerPath = path.resolve(
-      __dirname,
-      "..",
-      "..",
-      "..",
-      "worker",
-      "proxy_server.js",
-    );
-=======
     // In production/built app, the worker is inside the ASAR archive
     // __dirname will be inside the ASAR, so we need to navigate to the worker directory
 
@@ -87,7 +71,6 @@ export async function startProxy(
       throw new Error(`Could not find proxy_server.js worker file. Tried paths: ${possiblePaths.join(', ')}`);
     }
     workerPath = foundPath;
->>>>>>> release/v0.0.5
   } else {
     // In development, use the project root
     workerPath = path.resolve(process.cwd(), "worker", "proxy_server.js");
@@ -112,7 +95,7 @@ export async function startProxy(
       if (!m.startsWith("proxy-server-start url=")) {
         // Determine which terminal to route to based on terminalType
         let targetTerminals: ("frontend" | "backend")[] = [];
-
+        
         if (terminalType === "frontend") {
           targetTerminals = ["frontend"];
         } else if (terminalType === "backend") {
