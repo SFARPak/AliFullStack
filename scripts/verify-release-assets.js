@@ -21,21 +21,50 @@ async function verifyReleaseAssets() {
     const repo = "AliFullStack";
     const token = process.env.GITHUB_TOKEN;
 
-    // Fetch all releases (including drafts) with retry logic
+    if (!token) {
+      console.error("❌ Missing GITHUB_TOKEN environment variable!");
+      process.exit(1);
+    }
+
+    const inGitHubActions = process.env.GITHUB_ACTIONS === "true";
+
+    // ✅ Skip token validation in GitHub Actions (since built-in token is limited)
+    if (!inGitHubActions) {
+      console.log("🔐 Checking GITHUB_TOKEN permissions...");
+
+      const userCheck = await fetch("https://api.github.com/user", {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "dyad-release-verifier",
+        },
+      });
+
+      if (!userCheck.ok) {
+        const body = await userCheck.text();
+        console.error("❌ Token authentication failed!");
+        console.error(`Status: ${userCheck.status} ${userCheck.statusText}`);
+        console.error(`Response body: ${body}`);
+        process.exit(1);
+      }
+
+      const userData = await userCheck.json();
+      console.log(`✅ Authenticated as: ${userData.login}`);
+    } else {
+      console.log("🏃 Running inside GitHub Actions — skipping token permission check");
+    }
+
+    // --- Fetch releases with retry logic ---
     const tagName = `v${version}`;
     const maxRetries = 5;
     const baseDelay = 10000; // 10 seconds
-
     let release = null;
     let lastError = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(
-          `📡 Attempt ${attempt}/${maxRetries}: Fetching all releases to find: ${tagName}`,
-        );
-        console.log(
-          `🔗 API URL: https://api.github.com/repos/${owner}/${repo}/releases`,
+          `📡 Attempt ${attempt}/${maxRetries}: Fetching releases to find: ${tagName}`,
         );
 
         const allReleasesUrl = `https://api.github.com/repos/${owner}/${repo}/releases`;
@@ -47,131 +76,68 @@ async function verifyReleaseAssets() {
           },
         });
 
-
         if (!response.ok) {
-          console.error(`❌ GitHub API error details:`);
-          console.error(`   Status: ${response.status}`);
-          console.error(`   Status Text: ${response.statusText}`);
-          console.error(`   URL: ${allReleasesUrl}`);
-          console.error(
-            `   Headers:`,
-            Object.fromEntries(response.headers.entries()),
-          );
-
-          // Try to get response body for more details
-          try {
-            const errorBody = await response.text();
-            console.error(`   Response Body: ${errorBody}`);
-          } catch (e) {
-            console.error(
-              `   Could not read error response body: ${e.message}`,
-            );
-          }
-
-          throw new Error(
-            `GitHub API error: ${response.status} ${response.statusText}`,
-          );
+          console.error(`❌ GitHub API error: ${response.status} ${response.statusText}`);
+          const errorBody = await response.text();
+          console.error(`Response Body: ${errorBody}`);
+          throw new Error(`GitHub API returned ${response.status}`);
         }
 
         const allReleases = await response.json();
-        console.log(`📦 Total releases found: ${allReleases.length}`);
-        console.log(
-          `🔍 Available release tags:`,
-          allReleases.map((r) => r.tag_name).slice(0, 10),
-        );
 
-        // Check if release exists at all
         const releaseExists = allReleases.some((r) => r.tag_name === tagName);
         if (!releaseExists) {
-          console.error(
-            `❌ Release ${tagName} does not exist in the repository!`,
-          );
-          console.error(`📋 All available releases:`);
-          allReleases.forEach((r) => {
-            console.error(
-              `   - ${r.tag_name} (${r.draft ? "DRAFT" : "PUBLISHED"})`,
-            );
-          });
-          throw new Error(`Release ${tagName} not found in repository`);
+          console.warn(`⚠️ Release ${tagName} not found. Retrying...`);
+          if (attempt < maxRetries) {
+            const delay = baseDelay * attempt;
+            console.log(`⏳ Waiting ${delay / 1000}s before retry...`);
+            await new Promise((r) => setTimeout(r, delay));
+          }
+          continue;
         }
 
         release = allReleases.find((r) => r.tag_name === tagName);
-
-        if (release) {
-          console.log(
-            `✅ Found release on attempt ${attempt}: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`,
-          );
-          break;
-        } else {
-          console.warn(
-            `⚠️  Release ${tagName} not found on attempt ${attempt}. Available releases (first 10):`,
-          );
-          allReleases.slice(0, 10).forEach((r) => {
-            console.warn(
-              `   - ${r.tag_name} (${r.draft ? "DRAFT" : "PUBLISHED"})`,
-            );
-          });
-
-          if (attempt < maxRetries) {
-            const delay = baseDelay * attempt; // Exponential backoff: 10s, 20s, 30s, 40s, 50s
-            console.log(`⏳ Waiting ${delay / 1000} seconds before retry...`);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          }
-        }
-      } catch (error) {
-        lastError = error;
-        console.error(`❌ Attempt ${attempt} failed:`, error.message);
-
+        console.log(
+          `✅ Found release: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`,
+        );
+        break;
+      } catch (err) {
+        lastError = err;
+        console.error(`❌ Attempt ${attempt} failed: ${err.message}`);
         if (attempt < maxRetries) {
           const delay = baseDelay * attempt;
-          console.log(`⏳ Waiting ${delay / 1000} seconds before retry...`);
-          await new Promise((resolve) => setTimeout(resolve, delay));
+          console.log(`⏳ Retrying in ${delay / 1000}s...`);
+          await new Promise((r) => setTimeout(r, delay));
         }
       }
     }
 
     if (!release) {
-      console.error(
-        `❌ Release ${tagName} not found after ${maxRetries} attempts!`,
-      );
-      if (lastError) {
-        console.error(`Last error: ${lastError.message}`);
-      }
-      throw new Error(
-        `Release ${tagName} not found in published releases or drafts after retries. Make sure the release exists.`,
-      );
+      console.error(`❌ Release ${tagName} not found after ${maxRetries} attempts`);
+      if (lastError) console.error(`Last error: ${lastError.message}`);
+      process.exit(1);
     }
-
-    console.log(
-      `✅ Found release: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`,
-    );
 
     const assets = release.assets || [];
 
     console.log(`📦 Found ${assets.length} assets in release ${tagName}`);
     console.log(`📄 Release status: ${release.draft ? "DRAFT" : "PUBLISHED"}`);
 
-    // Handle different beta naming conventions across platforms
+    // --- Define expected assets ---
     const normalizeVersionForPlatform = (version, platform) => {
-      if (!version.includes("beta")) {
-        return version;
-      }
+      if (!version.includes("beta")) return version;
 
       switch (platform) {
         case "rpm":
         case "deb":
-          // RPM and DEB use dots: 0.14.0-beta.1 -> 0.14.0.beta.1
           return version.replace("-beta.", ".beta.");
         case "nupkg":
-          // NuGet removes the dot: 0.14.0-beta.1 -> 0.14.0-beta1
           return version.replace("-beta.", "-beta");
         default:
-          // Windows installer and macOS zips keep original format
           return version;
       }
     };
 
-    // Define expected assets with platform-specific version handling
     const expectedAssets = [
       `dyad-${normalizeVersionForPlatform(version, "rpm")}-1.x86_64.rpm`,
       `dyad-${normalizeVersionForPlatform(version, "nupkg")}-full.nupkg`,
@@ -183,47 +149,31 @@ async function verifyReleaseAssets() {
     ];
 
     console.log("📋 Expected assets:");
-    expectedAssets.forEach((asset) => console.log(`  - ${asset}`));
+    expectedAssets.forEach((a) => console.log(`  - ${a}`));
     console.log("");
 
-    // Get actual asset names
-    const actualAssets = assets.map((asset) => asset.name);
-
+    const actualAssets = assets.map((a) => a.name);
     console.log("📋 Actual assets:");
-    actualAssets.forEach((asset) => console.log(`  - ${asset}`));
+    actualAssets.forEach((a) => console.log(`  - ${a}`));
     console.log("");
 
-    // Check for missing assets
-    const missingAssets = expectedAssets.filter(
-      (expected) => !actualAssets.includes(expected),
-    );
-
+    // --- Compare assets ---
+    const missingAssets = expectedAssets.filter((a) => !actualAssets.includes(a));
     if (missingAssets.length > 0) {
-      console.error("❌ VERIFICATION FAILED!");
-      console.error("📭 Missing assets:");
-      missingAssets.forEach((asset) => console.error(`  - ${asset}`));
-      console.error("");
-      console.error(
-        "Please ensure all platforms have completed their builds and uploads.",
-      );
+      console.error("❌ VERIFICATION FAILED! Missing assets:");
+      missingAssets.forEach((a) => console.error(`  - ${a}`));
       process.exit(1);
     }
 
-    // Check for unexpected assets (optional warning)
-    const unexpectedAssets = actualAssets.filter(
-      (actual) => !expectedAssets.includes(actual),
-    );
-
+    const unexpectedAssets = actualAssets.filter((a) => !expectedAssets.includes(a));
     if (unexpectedAssets.length > 0) {
-      console.warn("⚠️  Unexpected assets found:");
-      unexpectedAssets.forEach((asset) => console.warn(`  - ${asset}`));
+      console.warn("⚠️ Unexpected assets found:");
+      unexpectedAssets.forEach((a) => console.warn(`  - ${a}`));
       console.warn("");
     }
 
     console.log("✅ VERIFICATION PASSED!");
-    console.log(
-      `🎉 All ${expectedAssets.length} expected assets are present in release ${tagName}`,
-    );
+    console.log(`🎉 All ${expectedAssets.length} expected assets are present in release ${tagName}`);
     console.log("");
     console.log("📊 Release Summary:");
     console.log(`  Release: ${release.name || tagName}`);
