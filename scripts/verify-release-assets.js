@@ -21,11 +21,6 @@ async function verifyReleaseAssets() {
     const repo = "AliFullStack";
     const token = process.env.GITHUB_TOKEN;
 
-    if (!token) {
-      throw new Error("GITHUB_TOKEN environment variable is required");
-    }
-
-
     // Fetch all releases (including drafts) with retry logic
     const tagName = `v${version}`;
     const maxRetries = 5;
