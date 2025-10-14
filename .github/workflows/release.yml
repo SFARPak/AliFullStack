@@ -1,116 +1,131 @@
 # .github/workflows/release.yml
-
-# Need to write to repo contents to upload the app to GitHub Release
-# See: https://www.electronforge.io/config/publishers/github#authentication
-permissions:
-  contents: write
+# -------------------------------------------------------
+# GitHub Actions workflow to build, sign (if configured),
+# and publish Electron apps for all major OS platforms.
+# -------------------------------------------------------
 
 name: Release app
+
 on:
   workflow_dispatch:
   push:
     branches: [ main, release/** ]
+
+# Required for publishing release assets
+permissions:
+  contents: write
+
 jobs:
   build:
+    name: Build & Publish App
     environment: release
     strategy:
-      # Uncomment max-parallel to prevent race condition (where multiple releases are
-      # created concurrently). Typically though, we'll create a release manually ahead of time
-      # which prevents the race.
-      # max-parallel: 1
+      # Prevent race conditions during concurrent release creation
+      max-parallel: 1
       matrix:
-        # See https://github.com/SFARPak/dyad/issues/96
-        os: [
-            { name: "windows", image: "windows-latest" },
-            { name: "linux", image: "ubuntu-22.04" },
-            { name: "macos-intel", image: "macos-13" },
-            { name: "macos", image: "macos-latest" },
-          ]
+        os:
+          - { name: "windows", image: "windows-latest" }
+          - { name: "linux", image: "ubuntu-22.04" }
+          - { name: "macos-intel", image: "macos-13" }
+          - { name: "macos", image: "macos-latest" }
+
     runs-on: ${{ matrix.os.image }}
-    # env:
-      # CSC_LINK: ${{ secrets.CSC_LINK }}
-      # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
     steps:
-      - name: Github checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - name: Use Node.js
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🧩 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Clean up
+
+      - name: 🧹 Clean up environment
+        shell: bash
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm cache clean --force
-        shell: bash
-      - run: npm install --include=optional
-      - run: npm rebuild @rollup/rollup-linux-x64-gnu || true
+
+      - name: 📦 Install dependencies
+        run: npm install --include=optional
+
+      # Rebuild rollup for the appropriate platform
+      - name: 🛠️ Rebuild Rollup (Linux)
         if: contains(matrix.os.name, 'linux')
-      - run: npm rebuild @rollup/rollup-darwin-x64 || true
+        run: npm rebuild @rollup/rollup-linux-x64-gnu || true
+
+      - name: 🛠️ Rebuild Rollup (macOS Intel)
         if: contains(matrix.os.name, 'macos-intel')
-      - run: npm rebuild @rollup/rollup-darwin-arm64 || true
+        run: npm rebuild @rollup/rollup-darwin-x64 || true
+
+      - name: 🛠️ Rebuild Rollup (macOS ARM)
         if: contains(matrix.os.name, 'macos')
-      - run: npm rebuild @rollup/rollup-win32-x64-msvc || true
+        run: npm rebuild @rollup/rollup-darwin-arm64 || true
+
+      - name: 🛠️ Rebuild Rollup (Windows)
         if: contains(matrix.os.name, 'windows')
-      # - name: add macos cert
-      #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
+        run: npm rebuild @rollup/rollup-win32-x64-msvc || true
+
+      # Optional macOS signing setup (commented out)
+      # - name: Add macOS certificate
+      #   if: contains(matrix.os.name, 'macos') && env.MACOS_CERT_P12 != ''
       #   env:
       #     MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
       #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-      #   run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
-      # Windows only
-      # - name: Set up certificate
+      #   run: chmod +x tools/add-macos-cert.sh && ./tools/add-macos-cert.sh
+
+      # Optional Windows signing setup (commented out)
+      # - name: Set up Windows certificate
       #   if: contains(matrix.os.name, 'windows')
-      #   run: |
-      #     echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
       #   shell: bash
-      # - name: Set variables
-      #   if: contains(matrix.os.name, 'windows')
-      #   id: variables
       #   run: |
-      #     echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
-      #     echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
+      #     echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > D:/Certificate_pkcs12.p12
       #     echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
-      #     echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
-      #   shell: bash
-      # - name: Code signing with Software Trust Manager
-      #   if: contains(matrix.os.name, 'windows')
-      #   uses: digicert/ssm-code-signing@v1.1.0
-      # - name: Sync certificate (Windows)
-      #   if: contains(matrix.os.name, 'windows')
-      #   run: |
-      #     smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
-      #   shell: bash
-        # Publish (all platforms)
-      - name: Publish app
+
+      - name: 🚀 Publish App to GitHub Releases
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-          SM_CODE_SIGNING_CERT_SHA1_HASH: ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          # CSC_LINK: ${{ secrets.CSC_LINK }}
-          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          SM_CODE_SIGNING_CERT_SHA1_HASH: ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}
         run: npm run publish
 
   verify-assets:
-    name: Verify Release Assets
+    name: ✅ Verify Release Assets
     needs: build
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: read
       actions: read
       id-token: write
+
     steps:
-      - name: Github checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - name: Use Node.js
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🧩 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Verify all release assets are uploaded
+
+      - name: 🔐 Check GITHUB_TOKEN permissions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Verifying GitHub token access..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user)
+          if [ "$response" != "200" ]; then
+            echo "❌ GITHUB_TOKEN invalid or lacks 'contents' permission. Response code: $response"
+            exit 1
+          fi
+          echo "✅ GITHUB_TOKEN verified successfully."
+
+      - name: 📦 Verify release assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/verify-release-assets.js

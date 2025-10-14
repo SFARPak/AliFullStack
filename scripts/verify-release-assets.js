@@ -36,7 +36,7 @@ async function verifyReleaseAssets() {
         headers: {
           Authorization: `token ${token}`,
           Accept: "application/vnd.github.v3+json",
-          "User-Agent": "dyad-release-verifier",
+          "User-Agent": "alifullstack-release-verifier",
         },
       });
 
@@ -59,7 +59,7 @@ async function verifyReleaseAssets() {
           headers: {
             Authorization: `token ${token}`,
             Accept: "application/vnd.github.v3+json",
-            "User-Agent": "dyad-release-verifier",
+            "User-Agent": "alifullstack-release-verifier",
           },
         });
 
@@ -97,7 +97,7 @@ async function verifyReleaseAssets() {
           headers: {
             Authorization: `token ${token}`,
             Accept: "application/vnd.github.v3+json",
-            "User-Agent": "dyad-release-verifier",
+            "User-Agent": "alifullstack-release-verifier",
           },
         });
 
@@ -164,12 +164,12 @@ async function verifyReleaseAssets() {
     };
 
     const expectedAssets = [
-      `dyad-${normalizeVersionForPlatform(version, "rpm")}-1.x86_64.rpm`,
-      `dyad-${normalizeVersionForPlatform(version, "nupkg")}-full.nupkg`,
-      `dyad-${version}.Setup.exe`,
-      `dyad-darwin-arm64-${version}.zip`,
-      `dyad-darwin-x64-${version}.zip`,
-      `dyad_${normalizeVersionForPlatform(version, "deb")}_amd64.deb`,
+      `alifullstack-${normalizeVersionForPlatform(version, "rpm")}-1.x86_64.rpm`,
+      `alifullstack-${normalizeVersionForPlatform(version, "nupkg")}-full.nupkg`,
+      `alifullstack-${version}.Setup.exe`,
+      `alifullstack-darwin-arm64-${version}.zip`,
+      `alifullstack-darwin-x64-${version}.zip`,
+      `alifullstack_${normalizeVersionForPlatform(version, "deb")}_amd64.deb`,
       "RELEASES",
     ];
 
