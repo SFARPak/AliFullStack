@@ -51,7 +51,32 @@ async function verifyReleaseAssets() {
       const userData = await userCheck.json();
       console.log(`✅ Authenticated as: ${userData.login}`);
     } else {
-      console.log("🏃 Running inside GitHub Actions — skipping token permission check");
+      console.log("🏃 Running inside GitHub Actions — no user authentication check needed");
+
+      // Test API access by fetching org/user info
+      try {
+        const appCheck = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json",
+            "User-Agent": "dyad-release-verifier",
+          },
+        });
+
+        if (!appCheck.ok) {
+          const body = await appCheck.text();
+          console.error("❌ Token authentication failed!");
+          console.error(`Status: ${appCheck.status} ${appCheck.statusText}`);
+          console.error(`Response body: ${body}`);
+          process.exit(1);
+        }
+
+        const repoData = await appCheck.json();
+        console.log(`✅ Token authenticated for repository: ${repoData.full_name}`);
+      } catch (error) {
+        console.error("❌ Error testing token authentication:", error.message);
+        process.exit(1);
+      }
     }
 
     // --- Fetch releases with retry logic ---
