@@ -1,4 +1,4 @@
-# 🧠 AliFullStack — AI-Powered Full-Stack App Builder (Local-First, Open Source)
+# 🧠 AliFullStack — AI-Powered Full-Stack App Builder & Automation — Build, Test & Deploy with LLMs - Loveable Open-Source Alternative (Local-First, Open Source)
 
 **AliFullStack** is a blazing-fast, **AI-driven Full-Stack App Builder** that runs entirely **locally** — giving you total **data privacy**, **vendor freedom**, and powerful **LLM integration**. Whether you're a solo indie hacker, startup, or enterprise developer, AliFullStack helps you **build, test, and deploy apps autonomously** using your favorite frontend and backend frameworks.
 
