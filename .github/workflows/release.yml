@@ -102,47 +102,8 @@ jobs:
       contents: read
       packages: read
       actions: read
+      id-token: write
     steps:
-      - name: Check token permissions
-        run: |
-          echo "🔐 Checking GITHUB_TOKEN permissions..."
-          echo "📡 Making API call to: https://api.github.com/user"
-
-          # Capture full response for detailed logging
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
-               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -H "Accept: application/vnd.github.v3+json" \
-               -H "User-Agent: dyad-release-workflow" \
-               https://api.github.com/user)
-
-          # Extract status code
-          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
-          JSON_RESPONSE=$(echo "$RESPONSE" | sed '/HTTP_STATUS:/d')
-
-          echo "📡 API Response Status: $HTTP_STATUS"
-
-          # Log token scopes and permissions from headers (if available)
-          echo "🔑 Token scopes: $(curl -s -I \
-               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -H "Accept: application/vnd.github.v3+json" \
-               https://api.github.com/user | grep -i "x-oauth-scopes:" | sed 's/.*: //' || echo "Not available")"
-
-          echo "📋 Accepted permissions: $(curl -s -I \
-               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -H "Accept: application/vnd.github.v3+json" \
-               https://api.github.com/user | grep -i "x-accepted-github-permissions:" | sed 's/.*: //' || echo "Not available")"
-
-          if [ "$HTTP_STATUS" -eq 200 ]; then
-            echo "✅ Token authentication successful"
-            echo "👤 User data:"
-            echo "$JSON_RESPONSE" | jq '.login // "Not available"'
-            echo "📋 Permissions:"
-            echo "$JSON_RESPONSE" | jq '.permissions // empty'
-          else
-            echo "❌ Token authentication failed with status: $HTTP_STATUS"
-            echo "🔍 Response body: $JSON_RESPONSE"
-            exit 1
-          fi
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Use Node.js
