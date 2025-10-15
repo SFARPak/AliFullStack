@@ -80,7 +80,7 @@ async function verifyReleaseAssets() {
     }
 
     // --- Fetch releases with retry logic ---
-    const tagName = `release/v${version}`;
+    const tagName = `v${version}`;
     const maxRetries = 5;
     const baseDelay = 10000; // 10 seconds
     let release = null;
