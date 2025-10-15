@@ -10,6 +10,22 @@ Inspired by tools like *Lovable*, *v0.dev*, and *Bolt*, but with no lock-in or c
 
 <!-- 🌐 **Live Demo & Docs**: [alifullstack.alitech.io](https://alifullstack.alitech.io) -->
 
+## 👏 Acknowledgments
+
+AliFullstack builds on top of other awesome open-source projects:
+
+- [Dyad](https://github.com/dyad-sh/dyad)
+- [Roo-Code](https://github.com/RooCodeInc/Roo-Code)
+- [React](https://github.com/facebook/react)
+- [NextJS](https://github.com/vercel/next.js)
+-[Vue](https://github.com/vuejs/core)
+- [Django](https://github.com/django/django)
+- [FastAPI](https://github.com/fastapi/fastapi)
+- [Flask](https://github.com/pallets/flask)
+- [Node.js](https://github.com/nodejs/node)
+
+Huge thanks to their creators and contributors!
+
 ---
 
 ## ⭐ Why Star This Project?
