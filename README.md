@@ -117,6 +117,122 @@ No sign-up. No cloud lock-in. Just download and build.
 
 ---
 
+## 🛠️ Development Setup
+
+### Prerequisites
+
+- **Node.js** (>=20)
+- **npm** or **pnpm** (recommended)
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```sh
+   git clone https://github.com/SFARPak/AliFullStack.git
+   cd AliFullStack
+   ```
+
+2. **Install dependencies:**
+
+   ```sh
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. **Create the userData directory (required for database):**
+
+   ```sh
+   # Unix/macOS/Linux:
+   mkdir -p userData
+
+   # Windows PowerShell:
+   mkdir userData
+
+   # Windows Command Prompt:
+   md userData
+   ```
+
+4. **Apply database migrations:**
+
+   ```sh
+   npm run db:generate
+   npm run db:push
+   ```
+
+5. **Run in development mode:**
+
+   ```sh
+   npm start
+   ```
+
+   This will start the Electron app in development mode.
+
+### Optional Setup
+
+- **Set up pre-commit hooks** (recommended for contributors):
+
+  ```sh
+  npm run init-precommit
+  ```
+
+- **Database management:**
+
+  ```sh
+  # Open Drizzle Studio for database inspection
+  npm run db:studio
+  ```
+
+### Testing
+
+- **Run unit tests:**
+
+  ```sh
+  npm test
+  ```
+
+- **Run E2E tests:**
+
+  First, build the app for testing:
+
+  ```sh
+  npm run pre:e2e
+  ```
+
+  Then run the tests:
+
+  ```sh
+  npm run e2e
+  ```
+
+### Pushing Changes to GitHub
+
+1. **Create a feature branch:**
+
+   ```sh
+   git checkout -b your-feature-branch
+   ```
+
+2. **Make your changes and commit:**
+
+   ```sh
+   git add .
+   git commit -m "Your commit message"
+   ```
+
+3. **Push to your fork:**
+
+   ```sh
+   git push origin your-feature-branch
+   ```
+
+4. **Create a Pull Request** on GitHub from your feature branch to the main branch.
+
+For more details, see **[CONTRIBUTING.md](./CONTRIBUTING.md)**.
+
+---
+
 ## 👥 Join the Community
 
 Be part of a growing network of **AI tinkerers**, **indie hackers**, and **full-stack dreamers**:
