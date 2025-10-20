@@ -167,13 +167,14 @@ async function verifyReleaseAssets() {
     };
 
     const expectedAssets = [
-      `alifullstack-${normalizeVersionForPlatform(version, "rpm")}-1.x86_64.rpm`,
-      `alifullstack-${normalizeVersionForPlatform(version, "nupkg")}-full.nupkg`,
-      `alifullstack-${version}.Setup.exe`,
-      `alifullstack-darwin-arm64-${version}.zip`,
-      `alifullstack-darwin-x64-${version}.zip`,
-      `alifullstack_${normalizeVersionForPlatform(version, "deb")}_amd64.deb`,
-      "RELEASES",
+      `AliFullStack-${normalizeVersionForPlatform(version, "rpm")}-1.x86_64.rpm`,
+      `AliFullStack-${normalizeVersionForPlatform(version, "nupkg")}-full.nupkg`,
+      `AliFullStack-win32-x64-${version}.zip`,
+      `AliFullStack-darwin-arm64-${version}.zip`,
+      `AliFullStack-darwin-x64-${version}.zip`,
+      `AliFullStack_${normalizeVersionForPlatform(version, "deb")}_amd64.deb`,
+      `AliFullStack Setup ${version}.exe`,
+      `RELEASES`,
     ];
 
     console.log("📋 Expected assets:");
