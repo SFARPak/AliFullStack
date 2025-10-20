@@ -111,6 +111,15 @@ export function getShellEnv(): NodeJS.ProcessEnv {
 import killPort from "kill-port";
 import util from "util";
 import log from "electron-log";
+
+// Helper function to get cross-platform remove command
+function getCrossPlatformRemoveCommand(path: string): string {
+  if (process.platform === "win32") {
+    return `Remove-Item -Recurse -Force "${path}"`;
+  } else {
+    return `rm -rf "${path}"`;
+  }
+}
 import {
   deploySupabaseFunctions,
   getSupabaseProjectName,
@@ -611,12 +620,12 @@ async function executeAppLocalNode({
               cwd: frontendPath
             },
             {
-              command: "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
+              command: `${getCrossPlatformRemoveCommand("node_modules").replace(/"/g, '')} && rm -f package-lock.json && npm install --legacy-peer-deps`,
               description: "clean install with legacy peer deps",
               cwd: frontendPath
             },
             {
-              command: "rm -rf node_modules && npm install",
+              command: `${getCrossPlatformRemoveCommand("node_modules").replace(/"/g, '')} && npm install`,
               description: "clean standard install",
               cwd: frontendPath
             }
@@ -3138,7 +3147,7 @@ async function installNodejsDependenciesRobust(projectPath: string, componentTyp
   try {
     // Clean up and retry with legacy peer deps
     const cleanupCommands = [
-      "rm -rf node_modules",
+      getCrossPlatformRemoveCommand("node_modules"),
       "rm -f package-lock.json",
       "npm install --legacy-peer-deps"
     ];

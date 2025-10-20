@@ -7,6 +7,15 @@ import { promisify } from "node:util";
 
 export const execPromise = promisify(exec);
 
+// Helper function to get cross-platform remove command
+function getCrossPlatformRemoveCommand(path: string): string {
+  if (process.platform === "win32") {
+    return `Remove-Item -Recurse -Force "${path}"`;
+  } else {
+    return `rm -rf "${path}"`;
+  }
+}
+
 export async function executeAddDependency({
   packages,
   message,
@@ -33,7 +42,7 @@ export async function executeAddDependency({
 
     try {
       // Clean up potential corrupted files and temporary directories
-      await execPromise(`rm -rf node_modules/.tmp-* node_modules/*_tmp_* node_modules/.pnpm-debug.log* node_modules/.*-* node_modules/*-*`, {
+      await execPromise(`${getCrossPlatformRemoveCommand("node_modules/.tmp-*").replace(/"/g, '')} ${getCrossPlatformRemoveCommand("node_modules/*_tmp_*").replace(/"/g, '')} ${getCrossPlatformRemoveCommand("node_modules/.pnpm-debug.log*").replace(/"/g, '')} ${getCrossPlatformRemoveCommand("node_modules/.*-*").replace(/"/g, '')} ${getCrossPlatformRemoveCommand("node_modules/*-*").replace(/"/g, '')}`, {
         cwd: appPath,
       });
 
