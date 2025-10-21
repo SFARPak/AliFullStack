@@ -19,6 +19,7 @@ import { getDatabasePath, initializeDatabase } from "./db";
 import { UserSettings } from "./lib/schemas";
 import { handleNeonOAuthReturn } from "./neon_admin/neon_return_handler";
 import { handleRooCodeAuthCallback } from "./ipc/handlers/roocode_auth_handlers";
+import { setMainWindow } from "./dependencyManager";
 
 log.errorHandler.startCatching();
 log.eventLogger.startLogging();
@@ -165,6 +166,8 @@ const createWindow = async () => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
   }
+  // Set main window reference for dependency management
+  setMainWindow(mainWindow);
 
   // Process any pending deep link after window is created
   if (pendingDeepLink) {

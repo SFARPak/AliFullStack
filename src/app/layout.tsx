@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { TitleBar } from "./TitleBar";
 import { useEffect } from "react";
 import { useRunApp } from "@/hooks/useRunApp";
+import { DependencyManager } from "@/components/DependencyManager";
 import { useAtomValue } from "jotai";
 import { previewModeAtom } from "@/atoms/appAtoms";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
     };
   }, [refreshAppIframe, previewMode]);
 
+      <DependencyManager />
   return (
     <>
       <ThemeProvider>

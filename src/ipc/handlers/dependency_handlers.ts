@@ -5,11 +5,23 @@ import { getDyadAppPath } from "../../paths/paths";
 import { executeAddDependency } from "../processors/executeAddDependency";
 import { createLoggedHandler } from "./safe_handle";
 import log from "electron-log";
+import { installDependencies, getDependencyStatus } from "../../dependencyManager";
 
 const logger = log.scope("dependency_handlers");
 const handle = createLoggedHandler(logger);
 
 export function registerDependencyHandlers() {
+  handle(
+    "dependency:install",
+    async (event, { dependencies, retryAppId }: { dependencies: string[]; retryAppId?: number }) => {
+      return await installDependencies(dependencies, undefined, retryAppId);
+    },
+  );
+
+  handle("dependency:get-status", async () => {
+    return await getDependencyStatus();
+  });
+
   handle(
     "chat:add-dep",
     async (

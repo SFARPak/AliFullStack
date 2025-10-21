@@ -5,6 +5,8 @@ import { contextBridge, ipcRenderer } from "electron";
 
 // Whitelist of valid channels
 const validInvokeChannels = [
+  "dependency:install",
+  "dependency:get-status",
   "get-language-models",
   "get-language-models-by-providers",
   "create-custom-language-model",
@@ -130,7 +132,6 @@ const validInvokeChannels = [
   "supabase:fake-connect-and-set-project",
 ];
 
-// Add valid receive channels
 const validReceiveChannels = [
   "chat:response:chunk",
   "chat:response:end",
@@ -144,6 +145,9 @@ const validReceiveChannels = [
   "help:chat:response:chunk",
   "help:chat:response:end",
   "help:chat:response:error",
+  "show-dependency-dialog",
+  "dependency-install-progress",
+  "dependency-install-complete",
 ] as const;
 
 type ValidInvokeChannel = (typeof validInvokeChannels)[number];

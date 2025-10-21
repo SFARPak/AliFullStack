@@ -3257,4 +3257,4 @@ async function installSpecificPythonPackage(projectPath: string, packageName: st
   });
 }
 
-}
+export { registerAppHandlers };
