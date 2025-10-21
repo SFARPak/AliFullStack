@@ -15,6 +15,29 @@ import path from "node:path";
 import os from "node:os";
 import { getDyadAppPath, getUserDataPath } from "../../paths/paths";
 import { ChildProcess, spawn, execSync } from "node:child_process";
+
+/**
+ * DEBUG: Validate command availability in the PATH
+ * This function checks if uvicorn and npx commands are available in the given PATH
+ */
+function validateCommandAvailability(pathEnv: string): void {
+  const commandsToCheck = ['uvicorn', 'npx'];
+
+  for (const command of commandsToCheck) {
+    try {
+      // Check if command exists in PATH by attempting to get its full path
+      const whichCommand = process.platform === 'win32' ? 'where' : 'which';
+      const result = execSync(`${whichCommand} ${command}`, {
+        env: { ...process.env, PATH: pathEnv },
+        encoding: 'utf8',
+        stdio: 'pipe'
+      });
+      logger.info(`✅ DEBUG: Command '${command}' found at: ${result.trim()}`);
+    } catch (error) {
+      logger.error(`❌ DEBUG: Command '${command}' NOT found in PATH. This may cause startup failures in release builds. PATH: ${pathEnv}`);
+    }
+  }
+}
 import git from "isomorphic-git";
 import { promises as fsPromises } from "node:fs";
 
@@ -45,49 +68,57 @@ let cachedShellEnv: NodeJS.ProcessEnv | undefined;
  * @returns The PATH string from the user's login shell.
  */
 export function getExtendedPath(): string {
-  if (cachedExtendedPath) {
-    return cachedExtendedPath;
-  }
+   if (cachedExtendedPath) {
+     return cachedExtendedPath;
+   }
 
-  try {
-    // Spawn a login shell and get its environment
-    // For macOS, 'login -il <shell>' is used to get a login shell.
-    // For Linux, 'bash -lc "env"' or 'zsh -lc "env"' might be used.
-    // We'll try to detect the user's default shell.
-    const shell = process.env.SHELL || "/bin/bash";
-    let command: string;
+   try {
+     // Spawn a login shell and get its environment
+     // For macOS, 'login -il <shell>' is used to get a login shell.
+     // For Linux, 'bash -lc "env"' or 'zsh -lc "env"' might be used.
+     // We'll try to detect the user's default shell.
+     const shell = process.env.SHELL || "/bin/bash";
+     let command: string;
 
-    if (process.platform === "darwin") {
-      // On macOS, a login shell is crucial for tools like Homebrew, pyenv, nvm
-      command = `login -il ${shell} -c "env"`;
-    } else {
-      // For Linux/Windows, a non-login shell might be sufficient, but -l ensures full environment
-      command = `${shell} -lc "env"`;
-    }
+     if (process.platform === "darwin") {
+       // On macOS, a login shell is crucial for tools like Homebrew, pyenv, nvm
+       command = `login -il ${shell} -c "env"`;
+     } else {
+       // For Linux/Windows, a non-login shell might be sufficient, but -l ensures full environment
+       command = `${shell} -lc "env"`;
+     }
 
-    logger.info(`Attempting to capture PATH from login shell using command: ${command}`);
-    const output = execSync(command, { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }); // 10MB buffer
+     logger.info(`Attempting to capture PATH from login shell using command: ${command}`);
+     const output = execSync(command, { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 }); // 10MB buffer
 
-    const env: NodeJS.ProcessEnv = {};
-    output.split("\n").forEach((line) => {
-      const parts = line.split("=");
-      if (parts.length >= 2) {
-        const key = parts[0];
-        const value = parts.slice(1).join("=");
-        env[key] = value;
-      }
-    });
+     const env: NodeJS.ProcessEnv = {};
+     output.split("\n").forEach((line) => {
+       const parts = line.split("=");
+       if (parts.length >= 2) {
+         const key = parts[0];
+         const value = parts.slice(1).join("=");
+         env[key] = value;
+       }
+     });
 
-    cachedShellEnv = env;
-    cachedExtendedPath = env.PATH || process.env.PATH || "";
-    logger.info(`Successfully captured PATH from login shell: ${cachedExtendedPath}`);
-    return cachedExtendedPath;
-  } catch (error) {
-    logger.error(`Failed to capture PATH from login shell: ${error}. Falling back to current process PATH.`);
-    cachedExtendedPath = process.env.PATH || "";
-    cachedShellEnv = process.env; // Fallback to current process env
-    return cachedExtendedPath;
-  }
+     cachedShellEnv = env;
+     cachedExtendedPath = env.PATH || process.env.PATH || "";
+     logger.info(`Successfully captured PATH from login shell: ${cachedExtendedPath}`);
+
+     // DEBUG: Validate command availability in the captured PATH
+     validateCommandAvailability(cachedExtendedPath);
+
+     return cachedExtendedPath;
+   } catch (error) {
+     logger.error(`Failed to capture PATH from login shell: ${error}. Falling back to current process PATH.`);
+     cachedExtendedPath = process.env.PATH || "";
+     cachedShellEnv = process.env; // Fallback to current process env
+
+     // DEBUG: Validate command availability in the fallback PATH
+     validateCommandAvailability(cachedExtendedPath);
+
+     return cachedExtendedPath;
+   }
 }
 
 /**
@@ -769,8 +800,13 @@ async function executeAppLocalNode({
 
       logger.info(`Final backend command: ${backendCommand}`);
 
+      // DEBUG: Log the shell environment PATH being used for backend startup
+      const shellEnv = getShellEnv();
+      logger.info(`DEBUG: Backend startup using PATH: ${shellEnv.PATH}`);
+      logger.info(`DEBUG: Backend startup command will be executed in: ${backendPath}`);
+
       // Always use executeComplexCommand for backend commands as they may be complex
-      const backendProcess = await executeComplexCommand(backendCommand, backendPath, getShellEnv());
+      const backendProcess = await executeComplexCommand(backendCommand, backendPath, shellEnv);
 
       if (backendProcess.pid) {
         const backendProcessId = processCounter.increment();
@@ -831,12 +867,18 @@ async function executeAppLocalNode({
     try {
       const frontendCommand = `npx vite --port ${frontendPort} --host`;
       logger.info(`Starting frontend server with command: ${frontendCommand} in ${frontendPath}`);
+
+      // DEBUG: Log the shell environment PATH being used for frontend startup
+      const shellEnv = getShellEnv();
+      logger.info(`DEBUG: Frontend startup using PATH: ${shellEnv.PATH}`);
+      logger.info(`DEBUG: Frontend startup command will be executed in: ${frontendPath}`);
+
       const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
         stdio: "pipe",
         detached: false,
-        env: getShellEnv(),
+        env: shellEnv,
       });
 
       if (frontendProcess.pid) {
@@ -1292,6 +1334,40 @@ function listenToProcess({
         });
     }
 
+    // Detect missing system dependencies (uvicorn/npx) causing startup failures
+    const isMissingDependencyError =
+      message.includes("Command not found") ||
+      message.includes("command not found") ||
+      message.includes("ModuleNotFoundError") ||
+      message.includes("uvicorn") ||
+      message.includes("npx");
+
+    if (isMissingDependencyError && (message.includes("uvicorn") || message.includes("npx"))) {
+      logger.info(`Detected missing system dependency error for app ${appId}, checking system dependencies`);
+
+      // Check if system dependencies are missing
+      import("../../dependencyManager").then(async ({ checkMissingDependenciesForAppStart }) => {
+        const depCheck = await checkMissingDependenciesForAppStart();
+
+        if (depCheck.shouldShowDialog) {
+          logger.info(`Missing system dependencies detected for app ${appId}: ${depCheck.missingDependencies.join(", ")}`);
+
+          safeSend(event.sender, "app:output", {
+            type: "stdout",
+            message: `🔧 Detected missing system dependencies (${depCheck.missingDependencies.join(", ")}) that may be causing startup failures. Checking permissions to install...`,
+            appId,
+          });
+
+          // Import dependency manager and trigger the dialog
+          import("../../dependencyManager").then(({ checkDependenciesOnStartup }) => {
+            checkDependenciesOnStartup(appId);
+          });
+        }
+      }).catch((error) => {
+        logger.error(`Error checking system dependencies for app ${appId}:`, error);
+      });
+    }
+
     // Auto-fix common backend errors
     if (terminalType === "backend") {
       // Check for common backend startup failures
@@ -1660,9 +1736,8 @@ async function stopDockerContainersOnPort(port: number): Promise<void> {
   } catch (e) {
     logger.warn(`Failed stopping Docker containers on port ${port}: ${e}`);
   }
-}
 
-export function registerAppHandlers() {
+function registerAppHandlers() {
   handle("restart-dyad", async () => {
     app.relaunch();
     app.quit();
@@ -2962,6 +3037,26 @@ function getCommand({
     : DEFAULT_COMMAND;
 }
 
+
+
+
+
+function getInstallCommand(framework: string): string {
+  switch (framework) {
+    case "nodejs":
+      return "npm install";
+    case "django":
+    case "fastapi":
+    case "flask":
+      return "pip install -r requirements.txt";
+    default:
+      logger.warn(`Unknown framework for dependency installation: ${framework}`);
+      return "";
+  }
+}
+
+
+
 async function cleanUpPort(port: number) {
   // Always use host mode cleanup since apps always run in host mode
   await killProcessOnPort(port);
@@ -3015,216 +3110,8 @@ async function installDependencies(projectPath: string, framework: string) {
   });
 }
 
-async function installDependenciesAuto(projectPath: string, componentType: string): Promise<void> {
-  // Determine framework based on directory contents and component type
-  let framework = "nodejs"; // default
 
-  if (componentType === "backend") {
-    if (fs.existsSync(path.join(projectPath, "requirements.txt"))) {
-      framework = "python";
-    }
-  } else if (componentType === "frontend") {
-    if (fs.existsSync(path.join(projectPath, "package.json"))) {
-      framework = "nodejs";
-    }
-  }
 
-  // For main app directory, check both
-  if (componentType === "main") {
-    if (fs.existsSync(path.join(projectPath, "package.json"))) {
-      framework = "nodejs";
-    } else if (fs.existsSync(path.join(projectPath, "requirements.txt"))) {
-      framework = "python";
-    }
-  }
-
-  if (framework === "nodejs") {
-    // For Node.js, try multiple installation strategies to handle peer dependency conflicts
-    return installNodejsDependenciesRobust(projectPath, componentType);
-  } else {
-    // For Python and other frameworks, use the standard approach
-    const installCommand = getInstallCommand(framework);
-
-    return new Promise<void>((resolve, reject) => {
-      const installProcess = spawn(installCommand, [], {
-        cwd: projectPath,
-        shell: true,
-        stdio: "pipe",
-        env: getShellEnv(),
-      });
-
-      logger.info(`Installing dependencies with: ${installCommand} in ${projectPath}`);
-
-      let installOutput = "";
-      let installError = "";
-
-      installProcess.stdout?.on("data", (data) => {
-        installOutput += data.toString();
-      });
-
-      installProcess.stderr?.on("data", (data) => {
-        installError += data.toString();
-      });
-
-      installProcess.on("close", (code) => {
-        if (code === 0) {
-          logger.info(`Successfully installed dependencies for ${componentType} in ${projectPath}`);
-          resolve();
-        } else {
-          logger.error(`Dependency installation failed for ${componentType} (code: ${code}): ${installError}`);
-          reject(new Error(`Installation failed: ${installError}`));
-        }
-      });
-
-      installProcess.on("error", (err) => {
-        logger.error(`Failed to start dependency installation for ${componentType}:`, err);
-        reject(err);
-      });
-    });
-  }
-}
-
-async function installNodejsDependenciesRobust(projectPath: string, componentType: string): Promise<void> {
-  const installStrategies = [
-    { command: "npm install", description: "standard install" },
-    { command: "npm install --legacy-peer-deps", description: "with legacy peer deps" },
-    { command: "npm install --force", description: "forced install (last resort)" }
-  ];
-
-  for (const strategy of installStrategies) {
-    try {
-      logger.info(`Attempting Node.js dependency installation ${strategy.description}: ${strategy.command} in ${projectPath}`);
-
-      await new Promise<void>((resolve, reject) => {
-        const installProcess = spawn(strategy.command, [], {
-          cwd: projectPath,
-          shell: true,
-          stdio: "pipe",
-          env: getShellEnv(),
-        });
-
-        let installOutput = "";
-        let installError = "";
-
-        installProcess.stdout?.on("data", (data) => {
-          installOutput += data.toString();
-        });
-
-        installProcess.stderr?.on("data", (data) => {
-          installError += data.toString();
-        });
-
-        installProcess.on("close", (code) => {
-          if (code === 0) {
-            logger.info(`Successfully installed Node.js dependencies ${strategy.description} for ${componentType} in ${projectPath}`);
-            resolve();
-          } else {
-            const errorMsg = `Node.js dependency installation failed ${strategy.description} (code: ${code}): ${installError}`;
-            logger.warn(errorMsg);
-            reject(new Error(errorMsg));
-          }
-        });
-
-        installProcess.on("error", (err) => {
-          const errorMsg = `Failed to start Node.js dependency installation ${strategy.description} for ${componentType}: ${err.message}`;
-          logger.error(errorMsg);
-          reject(new Error(errorMsg));
-        });
-      });
-
-      // If we get here, the installation succeeded
-      return;
-
-    } catch (error) {
-      logger.warn(`Node.js dependency installation strategy "${strategy.description}" failed, trying next approach...`);
-      // Continue to next strategy
-    }
-  }
-
-  // If all strategies failed, try clearing node_modules and trying again
-  logger.warn(`All Node.js installation strategies failed, attempting cleanup and retry...`);
-
-  try {
-    // Clean up and retry with legacy peer deps
-    const cleanupCommands = [
-      getCrossPlatformRemoveCommand("node_modules"),
-      "rm -f package-lock.json",
-      "npm install --legacy-peer-deps"
-    ];
-
-    for (const cleanupCmd of cleanupCommands) {
-      logger.info(`Running cleanup command: ${cleanupCmd} in ${projectPath}`);
-
-      await new Promise<void>((resolve, reject) => {
-        const cleanupProcess = spawn(cleanupCmd, [], {
-          cwd: projectPath,
-          shell: true,
-          stdio: "pipe",
-          env: getShellEnv(),
-        });
-
-        cleanupProcess.on("close", (code) => {
-          if (code === 0) {
-            resolve();
-          } else {
-            resolve(); // Don't fail on cleanup commands
-          }
-        });
-
-        cleanupProcess.on("error", () => {
-          resolve(); // Don't fail on cleanup commands
-        });
-      });
-    }
-
-    logger.info(`Successfully completed cleanup and retry for ${componentType} in ${projectPath}`);
-
-  } catch (cleanupError) {
-    logger.error(`Cleanup and retry failed for ${componentType}:`, cleanupError);
-    throw new Error(`All dependency installation attempts failed, including cleanup retry. Please run 'npm install --legacy-peer-deps' manually in the ${componentType} directory.`);
-  }
-}
-
-async function installSpecificPackage(projectPath: string, packageName: string): Promise<void> {
-  const installCommand = `npm install ${packageName}`;
-
-  return new Promise<void>((resolve, reject) => {
-    const installProcess = spawn(installCommand, [], {
-      cwd: projectPath,
-      shell: true,
-      stdio: "pipe",
-      env: getShellEnv(),
-    });
-
-    logger.info(`Installing specific package: ${installCommand} in ${projectPath}`);
-
-    let installOutput = "";
-    let installError = "";
-
-    installProcess.stdout?.on("data", (data) => {
-      installOutput += data.toString();
-    });
-
-    installProcess.stderr?.on("data", (data) => {
-      installError += data.toString();
-    });
-
-    installProcess.on("close", (code) => {
-      if (code === 0) {
-        logger.info(`Successfully installed ${packageName} in ${projectPath}`);
-        resolve();
-      } else {
-        logger.warn(`Failed to install ${packageName} (code: ${code}): ${installError}`);
-        reject(new Error(`Installation failed: ${installError}`));
-      }
-    });
-
-    installProcess.on("error", (err) => {
-      logger.error(`Failed to start installation of ${packageName}:`, err);
-      reject(err);
-    });
-  });
-}
 
 async function installDependenciesAutoFallback(projectPath: string, componentType: string): Promise<void> {
   // Fallback: try npm install --legacy-peer-deps
@@ -3368,4 +3255,6 @@ async function installSpecificPythonPackage(projectPath: string, packageName: st
       reject(new Error(errorMsg));
     });
   });
+}
+
 }
