@@ -1,39 +1,38 @@
-# AliFullStack v0.0.5 Release Notes
+# Changelog v0.0.5
 
-## Release Summary
+## 🚀 Features
 
-Version 0.0.5 focuses on **build system stabilization and Windows deployment improvements**. This release addresses critical issues in the CI/CD pipeline, improves Windows build compatibility, and enhances the overall development workflow. The changes ensure more reliable releases and better cross-platform compatibility.
+### Dependency Management System
+- **System Dependency Detection**: Added automatic detection of missing system dependencies (uvicorn, npx) in release binaries
+- **Permission Request Dialog**: Implemented user-friendly permission dialog that appears when system dependencies are missing
+- **Auto-Installation**: Added automatic installation of missing dependencies with user approval
+- **PATH Environment Capture**: Enhanced PATH environment variable capture using login shells in packaged applications
 
-## Key Improvements
+### Build Fixes
+- **Vite Configuration**: Fixed Node.js module bundling issues in electron-forge builds
+- **External Modules**: Properly externalized Node.js fs and path modules for renderer builds
+- **Syntax Error Resolution**: Fixed misplaced export statements and import issues in TypeScript files
 
-✅ **Enhanced Windows Build Support** - Fixed Windows build commands and resolved code signing issues
-✅ **Improved Release Pipeline** - Added retry logic and better error handling for GitHub API interactions
-✅ **Streamlined CI/CD Process** - Updated GitHub Actions workflows with proper permissions and token handling
-✅ **Better Documentation** - Enhanced README with development setup instructions and opensource acknowledgements
+## 🐛 Bug Fixes
 
-## Changelog
+- **Release Binary Startup**: Fixed "command not found" errors for uvicorn and npx in packaged Electron applications
+- **Import Errors**: Resolved Node.js fs module import issues in Vite builds
+- **Build Configuration**: Updated renderer config to prevent bundling conflicts with Node.js modules
 
-### 🚀 Release/Build Improvements
+## 🔧 Technical Improvements
 
-- **Fixed Windows build commands** - Resolved issues with Windows build process
-- **Enhanced release workflow reliability** - Added retry logic with 10 attempts and 30-second delays to handle GitHub API indexing delays
-- **Improved version management** - Reverted version to 0.0.5 and fixed version mismatch between package.json and package-lock.json
-- **Fixed release tagging** - Corrected release tag naming from 'release/v0.0.5' to 'v0.0.5'
-- **Enhanced GitHub Actions** - Updated token permissions and removed problematic bash token checks
-- **Improved workflow configuration** - Updated release.yaml publish section and fixed workflow YAML errors
-- **Better asset verification** - Added debugging output for release verification process
-- **Windows distributable improvements** - Added Windows ZIP maker and resolved Squirrel signing errors
-- **Build process optimization** - Disabled problematic Windows code signing to resolve build failures
+- **Error Handling**: Enhanced error detection and user feedback for missing system dependencies
+- **Cross-Platform Support**: Improved compatibility across different operating systems
+- **User Experience**: Better error messages and permission request flows
 
-### 📚 Documentation
+## 📦 Files Changed
 
-- **Enhanced development setup guide** - Added comprehensive development setup and GitHub push instructions to README.md
-- **Opensource acknowledgements** - Updated README with proper opensource project acknowledgements
+- `vite.renderer.config.mts`: Added external module configuration
+- `vite.main.config.mts`: Updated external modules list
+- `src/ipc/utils/file_utils.ts`: Fixed Node.js import syntax
+- `src/ipc/handlers/app_handlers.ts`: Added dependency detection logic
+- Various dependency management files added for system dependency handling
 
 ---
 
-*Release Date: October 2025*  
-*Commits: 20*  
-*Author: SFARPak*
-
-**Note**: This release represents a stabilization milestone focused on improving the development and deployment experience. The improvements in build processes and Windows compatibility lay the foundation for future feature development.
+*This version resolves critical issues with system dependency availability in packaged Electron applications, ensuring smooth startup and operation across different user environments.*
