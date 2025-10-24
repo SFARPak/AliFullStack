@@ -1,14 +1,30 @@
-# 🧠 AliFullStack — AI-Powered Full-Stack App Builder & Automation — Build, Test & Deploy with LLMs - Loveable Open-Source Alternative (Local-First, Open Source)
+# 🧠 AliFullStack — AI-Powered Full-Stack App Builder (Local-First, Open Source)
 
 **AliFullStack** is a blazing-fast, **AI-driven Full-Stack App Builder** that runs entirely **locally** — giving you total **data privacy**, **vendor freedom**, and powerful **LLM integration**. Whether you're a solo indie hacker, startup, or enterprise developer, AliFullStack helps you **build, test, and deploy apps autonomously** using your favorite frontend and backend frameworks.
 
 > ✅ 100% Local | 🚀 LLM-Powered | 🧠 BYO AI API Key | 🧩 Framework-Agnostic | 💡 Open Source
 
-Inspired by tools like _Lovable_, _v0.dev_, and _Bolt_, but with no lock-in or cloud dependency. Built on top of [Dyad](https://github.com/dyad-sh/dyad), AliFullStack gives you the power of AI without sacrificing control.
+Inspired by tools like *Lovable*, *v0.dev*, and *Bolt*, but with no lock-in or cloud dependency. Built on top of [Dyad](https://github.com/dyad-sh/dyad), AliFullStack gives you the power of AI without sacrificing control.
 
 ![AliFullStack Screenshot](https://github.com/user-attachments/assets/f6c83dfc-6ffd-4d32-93dd-4b9c46d17790)
 
 <!-- 🌐 **Live Demo & Docs**: [alifullstack.alitech.io](https://alifullstack.alitech.io) -->
+
+## 👏 Acknowledgments
+
+AliFullstack builds on top of other awesome open-source projects:
+
+- [Dyad](https://github.com/dyad-sh/dyad)
+- [Roo-Code](https://github.com/RooCodeInc/Roo-Code)
+- [React](https://github.com/facebook/react)
+- [NextJS](https://github.com/vercel/next.js)
+-[Vue](https://github.com/vuejs/core)
+- [Django](https://github.com/django/django)
+- [FastAPI](https://github.com/fastapi/fastapi)
+- [Flask](https://github.com/pallets/flask)
+- [Node.js](https://github.com/nodejs/node)
+
+Huge thanks to their creators and contributors!
 
 ---
 
@@ -36,28 +52,24 @@ Help us grow! If you're excited about AI developer tools, autonomous coding, or 
 AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 
 ### 🎨 Frontend Frameworks
-
 - [x] [ReactJS](https://reactjs.org)
 - [x] [NextJS](https://nextjs.org)
 - [x] [Vue 3](https://vuejs.org)
 - [ ] [Angular](https://angular.io)
-- [ ] Svelte _(planned)_
-- [ ] SolidJS _(planned)_
-- [ ] Qwik _(planned)_
+- [ ] Svelte *(planned)*
+- [ ] SolidJS *(planned)*
+- [ ] Qwik *(planned)*
 
 ### 🔧 Backend Frameworks
-
 - [x] [Django](https://djangoproject.com)
 - [x] [FastAPI](https://fastapi.tiangolo.com)
 - [x] [Flask](https://flask.palletsprojects.com)
 - [x] [Node.js](https://nodejs.org)
-- [ ] Rust _(planned)_
-- [ ] Ruby on Rails _(planned)_
-- [ ] Go _(planned)_
-- [ ] Laravel _(planned)_
+- [ ] Ruby on Rails *(planned)*
+- [ ] Go *(planned)*
+- [ ] Laravel *(planned)*
 
 ### 🧠 AI/LLM Integrations
-
 - [x] [OpenAI GPT](https://openai.com)
 - [x] [Google Gemini](https://ai.google.dev)
 - [x] [Google Vertex AI](https://cloud.google.com/vertex-ai)
@@ -68,11 +80,10 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 - [x] [xAI](https://x.ai)
 - [x] [AWS Bedrock](https://aws.amazon.com/bedrock/)
 - [ ] [Roo Code Cloud](https://roocode.com)
-- [ ] Mistral _(planned)_
-- [ ] Cohere _(planned)_
+- [ ] Mistral *(planned)*
+- [ ] Cohere *(planned)*
 
 ### ✨ In Progress & Planned Features
-
 - [x] Full-stack project generation
 - [x] **Autonomous App Development** — AI-driven end-to-end development with minimal human input
   - [x] Frontend-to-backend transition automation
@@ -106,12 +117,128 @@ No sign-up. No cloud lock-in. Just download and build.
 
 ---
 
+## 🛠️ Development Setup
+
+### Prerequisites
+
+- **Node.js** (>=20)
+- **npm** or **pnpm** (recommended)
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```sh
+   git clone https://github.com/SFARPak/AliFullStack.git
+   cd AliFullStack
+   ```
+
+2. **Install dependencies:**
+
+   ```sh
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. **Create the userData directory (required for database):**
+
+   ```sh
+   # Unix/macOS/Linux:
+   mkdir -p userData
+
+   # Windows PowerShell:
+   mkdir userData
+
+   # Windows Command Prompt:
+   md userData
+   ```
+
+4. **Apply database migrations:**
+
+   ```sh
+   npm run db:generate
+   npm run db:push
+   ```
+
+5. **Run in development mode:**
+
+   ```sh
+   npm start
+   ```
+
+   This will start the Electron app in development mode.
+
+### Optional Setup
+
+- **Set up pre-commit hooks** (recommended for contributors):
+
+  ```sh
+  npm run init-precommit
+  ```
+
+- **Database management:**
+
+  ```sh
+  # Open Drizzle Studio for database inspection
+  npm run db:studio
+  ```
+
+### Testing
+
+- **Run unit tests:**
+
+  ```sh
+  npm test
+  ```
+
+- **Run E2E tests:**
+
+  First, build the app for testing:
+
+  ```sh
+  npm run pre:e2e
+  ```
+
+  Then run the tests:
+
+  ```sh
+  npm run e2e
+  ```
+
+### Pushing Changes to GitHub
+
+1. **Create a feature branch:**
+
+   ```sh
+   git checkout -b your-feature-branch
+   ```
+
+2. **Make your changes and commit:**
+
+   ```sh
+   git add .
+   git commit -m "Your commit message"
+   ```
+
+3. **Push to your fork:**
+
+   ```sh
+   git push origin your-feature-branch
+   ```
+
+4. **Create a Pull Request** on GitHub from your feature branch to the main branch.
+
+For more details, see **[CONTRIBUTING.md](./CONTRIBUTING.md)**.
+
+---
+
 ## 👥 Join the Community
 
 Be part of a growing network of **AI tinkerers**, **indie hackers**, and **full-stack dreamers**:
 
 - 🧵 Reddit: [r/alifullstackbuilders](https://www.reddit.com/user/alifullstackbuilder/)
-- 🐦 Twitter/X: [@alifullstack](https://x.com/AliFullStackAI) _(coming soon)_
+- 🐦 Twitter/X: [@alifullstack](https://x.com/AliFullStackAI) *(coming soon)*
 - 🌐 Website: [alifullstack.alitech.io](https://alifullstack.alitech.io)
 
 ---
@@ -121,7 +248,6 @@ Be part of a growing network of **AI tinkerers**, **indie hackers**, and **full-
 AliFullStack is **Apache 2.0 licensed** and open to contributors!
 
 You can:
-
 - 🐛 Fix bugs
 - ✨ Add features
 - 📝 Improve documentation
@@ -134,7 +260,6 @@ You can:
 ## 📬 Stay Updated
 
 Be the first to know about:
-
 - ✨ New Features
 - 📦 Releases
 - 🧠 Devlogs
