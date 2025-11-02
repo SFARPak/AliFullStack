@@ -44,7 +44,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Clean up
         run: |
-          rm -rf node_modules package-lock.json
+          rm -rf node_modules
           npm cache clean --force
       - name: Install node modules
         run: npm install --no-audit --no-fund --progress=false
