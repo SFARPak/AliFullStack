@@ -237,7 +237,10 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
 			if (trimmedInput) {
 				setIsEnhancingPrompt(true)
-				vscode.postMessage({ type: "enhancePrompt" as const, text: trimmedInput })
+				vscode.postMessage({
+					type: "enhancePrompt" as const,
+					text: trimmedInput,
+				})
 			} else {
 				setInputValue(t("chat:enhancePromptDescription"))
 			}
@@ -856,7 +859,10 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							)
 
 							if (typeof vscode !== "undefined") {
-								vscode.postMessage({ type: "draggedImages", dataUrls: dataUrls })
+								vscode.postMessage({
+									type: "draggedImages",
+									dataUrls: dataUrls,
+								})
 							}
 						} else {
 							console.warn(t("chat:noValidImages"))

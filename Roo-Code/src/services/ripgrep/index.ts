@@ -181,7 +181,9 @@ export async function regexSearchFiles(
 						line: parsed.data.line_number,
 						text: truncateLine(parsed.data.lines.text),
 						isMatch: parsed.type === "match",
-						...(parsed.type === "match" && { column: parsed.data.absolute_offset }),
+						...(parsed.type === "match" && {
+							column: parsed.data.absolute_offset,
+						}),
 					}
 
 					const lastResult = currentFile.searchResults[currentFile.searchResults.length - 1]

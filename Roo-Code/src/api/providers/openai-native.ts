@@ -62,7 +62,10 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 			this.options.enableGpt5ReasoningSummary = true
 		}
 		const apiKey = this.options.openAiNativeApiKey ?? "not-provided"
-		this.client = new OpenAI({ baseURL: this.options.openAiNativeBaseUrl, apiKey })
+		this.client = new OpenAI({
+			baseURL: this.options.openAiNativeBaseUrl,
+			apiKey,
+		})
 	}
 
 	private normalizeUsage(usage: any, model: OpenAiNativeModel): ApiStreamUsageChunk | undefined {
@@ -277,7 +280,9 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 			// Explicitly include the calculated max output tokens.
 			// Use the per-request reserved output computed by Roo (params.maxTokens from getModelParams).
 			...(model.maxTokens ? { max_output_tokens: model.maxTokens } : {}),
-			...(requestPreviousResponseId && { previous_response_id: requestPreviousResponseId }),
+			...(requestPreviousResponseId && {
+				previous_response_id: requestPreviousResponseId,
+			}),
 			// Include tier when selected and supported by the model, or when explicitly "default"
 			...(requestedTier &&
 				(requestedTier === "default" || allowedTierNames.has(requestedTier)) && {
@@ -1247,7 +1252,12 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 
 		// The o3 models are named like "o3-mini-[reasoning-effort]", which are
 		// not valid model ids, so we need to strip the suffix.
-		return { id: id.startsWith("o3-mini") ? "o3-mini" : id, info, ...params, verbosity: params.verbosity }
+		return {
+			id: id.startsWith("o3-mini") ? "o3-mini" : id,
+			info,
+			...params,
+			verbosity: params.verbosity,
+		}
 	}
 
 	/**
@@ -1320,7 +1330,9 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 
 			// Include text.verbosity only when the model explicitly supports it
 			if (model.info.supportsVerbosity === true) {
-				requestBody.text = { verbosity: (verbosity || "medium") as VerbosityLevel }
+				requestBody.text = {
+					verbosity: (verbosity || "medium") as VerbosityLevel,
+				}
 			}
 
 			// Make the non-streaming request

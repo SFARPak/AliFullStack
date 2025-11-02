@@ -394,7 +394,9 @@ const CodeBlock = memo(
 				outerContainerNearBottomRef.current = isAtBottom
 			}
 
-			scrollContainer.addEventListener("scroll", handleOuterScroll, { passive: true })
+			scrollContainer.addEventListener("scroll", handleOuterScroll, {
+				passive: true,
+			})
 
 			// Initial check
 			handleOuterScroll()
@@ -725,7 +727,11 @@ const CodeBlock = memo(
 							}}>
 							<option
 								value={normalizeLanguage(language)}
-								style={{ fontWeight: "bold", textAlign: "left", fontSize: "1.2em" }}>
+								style={{
+									fontWeight: "bold",
+									textAlign: "left",
+									fontSize: "1.2em",
+								}}>
 								{normalizeLanguage(language)}
 							</option>
 							{
@@ -769,7 +775,10 @@ const CodeBlock = memo(
 											() => {
 												if (codeBlock) {
 													// Check if codeBlock element still exists
-													codeBlock.scrollIntoView({ behavior: "smooth", block: "nearest" })
+													codeBlock.scrollIntoView({
+														behavior: "smooth",
+														block: "nearest",
+													})
 
 													// Wait for scroll to complete before updating button position
 													collapseTimeout2Ref.current = setTimeout(() => {

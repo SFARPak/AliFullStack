@@ -121,7 +121,9 @@ export const LMStudio = ({ apiConfiguration, setApiConfigurationField }: LMStudi
 					<div className="flex flex-row items-center gap-1">
 						<div className="codicon codicon-close" />
 						<div>
-							{t("settings:validation.modelAvailability", { modelId: apiConfiguration?.lmStudioModelId })}
+							{t("settings:validation.modelAvailability", {
+								modelId: apiConfiguration?.lmStudioModelId,
+							})}
 						</div>
 					</div>
 				</div>

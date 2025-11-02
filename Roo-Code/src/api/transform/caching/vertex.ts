@@ -23,7 +23,13 @@ function cachedMessage(message: Anthropic.Messages.MessageParam): Anthropic.Mess
 		return {
 			...message,
 			// For string content, we only have one block so it's always the last block.
-			content: [{ type: "text" as const, text: message.content, cache_control: { type: "ephemeral" } }],
+			content: [
+				{
+					type: "text" as const,
+					text: message.content,
+					cache_control: { type: "ephemeral" },
+				},
+			],
 		}
 	}
 
@@ -41,7 +47,9 @@ function cachedMessage(message: Anthropic.Messages.MessageParam): Anthropic.Mess
 				? {
 						...content,
 						// Check if this is the last text block using our pre-calculated index.
-						...(index === lastTextBlockIndex && { cache_control: { type: "ephemeral" } }),
+						...(index === lastTextBlockIndex && {
+							cache_control: { type: "ephemeral" },
+						}),
 					}
 				: content,
 		),

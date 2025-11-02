@@ -31,7 +31,13 @@ export const AutoApprovedRequestLimitWarning = memo(({ message }: AutoApprovedRe
 
 	return (
 		<>
-			<div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--vscode-foreground)" }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: "8px",
+					color: "var(--vscode-foreground)",
+				}}>
 				<span className="codicon codicon-warning" />
 				<span style={{ fontWeight: "bold" }}>
 					<Trans i18nKey={titleKey} ns="chat" />
@@ -55,7 +61,10 @@ export const AutoApprovedRequestLimitWarning = memo(({ message }: AutoApprovedRe
 					onClick={(e) => {
 						e.preventDefault()
 						setButtonClicked(true)
-						vscode.postMessage({ type: "askResponse", askResponse: "yesButtonClicked" })
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "yesButtonClicked",
+						})
 					}}>
 					<Trans i18nKey={buttonKey} ns="chat" />
 				</VSCodeButton>

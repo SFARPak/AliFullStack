@@ -83,7 +83,10 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 
 		TelemetryService.instance.captureTitleButtonClicked("cloud")
 
-		visibleProvider.postMessageToWebview({ type: "action", action: "cloudButtonClicked" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "cloudButtonClicked",
+		})
 	},
 	plusButtonClicked: async () => {
 		const visibleProvider = getVisibleProviderOrLog(outputChannel)
@@ -96,10 +99,16 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 
 		await visibleProvider.removeClineFromStack()
 		await visibleProvider.refreshWorkspace()
-		await visibleProvider.postMessageToWebview({ type: "action", action: "chatButtonClicked" })
+		await visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "chatButtonClicked",
+		})
 		// Send focusInput action immediately after chatButtonClicked
 		// This ensures the focus happens after the view has switched
-		await visibleProvider.postMessageToWebview({ type: "action", action: "focusInput" })
+		await visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "focusInput",
+		})
 	},
 	mcpButtonClicked: () => {
 		const visibleProvider = getVisibleProviderOrLog(outputChannel)
@@ -110,7 +119,10 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 
 		TelemetryService.instance.captureTitleButtonClicked("mcp")
 
-		visibleProvider.postMessageToWebview({ type: "action", action: "mcpButtonClicked" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "mcpButtonClicked",
+		})
 	},
 	promptsButtonClicked: () => {
 		const visibleProvider = getVisibleProviderOrLog(outputChannel)
@@ -121,7 +133,10 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 
 		TelemetryService.instance.captureTitleButtonClicked("prompts")
 
-		visibleProvider.postMessageToWebview({ type: "action", action: "promptsButtonClicked" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "promptsButtonClicked",
+		})
 	},
 	popoutButtonClicked: () => {
 		TelemetryService.instance.captureTitleButtonClicked("popout")
@@ -138,9 +153,15 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 
 		TelemetryService.instance.captureTitleButtonClicked("settings")
 
-		visibleProvider.postMessageToWebview({ type: "action", action: "settingsButtonClicked" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "settingsButtonClicked",
+		})
 		// Also explicitly post the visibility message to trigger scroll reliably
-		visibleProvider.postMessageToWebview({ type: "action", action: "didBecomeVisible" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "didBecomeVisible",
+		})
 	},
 	historyButtonClicked: () => {
 		const visibleProvider = getVisibleProviderOrLog(outputChannel)
@@ -151,12 +172,18 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 
 		TelemetryService.instance.captureTitleButtonClicked("history")
 
-		visibleProvider.postMessageToWebview({ type: "action", action: "historyButtonClicked" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "historyButtonClicked",
+		})
 	},
 	marketplaceButtonClicked: () => {
 		const visibleProvider = getVisibleProviderOrLog(outputChannel)
 		if (!visibleProvider) return
-		visibleProvider.postMessageToWebview({ type: "action", action: "marketplaceButtonClicked" })
+		visibleProvider.postMessageToWebview({
+			type: "action",
+			action: "marketplaceButtonClicked",
+		})
 	},
 	showHumanRelayDialog: (params: { requestId: string; promptText: string }) => {
 		const panel = getPanel()
@@ -276,7 +303,10 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 		(e) => {
 			const panel = e.webviewPanel
 			if (panel.visible) {
-				panel.webview.postMessage({ type: "action", action: "didBecomeVisible" }) // Use the same message type as in SettingsView.tsx
+				panel.webview.postMessage({
+					type: "action",
+					action: "didBecomeVisible",
+				}) // Use the same message type as in SettingsView.tsx
 			}
 		},
 		null, // First null is for `thisArgs`

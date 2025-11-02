@@ -309,17 +309,29 @@ const ApiOptions = ({
 					}
 				>
 			> = {
-				deepinfra: { field: "deepInfraModelId", default: deepInfraDefaultModelId },
-				openrouter: { field: "openRouterModelId", default: openRouterDefaultModelId },
+				deepinfra: {
+					field: "deepInfraModelId",
+					default: deepInfraDefaultModelId,
+				},
+				openrouter: {
+					field: "openRouterModelId",
+					default: openRouterDefaultModelId,
+				},
 				glama: { field: "glamaModelId", default: glamaDefaultModelId },
 				unbound: { field: "unboundModelId", default: unboundDefaultModelId },
 				requesty: { field: "requestyModelId", default: requestyDefaultModelId },
 				litellm: { field: "litellmModelId", default: litellmDefaultModelId },
 				anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
 				cerebras: { field: "apiModelId", default: cerebrasDefaultModelId },
-				"claude-code": { field: "apiModelId", default: claudeCodeDefaultModelId },
+				"claude-code": {
+					field: "apiModelId",
+					default: claudeCodeDefaultModelId,
+				},
 				"qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
-				"openai-native": { field: "apiModelId", default: openAiNativeDefaultModelId },
+				"openai-native": {
+					field: "apiModelId",
+					default: openAiNativeDefaultModelId,
+				},
 				gemini: { field: "apiModelId", default: geminiDefaultModelId },
 				deepseek: { field: "apiModelId", default: deepSeekDefaultModelId },
 				doubao: { field: "apiModelId", default: doubaoDefaultModelId },
@@ -339,10 +351,19 @@ const ApiOptions = ({
 							: internationalZAiDefaultModelId,
 				},
 				fireworks: { field: "apiModelId", default: fireworksDefaultModelId },
-				featherless: { field: "apiModelId", default: featherlessDefaultModelId },
-				"io-intelligence": { field: "ioIntelligenceModelId", default: ioIntelligenceDefaultModelId },
+				featherless: {
+					field: "apiModelId",
+					default: featherlessDefaultModelId,
+				},
+				"io-intelligence": {
+					field: "ioIntelligenceModelId",
+					default: ioIntelligenceDefaultModelId,
+				},
 				roo: { field: "apiModelId", default: rooDefaultModelId },
-				"vercel-ai-gateway": { field: "vercelAiGatewayModelId", default: vercelAiGatewayDefaultModelId },
+				"vercel-ai-gateway": {
+					field: "vercelAiGatewayModelId",
+					default: vercelAiGatewayDefaultModelId,
+				},
 				openai: { field: "openAiModelId" },
 				ollama: { field: "ollamaModelId" },
 				lmstudio: { field: "lmStudioModelId" },
@@ -427,7 +448,9 @@ const ApiOptions = ({
 					{docs && (
 						<div className="text-xs text-vscode-descriptionForeground">
 							<VSCodeLink href={docs.url} className="hover:text-vscode-foreground" target="_blank">
-								{t("settings:providers.providerDocumentation", { provider: docs.name })}
+								{t("settings:providers.providerDocumentation", {
+									provider: docs.name,
+								})}
 							</VSCodeLink>
 						</div>
 					)}

@@ -602,8 +602,11 @@ describe("CloudSettingsService", () => {
 
 			// Use reflection to set private settings
 			;(cloudSettingsService as unknown as { settings: typeof mockSettings }).settings = mockSettings
-			;(cloudSettingsService as unknown as { userSettings: typeof mockUserSettings }).userSettings =
-				mockUserSettings
+			;(
+				cloudSettingsService as unknown as {
+					userSettings: typeof mockUserSettings
+				}
+			).userSettings = mockUserSettings
 
 			expect(cloudSettingsService.isTaskSyncEnabled()).toBe(true)
 		})
@@ -630,8 +633,11 @@ describe("CloudSettingsService", () => {
 
 			// Use reflection to set private settings
 			;(cloudSettingsService as unknown as { settings: typeof mockSettings }).settings = mockSettings
-			;(cloudSettingsService as unknown as { userSettings: typeof mockUserSettings }).userSettings =
-				mockUserSettings
+			;(
+				cloudSettingsService as unknown as {
+					userSettings: typeof mockUserSettings
+				}
+			).userSettings = mockUserSettings
 
 			expect(cloudSettingsService.isTaskSyncEnabled()).toBe(false)
 		})
@@ -656,8 +662,11 @@ describe("CloudSettingsService", () => {
 
 			// Use reflection to set private settings
 			;(cloudSettingsService as unknown as { settings: typeof mockSettings }).settings = mockSettings
-			;(cloudSettingsService as unknown as { userSettings: typeof mockUserSettings }).userSettings =
-				mockUserSettings
+			;(
+				cloudSettingsService as unknown as {
+					userSettings: typeof mockUserSettings
+				}
+			).userSettings = mockUserSettings
 
 			expect(cloudSettingsService.isTaskSyncEnabled()).toBe(true)
 		})
@@ -714,8 +723,11 @@ describe("CloudSettingsService", () => {
 
 			// Use reflection to set private settings
 			;(cloudSettingsService as unknown as { settings: typeof mockSettings }).settings = mockSettings
-			;(cloudSettingsService as unknown as { userSettings: typeof mockUserSettings }).userSettings =
-				mockUserSettings
+			;(
+				cloudSettingsService as unknown as {
+					userSettings: typeof mockUserSettings
+				}
+			).userSettings = mockUserSettings
 
 			// Should return false (org setting takes precedence)
 			expect(cloudSettingsService.isTaskSyncEnabled()).toBe(false)

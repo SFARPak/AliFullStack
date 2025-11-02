@@ -3,12 +3,12 @@
  * Automatically adds Referer and X-Title headers to all requests.
  */
 
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 // Custom headers to be added to all API calls
 const CUSTOM_HEADERS = {
-  'Referer': 'https://alitech.io',
-  'X-Title': 'AliFullStack',
+  Referer: "https://alitech.io",
+  "X-Title": "AliFullStack",
 };
 
 /**
@@ -16,7 +16,7 @@ const CUSTOM_HEADERS = {
  */
 export async function apiFetch(
   url: string | URL | Request,
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<Response> {
   const headers = new Headers(options?.headers);
 
@@ -37,19 +37,19 @@ export async function apiFetch(
  * Enhanced axios function that automatically adds custom headers
  */
 export async function apiAxios<T = any>(
-  config: AxiosRequestConfig
+  config: AxiosRequestConfig,
 ): Promise<AxiosResponse<T>>;
 export async function apiAxios<T = any>(
   url: string,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<AxiosResponse<T>>;
 export async function apiAxios<T = any>(
   urlOrConfig: string | AxiosRequestConfig,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<AxiosResponse<T>> {
   let finalConfig: AxiosRequestConfig;
 
-  if (typeof urlOrConfig === 'string') {
+  if (typeof urlOrConfig === "string") {
     finalConfig = { ...config, url: urlOrConfig };
   } else {
     finalConfig = { ...urlOrConfig };

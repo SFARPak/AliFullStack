@@ -278,7 +278,10 @@ export async function readFileTool(
 				let lineSnippet = ""
 				if (fileResult.lineRanges && fileResult.lineRanges.length > 0) {
 					const ranges = fileResult.lineRanges.map((range) =>
-						t("tools:readFile.linesRange", { start: range.start, end: range.end }),
+						t("tools:readFile.linesRange", {
+							start: range.start,
+							end: range.end,
+						}),
 					)
 					lineSnippet = ranges.join(", ")
 				} else if (maxReadFileLine === 0) {
@@ -387,7 +390,10 @@ export async function readFileTool(
 			let lineSnippet = ""
 			if (fileResult.lineRanges && fileResult.lineRanges.length > 0) {
 				const ranges = fileResult.lineRanges.map((range) =>
-					t("tools:readFile.linesRange", { start: range.start, end: range.end }),
+					t("tools:readFile.linesRange", {
+						start: range.start,
+						end: range.end,
+					}),
 				)
 				lineSnippet = ranges.join(", ")
 			} else if (maxReadFileLine === 0) {

@@ -175,14 +175,18 @@ describe("Shell Detection Tests", () => {
 
 		it("respects userInfo() if no VS Code config is available and shell is allowed", () => {
 			vscode.workspace.getConfiguration = () => ({ get: () => undefined }) as any
-			vi.mocked(userInfo).mockReturnValue({ shell: "C:\\Program Files\\PowerShell\\7\\pwsh.exe" } as any)
+			vi.mocked(userInfo).mockReturnValue({
+				shell: "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+			} as any)
 
 			expect(getShell()).toBe("C:\\Program Files\\PowerShell\\7\\pwsh.exe")
 		})
 
 		it("falls back to safe shell when userInfo() returns non-allowlisted shell", () => {
 			vscode.workspace.getConfiguration = () => ({ get: () => undefined }) as any
-			vi.mocked(userInfo).mockReturnValue({ shell: "C:\\Custom\\PowerShell.exe" } as any)
+			vi.mocked(userInfo).mockReturnValue({
+				shell: "C:\\Custom\\PowerShell.exe",
+			} as any)
 
 			expect(getShell()).toBe("C:\\Windows\\System32\\cmd.exe")
 		})
@@ -235,7 +239,9 @@ describe("Shell Detection Tests", () => {
 
 		it("falls back to userInfo().shell if no VS Code config is available", () => {
 			vscode.workspace.getConfiguration = () => ({ get: () => undefined }) as any
-			vi.mocked(userInfo).mockReturnValue({ shell: "/opt/homebrew/bin/zsh" } as any)
+			vi.mocked(userInfo).mockReturnValue({
+				shell: "/opt/homebrew/bin/zsh",
+			} as any)
 			expect(getShell()).toBe("/opt/homebrew/bin/zsh")
 		})
 
@@ -449,7 +455,9 @@ describe("Shell Detection Tests", () => {
 		it("should validate shells from userInfo", () => {
 			Object.defineProperty(process, "platform", { value: "linux" })
 			vscode.workspace.getConfiguration = () => ({ get: () => undefined }) as any
-			vi.mocked(userInfo).mockReturnValue({ shell: "/usr/bin/evil-shell" } as any)
+			vi.mocked(userInfo).mockReturnValue({
+				shell: "/usr/bin/evil-shell",
+			} as any)
 
 			const result = getShell()
 			expect(result).toBe("/bin/bash") // Linux fallback

@@ -105,30 +105,54 @@ export default App;
     await startApp(page, appId, "main");
 
     // Wait for some output to appear in the system messages
-    await page.waitForSelector(".system-messages-container", { state: "visible" });
+    await page.waitForSelector(".system-messages-container", {
+      state: "visible",
+    });
     await page.waitForTimeout(10000); // Give time for logs to accumulate
 
     // Check if logs appear in the system console (Playwright can't directly access Node.js console,
     // but we can check the UI's system messages which should reflect console logs)
     const systemMessages = await getAppOutput(page, appId);
     expect(systemMessages).toContain("Backend stdout: Hello from Flask!");
-    expect(systemMessages).toContain("Backend stderr: This is an error message.");
+    expect(systemMessages).toContain(
+      "Backend stderr: This is an error message.",
+    );
     expect(systemMessages).toContain("Frontend stdout: App started.");
-    expect(systemMessages).toContain("Frontend stdout: Backend message received.");
+    expect(systemMessages).toContain(
+      "Frontend stdout: Backend message received.",
+    );
 
     // Switch to backend terminal and check logs
     await switchTerminal(page, "backend");
-    const backendTerminalOutput = await getTerminalOutput(page, appId, "backend");
-    expect(backendTerminalOutput).toContain("Backend stdout: Hello from Flask!");
-    expect(backendTerminalOutput).toContain("Backend stderr: This is an error message.");
+    const backendTerminalOutput = await getTerminalOutput(
+      page,
+      appId,
+      "backend",
+    );
+    expect(backendTerminalOutput).toContain(
+      "Backend stdout: Hello from Flask!",
+    );
+    expect(backendTerminalOutput).toContain(
+      "Backend stderr: This is an error message.",
+    );
 
     // Switch to frontend terminal and check logs
     await switchTerminal(page, "frontend");
-    const frontendTerminalOutput = await getTerminalOutput(page, appId, "frontend");
+    const frontendTerminalOutput = await getTerminalOutput(
+      page,
+      appId,
+      "frontend",
+    );
     expect(frontendTerminalOutput).toContain("Frontend stdout: App started.");
-    expect(frontendTerminalOutput).toContain("Frontend stdout: Backend message received.");
-    expect(frontendTerminalOutput).toContain("Backend stdout: Hello from Flask!"); // Should also see backend logs in frontend for fullstack
-    expect(frontendTerminalOutput).toContain("Backend stderr: This is an error message."); // Should also see backend errors in frontend for fullstack
+    expect(frontendTerminalOutput).toContain(
+      "Frontend stdout: Backend message received.",
+    );
+    expect(frontendTerminalOutput).toContain(
+      "Backend stdout: Hello from Flask!",
+    ); // Should also see backend logs in frontend for fullstack
+    expect(frontendTerminalOutput).toContain(
+      "Backend stderr: This is an error message.",
+    ); // Should also see backend errors in frontend for fullstack
 
     await stopApp(page, appId);
   });
@@ -147,7 +171,11 @@ export default App;
     expect(systemMessages).not.toContain("Backend stdout:"); // Should not contain backend logs
 
     await switchTerminal(page, "frontend");
-    const frontendTerminalOutput = await getTerminalOutput(page, appId, "frontend");
+    const frontendTerminalOutput = await getTerminalOutput(
+      page,
+      appId,
+      "frontend",
+    );
     expect(frontendTerminalOutput).toContain("Frontend stdout: App started.");
     expect(frontendTerminalOutput).not.toContain("Backend stdout:");
 
@@ -165,13 +193,23 @@ export default App;
 
     const systemMessages = await getAppOutput(page, appId);
     expect(systemMessages).toContain("Backend stdout: Hello from Flask!");
-    expect(systemMessages).toContain("Backend stderr: This is an error message.");
+    expect(systemMessages).toContain(
+      "Backend stderr: This is an error message.",
+    );
     expect(systemMessages).not.toContain("Frontend stdout:"); // Should not contain frontend logs
 
     await switchTerminal(page, "backend");
-    const backendTerminalOutput = await getTerminalOutput(page, appId, "backend");
-    expect(backendTerminalOutput).toContain("Backend stdout: Hello from Flask!");
-    expect(backendTerminalOutput).toContain("Backend stderr: This is an error message.");
+    const backendTerminalOutput = await getTerminalOutput(
+      page,
+      appId,
+      "backend",
+    );
+    expect(backendTerminalOutput).toContain(
+      "Backend stdout: Hello from Flask!",
+    );
+    expect(backendTerminalOutput).toContain(
+      "Backend stderr: This is an error message.",
+    );
     expect(backendTerminalOutput).not.toContain("Frontend stdout:");
 
     await stopApp(page, appId);

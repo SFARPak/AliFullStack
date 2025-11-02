@@ -21,7 +21,9 @@ import { ZAiHandler } from "../zai"
 vitest.mock("openai", () => {
 	const createMock = vitest.fn()
 	return {
-		default: vitest.fn(() => ({ chat: { completions: { create: createMock } } })),
+		default: vitest.fn(() => ({
+			chat: { completions: { create: createMock } },
+		})),
 	}
 })
 
@@ -36,11 +38,17 @@ describe("ZAiHandler", () => {
 
 	describe("International Z AI", () => {
 		beforeEach(() => {
-			handler = new ZAiHandler({ zaiApiKey: "test-zai-api-key", zaiApiLine: "international" })
+			handler = new ZAiHandler({
+				zaiApiKey: "test-zai-api-key",
+				zaiApiLine: "international",
+			})
 		})
 
 		it("should use the correct international Z AI base URL", () => {
-			new ZAiHandler({ zaiApiKey: "test-zai-api-key", zaiApiLine: "international" })
+			new ZAiHandler({
+				zaiApiKey: "test-zai-api-key",
+				zaiApiLine: "international",
+			})
 			expect(OpenAI).toHaveBeenCalledWith(
 				expect.objectContaining({
 					baseURL: "https://api.z.ai/api/paas/v4",
@@ -75,13 +83,18 @@ describe("ZAiHandler", () => {
 
 	describe("China Z AI", () => {
 		beforeEach(() => {
-			handler = new ZAiHandler({ zaiApiKey: "test-zai-api-key", zaiApiLine: "china" })
+			handler = new ZAiHandler({
+				zaiApiKey: "test-zai-api-key",
+				zaiApiLine: "china",
+			})
 		})
 
 		it("should use the correct China Z AI base URL", () => {
 			new ZAiHandler({ zaiApiKey: "test-zai-api-key", zaiApiLine: "china" })
 			expect(OpenAI).toHaveBeenCalledWith(
-				expect.objectContaining({ baseURL: "https://open.bigmodel.cn/api/paas/v4" }),
+				expect.objectContaining({
+					baseURL: "https://open.bigmodel.cn/api/paas/v4",
+				}),
 			)
 		})
 
@@ -132,12 +145,17 @@ describe("ZAiHandler", () => {
 
 	describe("API Methods", () => {
 		beforeEach(() => {
-			handler = new ZAiHandler({ zaiApiKey: "test-zai-api-key", zaiApiLine: "international" })
+			handler = new ZAiHandler({
+				zaiApiKey: "test-zai-api-key",
+				zaiApiLine: "international",
+			})
 		})
 
 		it("completePrompt method should return text from Z AI API", async () => {
 			const expectedResponse = "This is a test response from Z AI"
-			mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+			mockCreate.mockResolvedValueOnce({
+				choices: [{ message: { content: expectedResponse } }],
+			})
 			const result = await handler.completePrompt("test prompt")
 			expect(result).toBe(expectedResponse)
 		})
@@ -196,7 +214,11 @@ describe("ZAiHandler", () => {
 			const firstChunk = await stream.next()
 
 			expect(firstChunk.done).toBe(false)
-			expect(firstChunk.value).toEqual({ type: "usage", inputTokens: 10, outputTokens: 20 })
+			expect(firstChunk.value).toEqual({
+				type: "usage",
+				inputTokens: 10,
+				outputTokens: 20,
+			})
 		})
 
 		it("createMessage should pass correct parameters to Z AI client", async () => {

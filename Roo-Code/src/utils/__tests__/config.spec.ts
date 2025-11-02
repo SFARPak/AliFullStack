@@ -152,7 +152,9 @@ describe("injectVariables", () => {
 			command: "mcp-server",
 			args: ["${workspaceFolder}"],
 		}
-		const result = await injectVariables(config, { workspaceFolder: "C:\\Users\\project" })
+		const result = await injectVariables(config, {
+			workspaceFolder: "C:\\Users\\project",
+		})
 		expect(result).toEqual({
 			command: "mcp-server",
 			args: ["C:/Users/project"],
@@ -168,7 +170,9 @@ describe("injectVariables", () => {
 				},
 			},
 		}
-		const result = await injectVariables(config, { workspaceFolder: "C:\\Program Files\\My Project" })
+		const result = await injectVariables(config, {
+			workspaceFolder: "C:\\Program Files\\My Project",
+		})
 		expect(result).toEqual({
 			servers: {
 				git: {
@@ -203,7 +207,9 @@ describe("injectVariables", () => {
 	})
 
 	it("should normalize backslashes in plain string replacements", async () => {
-		const result = await injectVariables("Path: ${path}", { path: "C:\\Users\\test" })
+		const result = await injectVariables("Path: ${path}", {
+			path: "C:\\Users\\test",
+		})
 		expect(result).toEqual("Path: C:/Users/test")
 	})
 
@@ -211,7 +217,9 @@ describe("injectVariables", () => {
 		const config = {
 			path: "${testPath}",
 		}
-		const result = await injectVariables(config, { testPath: "C:\\Users/test/mixed\\path" })
+		const result = await injectVariables(config, {
+			testPath: "C:\\Users/test/mixed\\path",
+		})
 		expect(result).toEqual({
 			path: "C:/Users/test/mixed/path",
 		})

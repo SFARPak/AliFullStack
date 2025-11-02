@@ -198,7 +198,7 @@ export function disposeMonacoModel(filePath: string) {
 export function invalidateMonacoModelsForDirectory(directoryPath: string) {
   try {
     const models = monaco.editor.getModels();
-    models.forEach(model => {
+    models.forEach((model) => {
       const modelPath = model.uri.path;
       if (modelPath.startsWith(directoryPath)) {
         model.dispose();
@@ -206,12 +206,19 @@ export function invalidateMonacoModelsForDirectory(directoryPath: string) {
       }
     });
   } catch (error) {
-    console.warn(`Failed to invalidate Monaco models for directory ${directoryPath}:`, error);
+    console.warn(
+      `Failed to invalidate Monaco models for directory ${directoryPath}:`,
+      error,
+    );
   }
 }
 
 // Function to create or update a Monaco model for a file
-export function ensureMonacoModel(filePath: string, content: string, language?: string) {
+export function ensureMonacoModel(
+  filePath: string,
+  content: string,
+  language?: string,
+) {
   try {
     const uri = monaco.Uri.file(filePath);
     let model = monaco.editor.getModel(uri);
@@ -234,30 +241,30 @@ export function ensureMonacoModel(filePath: string, content: string, language?: 
 
 // Helper function to detect language from file path
 function getLanguageFromPath(filePath: string): string {
-  const extension = filePath.split('.').pop()?.toLowerCase();
+  const extension = filePath.split(".").pop()?.toLowerCase();
   const languageMap: Record<string, string> = {
-    js: 'javascript',
-    jsx: 'javascript',
-    ts: 'typescript',
-    tsx: 'typescript',
-    html: 'html',
-    css: 'css',
-    json: 'json',
-    md: 'markdown',
-    py: 'python',
-    java: 'java',
-    c: 'c',
-    cpp: 'cpp',
-    cs: 'csharp',
-    go: 'go',
-    rs: 'rust',
-    rb: 'ruby',
-    php: 'php',
-    swift: 'swift',
-    kt: 'kotlin',
+    js: "javascript",
+    jsx: "javascript",
+    ts: "typescript",
+    tsx: "typescript",
+    html: "html",
+    css: "css",
+    json: "json",
+    md: "markdown",
+    py: "python",
+    java: "java",
+    c: "c",
+    cpp: "cpp",
+    cs: "csharp",
+    go: "go",
+    rs: "rust",
+    rb: "ruby",
+    php: "php",
+    swift: "swift",
+    kt: "kotlin",
   };
 
-  return languageMap[extension || ''] || 'plaintext';
+  return languageMap[extension || ""] || "plaintext";
 }
 
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({

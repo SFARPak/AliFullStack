@@ -66,7 +66,10 @@ describe("RequestyHandler", () => {
 	})
 
 	it("can use a base URL instead of the default", () => {
-		const handler = new RequestyHandler({ ...mockOptions, requestyBaseUrl: "https://custom.requesty.ai/v1" })
+		const handler = new RequestyHandler({
+			...mockOptions,
+			requestyBaseUrl: "https://custom.requesty.ai/v1",
+		})
 		expect(handler).toBeInstanceOf(RequestyHandler)
 
 		expect(OpenAI).toHaveBeenCalledWith({
@@ -208,7 +211,9 @@ describe("RequestyHandler", () => {
 	describe("completePrompt", () => {
 		it("returns correct response", async () => {
 			const handler = new RequestyHandler(mockOptions)
-			const mockResponse = { choices: [{ message: { content: "test completion" } }] }
+			const mockResponse = {
+				choices: [{ message: { content: "test completion" } }],
+			}
 
 			mockCreate.mockResolvedValue(mockResponse)
 

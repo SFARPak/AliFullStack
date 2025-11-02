@@ -72,7 +72,11 @@ async function testCmdCommand(
 	command: string,
 	expectedOutput: string,
 	useMock: boolean = false,
-): Promise<{ executionTimeUs: number; capturedOutput: string; exitDetails: ExitCodeDetails }> {
+): Promise<{
+	executionTimeUs: number
+	capturedOutput: string
+	exitDetails: ExitCodeDetails
+}> {
 	let startTime: bigint = BigInt(0)
 	let endTime: bigint = BigInt(0)
 	let timeRecorded = false

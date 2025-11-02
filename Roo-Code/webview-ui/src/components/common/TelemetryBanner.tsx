@@ -13,7 +13,10 @@ const TelemetryBanner = () => {
 
 	const handleClose = () => {
 		setIsDismissed(true)
-		vscode.postMessage({ type: "telemetrySetting", text: "enabled" satisfies TelemetrySetting })
+		vscode.postMessage({
+			type: "telemetrySetting",
+			text: "enabled" satisfies TelemetrySetting,
+		})
 	}
 
 	const handleOpenSettings = () => {

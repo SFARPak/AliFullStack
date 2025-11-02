@@ -21,8 +21,14 @@ export async function migrateSettings(
 	// Legacy file names that need to be migrated to the new names in GlobalFileNames
 	const fileMigrations = [
 		// custom_modes.json to custom_modes.yaml is handled separately below
-		{ oldName: "cline_custom_modes.json", newName: deprecatedCustomModesJSONFilename },
-		{ oldName: "cline_mcp_settings.json", newName: GlobalFileNames.mcpSettings },
+		{
+			oldName: "cline_custom_modes.json",
+			newName: deprecatedCustomModesJSONFilename,
+		},
+		{
+			oldName: "cline_mcp_settings.json",
+			newName: GlobalFileNames.mcpSettings,
+		},
 	]
 
 	try {

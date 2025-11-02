@@ -164,7 +164,9 @@ export class CodeIndexOllamaEmbedder implements IEmbedder {
 					if (modelsResponse.status === 404) {
 						return {
 							valid: false,
-							error: t("embeddings:ollama.serviceNotRunning", { baseUrl: this.baseUrl }),
+							error: t("embeddings:ollama.serviceNotRunning", {
+								baseUrl: this.baseUrl,
+							}),
 						}
 					}
 					return {
@@ -224,7 +226,9 @@ export class CodeIndexOllamaEmbedder implements IEmbedder {
 				if (!testResponse.ok) {
 					return {
 						valid: false,
-						error: t("embeddings:ollama.modelNotEmbeddingCapable", { modelId: this.defaultModelId }),
+						error: t("embeddings:ollama.modelNotEmbeddingCapable", {
+							modelId: this.defaultModelId,
+						}),
 					}
 				}
 
@@ -248,7 +252,9 @@ export class CodeIndexOllamaEmbedder implements IEmbedder {
 						})
 						return {
 							valid: false,
-							error: t("embeddings:ollama.serviceNotRunning", { baseUrl: this.baseUrl }),
+							error: t("embeddings:ollama.serviceNotRunning", {
+								baseUrl: this.baseUrl,
+							}),
 						}
 					} else if (error?.code === "ENOTFOUND" || error?.message?.includes("ENOTFOUND")) {
 						// Capture telemetry for host not found error
@@ -259,7 +265,9 @@ export class CodeIndexOllamaEmbedder implements IEmbedder {
 						})
 						return {
 							valid: false,
-							error: t("embeddings:ollama.hostNotFound", { baseUrl: this.baseUrl }),
+							error: t("embeddings:ollama.hostNotFound", {
+								baseUrl: this.baseUrl,
+							}),
 						}
 					} else if (error?.name === "AbortError") {
 						// Capture telemetry for timeout error

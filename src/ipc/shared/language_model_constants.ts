@@ -345,7 +345,8 @@ export const MODEL_OPTIONS: Record<string, ModelOption[]> = {
     {
       name: "xai/grok-code-fast-1",
       displayName: "Grok Code Fast",
-      description: "A reasoning model that is blazing fast and excels at agentic coding, accessible for free through Roo Code Cloud for a limited time.",
+      description:
+        "A reasoning model that is blazing fast and excels at agentic coding, accessible for free through Roo Code Cloud for a limited time.",
       maxOutputTokens: 16_384,
       contextWindow: 262_144,
       temperature: 0,
@@ -354,7 +355,8 @@ export const MODEL_OPTIONS: Record<string, ModelOption[]> = {
     {
       name: "roo/code-supernova",
       displayName: "Code Supernova",
-      description: "A versatile agentic coding stealth model that supports image inputs, accessible for free through Roo Code Cloud for a limited time.",
+      description:
+        "A versatile agentic coding stealth model that supports image inputs, accessible for free through Roo Code Cloud for a limited time.",
       maxOutputTokens: 16_384,
       contextWindow: 200_000,
       temperature: 0,

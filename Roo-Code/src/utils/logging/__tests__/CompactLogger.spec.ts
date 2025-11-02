@@ -250,7 +250,10 @@ describe("CompactLogger", () => {
 		})
 
 		test("child logger with empty metadata inherits parent metadata unchanged", () => {
-			const parent = new CompactLogger(transport, { ctx: "parent", data: "value" })
+			const parent = new CompactLogger(transport, {
+				ctx: "parent",
+				data: "value",
+			})
 			const child = parent.child({})
 
 			child.info("test")

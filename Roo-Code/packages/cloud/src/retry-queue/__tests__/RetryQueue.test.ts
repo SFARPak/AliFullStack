@@ -33,7 +33,10 @@ describe("RetryQueue", () => {
 	describe("enqueue", () => {
 		it("should add a request to the queue", async () => {
 			const url = "https://api.example.com/test"
-			const options = { method: "POST", body: JSON.stringify({ test: "data" }) }
+			const options = {
+				method: "POST",
+				body: JSON.stringify({ test: "data" }),
+			}
 
 			await retryQueue.enqueue(url, options, "telemetry")
 
@@ -499,7 +502,11 @@ describe("RetryQueue", () => {
 			await retryQueue.enqueue("https://api.example.com/test", { method: "POST" }, "telemetry")
 
 			// First attempt: 500 error
-			fetchMock.mockResolvedValueOnce({ ok: false, status: 500, statusText: "Internal Server Error" })
+			fetchMock.mockResolvedValueOnce({
+				ok: false,
+				status: 500,
+				statusText: "Internal Server Error",
+			})
 
 			await retryQueue.retryAll()
 
@@ -611,7 +618,11 @@ describe("RetryQueue", () => {
 			await retryQueue.enqueue("https://api.example.com/test", { method: "POST" }, "telemetry")
 
 			// Mock 401 error
-			fetchMock.mockResolvedValueOnce({ ok: false, status: 401, statusText: "Unauthorized" })
+			fetchMock.mockResolvedValueOnce({
+				ok: false,
+				status: 401,
+				statusText: "Unauthorized",
+			})
 
 			await retryQueue.retryAll()
 
@@ -622,7 +633,11 @@ describe("RetryQueue", () => {
 
 			// Test 403 as well
 			await retryQueue.enqueue("https://api.example.com/test2", { method: "POST" }, "telemetry")
-			fetchMock.mockResolvedValueOnce({ ok: false, status: 403, statusText: "Forbidden" })
+			fetchMock.mockResolvedValueOnce({
+				ok: false,
+				status: 403,
+				statusText: "Forbidden",
+			})
 
 			await retryQueue.retryAll()
 

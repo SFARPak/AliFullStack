@@ -107,7 +107,10 @@ describe("getEnvironmentDetails", () => {
 			} as unknown as RooIgnoreController,
 			clineMessages: [],
 			api: {
-				getModel: vi.fn().mockReturnValue({ id: "test-model", info: { contextWindow: 100000 } }),
+				getModel: vi.fn().mockReturnValue({
+					id: "test-model",
+					info: { contextWindow: 100000 },
+				}),
 				createMessage: vi.fn(),
 				countTokens: vi.fn(),
 			} as unknown as ApiHandler,
@@ -119,7 +122,10 @@ describe("getEnvironmentDetails", () => {
 		}
 
 		// Mock other dependencies.
-		;(getApiMetrics as Mock).mockReturnValue({ contextTokens: 50000, totalCost: 0.25 })
+		;(getApiMetrics as Mock).mockReturnValue({
+			contextTokens: 50000,
+			totalCost: 0.25,
+		})
 		;(getFullModeDetails as Mock).mockResolvedValue({
 			name: "💻 Code",
 			roleDefinition: "You are a code assistant",
@@ -366,7 +372,10 @@ describe("getEnvironmentDetails", () => {
 			...mockState,
 			apiConfiguration: { todoListEnabled: true },
 		})
-		const cline = { ...mockCline, todoList: [{ content: "test", status: "pending" }] }
+		const cline = {
+			...mockCline,
+			todoList: [{ content: "test", status: "pending" }],
+		}
 		const result = await getEnvironmentDetails(cline as Task)
 		expect(result).toContain("REMINDERS")
 	})
@@ -376,7 +385,10 @@ describe("getEnvironmentDetails", () => {
 			...mockState,
 			apiConfiguration: { todoListEnabled: false },
 		})
-		const cline = { ...mockCline, todoList: [{ content: "test", status: "pending" }] }
+		const cline = {
+			...mockCline,
+			todoList: [{ content: "test", status: "pending" }],
+		}
 		const result = await getEnvironmentDetails(cline as Task)
 		expect(result).not.toContain("REMINDERS")
 	})
@@ -386,7 +398,10 @@ describe("getEnvironmentDetails", () => {
 			...mockState,
 			apiConfiguration: {},
 		})
-		const cline = { ...mockCline, todoList: [{ content: "test", status: "pending" }] }
+		const cline = {
+			...mockCline,
+			todoList: [{ content: "test", status: "pending" }],
+		}
 		const result = await getEnvironmentDetails(cline as Task)
 		expect(result).toContain("REMINDERS")
 	})

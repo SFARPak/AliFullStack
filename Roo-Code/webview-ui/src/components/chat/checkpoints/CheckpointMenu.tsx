@@ -33,12 +33,18 @@ export const CheckpointMenu = ({ ts, commitHash, currentHash, checkpoint }: Chec
 	}, [ts, previousCommitHash, commitHash])
 
 	const onPreview = useCallback(() => {
-		vscode.postMessage({ type: "checkpointRestore", payload: { ts, commitHash, mode: "preview" } })
+		vscode.postMessage({
+			type: "checkpointRestore",
+			payload: { ts, commitHash, mode: "preview" },
+		})
 		setIsOpen(false)
 	}, [ts, commitHash])
 
 	const onRestore = useCallback(() => {
-		vscode.postMessage({ type: "checkpointRestore", payload: { ts, commitHash, mode: "restore" } })
+		vscode.postMessage({
+			type: "checkpointRestore",
+			payload: { ts, commitHash, mode: "restore" },
+		})
 		setIsOpen(false)
 	}, [ts, commitHash])
 

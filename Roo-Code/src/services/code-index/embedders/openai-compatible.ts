@@ -256,7 +256,10 @@ export class OpenAICompatibleEmbedder implements IEmbedder {
 	private async _embedBatchWithRetries(
 		batchTexts: string[],
 		model: string,
-	): Promise<{ embeddings: number[][]; usage: { promptTokens: number; totalTokens: number } }> {
+	): Promise<{
+		embeddings: number[][]
+		usage: { promptTokens: number; totalTokens: number }
+	}> {
 		// Use cached value for performance
 		const isFullUrl = this.isFullUrl
 

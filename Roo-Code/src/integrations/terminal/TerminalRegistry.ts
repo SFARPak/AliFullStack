@@ -97,7 +97,11 @@ export class TerminalRegistry {
 					if (!terminal.running) {
 						console.error(
 							"[TerminalRegistry] Shell execution end event received, but process is not running for terminal:",
-							{ terminalId: terminal?.id, command: process?.command, exitCode: e.exitCode },
+							{
+								terminalId: terminal?.id,
+								command: process?.command,
+								exitCode: e.exitCode,
+							},
 						)
 
 						terminal.busy = false

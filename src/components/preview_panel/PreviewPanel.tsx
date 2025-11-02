@@ -83,7 +83,6 @@ export function PreviewPanel() {
     setPreviewMode,
   ]);
 
-
   useEffect(() => {
     const previousAppId = runningAppIdRef.current;
 

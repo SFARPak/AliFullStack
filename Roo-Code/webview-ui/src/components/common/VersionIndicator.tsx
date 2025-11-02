@@ -14,7 +14,9 @@ const VersionIndicator: React.FC<VersionIndicatorProps> = ({ onClick, className 
 		<button
 			onClick={onClick}
 			className={`text-xs text-vscode-descriptionForeground hover:text-vscode-foreground transition-colors cursor-pointer px-2 py-1 rounded border ${className}`}
-			aria-label={t("chat:versionIndicator.ariaLabel", { version: Package.version })}>
+			aria-label={t("chat:versionIndicator.ariaLabel", {
+				version: Package.version,
+			})}>
 			v{Package.version}
 		</button>
 	)

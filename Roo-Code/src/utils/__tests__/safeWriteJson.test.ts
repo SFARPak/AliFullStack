@@ -445,7 +445,9 @@ describe("safeWriteJson", () => {
 
 	// Test for rollback failure scenario
 	test("should log error and re-throw original if rollback fails", async () => {
-		const initialData = { message: "Initial, should be lost if rollback fails" }
+		const initialData = {
+			message: "Initial, should be lost if rollback fails",
+		}
 		const newData = { message: "New content" }
 
 		await originalFsPromisesWriteFile(currentTestFilePath, JSON.stringify(initialData))

@@ -306,7 +306,9 @@ export async function getCommitInfo(hash: string, cwd: string): Promise<string> 
 
 		const { stdout: stats } = await execAsync(`git show --stat --format="" ${hash}`, { cwd })
 
-		const { stdout: diff } = await execAsync(`git show --format="" ${hash}`, { cwd })
+		const { stdout: diff } = await execAsync(`git show --format="" ${hash}`, {
+			cwd,
+		})
 
 		const summary = [
 			`Commit: ${shortHash} (${fullHash})`,

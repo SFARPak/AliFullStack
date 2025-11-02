@@ -171,7 +171,10 @@ export async function parseMentions(
 					const localizedErrorMessage = getUrlErrorMessage(error)
 
 					vscode.window.showErrorMessage(
-						t("common:errors.url_fetch_error_with_url", { url: mention, error: localizedErrorMessage }),
+						t("common:errors.url_fetch_error_with_url", {
+							url: mention,
+							error: localizedErrorMessage,
+						}),
 					)
 
 					// Send raw error message to AI model

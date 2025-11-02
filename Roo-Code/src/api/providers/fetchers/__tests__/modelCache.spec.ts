@@ -101,7 +101,10 @@ describe("getModels with new GetModelsOptions", () => {
 		}
 		mockGetRequestyModels.mockResolvedValue(mockModels)
 
-		const result = await getModels({ provider: "requesty", apiKey: DUMMY_REQUESTY_KEY })
+		const result = await getModels({
+			provider: "requesty",
+			apiKey: DUMMY_REQUESTY_KEY,
+		})
 
 		expect(mockGetRequestyModels).toHaveBeenCalledWith(undefined, DUMMY_REQUESTY_KEY)
 		expect(result).toEqual(mockModels)
@@ -135,7 +138,10 @@ describe("getModels with new GetModelsOptions", () => {
 		}
 		mockGetUnboundModels.mockResolvedValue(mockModels)
 
-		const result = await getModels({ provider: "unbound", apiKey: DUMMY_UNBOUND_KEY })
+		const result = await getModels({
+			provider: "unbound",
+			apiKey: DUMMY_UNBOUND_KEY,
+		})
 
 		expect(mockGetUnboundModels).toHaveBeenCalledWith(DUMMY_UNBOUND_KEY)
 		expect(result).toEqual(mockModels)
@@ -152,7 +158,10 @@ describe("getModels with new GetModelsOptions", () => {
 		}
 		mockGetIOIntelligenceModels.mockResolvedValue(mockModels)
 
-		const result = await getModels({ provider: "io-intelligence", apiKey: DUMMY_IOINTELLIGENCE_KEY })
+		const result = await getModels({
+			provider: "io-intelligence",
+			apiKey: DUMMY_IOINTELLIGENCE_KEY,
+		})
 
 		expect(mockGetIOIntelligenceModels).toHaveBeenCalled()
 		expect(result).toEqual(mockModels)

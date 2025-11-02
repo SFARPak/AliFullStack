@@ -12,6 +12,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+<<<<<<< HEAD
+        "http://localhost:3000", "http://127.0.0.1:3000",  # React
+        "http://localhost:5173", "http://127.0.0.1:5173",  # Vite default
+        "http://localhost:32100", "http://127.0.0.1:32100", # AliFullStack frontend
+        "http://localhost:52504", "http://127.0.0.1:52504", # Dynamic ports
+        "*"  # Allow all origins for development
+=======
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:3001",
@@ -24,6 +31,7 @@ app.add_middleware(
         "http://127.0.0.1:5000",
         "http://localhost:4000",
         "http://127.0.0.1:4000",
+>>>>>>> release/v0.0.5
     ],
     allow_credentials=True,
     allow_methods=["*"],

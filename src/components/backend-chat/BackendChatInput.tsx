@@ -107,16 +107,38 @@ export function BackendChatInput({ chatId }: { chatId?: number }) {
 
       try {
         // Import terminal output functions
-        const { addTerminalOutput } = await import("../../ipc/handlers/terminal_handlers");
+        const { addTerminalOutput } = await import(
+          "../../ipc/handlers/terminal_handlers"
+        );
 
         // Initialize backend terminal with welcome message
-        addTerminalOutput(appId, "backend", `🚀 Backend Development Environment Ready`, "output");
-        addTerminalOutput(appId, "backend", `Type commands or ask me to run backend operations...`, "output");
+        addTerminalOutput(
+          appId,
+          "backend",
+          `🚀 Backend Development Environment Ready`,
+          "output",
+        );
+        addTerminalOutput(
+          appId,
+          "backend",
+          `Type commands or ask me to run backend operations...`,
+          "output",
+        );
 
         // For fullstack mode, also initialize frontend terminal
         if (settings?.selectedChatMode === "fullstack") {
-          addTerminalOutput(appId, "frontend", `🚀 Frontend Development Environment Ready`, "output");
-          addTerminalOutput(appId, "frontend", `Type commands or ask me to run frontend operations...`, "output");
+          addTerminalOutput(
+            appId,
+            "frontend",
+            `🚀 Frontend Development Environment Ready`,
+            "output",
+          );
+          addTerminalOutput(
+            appId,
+            "frontend",
+            `Type commands or ask me to run frontend operations...`,
+            "output",
+          );
         }
       } catch (error) {
         logger.error("Failed to initialize terminals:", error);
@@ -283,7 +305,9 @@ export function BackendChatInput({ chatId }: { chatId?: number }) {
           {/* Backend Mode Indicator */}
           <div className="flex items-center justify-center px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
             <Server size={16} className="mr-2" />
-            <span className="text-sm font-medium">Backend Development Mode Active</span>
+            <span className="text-sm font-medium">
+              Backend Development Mode Active
+            </span>
           </div>
 
           {/* Only render ChatInputActions if proposal is loaded */}
@@ -358,7 +382,10 @@ export function BackendChatInput({ chatId }: { chatId?: number }) {
           </div>
           <div className="pl-2 pr-1 flex items-center justify-between pb-2">
             <div className="flex items-center">
-              <ChatInputControls showContextFilesPicker={true} appId={appId ?? undefined} />
+              <ChatInputControls
+                showContextFilesPicker={true}
+                appId={appId ?? undefined}
+              />
               {/* File attachment dropdown */}
               <FileAttachmentDropdown
                 onFileSelect={handleFileSelect}
@@ -418,7 +445,11 @@ function BackendChatInputActions({
     return <div>Backend tip proposal</div>;
   }
   if (proposal.type === "action-proposal") {
-    return <BackendActionProposalActions proposal={proposal}></BackendActionProposalActions>;
+    return (
+      <BackendActionProposalActions
+        proposal={proposal}
+      ></BackendActionProposalActions>
+    );
   }
 
   // Split files into server functions and other files - only for CodeProposal
@@ -517,7 +548,9 @@ function BackendChatInputActions({
           <div className="p-3 border-t border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 text-sm">
             {!!proposal.securityRisks.length && (
               <div className="mb-3">
-                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">Security Risks</h4>
+                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">
+                  Security Risks
+                </h4>
                 <ul className="space-y-1">
                   {proposal.securityRisks.map((risk, index) => (
                     <li key={index} className="flex items-start space-x-2">
@@ -544,7 +577,9 @@ function BackendChatInputActions({
 
             {proposal.sqlQueries?.length > 0 && (
               <div className="mb-3">
-                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">SQL Queries</h4>
+                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">
+                  SQL Queries
+                </h4>
                 <ul className="space-y-2">
                   {proposal.sqlQueries.map((query, index) => (
                     <BackendSqlQueryItem key={index} query={query} />
@@ -555,7 +590,9 @@ function BackendChatInputActions({
 
             {proposal.packagesAdded?.length > 0 && (
               <div className="mb-3">
-                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">Backend Packages Added</h4>
+                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">
+                  Backend Packages Added
+                </h4>
                 <ul className="space-y-1">
                   {proposal.packagesAdded.map((pkg, index) => (
                     <li
@@ -582,7 +619,9 @@ function BackendChatInputActions({
 
             {serverFunctions.length > 0 && (
               <div className="mb-3">
-                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">Server Functions Changed</h4>
+                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">
+                  Server Functions Changed
+                </h4>
                 <ul className="space-y-1">
                   {serverFunctions.map((file: FileChange, index: number) => (
                     <li key={index} className="flex items-center space-x-2">
@@ -604,7 +643,9 @@ function BackendChatInputActions({
 
             {otherFilesChanged.length > 0 && (
               <div>
-                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">Backend Files Changed</h4>
+                <h4 className="font-semibold mb-1 text-blue-800 dark:text-blue-200">
+                  Backend Files Changed
+                </h4>
                 <ul className="space-y-1">
                   {otherFilesChanged.map((file: FileChange, index: number) => (
                     <li key={index} className="flex items-center space-x-2">
@@ -630,11 +671,17 @@ function BackendChatInputActions({
   );
 }
 
-function BackendActionProposalActions({ proposal }: { proposal: ActionProposal }) {
+function BackendActionProposalActions({
+  proposal,
+}: {
+  proposal: ActionProposal;
+}) {
   return (
     <div className="border-b border-blue-200 dark:border-blue-800 p-2 pb-0 flex items-center justify-between bg-blue-50/50 dark:bg-blue-950/20">
       <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-        <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Backend Actions:</span>
+        <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+          Backend Actions:
+        </span>
         {proposal.actions.map((action) => mapBackendActionToButton(action))}
       </div>
     </div>
@@ -673,7 +720,10 @@ function BackendRebuildButton() {
   }, [selectedAppId, posthog, restartApp]);
 
   return (
-    <BackendSuggestionButton onClick={onClick} tooltipText="Rebuild backend application">
+    <BackendSuggestionButton
+      onClick={onClick}
+      tooltipText="Rebuild backend application"
+    >
       Rebuild Backend
     </BackendSuggestionButton>
   );
@@ -692,7 +742,10 @@ function BackendRestartButton() {
   }, [selectedAppId, posthog, restartApp]);
 
   return (
-    <BackendSuggestionButton onClick={onClick} tooltipText="Restart backend server">
+    <BackendSuggestionButton
+      onClick={onClick}
+      tooltipText="Restart backend server"
+    >
       Restart Backend
     </BackendSuggestionButton>
   );
@@ -713,7 +766,10 @@ function BackendKeepGoingButton() {
     });
   };
   return (
-    <BackendSuggestionButton onClick={onClick} tooltipText="Continue backend development">
+    <BackendSuggestionButton
+      onClick={onClick}
+      tooltipText="Continue backend development"
+    >
       Keep Going
     </BackendSuggestionButton>
   );
@@ -751,17 +807,11 @@ function BackendSuggestionButton({
 function getBackendIconForFileChange(file: FileChange) {
   switch (file.type) {
     case "write":
-      return (
-        <FileText size={16} className="text-blue-500 flex-shrink-0" />
-      );
+      return <FileText size={16} className="text-blue-500 flex-shrink-0" />;
     case "rename":
-      return (
-        <SendToBack size={16} className="text-blue-500 flex-shrink-0" />
-      );
+      return <SendToBack size={16} className="text-blue-500 flex-shrink-0" />;
     case "delete":
-      return (
-        <FileX size={16} className="text-blue-500 flex-shrink-0" />
-      );
+      return <FileX size={16} className="text-blue-500 flex-shrink-0" />;
   }
 }
 
@@ -853,9 +903,7 @@ function BackendSqlQueryItem({ query }: { query: SqlQuery }) {
       </div>
       {isExpanded && (
         <div className="mt-2 text-xs max-h-[200px] overflow-auto">
-          <CodeHighlight className="language-sql">
-            {queryContent}
-          </CodeHighlight>
+          <CodeHighlight className="language-sql">{queryContent}</CodeHighlight>
         </div>
       )}
     </li>

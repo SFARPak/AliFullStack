@@ -68,7 +68,9 @@ describe("CustomModesManager - Export/Import with Slug Changes", () => {
 		// mockWorkspacePath is now defined at the top level
 		mockWorkspaceFolders = [{ uri: { fsPath: mockWorkspacePath } }]
 		;(vscode.workspace as any).workspaceFolders = mockWorkspaceFolders
-		;(vscode.workspace.onDidSaveTextDocument as Mock).mockReturnValue({ dispose: vi.fn() })
+		;(vscode.workspace.onDidSaveTextDocument as Mock).mockReturnValue({
+			dispose: vi.fn(),
+		})
 		;(getWorkspacePath as Mock).mockReturnValue(mockWorkspacePath)
 		;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 			return path === mockSettingsPath || path === mockRoomodes

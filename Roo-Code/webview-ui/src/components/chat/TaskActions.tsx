@@ -46,7 +46,10 @@ export const TaskActions = ({ item, buttonsDisabled }: TaskActionsProps) => {
 								e.stopPropagation()
 
 								if (e.shiftKey) {
-									vscode.postMessage({ type: "deleteTaskWithId", text: item.id })
+									vscode.postMessage({
+										type: "deleteTaskWithId",
+										text: item.id,
+									})
 								} else {
 									setDeleteTaskId(item.id)
 								}

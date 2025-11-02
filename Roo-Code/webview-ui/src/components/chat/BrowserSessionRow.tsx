@@ -42,7 +42,9 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 		// Check if last api_req_started is cancelled
 		const lastApiReqStarted = [...messages].reverse().find((m) => m.say === "api_req_started")
 		if (lastApiReqStarted?.text) {
-			const info = JSON.parse(lastApiReqStarted.text) as { cancelReason: string | null }
+			const info = JSON.parse(lastApiReqStarted.text) as {
+				cancelReason: string | null
+			}
 			if (info && info.cancelReason !== null) {
 				return true
 			}
@@ -165,7 +167,12 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 				}
 			}
 		}
-		return { url: undefined, mousePosition: undefined, consoleLogs: undefined, screenshot: undefined }
+		return {
+			url: undefined,
+			mousePosition: undefined,
+			consoleLogs: undefined,
+			screenshot: undefined,
+		}
 	}, [pages])
 
 	const currentPage = pages[currentPageIndex]
@@ -237,7 +244,13 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 
 	const [browserSessionRow, { height: rowHeight }] = useSize(
 		<div style={{ padding: "10px 6px 10px 15px", marginBottom: -10 }}>
-			<div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: "10px",
+					marginBottom: "10px",
+				}}>
 				{isBrowsing ? <ProgressIndicator /> : <Pointer className="w-4" aria-label="Browser action indicator" />}
 				<span style={{ fontWeight: "bold" }}>
 					<>{t("chat:browser.rooWantsToUse")}</>
@@ -318,7 +331,10 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 							}}>
 							<span
 								className="codicon codicon-globe"
-								style={{ fontSize: "80px", color: "var(--vscode-descriptionForeground)" }}
+								style={{
+									fontSize: "80px",
+									color: "var(--vscode-descriptionForeground)",
+								}}
 							/>
 						</div>
 					)}
@@ -369,7 +385,10 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 						borderTop: "1px solid var(--vscode-editorGroup-border)",
 					}}>
 					<div>
-						{t("chat:browser.navigation.step", { current: currentPageIndex + 1, total: pages.length })}
+						{t("chat:browser.navigation.step", {
+							current: currentPageIndex + 1,
+							total: pages.length,
+						})}
 					</div>
 					<div style={{ display: "flex", gap: "4px" }}>
 						<VSCodeButton
@@ -504,7 +523,9 @@ const BrowserActionBox = ({
 			case "launch":
 				return t("chat:browser.actions.launch", { url: text })
 			case "click":
-				return t("chat:browser.actions.click", { coordinate: coordinate?.replace(",", ", ") })
+				return t("chat:browser.actions.click", {
+					coordinate: coordinate?.replace(",", ", "),
+				})
 			case "type":
 				return t("chat:browser.actions.type", { text })
 			case "scroll_down":

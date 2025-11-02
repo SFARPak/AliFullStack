@@ -48,7 +48,9 @@ export async function autoImportSettings(
 
 			// Show a notification to the user
 			vscode.window.showInformationMessage(
-				t("common:info.auto_import_success", { filename: path.basename(resolvedPath) }),
+				t("common:info.auto_import_success", {
+					filename: path.basename(resolvedPath),
+				}),
 			)
 		} else {
 			outputChannel.appendLine(`[AutoImport] Failed to import settings: ${result.error}`)

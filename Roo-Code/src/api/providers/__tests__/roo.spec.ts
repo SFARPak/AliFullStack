@@ -256,8 +256,14 @@ describe("RooHandler", () => {
 					messages: expect.arrayContaining([
 						expect.objectContaining({ role: "system", content: systemPrompt }),
 						expect.objectContaining({ role: "user", content: "First message" }),
-						expect.objectContaining({ role: "assistant", content: "First response" }),
-						expect.objectContaining({ role: "user", content: "Second message" }),
+						expect.objectContaining({
+							role: "assistant",
+							content: "First response",
+						}),
+						expect.objectContaining({
+							role: "user",
+							content: "Second message",
+						}),
 					]),
 				}),
 				undefined,

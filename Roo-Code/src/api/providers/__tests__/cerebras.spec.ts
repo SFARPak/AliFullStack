@@ -54,7 +54,9 @@ describe("CerebrasHandler", () => {
 		})
 
 		it("should fallback to default model when apiModelId is not provided", () => {
-			const handlerWithoutModel = new CerebrasHandler({ cerebrasApiKey: "test" })
+			const handlerWithoutModel = new CerebrasHandler({
+				cerebrasApiKey: "test",
+			})
 			const { id } = handlerWithoutModel.getModel()
 			expect(id).toBe("qwen-3-coder-480b") // cerebrasDefaultModelId (routed)
 		})
@@ -137,7 +139,12 @@ describe("CerebrasHandler", () => {
 
 			vi.mocked(fetch).mockResolvedValueOnce({
 				ok: true,
-				body: { getReader: () => ({ read: () => Promise.resolve({ done: true }), releaseLock: vi.fn() }) },
+				body: {
+					getReader: () => ({
+						read: () => Promise.resolve({ done: true }),
+						releaseLock: vi.fn(),
+					}),
+				},
 			} as any)
 
 			await handlerWithTemp.createMessage("test", []).next()

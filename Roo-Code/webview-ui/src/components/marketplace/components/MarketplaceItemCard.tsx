@@ -100,7 +100,12 @@ export const MarketplaceItemCard: React.FC<MarketplaceItemCardProps> = ({ item, 
 									<Button
 										variant="link"
 										className="p-0 h-auto text-lg font-semibold text-vscode-foreground hover:underline"
-										onClick={() => vscode.postMessage({ type: "openExternal", url: item.url })}>
+										onClick={() =>
+											vscode.postMessage({
+												type: "openExternal",
+												url: item.url,
+											})
+										}>
 										{item.name}
 									</Button>
 								) : (
@@ -215,13 +220,17 @@ export const MarketplaceItemCard: React.FC<MarketplaceItemCardProps> = ({ item, 
 						<AlertDialogDescription>
 							{item.type === "mode" ? (
 								<>
-									{t("marketplace:removeConfirm.mode.message", { modeName: item.name })}
+									{t("marketplace:removeConfirm.mode.message", {
+										modeName: item.name,
+									})}
 									<div className="mt-2 text-sm">
 										{t("marketplace:removeConfirm.mode.rulesWarning")}
 									</div>
 								</>
 							) : (
-								t("marketplace:removeConfirm.mcp.message", { mcpName: item.name })
+								t("marketplace:removeConfirm.mcp.message", {
+									mcpName: item.name,
+								})
 							)}
 						</AlertDialogDescription>
 					</AlertDialogHeader>

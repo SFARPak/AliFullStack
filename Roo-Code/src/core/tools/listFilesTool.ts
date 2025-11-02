@@ -47,7 +47,10 @@ export async function listFilesTool(
 
 	try {
 		if (block.partial) {
-			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: "" } satisfies ClineSayTool)
+			const partialMessage = JSON.stringify({
+				...sharedMessageProps,
+				content: "",
+			} satisfies ClineSayTool)
 			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
@@ -72,7 +75,10 @@ export async function listFilesTool(
 				cline.rooProtectedController,
 			)
 
-			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: result } satisfies ClineSayTool)
+			const completeMessage = JSON.stringify({
+				...sharedMessageProps,
+				content: result,
+			} satisfies ClineSayTool)
 			const didApprove = await askApproval("tool", completeMessage)
 
 			if (!didApprove) {

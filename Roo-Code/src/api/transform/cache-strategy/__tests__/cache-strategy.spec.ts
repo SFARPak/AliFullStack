@@ -203,7 +203,9 @@ describe("Cache Strategy", () => {
 
 					// Check that system blocks only include the text, no cache block
 					expect(result.system).toHaveLength(1)
-					expect(result.system[0]).toEqual({ text: "You are a helpful assistant" })
+					expect(result.system[0]).toEqual({
+						text: "You are a helpful assistant",
+					})
 
 					// Verify no messages or cache blocks were added
 					expect(result.messages).toHaveLength(0)
@@ -221,7 +223,9 @@ describe("Cache Strategy", () => {
 
 					// Check that system blocks only include the text
 					expect(result.system).toHaveLength(1)
-					expect(result.system[0]).toEqual({ text: "You are a helpful assistant" })
+					expect(result.system[0]).toEqual({
+						text: "You are a helpful assistant",
+					})
 				})
 
 				it("does not insert message cache blocks when prompt caching is disabled", () => {
@@ -527,7 +531,11 @@ describe("Cache Strategy", () => {
 				system: [{ text: systemPrompt }, { cachePoint: { type: "default" } }],
 				messages: mockMessages.map((msg: any) => ({
 					role: msg.role,
-					content: [{ text: typeof msg.content === "string" ? msg.content : msg.content[0].text }],
+					content: [
+						{
+							text: typeof msg.content === "string" ? msg.content : msg.content[0].text,
+						},
+					],
 				})),
 			})
 
@@ -582,7 +590,11 @@ describe("Cache Strategy", () => {
 				system: [{ text: systemPrompt }, { cachePoint: { type: "default" } }],
 				messages: mockMessages.map((msg: any) => ({
 					role: msg.role,
-					content: [{ text: typeof msg.content === "string" ? msg.content : msg.content[0].text }],
+					content: [
+						{
+							text: typeof msg.content === "string" ? msg.content : msg.content[0].text,
+						},
+					],
 				})),
 			})
 

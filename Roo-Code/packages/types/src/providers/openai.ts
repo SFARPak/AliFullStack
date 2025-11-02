@@ -33,8 +33,20 @@ export const openAiNativeModels = {
 		supportsVerbosity: true,
 		supportsTemperature: false,
 		tiers: [
-			{ name: "flex", contextWindow: 400000, inputPrice: 0.625, outputPrice: 5.0, cacheReadsPrice: 0.0625 },
-			{ name: "priority", contextWindow: 400000, inputPrice: 2.5, outputPrice: 20.0, cacheReadsPrice: 0.25 },
+			{
+				name: "flex",
+				contextWindow: 400000,
+				inputPrice: 0.625,
+				outputPrice: 5.0,
+				cacheReadsPrice: 0.0625,
+			},
+			{
+				name: "priority",
+				contextWindow: 400000,
+				inputPrice: 2.5,
+				outputPrice: 20.0,
+				cacheReadsPrice: 0.25,
+			},
 		],
 	},
 	"gpt-5-mini-2025-08-07": {
@@ -51,8 +63,20 @@ export const openAiNativeModels = {
 		supportsVerbosity: true,
 		supportsTemperature: false,
 		tiers: [
-			{ name: "flex", contextWindow: 400000, inputPrice: 0.125, outputPrice: 1.0, cacheReadsPrice: 0.0125 },
-			{ name: "priority", contextWindow: 400000, inputPrice: 0.45, outputPrice: 3.6, cacheReadsPrice: 0.045 },
+			{
+				name: "flex",
+				contextWindow: 400000,
+				inputPrice: 0.125,
+				outputPrice: 1.0,
+				cacheReadsPrice: 0.0125,
+			},
+			{
+				name: "priority",
+				contextWindow: 400000,
+				inputPrice: 0.45,
+				outputPrice: 3.6,
+				cacheReadsPrice: 0.045,
+			},
 		],
 	},
 	"gpt-5-nano-2025-08-07": {
@@ -68,7 +92,15 @@ export const openAiNativeModels = {
 		description: "GPT-5 Nano: Fastest, most cost-efficient version of GPT-5",
 		supportsVerbosity: true,
 		supportsTemperature: false,
-		tiers: [{ name: "flex", contextWindow: 400000, inputPrice: 0.025, outputPrice: 0.2, cacheReadsPrice: 0.0025 }],
+		tiers: [
+			{
+				name: "flex",
+				contextWindow: 400000,
+				inputPrice: 0.025,
+				outputPrice: 0.2,
+				cacheReadsPrice: 0.0025,
+			},
+		],
 	},
 	"gpt-4.1": {
 		maxTokens: 32_768,
@@ -80,7 +112,13 @@ export const openAiNativeModels = {
 		cacheReadsPrice: 0.5,
 		supportsTemperature: true,
 		tiers: [
-			{ name: "priority", contextWindow: 1_047_576, inputPrice: 3.5, outputPrice: 14.0, cacheReadsPrice: 0.875 },
+			{
+				name: "priority",
+				contextWindow: 1_047_576,
+				inputPrice: 3.5,
+				outputPrice: 14.0,
+				cacheReadsPrice: 0.875,
+			},
 		],
 	},
 	"gpt-4.1-mini": {
@@ -93,7 +131,13 @@ export const openAiNativeModels = {
 		cacheReadsPrice: 0.1,
 		supportsTemperature: true,
 		tiers: [
-			{ name: "priority", contextWindow: 1_047_576, inputPrice: 0.7, outputPrice: 2.8, cacheReadsPrice: 0.175 },
+			{
+				name: "priority",
+				contextWindow: 1_047_576,
+				inputPrice: 0.7,
+				outputPrice: 2.8,
+				cacheReadsPrice: 0.175,
+			},
 		],
 	},
 	"gpt-4.1-nano": {
@@ -106,7 +150,13 @@ export const openAiNativeModels = {
 		cacheReadsPrice: 0.025,
 		supportsTemperature: true,
 		tiers: [
-			{ name: "priority", contextWindow: 1_047_576, inputPrice: 0.2, outputPrice: 0.8, cacheReadsPrice: 0.05 },
+			{
+				name: "priority",
+				contextWindow: 1_047_576,
+				inputPrice: 0.2,
+				outputPrice: 0.8,
+				cacheReadsPrice: 0.05,
+			},
 		],
 	},
 	o3: {
@@ -121,8 +171,20 @@ export const openAiNativeModels = {
 		reasoningEffort: "medium",
 		supportsTemperature: false,
 		tiers: [
-			{ name: "flex", contextWindow: 200_000, inputPrice: 1.0, outputPrice: 4.0, cacheReadsPrice: 0.25 },
-			{ name: "priority", contextWindow: 200_000, inputPrice: 3.5, outputPrice: 14.0, cacheReadsPrice: 0.875 },
+			{
+				name: "flex",
+				contextWindow: 200_000,
+				inputPrice: 1.0,
+				outputPrice: 4.0,
+				cacheReadsPrice: 0.25,
+			},
+			{
+				name: "priority",
+				contextWindow: 200_000,
+				inputPrice: 3.5,
+				outputPrice: 14.0,
+				cacheReadsPrice: 0.875,
+			},
 		],
 	},
 	"o3-high": {
@@ -159,8 +221,20 @@ export const openAiNativeModels = {
 		reasoningEffort: "medium",
 		supportsTemperature: false,
 		tiers: [
-			{ name: "flex", contextWindow: 200_000, inputPrice: 0.55, outputPrice: 2.2, cacheReadsPrice: 0.138 },
-			{ name: "priority", contextWindow: 200_000, inputPrice: 2.0, outputPrice: 8.0, cacheReadsPrice: 0.5 },
+			{
+				name: "flex",
+				contextWindow: 200_000,
+				inputPrice: 0.55,
+				outputPrice: 2.2,
+				cacheReadsPrice: 0.138,
+			},
+			{
+				name: "priority",
+				contextWindow: 200_000,
+				inputPrice: 2.0,
+				outputPrice: 8.0,
+				cacheReadsPrice: 0.5,
+			},
 		],
 	},
 	"o4-mini-high": {
@@ -259,7 +333,13 @@ export const openAiNativeModels = {
 		cacheReadsPrice: 1.25,
 		supportsTemperature: true,
 		tiers: [
-			{ name: "priority", contextWindow: 128_000, inputPrice: 4.25, outputPrice: 17.0, cacheReadsPrice: 2.125 },
+			{
+				name: "priority",
+				contextWindow: 128_000,
+				inputPrice: 4.25,
+				outputPrice: 17.0,
+				cacheReadsPrice: 2.125,
+			},
 		],
 	},
 	"gpt-4o-mini": {
@@ -272,7 +352,13 @@ export const openAiNativeModels = {
 		cacheReadsPrice: 0.075,
 		supportsTemperature: true,
 		tiers: [
-			{ name: "priority", contextWindow: 128_000, inputPrice: 0.25, outputPrice: 1.0, cacheReadsPrice: 0.125 },
+			{
+				name: "priority",
+				contextWindow: 128_000,
+				inputPrice: 0.25,
+				outputPrice: 1.0,
+				cacheReadsPrice: 0.125,
+			},
 		],
 	},
 	"codex-mini-latest": {

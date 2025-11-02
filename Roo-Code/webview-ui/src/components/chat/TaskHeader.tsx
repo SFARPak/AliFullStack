@@ -175,7 +175,11 @@ const TaskHeader = ({
 									</div>
 									{(() => {
 										const maxTokens = model
-											? getModelMaxOutputTokens({ modelId, model, settings: apiConfiguration })
+											? getModelMaxOutputTokens({
+													modelId,
+													model,
+													settings: apiConfiguration,
+												})
 											: 0
 										const reservedForOutput = maxTokens || 0
 										const availableSpace = contextWindow - (contextTokens || 0) - reservedForOutput

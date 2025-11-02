@@ -147,14 +147,18 @@ describe("McpToolRow", () => {
 	it("shows toggle switch when serverName is provided and not in chat context", () => {
 		render(<McpToolRow tool={mockTool} serverName="test-server" />)
 
-		const toggleSwitch = screen.getByRole("switch", { name: "Toggle prompt inclusion" })
+		const toggleSwitch = screen.getByRole("switch", {
+			name: "Toggle prompt inclusion",
+		})
 		expect(toggleSwitch).toBeInTheDocument()
 	})
 
 	it("hides toggle switch when isInChatContext is true", () => {
 		render(<McpToolRow tool={mockTool} serverName="test-server" isInChatContext={true} />)
 
-		const toggleSwitch = screen.queryByRole("switch", { name: "Toggle prompt inclusion" })
+		const toggleSwitch = screen.queryByRole("switch", {
+			name: "Toggle prompt inclusion",
+		})
 		expect(toggleSwitch).not.toBeInTheDocument()
 	})
 
@@ -162,21 +166,27 @@ describe("McpToolRow", () => {
 		// Test when enabled (should be checked)
 		const { rerender } = render(<McpToolRow tool={mockTool} serverName="test-server" />)
 
-		let toggleSwitch = screen.getByRole("switch", { name: "Toggle prompt inclusion" })
+		let toggleSwitch = screen.getByRole("switch", {
+			name: "Toggle prompt inclusion",
+		})
 		expect(toggleSwitch).toHaveAttribute("aria-checked", "true")
 
 		// Test when disabled (should not be checked)
 		const disabledTool = { ...mockTool, enabledForPrompt: false }
 		rerender(<McpToolRow tool={disabledTool} serverName="test-server" />)
 
-		toggleSwitch = screen.getByRole("switch", { name: "Toggle prompt inclusion" })
+		toggleSwitch = screen.getByRole("switch", {
+			name: "Toggle prompt inclusion",
+		})
 		expect(toggleSwitch).toHaveAttribute("aria-checked", "false")
 	})
 
 	it("sends message to toggle enabledForPrompt when toggle switch is clicked", () => {
 		render(<McpToolRow tool={mockTool} serverName="test-server" />)
 
-		const toggleSwitch = screen.getByRole("switch", { name: "Toggle prompt inclusion" })
+		const toggleSwitch = screen.getByRole("switch", {
+			name: "Toggle prompt inclusion",
+		})
 		fireEvent.click(toggleSwitch)
 
 		expect(vscode.postMessage).toHaveBeenCalledWith({

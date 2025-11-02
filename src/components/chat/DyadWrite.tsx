@@ -42,7 +42,8 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
   const inProgress = state === "pending";
 
   // Show partial content for aborted operations (if any content was received)
-  const hasPartialContent = aborted && children && String(children).trim().length > 0;
+  const hasPartialContent =
+    aborted && children && String(children).trim().length > 0;
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -86,7 +87,9 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
           {aborted && (
             <div className="flex items-center text-red-600 text-xs">
               <CircleX size={14} className="mr-1" />
-              <span>{hasPartialContent ? "Partially written" : "Did not finish"}</span>
+              <span>
+                {hasPartialContent ? "Partially written" : "Did not finish"}
+              </span>
             </div>
           )}
         </div>
@@ -131,7 +134,7 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
               )}
             </>
           )}
-          {(isContentVisible || shouldAutoShowContent) ? (
+          {isContentVisible || shouldAutoShowContent ? (
             <ChevronsDownUp
               size={20}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -162,7 +165,8 @@ export const DyadWrite: React.FC<DyadWriteProps> = ({
         >
           {hasPartialContent && !isEditing && (
             <div className="mb-2 p-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded text-orange-800 dark:text-orange-200 text-xs">
-              ⚠️ This file was partially written due to interruption. The content below may be incomplete.
+              ⚠️ This file was partially written due to interruption. The
+              content below may be incomplete.
             </div>
           )}
           {isEditing ? (

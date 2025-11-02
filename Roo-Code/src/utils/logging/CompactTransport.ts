@@ -70,7 +70,9 @@ export class CompactTransport implements ICompactTransport {
 				m: "Log session started",
 				d: { timestamp: new Date(this.sessionStart).toISOString() },
 			}
-			writeFileSync(this.filePath, JSON.stringify(sessionStart) + "\n", { flag: "w" })
+			writeFileSync(this.filePath, JSON.stringify(sessionStart) + "\n", {
+				flag: "w",
+			})
 
 			this.initialized = true
 		} catch (err) {
@@ -116,7 +118,9 @@ export class CompactTransport implements ICompactTransport {
 				m: "Log session ended",
 				d: { timestamp: new Date().toISOString() },
 			}
-			writeFileSync(this.filePath, JSON.stringify(sessionEnd) + "\n", { flag: "a" })
+			writeFileSync(this.filePath, JSON.stringify(sessionEnd) + "\n", {
+				flag: "a",
+			})
 		}
 	}
 }

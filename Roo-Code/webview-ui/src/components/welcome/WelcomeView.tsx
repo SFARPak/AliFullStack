@@ -38,7 +38,11 @@ const WelcomeView = () => {
 		}
 
 		setErrorMessage(undefined)
-		vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
+		vscode.postMessage({
+			type: "upsertApiConfiguration",
+			text: currentApiConfigName,
+			apiConfiguration,
+		})
 	}, [apiConfiguration, currentApiConfigName])
 
 	// Using a lazy initializer so it reads once at mount

@@ -41,7 +41,11 @@ export async function getStorageBasePath(defaultPath: string): Promise<string> {
 		// If path is unusable, report error and fall back to default path
 		console.error(`Custom storage path is unusable: ${error instanceof Error ? error.message : String(error)}`)
 		if (vscode.window) {
-			vscode.window.showErrorMessage(t("common:errors.custom_storage_path_unusable", { path: customStoragePath }))
+			vscode.window.showErrorMessage(
+				t("common:errors.custom_storage_path_unusable", {
+					path: customStoragePath,
+				}),
+			)
 		}
 		return defaultPath
 	}

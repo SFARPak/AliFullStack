@@ -30,7 +30,9 @@ const DeepInfraModelSchema = z.object({
 		.optional(),
 })
 
-const DeepInfraModelsResponseSchema = z.object({ data: z.array(DeepInfraModelSchema) })
+const DeepInfraModelsResponseSchema = z.object({
+	data: z.array(DeepInfraModelSchema),
+})
 
 export async function getDeepInfraModels(
 	apiKey?: string,

@@ -168,7 +168,11 @@ describe("copyRun", () => {
 	})
 
 	it("should copy a complete run with all related data", async () => {
-		const newRunId = await copyRun({ sourceDb: db, targetDb: db, runId: sourceRunId })
+		const newRunId = await copyRun({
+			sourceDb: db,
+			targetDb: db,
+			runId: sourceRunId,
+		})
 
 		expect(newRunId).toBeDefined()
 		expect(newRunId).not.toBe(sourceRunId)
@@ -272,11 +276,21 @@ describe("copyRun", () => {
 	})
 
 	it("should copy run without task metrics", async () => {
-		const minimalRun = await createRun({ model: "gpt-3.5-turbo", socketPath: "/tmp/minimal.sock", timeout: 5 })
+		const minimalRun = await createRun({
+			model: "gpt-3.5-turbo",
+			socketPath: "/tmp/minimal.sock",
+			timeout: 5,
+		})
 
-		const newRunId = await copyRun({ sourceDb: db, targetDb: db, runId: minimalRun.id })
+		const newRunId = await copyRun({
+			sourceDb: db,
+			targetDb: db,
+			runId: minimalRun.id,
+		})
 
-		const copiedRun = await db.query.runs.findFirst({ where: eq(schema.runs.id, newRunId) })
+		const copiedRun = await db.query.runs.findFirst({
+			where: eq(schema.runs.id, newRunId),
+		})
 
 		expect(copiedRun).toBeDefined()
 		expect(copiedRun!.model).toBe("gpt-3.5-turbo")

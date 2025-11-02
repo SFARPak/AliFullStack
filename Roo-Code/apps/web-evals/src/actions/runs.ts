@@ -37,7 +37,12 @@ export async function createRun({ suite, exercises = [], systemPrompt, timeout, 
 				throw new Error("Invalid exercise path: " + path)
 			}
 
-			await createTask({ ...values, runId: run.id, language: language as ExerciseLanguage, exercise })
+			await createTask({
+				...values,
+				runId: run.id,
+				language: language as ExerciseLanguage,
+				exercise,
+			})
 		}
 	} else {
 		for (const language of exerciseLanguages) {
@@ -76,7 +81,9 @@ export async function createRun({ suite, exercises = [], systemPrompt, timeout, 
 			stdio: ["ignore", "pipe", "pipe"],
 		})
 
-		const logStream = fs.createWriteStream("/tmp/roo-code-evals.log", { flags: "a" })
+		const logStream = fs.createWriteStream("/tmp/roo-code-evals.log", {
+			flags: "a",
+		})
 
 		if (childProcess.stdout) {
 			childProcess.stdout.pipe(logStream)

@@ -105,7 +105,11 @@ export const ApiConfigSelector = ({
 							<>
 								<span
 									className="text-vscode-descriptionForeground opacity-70 min-w-0 overflow-hidden"
-									style={{ direction: "rtl", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+									style={{
+										direction: "rtl",
+										textOverflow: "ellipsis",
+										whiteSpace: "nowrap",
+									}}>
 									{config.modelId}
 								</span>
 							</>
@@ -125,7 +129,10 @@ export const ApiConfigSelector = ({
 								onClick={(e) => {
 									e.stopPropagation()
 									togglePinnedApiConfig(config.id)
-									vscode.postMessage({ type: "toggleApiConfigPin", text: config.id })
+									vscode.postMessage({
+										type: "toggleApiConfigPin",
+										text: config.id,
+									})
 								}}
 								className={cn("size-5 flex items-center justify-center", {
 									"opacity-0 group-hover:opacity-100": !isPinned && !isCurrentConfig,

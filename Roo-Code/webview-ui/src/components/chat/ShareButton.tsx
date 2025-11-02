@@ -29,7 +29,10 @@ interface ShareButtonProps {
 
 export const ShareButton = ({ item, disabled = false, showLabel = false }: ShareButtonProps) => {
 	const [shareDropdownOpen, setShareDropdownOpen] = useState(false)
-	const [shareSuccess, setShareSuccess] = useState<{ visibility: ShareVisibility; url: string } | null>(null)
+	const [shareSuccess, setShareSuccess] = useState<{
+		visibility: ShareVisibility
+		url: string
+	} | null>(null)
 	const [wasConnectInitiatedFromShare, setWasConnectInitiatedFromShare] = useState(false)
 	const { t } = useTranslation()
 	const { cloudUserInfo } = useExtensionState()

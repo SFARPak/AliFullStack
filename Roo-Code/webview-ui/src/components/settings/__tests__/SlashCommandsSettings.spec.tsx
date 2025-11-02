@@ -177,7 +177,9 @@ describe("SlashCommandsSettings", () => {
 	it("requests commands on mount", () => {
 		renderSlashCommandsSettings()
 
-		expect(vscode.postMessage).toHaveBeenCalledWith({ type: "requestCommands" })
+		expect(vscode.postMessage).toHaveBeenCalledWith({
+			type: "requestCommands",
+		})
 	})
 
 	it("displays built-in commands in their own section", () => {
@@ -412,7 +414,9 @@ describe("SlashCommandsSettings", () => {
 		// Wait for the setTimeout to execute
 		await waitFor(
 			() => {
-				expect(vscode.postMessage).toHaveBeenCalledWith({ type: "requestCommands" })
+				expect(vscode.postMessage).toHaveBeenCalledWith({
+					type: "requestCommands",
+				})
 			},
 			{ timeout: 200 },
 		)
@@ -432,7 +436,9 @@ describe("SlashCommandsSettings", () => {
 		// Wait for the setTimeout to execute
 		await waitFor(
 			() => {
-				expect(vscode.postMessage).toHaveBeenCalledWith({ type: "requestCommands" })
+				expect(vscode.postMessage).toHaveBeenCalledWith({
+					type: "requestCommands",
+				})
 			},
 			{ timeout: 600 },
 		)

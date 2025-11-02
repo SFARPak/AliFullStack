@@ -190,7 +190,10 @@ Only use a single line of '=======' between search and replacement content, beca
 			.replace(/^\\:start_line:/gm, ":start_line:")
 	}
 
-	private validateMarkerSequencing(diffContent: string): { success: boolean; error?: string } {
+	private validateMarkerSequencing(diffContent: string): {
+		success: boolean
+		error?: string
+	} {
 		enum State {
 			START,
 			AFTER_SEARCH,

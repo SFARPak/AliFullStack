@@ -64,4 +64,23 @@ export const localTemplatesData: Template[] = [
     requiresNeon: true,
     isFrontend: false, // This is a fullstack template, goes to backend folder
   },
+  {
+    id: "3d-nextjs",
+    title: "3D Landing Page Template",
+    description:
+      "Modern 3D landing page using Next.js, React Three Fiber, Framer Motion, and Tailwind CSS.",
+    imageUrl:
+      "https://github.com/user-attachments/assets/96258e4f-abce-4910-a62a-a9dff77965f2",
+    githubUrl: "https://github.com/SFARPak/3d-nextjs-template",
+    isOfficial: true,
+    isFrontend: true,
+  },
+  {
+    id: "vue",
+    title: "Vue.js Template",
+    description: "Uses Vue.js 3, Vite, Tailwind CSS and TypeScript.",
+    imageUrl: "https://vuejs.org/logo.svg",
+    isOfficial: true,
+    isFrontend: true,
+  },
 ];

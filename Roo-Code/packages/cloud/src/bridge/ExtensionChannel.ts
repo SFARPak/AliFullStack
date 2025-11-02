@@ -83,7 +83,10 @@ export class ExtensionChannel extends BaseChannel<
 					command.payload.images,
 					undefined, // parentTask
 					undefined, // options
-					{ mode: command.payload.mode, currentApiConfigName: command.payload.providerProfile },
+					{
+						mode: command.payload.mode,
+						currentApiConfigName: command.payload.providerProfile,
+					},
 				)
 
 				break
@@ -173,21 +176,66 @@ export class ExtensionChannel extends BaseChannel<
 
 	private setupListeners(): void {
 		const eventMapping = [
-			{ from: RooCodeEventName.TaskCreated, to: ExtensionBridgeEventName.TaskCreated },
-			{ from: RooCodeEventName.TaskStarted, to: ExtensionBridgeEventName.TaskStarted },
-			{ from: RooCodeEventName.TaskCompleted, to: ExtensionBridgeEventName.TaskCompleted },
-			{ from: RooCodeEventName.TaskAborted, to: ExtensionBridgeEventName.TaskAborted },
-			{ from: RooCodeEventName.TaskFocused, to: ExtensionBridgeEventName.TaskFocused },
-			{ from: RooCodeEventName.TaskUnfocused, to: ExtensionBridgeEventName.TaskUnfocused },
-			{ from: RooCodeEventName.TaskActive, to: ExtensionBridgeEventName.TaskActive },
-			{ from: RooCodeEventName.TaskInteractive, to: ExtensionBridgeEventName.TaskInteractive },
-			{ from: RooCodeEventName.TaskResumable, to: ExtensionBridgeEventName.TaskResumable },
-			{ from: RooCodeEventName.TaskIdle, to: ExtensionBridgeEventName.TaskIdle },
-			{ from: RooCodeEventName.TaskPaused, to: ExtensionBridgeEventName.TaskPaused },
-			{ from: RooCodeEventName.TaskUnpaused, to: ExtensionBridgeEventName.TaskUnpaused },
-			{ from: RooCodeEventName.TaskSpawned, to: ExtensionBridgeEventName.TaskSpawned },
-			{ from: RooCodeEventName.TaskUserMessage, to: ExtensionBridgeEventName.TaskUserMessage },
-			{ from: RooCodeEventName.TaskTokenUsageUpdated, to: ExtensionBridgeEventName.TaskTokenUsageUpdated },
+			{
+				from: RooCodeEventName.TaskCreated,
+				to: ExtensionBridgeEventName.TaskCreated,
+			},
+			{
+				from: RooCodeEventName.TaskStarted,
+				to: ExtensionBridgeEventName.TaskStarted,
+			},
+			{
+				from: RooCodeEventName.TaskCompleted,
+				to: ExtensionBridgeEventName.TaskCompleted,
+			},
+			{
+				from: RooCodeEventName.TaskAborted,
+				to: ExtensionBridgeEventName.TaskAborted,
+			},
+			{
+				from: RooCodeEventName.TaskFocused,
+				to: ExtensionBridgeEventName.TaskFocused,
+			},
+			{
+				from: RooCodeEventName.TaskUnfocused,
+				to: ExtensionBridgeEventName.TaskUnfocused,
+			},
+			{
+				from: RooCodeEventName.TaskActive,
+				to: ExtensionBridgeEventName.TaskActive,
+			},
+			{
+				from: RooCodeEventName.TaskInteractive,
+				to: ExtensionBridgeEventName.TaskInteractive,
+			},
+			{
+				from: RooCodeEventName.TaskResumable,
+				to: ExtensionBridgeEventName.TaskResumable,
+			},
+			{
+				from: RooCodeEventName.TaskIdle,
+				to: ExtensionBridgeEventName.TaskIdle,
+			},
+			{
+				from: RooCodeEventName.TaskPaused,
+				to: ExtensionBridgeEventName.TaskPaused,
+			},
+			{
+				from: RooCodeEventName.TaskUnpaused,
+				to: ExtensionBridgeEventName.TaskUnpaused,
+			},
+			{
+				from: RooCodeEventName.TaskSpawned,
+				to: ExtensionBridgeEventName.TaskSpawned,
+			},
+			{
+				from: RooCodeEventName.TaskUserMessage,
+				to: ExtensionBridgeEventName.TaskUserMessage,
+			},
+			{
+				from: RooCodeEventName.TaskTokenUsageUpdated,
+				to: ExtensionBridgeEventName.TaskTokenUsageUpdated,
+			},
 		] as const
 
 		eventMapping.forEach(({ from, to }) => {

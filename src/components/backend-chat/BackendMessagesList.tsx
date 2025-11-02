@@ -27,19 +27,16 @@ export const BackendMessagesList = forwardRef<
             <div className="text-2xl">🚀</div>
             <h3 className="text-lg font-semibold">Backend Development Ready</h3>
             <p className="text-sm text-muted-foreground max-w-md">
-              Start building your backend with Roo-Code logic. Ask questions about
-              server architecture, API design, database schemas, or get help with
-              backend development tasks.
+              Start building your backend with Roo-Code logic. Ask questions
+              about server architecture, API design, database schemas, or get
+              help with backend development tasks.
             </p>
           </div>
         </div>
       ) : (
         <>
           {messages.map((message, index) => (
-            <BackendChatMessage
-              key={message.id || index}
-              message={message}
-            />
+            <BackendChatMessage key={message.id || index} message={message} />
           ))}
           <div ref={messagesEndRef} />
         </>

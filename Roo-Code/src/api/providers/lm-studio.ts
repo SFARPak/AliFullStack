@@ -82,7 +82,9 @@ export class LmStudioHandler extends BaseProvider implements SingleCompletionHan
 		let assistantText = ""
 
 		try {
-			const params: OpenAI.Chat.ChatCompletionCreateParamsStreaming & { draft_model?: string } = {
+			const params: OpenAI.Chat.ChatCompletionCreateParamsStreaming & {
+				draft_model?: string
+			} = {
 				model: this.getModel().id,
 				messages: openAiMessages,
 				temperature: this.options.modelTemperature ?? LMSTUDIO_DEFAULT_TEMPERATURE,

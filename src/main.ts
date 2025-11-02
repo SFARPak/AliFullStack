@@ -300,7 +300,10 @@ async function handleDeepLinkReturn(url: string) {
         mainWindow.show();
       }
     } catch (error: any) {
-      dialog.showErrorBox("Authentication Error", `Failed to complete Roo Code authentication: ${error.message}`);
+      dialog.showErrorBox(
+        "Authentication Error",
+        `Failed to complete Roo Code authentication: ${error.message}`,
+      );
     }
     return;
   }

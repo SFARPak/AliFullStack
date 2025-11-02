@@ -361,7 +361,10 @@ describe("ChatView - Auto Approval Tests", () => {
 					type: "ask",
 					ask: "tool",
 					ts: Date.now(),
-					text: JSON.stringify({ tool: "editedExistingFile", path: "test.txt" }),
+					text: JSON.stringify({
+						tool: "editedExistingFile",
+						path: "test.txt",
+					}),
 					partial: false,
 				},
 			],

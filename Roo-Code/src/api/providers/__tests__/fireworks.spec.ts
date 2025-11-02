@@ -63,7 +63,9 @@ describe("FireworksHandler", () => {
 	it("should use the correct Fireworks base URL", () => {
 		new FireworksHandler({ fireworksApiKey: "test-fireworks-api-key" })
 		expect(OpenAI).toHaveBeenCalledWith(
-			expect.objectContaining({ baseURL: "https://api.fireworks.ai/inference/v1" }),
+			expect.objectContaining({
+				baseURL: "https://api.fireworks.ai/inference/v1",
+			}),
 		)
 	})
 
@@ -286,7 +288,9 @@ describe("FireworksHandler", () => {
 
 	it("completePrompt method should return text from Fireworks API", async () => {
 		const expectedResponse = "This is a test response from Fireworks"
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: expectedResponse } }],
+		})
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe(expectedResponse)
 	})
@@ -331,7 +335,10 @@ describe("FireworksHandler", () => {
 						.fn()
 						.mockResolvedValueOnce({
 							done: false,
-							value: { choices: [{ delta: {} }], usage: { prompt_tokens: 10, completion_tokens: 20 } },
+							value: {
+								choices: [{ delta: {} }],
+								usage: { prompt_tokens: 10, completion_tokens: 20 },
+							},
 						})
 						.mockResolvedValueOnce({ done: true }),
 				}),
@@ -342,7 +349,11 @@ describe("FireworksHandler", () => {
 		const firstChunk = await stream.next()
 
 		expect(firstChunk.done).toBe(false)
-		expect(firstChunk.value).toEqual({ type: "usage", inputTokens: 10, outputTokens: 20 })
+		expect(firstChunk.value).toEqual({
+			type: "usage",
+			inputTokens: 10,
+			outputTokens: 20,
+		})
 	})
 
 	it("createMessage should pass correct parameters to Fireworks client", async () => {
@@ -395,7 +406,9 @@ describe("FireworksHandler", () => {
 	})
 
 	it("should handle empty response in completePrompt", async () => {
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: null } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: null } }],
+		})
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe("")
 	})

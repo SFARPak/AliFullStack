@@ -83,7 +83,9 @@ async function getFirstLevelDirectories(dirPath: string, ignoreInstance: ReturnT
 	const directories: string[] = []
 
 	try {
-		const entries = await fs.promises.readdir(absolutePath, { withFileTypes: true })
+		const entries = await fs.promises.readdir(absolutePath, {
+			withFileTypes: true,
+		})
 
 		for (const entry of entries) {
 			if (entry.isDirectory() && !entry.isSymbolicLink()) {
@@ -416,7 +418,9 @@ async function listFilteredDirectories(
 
 		try {
 			// List all entries in the current directory
-			const entries = await fs.promises.readdir(currentPath, { withFileTypes: true })
+			const entries = await fs.promises.readdir(currentPath, {
+				withFileTypes: true,
+			})
 
 			// Filter for directories only, excluding symbolic links to prevent circular traversal
 			for (const entry of entries) {

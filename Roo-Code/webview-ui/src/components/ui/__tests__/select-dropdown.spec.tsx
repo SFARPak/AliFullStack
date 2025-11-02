@@ -154,7 +154,11 @@ describe("SelectDropdown", () => {
 		it("renders separator options correctly", () => {
 			const optionsWithTypedSeparator = [
 				{ value: "option1", label: "Option 1" },
-				{ value: "sep-1", label: "Separator", type: DropdownOptionType.SEPARATOR },
+				{
+					value: "sep-1",
+					label: "Separator",
+					type: DropdownOptionType.SEPARATOR,
+				},
 				{ value: "option2", label: "Option 2" },
 			]
 
@@ -178,7 +182,11 @@ describe("SelectDropdown", () => {
 		it("renders shortcut options correctly", () => {
 			const shortcutText = "Ctrl+K"
 			const optionsWithShortcut = [
-				{ value: "shortcut", label: shortcutText, type: DropdownOptionType.SHORTCUT },
+				{
+					value: "shortcut",
+					label: shortcutText,
+					type: DropdownOptionType.SHORTCUT,
+				},
 				{ value: "option1", label: "Option 1" },
 			]
 
@@ -207,7 +215,11 @@ describe("SelectDropdown", () => {
 		it("handles action options correctly", () => {
 			const optionsWithAction = [
 				{ value: "option1", label: "Option 1" },
-				{ value: "settingsButtonClicked", label: "Settings", type: DropdownOptionType.ACTION },
+				{
+					value: "settingsButtonClicked",
+					label: "Settings",
+					type: DropdownOptionType.ACTION,
+				},
 			]
 
 			render(<SelectDropdown value="option1" options={optionsWithAction} onChange={onChangeMock} />)
@@ -234,9 +246,16 @@ describe("SelectDropdown", () => {
 			const optionsForTest = [
 				{ value: "option1", label: "Option 1" },
 				// This should be treated as a regular option despite the -action suffix
-				{ value: "settings-action", label: "Regular option with action suffix" },
+				{
+					value: "settings-action",
+					label: "Regular option with action suffix",
+				},
 				// This should be treated as an action
-				{ value: "settingsButtonClicked", label: "Settings", type: DropdownOptionType.ACTION },
+				{
+					value: "settingsButtonClicked",
+					label: "Settings",
+					type: DropdownOptionType.ACTION,
+				},
 			]
 
 			render(<SelectDropdown value="option1" options={optionsForTest} onChange={onChangeMock} />)

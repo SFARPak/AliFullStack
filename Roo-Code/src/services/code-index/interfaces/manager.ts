@@ -61,7 +61,11 @@ export interface ICodeIndexManager {
 	 * Gets the current status of the indexing system
 	 * @returns Current status information
 	 */
-	getCurrentStatus(): { systemStatus: IndexingState; fileStatuses: Record<string, string>; message?: string }
+	getCurrentStatus(): {
+		systemStatus: IndexingState
+		fileStatuses: Record<string, string>
+		message?: string
+	}
 
 	/**
 	 * Disposes of resources used by the manager

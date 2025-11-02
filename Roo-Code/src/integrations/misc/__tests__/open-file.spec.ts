@@ -208,7 +208,9 @@ describe("openFile", () => {
 
 			expect(vscode.commands.executeCommand).toHaveBeenCalledWith(
 				"revealInExplorer",
-				expect.objectContaining({ fsPath: expect.stringContaining("components") }),
+				expect.objectContaining({
+					fsPath: expect.stringContaining("components"),
+				}),
 			)
 			expect(vscode.commands.executeCommand).toHaveBeenCalledWith("list.expand")
 			expect(vscode.workspace.openTextDocument).not.toHaveBeenCalled()
@@ -229,7 +231,9 @@ describe("openFile", () => {
 			// On Windows, the path will include backslashes instead of forward slashes
 			const expectedPathSegment = process.platform === "win32" ? "new\\file.txt" : "new/file.txt"
 			expect(vscode.workspace.fs.writeFile).toHaveBeenCalledWith(
-				expect.objectContaining({ fsPath: expect.stringContaining(expectedPathSegment) }),
+				expect.objectContaining({
+					fsPath: expect.stringContaining(expectedPathSegment),
+				}),
 				Buffer.from(content, "utf8"),
 			)
 			expect(vscode.workspace.openTextDocument).toHaveBeenCalled()

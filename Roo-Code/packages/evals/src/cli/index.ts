@@ -16,8 +16,18 @@ const main = async () => {
 			version: "0.0.0",
 			args: {
 				ci: flag({ type: boolean, long: "ci", defaultValue: () => false }),
-				runId: option({ type: number, long: "runId", short: "r", defaultValue: () => -1 }),
-				taskId: option({ type: number, long: "taskId", short: "t", defaultValue: () => -1 }),
+				runId: option({
+					type: number,
+					long: "runId",
+					short: "r",
+					defaultValue: () => -1,
+				}),
+				taskId: option({
+					type: number,
+					long: "taskId",
+					short: "t",
+					defaultValue: () => -1,
+				}),
 			},
 			handler: async (args) => {
 				const { runId, taskId, ci } = args

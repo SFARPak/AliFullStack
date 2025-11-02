@@ -202,14 +202,18 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const firstCall = mockFetch.mock.calls[0]
 			expect(firstCall[0]).toBe("http://localhost:11434/api/tags")
 			expect(firstCall[1]?.method).toBe("GET")
-			expect(firstCall[1]?.headers).toEqual({ "Content-Type": "application/json" })
+			expect(firstCall[1]?.headers).toEqual({
+				"Content-Type": "application/json",
+			})
 			expect(firstCall[1]?.signal).toBeDefined() // AbortSignal for timeout
 
 			// Check second call (POST /api/embed)
 			const secondCall = mockFetch.mock.calls[1]
 			expect(secondCall[0]).toBe("http://localhost:11434/api/embed")
 			expect(secondCall[1]?.method).toBe("POST")
-			expect(secondCall[1]?.headers).toEqual({ "Content-Type": "application/json" })
+			expect(secondCall[1]?.headers).toEqual({
+				"Content-Type": "application/json",
+			})
 			expect(secondCall[1]?.body).toBe(JSON.stringify({ model: "nomic-embed-text", input: ["test"] }))
 			expect(secondCall[1]?.signal).toBeDefined() // AbortSignal for timeout
 		})

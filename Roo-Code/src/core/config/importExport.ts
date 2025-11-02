@@ -94,7 +94,10 @@ export async function importSettingsFromPath(
 
 		if (e instanceof ZodError) {
 			error = e.issues.map((issue) => `[${issue.path.join(".")}]: ${issue.message}`).join("\n")
-			TelemetryService.instance.captureSchemaValidationError({ schemaName: "ImportExport", error: e })
+			TelemetryService.instance.captureSchemaValidationError({
+				schemaName: "ImportExport",
+				error: e,
+			})
 		} else if (e instanceof Error) {
 			error = e.message
 		}
@@ -205,7 +208,11 @@ export const importSettingsWithFeedback = async (
 			}
 		}
 	} else {
-		result = await importSettings({ providerSettingsManager, contextProxy, customModesManager })
+		result = await importSettings({
+			providerSettingsManager,
+			contextProxy,
+			customModesManager,
+		})
 	}
 
 	if (result.success) {

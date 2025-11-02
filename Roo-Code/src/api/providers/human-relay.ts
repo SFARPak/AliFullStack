@@ -130,6 +130,9 @@ async function showHumanRelayDialog(promptText: string): Promise<string | undefi
 		)
 
 		// Open the dialog box directly using the current panel.
-		vscode.commands.executeCommand(getCommand("showHumanRelayDialog"), { requestId, promptText })
+		vscode.commands.executeCommand(getCommand("showHumanRelayDialog"), {
+			requestId,
+			promptText,
+		})
 	})
 }

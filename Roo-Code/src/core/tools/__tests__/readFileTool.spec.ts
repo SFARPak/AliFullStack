@@ -65,7 +65,10 @@ const { toolResultMock, imageBlocksMock } = vi.hoisted(() => {
 				...images.map((img) => {
 					const [header, data] = img.split(",")
 					const media_type = header.match(/:(.*?);/)?.[1] || "image/png"
-					return { type: "image", source: { type: "base64", media_type, data } }
+					return {
+						type: "image",
+						source: { type: "base64", media_type, data },
+					}
 				}),
 			]
 		}
@@ -76,7 +79,10 @@ const { toolResultMock, imageBlocksMock } = vi.hoisted(() => {
 			? images.map((img) => {
 					const [header, data] = img.split(",")
 					const media_type = header.match(/:(.*?);/)?.[1] || "image/png"
-					return { type: "image", source: { type: "base64", media_type, data } }
+					return {
+						type: "image",
+						source: { type: "base64", media_type, data },
+					}
 				})
 			: []
 	})
@@ -131,7 +137,10 @@ beforeEach(() => {
 				...images.map((img) => {
 					const [header, data] = img.split(",")
 					const media_type = header.match(/:(.*?);/)?.[1] || "image/png"
-					return { type: "image", source: { type: "base64", media_type, data } }
+					return {
+						type: "image",
+						source: { type: "base64", media_type, data },
+					}
 				}),
 			]
 		}
@@ -143,7 +152,10 @@ beforeEach(() => {
 			? images.map((img) => {
 					const [header, data] = img.split(",")
 					const media_type = header.match(/:(.*?);/)?.[1] || "image/png"
-					return { type: "image", source: { type: "base64", media_type, data } }
+					return {
+						type: "image",
+						source: { type: "base64", media_type, data },
+					}
 				})
 			: []
 	})
@@ -296,7 +308,11 @@ describe("read_file tool with maxReadFileLine setting", () => {
 		const maxReadFileLine = options.maxReadFileLine ?? 500
 		const totalLines = options.totalLines ?? 5
 
-		mockProvider.getState.mockResolvedValue({ maxReadFileLine, maxImageFileSize: 20, maxTotalImageSize: 20 })
+		mockProvider.getState.mockResolvedValue({
+			maxReadFileLine,
+			maxImageFileSize: 20,
+			maxTotalImageSize: 20,
+		})
 		mockedCountFileLines.mockResolvedValue(totalLines)
 
 		// Reset the spy before each test
@@ -532,7 +548,11 @@ describe("read_file tool XML output structure", () => {
 		mockInputContent = fileContent
 
 		// Setup mock provider with default maxReadFileLine
-		mockProvider.getState.mockResolvedValue({ maxReadFileLine: -1, maxImageFileSize: 20, maxTotalImageSize: 20 }) // Default to full file read
+		mockProvider.getState.mockResolvedValue({
+			maxReadFileLine: -1,
+			maxImageFileSize: 20,
+			maxTotalImageSize: 20,
+		}) // Default to full file read
 
 		// Add additional properties needed for XML tests
 		mockCline.sayAndCreateMissingParamError = vi.fn().mockResolvedValue("Missing required parameter")
@@ -557,7 +577,11 @@ describe("read_file tool XML output structure", () => {
 		const isBinary = options.isBinary ?? false
 		const validateAccess = options.validateAccess ?? true
 
-		mockProvider.getState.mockResolvedValue({ maxReadFileLine, maxImageFileSize: 20, maxTotalImageSize: 20 })
+		mockProvider.getState.mockResolvedValue({
+			maxReadFileLine,
+			maxImageFileSize: 20,
+			maxTotalImageSize: 20,
+		})
 		mockedCountFileLines.mockResolvedValue(totalLines)
 		mockedIsBinaryFile.mockResolvedValue(isBinary)
 		mockCline.rooIgnoreController.validateAccess = vi.fn().mockReturnValue(validateAccess)

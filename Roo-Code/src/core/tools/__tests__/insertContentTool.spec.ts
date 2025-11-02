@@ -140,7 +140,9 @@ describe("insertContentTool", () => {
 		mockedFileExistsAtPath.mockResolvedValue(fileExists)
 		mockedFsReadFile.mockResolvedValue(fileContent)
 		mockCline.rooIgnoreController.validateAccess.mockReturnValue(accessAllowed)
-		mockCline.ask.mockResolvedValue({ response: options.askApprovalResponse ?? "yesButtonClicked" })
+		mockCline.ask.mockResolvedValue({
+			response: options.askApprovalResponse ?? "yesButtonClicked",
+		})
 
 		const toolUse: ToolUse = {
 			type: "tool_use",

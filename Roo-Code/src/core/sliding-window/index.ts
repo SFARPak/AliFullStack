@@ -168,7 +168,13 @@ export async function truncateConversationIfNeeded({
 	// Fall back to sliding window truncation if needed
 	if (prevContextTokens > allowedTokens) {
 		const truncatedMessages = truncateConversation(messages, 0.5, taskId)
-		return { messages: truncatedMessages, prevContextTokens, summary: "", cost, error }
+		return {
+			messages: truncatedMessages,
+			prevContextTokens,
+			summary: "",
+			cost,
+			error,
+		}
 	}
 	// No truncation or condensation needed
 	return { messages, summary: "", cost, prevContextTokens, error }

@@ -79,7 +79,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe("test-model")
 			expect(result.current.info).toEqual({
@@ -132,7 +134,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe("test-model")
 			expect(result.current.info).toEqual(specificProviderInfo)
@@ -185,7 +189,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe("test-model")
 			expect(result.current.info).toEqual({
@@ -240,7 +246,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe("test-model")
 			expect(result.current.info).toEqual(baseModelInfo)
@@ -286,7 +294,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe("non-existent-model")
 			expect(result.current.info).toBeUndefined()
@@ -315,7 +325,14 @@ describe("useSelectedModel", () => {
 
 		it("should return loading state when open router model providers are loading", () => {
 			mockUseRouterModels.mockReturnValue({
-				data: { openrouter: {}, requesty: {}, glama: {}, unbound: {}, litellm: {}, "io-intelligence": {} },
+				data: {
+					openrouter: {},
+					requesty: {},
+					glama: {},
+					unbound: {},
+					litellm: {},
+					"io-intelligence": {},
+				},
 				isLoading: false,
 				isError: false,
 			} as any)
@@ -402,7 +419,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.provider).toBe("claude-code")
 			expect(result.current.id).toBe("claude-sonnet-4-20250514")
@@ -440,7 +459,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.provider).toBe("claude-code")
 			expect(result.current.id).toBe("claude-sonnet-4-20250514") // Default model
@@ -479,7 +500,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe(BEDROCK_CLAUDE_SONNET_4_MODEL_ID)
 			expect(result.current.info?.contextWindow).toBe(1_000_000)
@@ -493,7 +516,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe(BEDROCK_CLAUDE_SONNET_4_MODEL_ID)
 			expect(result.current.info?.contextWindow).toBe(200_000)
@@ -507,7 +532,9 @@ describe("useSelectedModel", () => {
 			}
 
 			const wrapper = createWrapper()
-			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
+			const { result } = renderHook(() => useSelectedModel(apiConfiguration), {
+				wrapper,
+			})
 
 			expect(result.current.id).toBe("anthropic.claude-3-5-sonnet-20241022-v2:0")
 			expect(result.current.info?.contextWindow).toBe(200_000)

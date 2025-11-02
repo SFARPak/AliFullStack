@@ -7,7 +7,9 @@ vitest.mock("openai", () => {
 
 	return {
 		__esModule: true,
-		default: mockConstructor.mockImplementation(() => ({ chat: { completions: { create: mockCreate } } })),
+		default: mockConstructor.mockImplementation(() => ({
+			chat: { completions: { create: mockCreate } },
+		})),
 	}
 })
 
@@ -127,7 +129,9 @@ describe("XAIHandler", () => {
 
 	it("completePrompt method should return text from OpenAI API", async () => {
 		const expectedResponse = "This is a test response"
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: expectedResponse } }],
+		})
 
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe(expectedResponse)

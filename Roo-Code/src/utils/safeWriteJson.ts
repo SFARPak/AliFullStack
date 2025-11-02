@@ -186,7 +186,9 @@ async function safeWriteJson(filePath: string, data: any): Promise<void> {
  */
 async function _streamDataToFile(targetPath: string, data: any): Promise<void> {
 	// Stream data to avoid high memory usage for large JSON objects.
-	const fileWriteStream = fsSync.createWriteStream(targetPath, { encoding: "utf8" })
+	const fileWriteStream = fsSync.createWriteStream(targetPath, {
+		encoding: "utf8",
+	})
 	const disassembler = Disassembler.disassembler()
 	// Output will be compact JSON as standard Stringer is used.
 	const stringer = Stringer.stringer()

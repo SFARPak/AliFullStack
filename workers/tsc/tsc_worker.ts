@@ -20,7 +20,9 @@ function loadLocalTypeScript(appPath: string): typeof import("typescript") {
   for (const searchPath of possiblePaths) {
     try {
       // Try to load TypeScript from the project's node_modules
-      const requirePath = require.resolve("typescript", { paths: [searchPath] });
+      const requirePath = require.resolve("typescript", {
+        paths: [searchPath],
+      });
       const ts = require(requirePath);
       return ts;
     } catch (error) {
@@ -61,7 +63,10 @@ function findTypeScriptConfig(appPath: string): string {
   }
 
   throw new Error(
-    `No TypeScript configuration file found in any of the following paths: ${possiblePaths.map(p => possibleConfigs.map(c => path.join(p, c))).flat().join(", ")}`,
+    `No TypeScript configuration file found in any of the following paths: ${possiblePaths
+      .map((p) => possibleConfigs.map((c) => path.join(p, c)))
+      .flat()
+      .join(", ")}`,
   );
 }
 

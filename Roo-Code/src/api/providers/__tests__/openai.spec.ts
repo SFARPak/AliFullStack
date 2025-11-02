@@ -23,7 +23,11 @@ vitest.mock("openai", () => {
 								id: "test-completion",
 								choices: [
 									{
-										message: { role: "assistant", content: "Test response", refusal: null },
+										message: {
+											role: "assistant",
+											content: "Test response",
+											refusal: null,
+										},
 										finish_reason: "stop",
 										index: 0,
 									},
@@ -196,7 +200,10 @@ describe("OpenAiHandler", () => {
 			const noReasoningOptions: ApiHandlerOptions = {
 				...mockOptions,
 				enableReasoningEffort: false,
-				openAiCustomModelInfo: { contextWindow: 128_000, supportsPromptCache: false },
+				openAiCustomModelInfo: {
+					contextWindow: 128_000,
+					supportsPromptCache: false,
+				},
 			}
 			const noReasoningHandler = new OpenAiHandler(noReasoningOptions)
 			const stream = noReasoningHandler.createMessage(systemPrompt, messages)

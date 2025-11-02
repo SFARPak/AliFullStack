@@ -9,7 +9,13 @@ export function addCacheBreakpoints(
 	messages[0] = {
 		role: "system",
 		// @ts-ignore-next-line
-		content: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+		content: [
+			{
+				type: "text",
+				text: systemPrompt,
+				cache_control: { type: "ephemeral" },
+			},
+		],
 	}
 
 	// Add breakpoints every N user messages based on frequency.

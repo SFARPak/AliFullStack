@@ -44,13 +44,17 @@ export function RooCodeConfiguration() {
 
   if (isAuthenticated) {
     return (
-      <Alert variant="default" className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+      <Alert
+        variant="default"
+        className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
+      >
         <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
         <AlertTitle className="text-green-800 dark:text-green-200">
           Connected to Roo Code Cloud
         </AlertTitle>
         <AlertDescription className="text-green-700 dark:text-green-300">
-          You are successfully authenticated with Roo Code Cloud. You can now use Roo Code Cloud models.
+          You are successfully authenticated with Roo Code Cloud. You can now
+          use Roo Code Cloud models.
         </AlertDescription>
       </Alert>
     );
@@ -62,8 +66,9 @@ export function RooCodeConfiguration() {
         <LogIn className="h-4 w-4" />
         <AlertTitle>Roo Code Cloud Authentication Required</AlertTitle>
         <AlertDescription>
-          To use Roo Code Cloud models, you need to authenticate with Roo Code Cloud.
-          This provides access to premium AI models with enhanced capabilities.
+          To use Roo Code Cloud models, you need to authenticate with Roo Code
+          Cloud. This provides access to premium AI models with enhanced
+          capabilities.
         </AlertDescription>
       </Alert>
 

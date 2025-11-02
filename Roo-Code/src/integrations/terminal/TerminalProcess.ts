@@ -220,7 +220,10 @@ export class TerminalProcess extends BaseTerminalProcess {
 			const errorMsg =
 				"VSCE output start escape sequence (]633;C or ]133;C) not received, but the stream has started. Upstream VSCE Bug?"
 
-			const inspectPreOutput = inspect(preOutput, { colors: false, breakLength: Infinity })
+			const inspectPreOutput = inspect(preOutput, {
+				colors: false,
+				breakLength: Infinity,
+			})
 			console.error(`[Terminal Process] ${errorMsg} preOutput: ${inspectPreOutput}`)
 
 			// Emit no_shell_integration event

@@ -288,7 +288,9 @@ export const webviewMessageHandler = async (
 		const { messageIndex, apiConversationHistoryIndex } = findMessageIndices(messageTs, currentCline)
 
 		if (messageIndex === -1) {
-			const errorMessage = t("common:errors.message.message_not_found", { messageTs })
+			const errorMessage = t("common:errors.message.message_not_found", {
+				messageTs,
+			})
 			console.error("[handleEditMessageConfirm]", errorMessage)
 			await vscode.window.showErrorMessage(errorMessage)
 			return
@@ -433,14 +435,22 @@ export const webviewMessageHandler = async (
 			provider.postStateToWebview()
 			provider.workspaceTracker?.initializeFilePaths() // Don't await.
 
-			getTheme().then((theme) => provider.postMessageToWebview({ type: "theme", text: JSON.stringify(theme) }))
+			getTheme().then((theme) =>
+				provider.postMessageToWebview({
+					type: "theme",
+					text: JSON.stringify(theme),
+				}),
+			)
 
 			// If MCP Hub is already initialized, update the webview with
 			// current server list.
 			const mcpHub = provider.getMcpHub()
 
 			if (mcpHub) {
-				provider.postMessageToWebview({ type: "mcpServers", mcpServers: mcpHub.getAllServers() })
+				provider.postMessageToWebview({
+					type: "mcpServers",
+					mcpServers: mcpHub.getAllServers(),
+				})
 			}
 
 			provider.providerSettingsManager
@@ -481,7 +491,10 @@ export const webviewMessageHandler = async (
 
 					await Promise.all([
 						await updateGlobalState("listApiConfigMeta", listApiConfig),
-						await provider.postMessageToWebview({ type: "listApiConfig", listApiConfig }),
+						await provider.postMessageToWebview({
+							type: "listApiConfig",
+							listApiConfig,
+						}),
 					])
 				})
 				.catch((error) =>
@@ -783,7 +796,10 @@ export const webviewMessageHandler = async (
 				}
 			}
 
-			const modelFetchPromises: { key: RouterName; options: GetModelsOptions }[] = [
+			const modelFetchPromises: {
+				key: RouterName
+				options: GetModelsOptions
+			}[] = [
 				{ key: "openrouter", options: { provider: "openrouter" } },
 				{
 					key: "requesty",
@@ -794,8 +810,17 @@ export const webviewMessageHandler = async (
 					},
 				},
 				{ key: "glama", options: { provider: "glama" } },
-				{ key: "unbound", options: { provider: "unbound", apiKey: apiConfiguration.unboundApiKey } },
-				{ key: "vercel-ai-gateway", options: { provider: "vercel-ai-gateway" } },
+				{
+					key: "unbound",
+					options: {
+						provider: "unbound",
+						apiKey: apiConfiguration.unboundApiKey,
+					},
+				},
+				{
+					key: "vercel-ai-gateway",
+					options: { provider: "vercel-ai-gateway" },
+				},
 				{
 					key: "deepinfra",
 					options: {
@@ -812,7 +837,10 @@ export const webviewMessageHandler = async (
 			if (ioIntelligenceApiKey) {
 				modelFetchPromises.push({
 					key: "io-intelligence",
-					options: { provider: "io-intelligence", apiKey: ioIntelligenceApiKey },
+					options: {
+						provider: "io-intelligence",
+						apiKey: ioIntelligenceApiKey,
+					},
 				})
 			}
 
@@ -825,7 +853,11 @@ export const webviewMessageHandler = async (
 			if (litellmApiKey && litellmBaseUrl) {
 				modelFetchPromises.push({
 					key: "litellm",
-					options: { provider: "litellm", apiKey: litellmApiKey, baseUrl: litellmBaseUrl },
+					options: {
+						provider: "litellm",
+						apiKey: litellmApiKey,
+						baseUrl: litellmBaseUrl,
+					},
 				})
 			}
 
@@ -886,7 +918,10 @@ export const webviewMessageHandler = async (
 				})
 
 				if (Object.keys(ollamaModels).length > 0) {
-					provider.postMessageToWebview({ type: "ollamaModels", ollamaModels: ollamaModels })
+					provider.postMessageToWebview({
+						type: "ollamaModels",
+						ollamaModels: ollamaModels,
+					})
 				}
 			} catch (error) {
 				// Silently fail - user hasn't configured Ollama yet
@@ -947,7 +982,10 @@ export const webviewMessageHandler = async (
 				})
 			} catch (error) {
 				console.error("Failed to fetch Hugging Face models:", error)
-				provider.postMessageToWebview({ type: "huggingFaceModels", huggingFaceModels: [] })
+				provider.postMessageToWebview({
+					type: "huggingFaceModels",
+					huggingFaceModels: [],
+				})
 			}
 			break
 		case "openImage":
@@ -1175,7 +1213,9 @@ export const webviewMessageHandler = async (
 			break
 		case "remoteControlEnabled":
 			try {
-				await CloudService.instance.updateUserSettings({ extensionBridgeEnabled: message.bool ?? false })
+				await CloudService.instance.updateUserSettings({
+					extensionBridgeEnabled: message.bool ?? false,
+				})
 			} catch (error) {
 				provider.log(
 					`CloudService#updateUserSettings failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -1231,8 +1271,16 @@ export const webviewMessageHandler = async (
 		case "playTts":
 			if (message.text) {
 				playTts(message.text, {
-					onStart: () => provider.postMessageToWebview({ type: "ttsStart", text: message.text }),
-					onStop: () => provider.postMessageToWebview({ type: "ttsStop", text: message.text }),
+					onStart: () =>
+						provider.postMessageToWebview({
+							type: "ttsStart",
+							text: message.text,
+						}),
+					onStop: () =>
+						provider.postMessageToWebview({
+							type: "ttsStop",
+							text: message.text,
+						}),
 				})
 			}
 
@@ -1471,7 +1519,10 @@ export const webviewMessageHandler = async (
 		case "updatePrompt":
 			if (message.promptMode && message.customPrompt !== undefined) {
 				const existingPrompts = getGlobalState("customModePrompts") ?? {}
-				const updatedPrompts = { ...existingPrompts, [message.promptMode]: message.customPrompt }
+				const updatedPrompts = {
+					...existingPrompts,
+					[message.promptMode]: message.customPrompt,
+				}
 				await updateGlobalState("customModePrompts", updatedPrompts)
 				const currentState = await provider.getStateToPostToWebview()
 				const stateWithPrompts = {
@@ -1479,7 +1530,10 @@ export const webviewMessageHandler = async (
 					customModePrompts: updatedPrompts,
 					hasOpenedModeSelector: currentState.hasOpenedModeSelector ?? false,
 				}
-				provider.postMessageToWebview({ type: "state", state: stateWithPrompts })
+				provider.postMessageToWebview({
+					type: "state",
+					state: stateWithPrompts,
+				})
 
 				if (TelemetryService.hasInstance()) {
 					// Determine which setting was changed by comparing objects
@@ -1635,7 +1689,10 @@ export const webviewMessageHandler = async (
 		case "updateCondensingPrompt":
 			// Store the condensing prompt in customSupportPrompts["CONDENSE"] instead of customCondensingPrompt
 			const currentSupportPrompts = getGlobalState("customSupportPrompts") ?? {}
-			const updatedSupportPrompts = { ...currentSupportPrompts, CONDENSE: message.text }
+			const updatedSupportPrompts = {
+				...currentSupportPrompts,
+				CONDENSE: message.text,
+			}
 			await updateGlobalState("customSupportPrompts", updatedSupportPrompts)
 			// Also update the old field for backward compatibility during migration
 			await updateGlobalState("customCondensingPrompt", message.text)
@@ -1678,7 +1735,10 @@ export const webviewMessageHandler = async (
 					if (result.success && result.enhancedText) {
 						// Capture telemetry for prompt enhancement
 						MessageEnhancer.captureTelemetry(currentCline?.taskId, includeTaskHistoryInEnhance)
-						await provider.postMessageToWebview({ type: "enhancedPrompt", text: result.enhancedText })
+						await provider.postMessageToWebview({
+							type: "enhancedPrompt",
+							text: result.enhancedText,
+						})
 					} else {
 						throw new Error(result.error || "Unknown error")
 					}
@@ -1816,10 +1876,15 @@ export const webviewMessageHandler = async (
 					}
 
 					// Load the old configuration to get its ID.
-					const { id } = await provider.providerSettingsManager.getProfile({ name: oldName })
+					const { id } = await provider.providerSettingsManager.getProfile({
+						name: oldName,
+					})
 
 					// Create a new configuration with the new name and old ID.
-					await provider.providerSettingsManager.saveConfig(newName, { ...message.apiConfiguration, id })
+					await provider.providerSettingsManager.saveConfig(newName, {
+						...message.apiConfiguration,
+						id,
+					})
 
 					// Delete the old configuration.
 					await provider.providerSettingsManager.deleteConfig(oldName)
@@ -2288,7 +2353,10 @@ export const webviewMessageHandler = async (
 		}
 		case "cloudButtonClicked": {
 			// Navigate to the cloud tab.
-			provider.postMessageToWebview({ type: "action", action: "cloudButtonClicked" })
+			provider.postMessageToWebview({
+				type: "action",
+				action: "cloudButtonClicked",
+			})
 			break
 		}
 		case "rooCloudSignIn": {
@@ -2317,7 +2385,10 @@ export const webviewMessageHandler = async (
 			try {
 				await CloudService.instance.logout()
 				await provider.postStateToWebview()
-				provider.postMessageToWebview({ type: "authenticatedUser", userInfo: undefined })
+				provider.postMessageToWebview({
+					type: "authenticatedUser",
+					userInfo: undefined,
+				})
 			} catch (error) {
 				provider.log(`AuthService#logout failed: ${error}`)
 				vscode.window.showErrorMessage("Sign out failed.")
@@ -2633,7 +2704,10 @@ export const webviewMessageHandler = async (
 					return
 				}
 				await manager.clearIndexData()
-				provider.postMessageToWebview({ type: "indexCleared", values: { success: true } })
+				provider.postMessageToWebview({
+					type: "indexCleared",
+					values: { success: true },
+				})
 			} catch (error) {
 				provider.log(`Error clearing index data: ${error instanceof Error ? error.message : String(error)}`)
 				provider.postMessageToWebview({

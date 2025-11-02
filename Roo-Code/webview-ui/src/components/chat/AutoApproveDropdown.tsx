@@ -129,7 +129,11 @@ export const AutoApproveDropdown = ({ disabled = false, triggerClassName = "" }:
 
 	const handleOpenSettings = React.useCallback(
 		() =>
-			window.postMessage({ type: "action", action: "settingsButtonClicked", values: { section: "autoApprove" } }),
+			window.postMessage({
+				type: "action",
+				action: "settingsButtonClicked",
+				values: { section: "autoApprove" },
+			}),
 		[],
 	)
 

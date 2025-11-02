@@ -63,7 +63,12 @@ export const TerminalSettings = ({
 
 	const [inheritEnv, setInheritEnv] = useState<boolean>(true)
 
-	useMount(() => vscode.postMessage({ type: "getVSCodeSetting", setting: "terminal.integrated.inheritEnv" }))
+	useMount(() =>
+		vscode.postMessage({
+			type: "getVSCodeSetting",
+			setting: "terminal.integrated.inheritEnv",
+		}),
+	)
 
 	const onMessage = useCallback((event: MessageEvent) => {
 		const message: ExtensionMessage = event.data

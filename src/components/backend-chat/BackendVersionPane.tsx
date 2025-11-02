@@ -10,7 +10,10 @@ interface BackendVersionPaneProps {
   onClose: () => void;
 }
 
-export function BackendVersionPane({ isVisible, onClose }: BackendVersionPaneProps) {
+export function BackendVersionPane({
+  isVisible,
+  onClose,
+}: BackendVersionPaneProps) {
   const appId = useAtomValue(selectedAppIdAtom);
   const { versions, loading } = useVersions(appId);
 
@@ -19,7 +22,9 @@ export function BackendVersionPane({ isVisible, onClose }: BackendVersionPanePro
   return (
     <div className="w-80 border-l border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 flex flex-col">
       <div className="flex items-center justify-between p-4 border-b border-blue-200 dark:border-blue-800">
-        <h3 className="font-semibold text-blue-800 dark:text-blue-200">Backend Version History</h3>
+        <h3 className="font-semibold text-blue-800 dark:text-blue-200">
+          Backend Version History
+        </h3>
         <Button
           variant="ghost"
           size="sm"
@@ -32,9 +37,13 @@ export function BackendVersionPane({ isVisible, onClose }: BackendVersionPanePro
 
       <div className="flex-1 overflow-y-auto p-4">
         {loading ? (
-          <div className="text-center text-muted-foreground">Loading versions...</div>
+          <div className="text-center text-muted-foreground">
+            Loading versions...
+          </div>
         ) : versions.length === 0 ? (
-          <div className="text-center text-muted-foreground">No versions yet</div>
+          <div className="text-center text-muted-foreground">
+            No versions yet
+          </div>
         ) : (
           <div className="space-y-3">
             {versions.map((version, index) => (
@@ -43,7 +52,10 @@ export function BackendVersionPane({ isVisible, onClose }: BackendVersionPanePro
                 className="border border-blue-200 dark:border-blue-800 rounded-lg p-3 bg-white dark:bg-gray-800"
               >
                 <div className="flex items-start gap-3">
-                  <GitCommit size={16} className="text-blue-500 mt-1 flex-shrink-0" />
+                  <GitCommit
+                    size={16}
+                    className="text-blue-500 mt-1 flex-shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono text-sm text-blue-600 dark:text-blue-400">
@@ -61,7 +73,10 @@ export function BackendVersionPane({ isVisible, onClose }: BackendVersionPanePro
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock size={12} />
                       <span>
-                        {formatDistanceToNow(new Date(version.timestamp * 1000), { addSuffix: true })}
+                        {formatDistanceToNow(
+                          new Date(version.timestamp * 1000),
+                          { addSuffix: true },
+                        )}
                       </span>
                     </div>
                   </div>

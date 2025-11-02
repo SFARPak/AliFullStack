@@ -61,7 +61,10 @@ export class RequestyHandler extends BaseProvider implements SingleCompletionHan
 	}
 
 	public async fetchModel() {
-		this.models = await getModels({ provider: "requesty", baseUrl: this.baseURL })
+		this.models = await getModels({
+			provider: "requesty",
+			baseUrl: this.baseURL,
+		})
 		return this.getModel()
 	}
 
@@ -146,7 +149,10 @@ export class RequestyHandler extends BaseProvider implements SingleCompletionHan
 			}
 
 			if (delta && "reasoning_content" in delta && delta.reasoning_content) {
-				yield { type: "reasoning", text: (delta.reasoning_content as string | undefined) || "" }
+				yield {
+					type: "reasoning",
+					text: (delta.reasoning_content as string | undefined) || "",
+				}
 			}
 
 			if (chunk.usage) {

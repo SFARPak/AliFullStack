@@ -15,7 +15,12 @@ class MockApiHandler extends BaseProvider {
 		const mockStream = {
 			async *[Symbol.asyncIterator]() {
 				yield { type: "text", text: "Mock summary of the conversation" }
-				yield { type: "usage", inputTokens: 100, outputTokens: 50, totalCost: 0.01 }
+				yield {
+					type: "usage",
+					inputTokens: 100,
+					outputTokens: 50,
+					totalCost: 0.01,
+				}
 			},
 		}
 		return mockStream
@@ -96,7 +101,10 @@ describe("Condense", () => {
 			const slashCommandContent = "/prr #123 - Fix authentication bug"
 			const messages: ApiMessage[] = [
 				{ role: "user", content: slashCommandContent },
-				{ role: "assistant", content: "I'll help you fix that authentication bug" },
+				{
+					role: "assistant",
+					content: "I'll help you fix that authentication bug",
+				},
 				{ role: "user", content: "The issue is with JWT tokens" },
 				{ role: "assistant", content: "Let me examine the JWT implementation" },
 				{ role: "user", content: "It's failing on refresh" },
@@ -180,7 +188,12 @@ describe("Condense", () => {
 					const mockStream = {
 						async *[Symbol.asyncIterator]() {
 							yield { type: "text", text: "" }
-							yield { type: "usage", inputTokens: 100, outputTokens: 0, totalCost: 0.01 }
+							yield {
+								type: "usage",
+								inputTokens: 100,
+								outputTokens: 0,
+								totalCost: 0.01,
+							}
 						},
 					}
 					return mockStream

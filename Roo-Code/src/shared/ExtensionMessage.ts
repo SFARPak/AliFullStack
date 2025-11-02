@@ -151,7 +151,12 @@ export interface ExtensionMessage {
 	openAiModels?: string[]
 	ollamaModels?: ModelRecord
 	lmStudioModels?: ModelRecord
-	vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
+	vsCodeLmModels?: {
+		vendor?: string
+		family?: string
+		version?: string
+		id?: string
+	}[]
 	huggingFaceModels?: Array<{
 		id: string
 		object: string
@@ -333,7 +338,10 @@ export type ExtensionState = Pick<
 	autoCondenseContext: boolean
 	autoCondenseContextPercent: number
 	marketplaceItems?: MarketplaceItem[]
-	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
+	marketplaceInstalledMetadata?: {
+		project: Record<string, any>
+		global: Record<string, any>
+	}
 	profileThresholds: Record<string, number>
 	hasOpenedModeSelector: boolean
 	openRouterImageApiKey?: string

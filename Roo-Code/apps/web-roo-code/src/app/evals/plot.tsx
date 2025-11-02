@@ -140,7 +140,11 @@ export const Plot = ({ tableData }: PlotProps) => {
 					if (
 						wouldLabelsOverlap(
 							{ cost: point.cost, score: point.score, position },
-							{ cost: placed.cost, score: placed.score, position: placed.position },
+							{
+								cost: placed.cost,
+								score: placed.score,
+								position: placed.position,
+							},
 						)
 					) {
 						hasLabelOverlap = true

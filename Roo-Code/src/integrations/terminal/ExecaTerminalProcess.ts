@@ -95,7 +95,10 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 				})
 			}
 
-			const rawStream = this.subprocess.iterable({ from: "all", preserveNewlines: true })
+			const rawStream = this.subprocess.iterable({
+				from: "all",
+				preserveNewlines: true,
+			})
 
 			// Wrap the stream to ensure all chunks are strings (execa can return Uint8Array)
 			const stream = (async function* () {
@@ -155,7 +158,10 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 		} catch (error) {
 			if (error instanceof ExecaError) {
 				console.error(`[ExecaTerminalProcess#run] shell execution error: ${error.message}`)
-				this.emit("shell_execution_complete", { exitCode: error.exitCode ?? 0, signalName: error.signal })
+				this.emit("shell_execution_complete", {
+					exitCode: error.exitCode ?? 0,
+					signalName: error.signal,
+				})
 			} else {
 				console.error(
 					`[ExecaTerminalProcess#run] shell execution error: ${error instanceof Error ? error.message : String(error)}`,

@@ -81,8 +81,8 @@ async function verifyReleaseAssets() {
 
     // --- Fetch releases with retry logic ---
     const tagName = `v${version}`;
-    const maxRetries = 10;
-    const baseDelay = 30000; // 30 seconds
+    const maxRetries = 5;
+    const baseDelay = 10000; // 10 seconds
     let release = null;
     let lastError = null;
 
@@ -109,19 +109,16 @@ async function verifyReleaseAssets() {
         }
 
         const allReleases = await response.json();
-        console.log(`📦 Total releases found: ${allReleases.length}`);
-        console.log(`🔍 Available release tags:`, allReleases.slice(0, 10).map(r => r.tag_name));
-        console.log(`📄 Available release states:`, allReleases.slice(0, 10).map(r => `${r.tag_name} (${r.draft ? 'DRAFT' : 'PUBLISHED'})`));
 
         const releaseExists = allReleases.some((r) => r.tag_name === tagName);
         if (!releaseExists) {
-          console.error(`❌ Release ${tagName} does not exist in the repository!`);
-          console.error(`📋 All available releases:`);
-          allReleases.forEach(r => {
-            console.error(`   - ${r.tag_name} (${r.draft ? 'DRAFT' : 'PUBLISHED'})`);
-          });
-          console.error(`❌ Aborting - no point in retrying as release doesn't exist`);
-          process.exit(1);
+          console.warn(`⚠️ Release ${tagName} not found. Retrying...`);
+          if (attempt < maxRetries) {
+            const delay = baseDelay * attempt;
+            console.log(`⏳ Waiting ${delay / 1000}s before retry...`);
+            await new Promise((r) => setTimeout(r, delay));
+          }
+          continue;
         }
 
         release = allReleases.find((r) => r.tag_name === tagName);

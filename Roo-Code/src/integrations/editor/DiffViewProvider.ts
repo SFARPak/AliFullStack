@@ -196,7 +196,11 @@ export class DiffViewProvider {
 		finalContent: string | undefined
 	}> {
 		if (!this.relPath || !this.newContent || !this.activeDiffEditor) {
-			return { newProblemsMessage: undefined, userEdits: undefined, finalContent: undefined }
+			return {
+				newProblemsMessage: undefined,
+				userEdits: undefined,
+				finalContent: undefined,
+			}
 		}
 
 		const absolutePath = path.resolve(this.cwd, this.relPath)
@@ -207,7 +211,10 @@ export class DiffViewProvider {
 			await updatedDocument.save()
 		}
 
-		await vscode.window.showTextDocument(vscode.Uri.file(absolutePath), { preview: false, preserveFocus: true })
+		await vscode.window.showTextDocument(vscode.Uri.file(absolutePath), {
+			preview: false,
+			preserveFocus: true,
+		})
 		await this.closeAllDiffViews()
 
 		// Getting diagnostics before and after the file edit is a better approach than
@@ -285,14 +292,22 @@ export class DiffViewProvider {
 			this.newProblemsMessage = newProblemsMessage
 			this.userEdits = userEdits
 
-			return { newProblemsMessage, userEdits, finalContent: normalizedEditedContent }
+			return {
+				newProblemsMessage,
+				userEdits,
+				finalContent: normalizedEditedContent,
+			}
 		} else {
 			// No changes to Roo's edits.
 			// Store the results as class properties for formatFileWriteResponse to use
 			this.newProblemsMessage = newProblemsMessage
 			this.userEdits = undefined
 
-			return { newProblemsMessage, userEdits: undefined, finalContent: normalizedEditedContent }
+			return {
+				newProblemsMessage,
+				userEdits: undefined,
+				finalContent: normalizedEditedContent,
+			}
 		}
 	}
 
@@ -540,7 +555,11 @@ export class DiffViewProvider {
 			// Pre-open the file as a text document to ensure it doesn't open in preview mode
 			// This fixes issues with files that have custom editor associations (like markdown preview)
 			vscode.window
-				.showTextDocument(uri, { preview: false, viewColumn: vscode.ViewColumn.Active, preserveFocus: true })
+				.showTextDocument(uri, {
+					preview: false,
+					viewColumn: vscode.ViewColumn.Active,
+					preserveFocus: true,
+				})
 				.then(() => {
 					// Execute the diff command after ensuring the file is open as text
 					return vscode.commands.executeCommand(

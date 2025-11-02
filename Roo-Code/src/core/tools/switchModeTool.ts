@@ -54,7 +54,11 @@ export async function switchModeTool(
 				return
 			}
 
-			const completeMessage = JSON.stringify({ tool: "switchMode", mode: mode_slug, reason })
+			const completeMessage = JSON.stringify({
+				tool: "switchMode",
+				mode: mode_slug,
+				reason,
+			})
 			const didApprove = await askApproval("tool", completeMessage)
 
 			if (!didApprove) {

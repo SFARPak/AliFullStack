@@ -127,7 +127,11 @@ describe("ApiConfigSelector", () => {
 			listApiConfigMeta: [
 				{ id: "config1", name: "Config 1", modelId: "claude-3-opus-20240229" },
 				{ id: "config2", name: "Config 2", modelId: "gpt-4" },
-				{ id: "config3", name: "Config 3", modelId: "claude-3-sonnet-20240229" },
+				{
+					id: "config3",
+					name: "Config 3",
+					modelId: "claude-3-sonnet-20240229",
+				},
 				{ id: "config4", name: "Config 4", modelId: "gpt-3.5-turbo" },
 				{ id: "config5", name: "Config 5", modelId: "claude-3-haiku-20240307" },
 				{ id: "config6", name: "Config 6", modelId: "gpt-4-turbo" },
@@ -161,7 +165,11 @@ describe("ApiConfigSelector", () => {
 			listApiConfigMeta: [
 				{ id: "config1", name: "Config 1", modelId: "claude-3-opus-20240229" },
 				{ id: "config2", name: "Config 2", modelId: "gpt-4" },
-				{ id: "config3", name: "Config 3", modelId: "claude-3-sonnet-20240229" },
+				{
+					id: "config3",
+					name: "Config 3",
+					modelId: "claude-3-sonnet-20240229",
+				},
 				{ id: "config4", name: "Config 4", modelId: "gpt-3.5-turbo" },
 				{ id: "config5", name: "Config 5", modelId: "claude-3-haiku-20240307" },
 				{ id: "config6", name: "Config 6", modelId: "gpt-4-turbo" },
@@ -191,7 +199,11 @@ describe("ApiConfigSelector", () => {
 			listApiConfigMeta: [
 				{ id: "config1", name: "Config 1", modelId: "claude-3-opus-20240229" },
 				{ id: "config2", name: "Config 2", modelId: "gpt-4" },
-				{ id: "config3", name: "Config 3", modelId: "claude-3-sonnet-20240229" },
+				{
+					id: "config3",
+					name: "Config 3",
+					modelId: "claude-3-sonnet-20240229",
+				},
 				{ id: "config4", name: "Config 4", modelId: "gpt-3.5-turbo" },
 				{ id: "config5", name: "Config 5", modelId: "claude-3-haiku-20240307" },
 				{ id: "config6", name: "Config 6", modelId: "gpt-4-turbo" },
@@ -217,7 +229,11 @@ describe("ApiConfigSelector", () => {
 			listApiConfigMeta: [
 				{ id: "config1", name: "Config 1", modelId: "claude-3-opus-20240229" },
 				{ id: "config2", name: "Config 2", modelId: "gpt-4" },
-				{ id: "config3", name: "Config 3", modelId: "claude-3-sonnet-20240229" },
+				{
+					id: "config3",
+					name: "Config 3",
+					modelId: "claude-3-sonnet-20240229",
+				},
 				{ id: "config4", name: "Config 4", modelId: "gpt-3.5-turbo" },
 				{ id: "config5", name: "Config 5", modelId: "claude-3-haiku-20240307" },
 				{ id: "config6", name: "Config 6", modelId: "gpt-4-turbo" },
@@ -353,7 +369,11 @@ describe("ApiConfigSelector", () => {
 			listApiConfigMeta: [
 				{ id: "config1", name: "Config 1", modelId: "claude-3-opus-20240229" },
 				{ id: "config2", name: "Config 2", modelId: "gpt-4" },
-				{ id: "config3", name: "Config 3", modelId: "claude-3-sonnet-20240229" },
+				{
+					id: "config3",
+					name: "Config 3",
+					modelId: "claude-3-sonnet-20240229",
+				},
 				{ id: "config4", name: "Config 4", modelId: "gpt-3.5-turbo" },
 				{ id: "config5", name: "Config 5", modelId: "claude-3-haiku-20240307" },
 				{ id: "config6", name: "Config 6", modelId: "gpt-4-turbo" },
@@ -410,7 +430,11 @@ describe("ApiConfigSelector", () => {
 			listApiConfigMeta: [
 				{ id: "config1", name: "Config 1", modelId: "claude-3-opus-20240229" },
 				{ id: "config2", name: "Config 2", modelId: "gpt-4" },
-				{ id: "config3", name: "Config 3", modelId: "claude-3-sonnet-20240229" },
+				{
+					id: "config3",
+					name: "Config 3",
+					modelId: "claude-3-sonnet-20240229",
+				},
 				{ id: "config4", name: "Config 4", modelId: "gpt-3.5-turbo" },
 				{ id: "config5", name: "Config 5", modelId: "claude-3-haiku-20240307" },
 				{ id: "config6", name: "Config 6", modelId: "gpt-4-turbo" },

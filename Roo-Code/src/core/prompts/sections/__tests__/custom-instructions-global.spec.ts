@@ -65,7 +65,11 @@ describe("custom-instructions global .roo support", () => {
 
 			// Mock directory reading for global rules
 			mockReaddir.mockResolvedValueOnce([
-				{ name: "rules.md", isFile: () => true, isSymbolicLink: () => false } as any,
+				{
+					name: "rules.md",
+					isFile: () => true,
+					isSymbolicLink: () => false,
+				} as any,
 			])
 
 			// Mock file reading for the rules.md file
@@ -87,7 +91,11 @@ describe("custom-instructions global .roo support", () => {
 
 			// Mock directory reading for project rules
 			mockReaddir.mockResolvedValueOnce([
-				{ name: "rules.md", isFile: () => true, isSymbolicLink: () => false } as any,
+				{
+					name: "rules.md",
+					isFile: () => true,
+					isSymbolicLink: () => false,
+				} as any,
 			])
 
 			// Mock file reading
@@ -112,8 +120,20 @@ describe("custom-instructions global .roo support", () => {
 
 			// Mock directory reading
 			mockReaddir
-				.mockResolvedValueOnce([{ name: "global.md", isFile: () => true, isSymbolicLink: () => false } as any])
-				.mockResolvedValueOnce([{ name: "project.md", isFile: () => true, isSymbolicLink: () => false } as any])
+				.mockResolvedValueOnce([
+					{
+						name: "global.md",
+						isFile: () => true,
+						isSymbolicLink: () => false,
+					} as any,
+				])
+				.mockResolvedValueOnce([
+					{
+						name: "project.md",
+						isFile: () => true,
+						isSymbolicLink: () => false,
+					} as any,
+				])
 
 			// Mock file reading
 			mockReadFile.mockResolvedValueOnce("global rule content").mockResolvedValueOnce("project rule content")
@@ -182,10 +202,18 @@ describe("custom-instructions global .roo support", () => {
 			// Mock directory reading for mode-specific rules
 			mockReaddir
 				.mockResolvedValueOnce([
-					{ name: "global-mode.md", isFile: () => true, isSymbolicLink: () => false } as any,
+					{
+						name: "global-mode.md",
+						isFile: () => true,
+						isSymbolicLink: () => false,
+					} as any,
 				])
 				.mockResolvedValueOnce([
-					{ name: "project-mode.md", isFile: () => true, isSymbolicLink: () => false } as any,
+					{
+						name: "project-mode.md",
+						isFile: () => true,
+						isSymbolicLink: () => false,
+					} as any,
 				])
 
 			// Mock file reading for mode-specific rules

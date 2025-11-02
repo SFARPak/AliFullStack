@@ -323,7 +323,10 @@ export class BrowserSession {
 	 * Navigate to a URL with standard loading options
 	 */
 	private async navigatePageToUrl(page: Page, url: string): Promise<void> {
-		await page.goto(url, { timeout: BROWSER_NAVIGATION_TIMEOUT, waitUntil: ["domcontentloaded", "networkidle2"] })
+		await page.goto(url, {
+			timeout: BROWSER_NAVIGATION_TIMEOUT,
+			waitUntil: ["domcontentloaded", "networkidle2"],
+		})
 		await this.waitTillHTMLStable(page)
 	}
 

@@ -166,8 +166,18 @@ describe("loadRuleFiles", () => {
 
 		// Simulate listing files
 		readdirMock.mockResolvedValueOnce([
-			{ name: "file1.txt", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
-			{ name: "file2.txt", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
+			{
+				name: "file1.txt",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "file2.txt",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
 		] as any)
 
 		statMock.mockImplementation((path) => {
@@ -231,18 +241,48 @@ describe("loadRuleFiles", () => {
 
 		// Simulate listing files including cache files
 		readdirMock.mockResolvedValueOnce([
-			{ name: "rule1.txt", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
-			{ name: ".DS_Store", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
-			{ name: "Thumbs.db", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
-			{ name: "rule2.md", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
-			{ name: "cache.log", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
+			{
+				name: "rule1.txt",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: ".DS_Store",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "Thumbs.db",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "rule2.md",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "cache.log",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
 			{
 				name: "backup.bak",
 				isFile: () => true,
 				isSymbolicLink: () => false,
 				parentPath: "/fake/path/.roo/rules",
 			},
-			{ name: "temp.tmp", isFile: () => true, isSymbolicLink: () => false, parentPath: "/fake/path/.roo/rules" },
+			{
+				name: "temp.tmp",
+				isFile: () => true,
+				isSymbolicLink: () => false,
+				parentPath: "/fake/path/.roo/rules",
+			},
 			{
 				name: "script.pyc",
 				isFile: () => true,
@@ -1149,7 +1189,11 @@ describe("addCustomInstructions", () => {
 
 		// Simulate directory has files
 		readdirMock.mockResolvedValueOnce([
-			{ name: "rule1.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules-test-mode" },
+			{
+				name: "rule1.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules-test-mode",
+			},
 		] as any)
 		readFileMock.mockReset()
 
@@ -1279,7 +1323,11 @@ describe("Rules directory reading", () => {
 				},
 			] as any)
 			.mockResolvedValueOnce([
-				{ name: "subdir_link.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules/symlink-target-dir" },
+				{
+					name: "subdir_link.txt",
+					isFile: () => true,
+					parentPath: "/fake/path/.roo/rules/symlink-target-dir",
+				},
 			] as any)
 
 		// Simulate readlink response
@@ -1387,9 +1435,21 @@ describe("Rules directory reading", () => {
 
 		// Simulate listing files
 		readdirMock.mockResolvedValueOnce([
-			{ name: "file1.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules" },
-			{ name: "file2.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules" },
-			{ name: "file3.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules" },
+			{
+				name: "file1.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "file2.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "file3.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules",
+			},
 		] as any)
 
 		statMock.mockImplementation((path) => {
@@ -1447,9 +1507,21 @@ describe("Rules directory reading", () => {
 
 		// Simulate listing files in non-alphabetical order to test sorting
 		readdirMock.mockResolvedValueOnce([
-			{ name: "zebra.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules" },
-			{ name: "alpha.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules" },
-			{ name: "Beta.txt", isFile: () => true, parentPath: "/fake/path/.roo/rules" }, // Test case-insensitive sorting
+			{
+				name: "zebra.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "alpha.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules",
+			},
+			{
+				name: "Beta.txt",
+				isFile: () => true,
+				parentPath: "/fake/path/.roo/rules",
+			}, // Test case-insensitive sorting
 		] as any)
 
 		statMock.mockImplementation((path) => {

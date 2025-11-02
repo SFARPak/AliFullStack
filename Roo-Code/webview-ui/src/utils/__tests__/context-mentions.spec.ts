@@ -232,7 +232,11 @@ describe("getContextMenuOptions", () => {
 	]
 
 	const mockSearchResults: SearchResult[] = [
-		{ path: "/Users/test/project/src/search result spaces.ts", type: "file", label: "search result spaces.ts" },
+		{
+			path: "/Users/test/project/src/search result spaces.ts",
+			type: "file",
+			label: "search result spaces.ts",
+		},
 		{ path: "/Users/test/project/assets/", type: "folder", label: "assets/" },
 	]
 
@@ -521,7 +525,11 @@ describe("getContextMenuOptions", () => {
 	it("should handle formatting of search results without escaping spaces in display", () => {
 		// Create a search result with spaces in the path
 		const searchResults: SearchResult[] = [
-			{ path: "/path/with spaces/file.txt", type: "file", label: "file with spaces.txt" },
+			{
+				path: "/path/with spaces/file.txt",
+				type: "file",
+				label: "file with spaces.txt",
+			},
 		]
 
 		// The formatting happens in getContextMenuOptions when converting search results to menu items

@@ -498,7 +498,9 @@ export const providerSettingsSchema = z.object({
 
 export type ProviderSettings = z.infer<typeof providerSettingsSchema>
 
-export const providerSettingsWithIdSchema = providerSettingsSchema.extend({ id: z.string().optional() })
+export const providerSettingsWithIdSchema = providerSettingsSchema.extend({
+	id: z.string().optional(),
+})
 
 export const discriminatedProviderSettingsWithIdSchema = providerSettingsSchemaDiscriminated.and(
 	z.object({ id: z.string().optional() }),
@@ -632,7 +634,11 @@ export const MODELS_BY_PROVIDER: Record<
 		label: "Chutes AI",
 		models: Object.keys(chutesModels),
 	},
-	"claude-code": { id: "claude-code", label: "Claude Code", models: Object.keys(claudeCodeModels) },
+	"claude-code": {
+		id: "claude-code",
+		label: "Claude Code",
+		models: Object.keys(claudeCodeModels),
+	},
 	deepseek: {
 		id: "deepseek",
 		label: "DeepSeek",
@@ -675,7 +681,11 @@ export const MODELS_BY_PROVIDER: Record<
 		label: "OpenAI",
 		models: Object.keys(openAiNativeModels),
 	},
-	"qwen-code": { id: "qwen-code", label: "Qwen Code", models: Object.keys(qwenCodeModels) },
+	"qwen-code": {
+		id: "qwen-code",
+		label: "Qwen Code",
+		models: Object.keys(qwenCodeModels),
+	},
 	roo: { id: "roo", label: "Roo", models: Object.keys(rooModels) },
 	sambanova: {
 		id: "sambanova",
@@ -703,5 +713,9 @@ export const MODELS_BY_PROVIDER: Record<
 	requesty: { id: "requesty", label: "Requesty", models: [] },
 	unbound: { id: "unbound", label: "Unbound", models: [] },
 	deepinfra: { id: "deepinfra", label: "DeepInfra", models: [] },
-	"vercel-ai-gateway": { id: "vercel-ai-gateway", label: "Vercel AI Gateway", models: [] },
+	"vercel-ai-gateway": {
+		id: "vercel-ai-gateway",
+		label: "Vercel AI Gateway",
+		models: [],
+	},
 }

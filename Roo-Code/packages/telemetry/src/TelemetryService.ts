@@ -73,7 +73,10 @@ export class TelemetryService {
 	}
 
 	public captureConversationMessage(taskId: string, source: "user" | "assistant"): void {
-		this.captureEvent(TelemetryEventName.TASK_CONVERSATION_MESSAGE, { taskId, source })
+		this.captureEvent(TelemetryEventName.TASK_CONVERSATION_MESSAGE, {
+			taskId,
+			source,
+		})
 	}
 
 	public captureLlmCompletion(
@@ -86,7 +89,10 @@ export class TelemetryService {
 			cost?: number
 		},
 	): void {
-		this.captureEvent(TelemetryEventName.LLM_COMPLETION, { taskId, ...properties })
+		this.captureEvent(TelemetryEventName.LLM_COMPLETION, {
+			taskId,
+			...properties,
+		})
 	}
 
 	public captureModeSwitch(taskId: string, newMode: string): void {
@@ -132,16 +138,24 @@ export class TelemetryService {
 	}
 
 	public capturePromptEnhanced(taskId?: string): void {
-		this.captureEvent(TelemetryEventName.PROMPT_ENHANCED, { ...(taskId && { taskId }) })
+		this.captureEvent(TelemetryEventName.PROMPT_ENHANCED, {
+			...(taskId && { taskId }),
+		})
 	}
 
 	public captureSchemaValidationError({ schemaName, error }: { schemaName: string; error: ZodError }): void {
 		// https://zod.dev/ERROR_HANDLING?id=formatting-errors
-		this.captureEvent(TelemetryEventName.SCHEMA_VALIDATION_ERROR, { schemaName, error: error.format() })
+		this.captureEvent(TelemetryEventName.SCHEMA_VALIDATION_ERROR, {
+			schemaName,
+			error: error.format(),
+		})
 	}
 
 	public captureDiffApplicationError(taskId: string, consecutiveMistakeCount: number): void {
-		this.captureEvent(TelemetryEventName.DIFF_APPLICATION_ERROR, { taskId, consecutiveMistakeCount })
+		this.captureEvent(TelemetryEventName.DIFF_APPLICATION_ERROR, {
+			taskId,
+			consecutiveMistakeCount,
+		})
 	}
 
 	public captureShellIntegrationError(taskId: string): void {
@@ -165,7 +179,9 @@ export class TelemetryService {
 	 * @param settingName The name of the setting that was changed
 	 */
 	public captureModeSettingChanged(settingName: string): void {
-		this.captureEvent(TelemetryEventName.MODE_SETTINGS_CHANGED, { settingName })
+		this.captureEvent(TelemetryEventName.MODE_SETTINGS_CHANGED, {
+			settingName,
+		})
 	}
 
 	/**
@@ -174,7 +190,10 @@ export class TelemetryService {
 	 * @param modeName The name of the custom mode
 	 */
 	public captureCustomModeCreated(modeSlug: string, modeName: string): void {
-		this.captureEvent(TelemetryEventName.CUSTOM_MODE_CREATED, { modeSlug, modeName })
+		this.captureEvent(TelemetryEventName.CUSTOM_MODE_CREATED, {
+			modeSlug,
+			modeName,
+		})
 	}
 
 	/**

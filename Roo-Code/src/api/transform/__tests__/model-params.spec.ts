@@ -109,7 +109,11 @@ describe("getModelParams", () => {
 				maxTokens: null,
 			}
 
-			const result = getModelParams({ ...anthropicParams, settings: {}, model })
+			const result = getModelParams({
+				...anthropicParams,
+				settings: {},
+				model,
+			})
 			expect(result.maxTokens).toBe(ANTHROPIC_DEFAULT_MAX_TOKENS)
 		})
 	})
@@ -195,7 +199,13 @@ describe("getModelParams", () => {
 				requiredReasoningBudget: true,
 			}
 
-			expect(getModelParams({ ...anthropicParams, settings: { modelMaxTokens: 2000 }, model })).toEqual({
+			expect(
+				getModelParams({
+					...anthropicParams,
+					settings: { modelMaxTokens: 2000 },
+					model,
+				}),
+			).toEqual({
 				format: anthropicParams.format,
 				maxTokens: 2000,
 				temperature: 1.0, // Thinking models require temperature 1.0.
@@ -252,7 +262,13 @@ describe("getModelParams", () => {
 				requiredReasoningBudget: true,
 			}
 
-			expect(getModelParams({ ...anthropicParams, settings: { modelMaxTokens: 3000 }, model })).toEqual({
+			expect(
+				getModelParams({
+					...anthropicParams,
+					settings: { modelMaxTokens: 3000 },
+					model,
+				}),
+			).toEqual({
 				format: anthropicParams.format,
 				maxTokens: 3000,
 				temperature: 1.0,
@@ -296,7 +312,13 @@ describe("getModelParams", () => {
 				maxTokens: 3000, // 3000 is 18.75% of 16000 context window, within 20% threshold
 			}
 
-			expect(getModelParams({ ...anthropicParams, settings: { modelMaxThinkingTokens: 1500 }, model })).toEqual({
+			expect(
+				getModelParams({
+					...anthropicParams,
+					settings: { modelMaxThinkingTokens: 1500 },
+					model,
+				}),
+			).toEqual({
 				format: anthropicParams.format,
 				maxTokens: 3000, // Uses model.maxTokens since it's within 20% threshold
 				temperature: 0, // Using default temperature.

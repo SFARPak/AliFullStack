@@ -9,8 +9,10 @@ import { getUserDataPath } from "../../paths/paths";
 const logger = log.scope("roocode-auth");
 
 // Configuration - similar to Roo Code
-const CLERK_BASE_URL = process.env.CLERK_BASE_URL || "https://clerk.roocode.com";
-const ROO_CODE_API_URL = process.env.ROO_CODE_API_URL || "https://app.roocode.com";
+const CLERK_BASE_URL =
+  process.env.CLERK_BASE_URL || "https://clerk.roocode.com";
+const ROO_CODE_API_URL =
+  process.env.ROO_CODE_API_URL || "https://app.roocode.com";
 
 // Storage for auth state and credentials
 const AUTH_STATE_KEY = "roocode-auth-state";
@@ -40,7 +42,10 @@ function getAuthStoragePath(): string {
   return path.join(getUserDataPath(), "roocode-auth.json");
 }
 
-function saveAuthData(data: { credentials?: AuthCredentials; state?: AuthState }): void {
+function saveAuthData(data: {
+  credentials?: AuthCredentials;
+  state?: AuthState;
+}): void {
   try {
     const existing = loadAuthData();
     const updated = { ...existing, ...data };
@@ -105,20 +110,25 @@ async function clerkSignIn(ticket: string): Promise<AuthCredentials> {
   };
 }
 
-export async function clerkCreateSessionToken(credentials: AuthCredentials): Promise<string> {
+export async function clerkCreateSessionToken(
+  credentials: AuthCredentials,
+): Promise<string> {
   const formData = new URLSearchParams();
   formData.append("_is_native", "1");
 
-  const response = await fetch(`${CLERK_BASE_URL}/v1/client/sessions/${credentials.sessionId}/tokens`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${credentials.clientToken}`,
-      "User-Agent": "AliFullStack/1.0.0",
+  const response = await fetch(
+    `${CLERK_BASE_URL}/v1/client/sessions/${credentials.sessionId}/tokens`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${credentials.clientToken}`,
+        "User-Agent": "AliFullStack/1.0.0",
+      },
+      body: formData.toString(),
+      signal: AbortSignal.timeout(10000),
     },
-    body: formData.toString(),
-    signal: AbortSignal.timeout(10000),
-  });
+  );
 
   if (response.status === 401 || response.status === 404) {
     throw new Error("Invalid session");
@@ -182,14 +192,19 @@ async function handleRooCodeLogin(): Promise<void> {
   }
 }
 
-export async function handleRooCodeAuthCallback(code: string, state: string): Promise<void> {
+export async function handleRooCodeAuthCallback(
+  code: string,
+  state: string,
+): Promise<void> {
   try {
     // Verify state parameter
     const authData = loadAuthData();
     const storedState = (authData as any)[AUTH_STATE_KEY];
 
     if (state !== storedState) {
-      throw new Error("Invalid state parameter. Authentication request may have been tampered with.");
+      throw new Error(
+        "Invalid state parameter. Authentication request may have been tampered with.",
+      );
     }
 
     // Exchange code for credentials
@@ -218,16 +233,19 @@ async function handleRooCodeLogout(): Promise<void> {
         const formData = new URLSearchParams();
         formData.append("_is_native", "1");
 
-        await fetch(`${CLERK_BASE_URL}/v1/client/sessions/${credentials.sessionId}/remove`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Authorization: `Bearer ${credentials.clientToken}`,
-            "User-Agent": "AliFullStack/1.0.0",
+        await fetch(
+          `${CLERK_BASE_URL}/v1/client/sessions/${credentials.sessionId}/remove`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${credentials.clientToken}`,
+              "User-Agent": "AliFullStack/1.0.0",
+            },
+            body: formData.toString(),
+            signal: AbortSignal.timeout(5000),
           },
-          body: formData.toString(),
-          signal: AbortSignal.timeout(5000),
-        });
+        );
       } catch (error) {
         logger.warn("Failed to call Clerk logout endpoint:", error);
       }
@@ -261,7 +279,10 @@ async function handleRooCodeAuthStatus(): Promise<AuthState> {
       await clerkCreateSessionToken(credentials); // Verify credentials are still valid
       userInfo = await clerkGetUserInfo(credentials);
     } catch (error) {
-      logger.warn("Failed to refresh session token, treating as unauthenticated:", error);
+      logger.warn(
+        "Failed to refresh session token, treating as unauthenticated:",
+        error,
+      );
       // Clear invalid credentials
       const filePath = getAuthStoragePath();
       if (fs.existsSync(filePath)) {
@@ -274,8 +295,13 @@ async function handleRooCodeAuthStatus(): Promise<AuthState> {
       isAuthenticated: true,
       userInfo: {
         id: userInfo.id,
-        name: [userInfo.first_name, userInfo.last_name].filter(n => n).join(" ") || undefined,
-        email: userInfo.email_addresses?.find((e: any) => e.id === userInfo.primary_email_address_id)?.email_address,
+        name:
+          [userInfo.first_name, userInfo.last_name]
+            .filter((n) => n)
+            .join(" ") || undefined,
+        email: userInfo.email_addresses?.find(
+          (e: any) => e.id === userInfo.primary_email_address_id,
+        )?.email_address,
         picture: userInfo.image_url,
       },
     };
@@ -303,7 +329,10 @@ export function registerRooCodeAuthHandlers(): void {
   });
 
   // Handle deep link callback for authentication
-  ipcMain.handle("roocode:auth-callback", async (_, code: string, state: string) => {
-    await handleRooCodeAuthCallback(code, state);
-  });
+  ipcMain.handle(
+    "roocode:auth-callback",
+    async (_, code: string, state: string) => {
+      await handleRooCodeAuthCallback(code, state);
+    },
+  );
 }

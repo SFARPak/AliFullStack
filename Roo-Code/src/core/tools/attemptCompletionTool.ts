@@ -129,7 +129,10 @@ export async function attemptCompletionTool(
 			})
 
 			toolResults.push(...formatResponse.imageBlocks(images))
-			cline.userMessageContent.push({ type: "text", text: `${toolDescription()} Result:` })
+			cline.userMessageContent.push({
+				type: "text",
+				text: `${toolDescription()} Result:`,
+			})
 			cline.userMessageContent.push(...toolResults)
 
 			return

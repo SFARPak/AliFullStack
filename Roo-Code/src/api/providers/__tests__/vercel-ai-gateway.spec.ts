@@ -126,7 +126,9 @@ describe("VercelAiGatewayHandler", () => {
 		})
 
 		it("uses vercel ai gateway default model when no model specified", async () => {
-			const handler = new VercelAiGatewayHandler({ vercelAiGatewayApiKey: "test-key" })
+			const handler = new VercelAiGatewayHandler({
+				vercelAiGatewayApiKey: "test-key",
+			})
 			const result = await handler.fetchModel()
 			expect(result.id).toBe("anthropic/claude-sonnet-4")
 		})

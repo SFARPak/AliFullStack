@@ -499,7 +499,11 @@ ${componentSnippet}
         // For backend mode, read AI_RULES.md from backend folder if it exists
         let aiRulesPath = getDyadAppPath(updatedChat.app.path);
         if (finalChatMode === "backend") {
-          const backendRulesPath = path.join(aiRulesPath, "backend", "AI_RULES.md");
+          const backendRulesPath = path.join(
+            aiRulesPath,
+            "backend",
+            "AI_RULES.md",
+          );
           if (fs.existsSync(backendRulesPath)) {
             aiRulesPath = path.join(aiRulesPath, "backend");
           }

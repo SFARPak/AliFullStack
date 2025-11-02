@@ -31,7 +31,10 @@ export async function listCodeDefinitionNamesTool(
 
 	try {
 		if (block.partial) {
-			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: "" } satisfies ClineSayTool)
+			const partialMessage = JSON.stringify({
+				...sharedMessageProps,
+				content: "",
+			} satisfies ClineSayTool)
 			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
 			return
 		} else {
@@ -61,7 +64,10 @@ export async function listCodeDefinitionNamesTool(
 				result = `${absolutePath}: does not exist or cannot be accessed.`
 			}
 
-			const completeMessage = JSON.stringify({ ...sharedMessageProps, content: result } satisfies ClineSayTool)
+			const completeMessage = JSON.stringify({
+				...sharedMessageProps,
+				content: result,
+			} satisfies ClineSayTool)
 			const didApprove = await askApproval("tool", completeMessage)
 
 			if (!didApprove) {

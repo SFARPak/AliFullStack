@@ -167,7 +167,9 @@ export async function generateImageTool(
 			const approvalMessage = JSON.stringify({
 				...sharedMessageProps,
 				content: prompt,
-				...(inputImagePath && { inputImage: getReadablePath(cline.cwd, inputImagePath) }),
+				...(inputImagePath && {
+					inputImage: getReadablePath(cline.cwd, inputImagePath),
+				}),
 			})
 
 			const didApprove = await askApproval("tool", approvalMessage, undefined, isWriteProtected)

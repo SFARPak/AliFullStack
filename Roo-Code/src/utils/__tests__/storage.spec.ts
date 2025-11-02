@@ -28,7 +28,9 @@ describe("getStorageBasePath - customStoragePath", () => {
 		const result = await getStorageBasePath(defaultPath)
 
 		expect(result).toBe(customPath)
-		expect((fsPromises as any).mkdir).toHaveBeenCalledWith(customPath, { recursive: true })
+		expect((fsPromises as any).mkdir).toHaveBeenCalledWith(customPath, {
+			recursive: true,
+		})
 		expect((fsPromises as any).access).toHaveBeenCalledWith(customPath, 7) // 7 = R_OK(4) | W_OK(2) | X_OK(1)
 	})
 

@@ -211,7 +211,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}
 
 			Client.mockImplementation(() => mockClient)
@@ -325,7 +329,11 @@ describe("McpHub", () => {
 				type: "disconnected",
 				server: {
 					name: "disabled-server",
-					config: JSON.stringify({ command: "node", args: ["test.js"], disabled: true }),
+					config: JSON.stringify({
+						command: "node",
+						args: ["test.js"],
+						disabled: true,
+					}),
 					status: "disconnected",
 					disabled: true,
 					source: "global",
@@ -379,7 +387,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}
 
 			Client.mockImplementation(() => mockClient)
@@ -452,7 +464,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}
 
 			Client.mockImplementation(() => mockClient)
@@ -662,7 +678,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}
 
 			Client.mockImplementation(() => mockClient)
@@ -734,7 +754,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}
 
 			Client.mockImplementation(() => mockClient)
@@ -1294,7 +1318,11 @@ describe("McpHub", () => {
 					type: "connected",
 					server: {
 						name: "test-server",
-						config: JSON.stringify({ type: "stdio", command: "test", timeout: 120 }), // 2 minutes
+						config: JSON.stringify({
+							type: "stdio",
+							command: "test",
+							timeout: 120,
+						}), // 2 minutes
 						status: "connected",
 					},
 					client: {
@@ -1544,7 +1572,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}
 
 			Client.mockImplementation(() => mockClient)
@@ -1664,7 +1696,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}))
 
 			// Mock provider with mcpEnabled: true
@@ -1851,7 +1887,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}))
 
 			// Create a new McpHub instance
@@ -1913,7 +1953,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}))
 
 			// Create a new McpHub instance
@@ -1975,7 +2019,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}))
 
 			// Create a new McpHub instance
@@ -2044,7 +2092,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}))
 
 			// Create a new McpHub instance
@@ -2117,7 +2169,11 @@ describe("McpHub", () => {
 				connect: vi.fn().mockResolvedValue(undefined),
 				close: vi.fn().mockResolvedValue(undefined),
 				getInstructions: vi.fn().mockReturnValue("test instructions"),
-				request: vi.fn().mockResolvedValue({ tools: [], resources: [], resourceTemplates: [] }),
+				request: vi.fn().mockResolvedValue({
+					tools: [],
+					resources: [],
+					resourceTemplates: [],
+				}),
 			}))
 
 			// Create a new McpHub instance

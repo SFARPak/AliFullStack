@@ -33,7 +33,11 @@ export const runUnitTest = async ({ task, logger }: RunUnitTestOptions) => {
 	for (const command of commands) {
 		try {
 			logger.info(`running "${command.join(" ")}"`)
-			const subprocess = execa({ cwd, shell: "/bin/bash", reject: false })`${command}`
+			const subprocess = execa({
+				cwd,
+				shell: "/bin/bash",
+				reject: false,
+			})`${command}`
 			subprocess.stdout.pipe(process.stdout)
 			subprocess.stderr.pipe(process.stderr)
 

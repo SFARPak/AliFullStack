@@ -33,7 +33,9 @@ export function ChatModeSelector({ appId }: { appId?: number }) {
         setIsCreatingFolder(true);
         // Get the app to check its structure
         const app = await IpcClient.getInstance().getApp(appId);
-        const backendFiles = app.files.filter((file: string) => file.startsWith("backend/"));
+        const backendFiles = app.files.filter((file: string) =>
+          file.startsWith("backend/"),
+        );
 
         // If no backend files exist, create the backend folder
         if (backendFiles.length === 0) {
@@ -58,8 +60,12 @@ export function ChatModeSelector({ appId }: { appId?: number }) {
         setIsCreatingFolder(true);
         // Get the app to check its structure
         const app = await IpcClient.getInstance().getApp(appId);
-        const frontendFiles = app.files.filter((file: string) => file.startsWith("frontend/"));
-        const backendFiles = app.files.filter((file: string) => file.startsWith("backend/"));
+        const frontendFiles = app.files.filter((file: string) =>
+          file.startsWith("frontend/"),
+        );
+        const backendFiles = app.files.filter((file: string) =>
+          file.startsWith("backend/"),
+        );
 
         // If no frontend files exist, create the frontend folder
         if (frontendFiles.length === 0) {
@@ -107,7 +113,11 @@ export function ChatModeSelector({ appId }: { appId?: number }) {
   };
 
   return (
-    <Select value={selectedMode} onValueChange={handleModeChange} disabled={isCreatingFolder}>
+    <Select
+      value={selectedMode}
+      onValueChange={handleModeChange}
+      disabled={isCreatingFolder}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <MiniSelectTrigger

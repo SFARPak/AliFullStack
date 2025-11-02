@@ -644,7 +644,12 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					}
 				} else {
 					// This is a new message in an ongoing task.
-					vscode.postMessage({ type: "askResponse", askResponse: "messageResponse", text, images })
+					vscode.postMessage({
+						type: "askResponse",
+						askResponse: "messageResponse",
+						text,
+						images,
+					})
 				}
 
 				handleChatReset()
@@ -700,7 +705,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 						setInputValue("")
 						setSelectedImages([])
 					} else {
-						vscode.postMessage({ type: "askResponse", askResponse: "yesButtonClicked" })
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "yesButtonClicked",
+						})
 					}
 					break
 				case "completion_result":
@@ -709,7 +717,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					startNewTask()
 					break
 				case "command_output":
-					vscode.postMessage({ type: "terminalOperation", terminalOperation: "continue" })
+					vscode.postMessage({
+						type: "terminalOperation",
+						terminalOperation: "continue",
+					})
 					break
 			}
 
@@ -756,11 +767,17 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 						setSelectedImages([])
 					} else {
 						// Responds to the API with a "This operation failed" and lets it try again
-						vscode.postMessage({ type: "askResponse", askResponse: "noButtonClicked" })
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "noButtonClicked",
+						})
 					}
 					break
 				case "command_output":
-					vscode.postMessage({ type: "terminalOperation", terminalOperation: "abort" })
+					vscode.postMessage({
+						type: "terminalOperation",
+						terminalOperation: "abort",
+					})
 					break
 			}
 			setSendingDisabled(true)
@@ -1341,9 +1358,17 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	const scrollToBottomSmooth = useMemo(
 		() =>
-			debounce(() => virtuosoRef.current?.scrollTo({ top: Number.MAX_SAFE_INTEGER, behavior: "smooth" }), 10, {
-				immediate: true,
-			}),
+			debounce(
+				() =>
+					virtuosoRef.current?.scrollTo({
+						top: Number.MAX_SAFE_INTEGER,
+						behavior: "smooth",
+					}),
+				10,
+				{
+					immediate: true,
+				},
+			),
 		[],
 	)
 
@@ -1495,7 +1520,11 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	const handleBatchFileResponse = useCallback((response: { [key: string]: boolean }) => {
 		// Handle batch file response, e.g., for file uploads
-		vscode.postMessage({ type: "askResponse", askResponse: "objectResponse", text: JSON.stringify(response) })
+		vscode.postMessage({
+			type: "askResponse",
+			askResponse: "objectResponse",
+			text: JSON.stringify(response),
+		})
 	}, [])
 
 	// Handler for when FollowUpSuggest component unmounts
@@ -1601,7 +1630,9 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				const deniedPrefix = getDeniedPrefix(lastMessage.text || "")
 				if (deniedPrefix) {
 					// Create the localized auto-deny message and send it with the rejection
-					const autoDenyMessage = tSettings("autoApprove.execute.autoDenied", { prefix: deniedPrefix })
+					const autoDenyMessage = tSettings("autoApprove.execute.autoDenied", {
+						prefix: deniedPrefix,
+					})
 
 					vscode.postMessage({
 						type: "askResponse",
@@ -1610,7 +1641,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					})
 				} else {
 					// Auto-reject denied commands immediately if no prefix found
-					vscode.postMessage({ type: "askResponse", askResponse: "noButtonClicked" })
+					vscode.postMessage({
+						type: "askResponse",
+						askResponse: "noButtonClicked",
+					})
 				}
 
 				setSendingDisabled(true)
@@ -1662,7 +1696,10 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					})
 				}
 
-				vscode.postMessage({ type: "askResponse", askResponse: "yesButtonClicked" })
+				vscode.postMessage({
+					type: "askResponse",
+					askResponse: "yesButtonClicked",
+				})
 
 				setSendingDisabled(true)
 				setClineAsk(undefined)
@@ -1977,14 +2014,21 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				queue={messageQueue}
 				onRemove={(index) => {
 					if (messageQueue[index]) {
-						vscode.postMessage({ type: "removeQueuedMessage", text: messageQueue[index].id })
+						vscode.postMessage({
+							type: "removeQueuedMessage",
+							text: messageQueue[index].id,
+						})
 					}
 				}}
 				onUpdate={(index, newText) => {
 					if (messageQueue[index]) {
 						vscode.postMessage({
 							type: "editQueuedMessage",
-							payload: { id: messageQueue[index].id, text: newText, images: messageQueue[index].images },
+							payload: {
+								id: messageQueue[index].id,
+								text: newText,
+								images: messageQueue[index].images,
+							},
 						})
 					}
 				}}

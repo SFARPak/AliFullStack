@@ -24,7 +24,10 @@ import { LM_STUDIO_BASE_URL } from "./lm_studio_utils";
 import { createOllamaProvider } from "./ollama_provider";
 import { getOllamaApiUrl } from "../handlers/local_model_ollama_handler";
 import { createFallback } from "./fallback_ai_model";
-import { getStoredCredentials, clerkCreateSessionToken } from "../handlers/roocode_auth_handlers";
+import {
+  getStoredCredentials,
+  clerkCreateSessionToken,
+} from "../handlers/roocode_auth_handlers";
 
 const dyadEngineUrl = process.env.ALIFULLSTACK_ENGINE_URL;
 const dyadGatewayUrl = process.env.ALIFULLSTACK_GATEWAY_URL;
@@ -91,7 +94,8 @@ export async function getModelClient(
       const provider = isEngineEnabled
         ? createDyadEngine({
             apiKey: dyadApiKey,
-            baseURL: dyadEngineUrl ?? "https://engine.alifullstack.alitech.io/v1",
+            baseURL:
+              dyadEngineUrl ?? "https://engine.alifullstack.alitech.io/v1",
             originalProviderId: model.provider,
             dyadOptions: {
               enableLazyEdits:
@@ -107,7 +111,9 @@ export async function getModelClient(
         : createOpenAICompatible({
             name: "dyad-gateway",
             apiKey: dyadApiKey,
-            baseURL: dyadGatewayUrl ?? "https://llm-gateway.alifullstack.alitech.io/v1",
+            baseURL:
+              dyadGatewayUrl ??
+              "https://llm-gateway.alifullstack.alitech.io/v1",
           });
 
       logger.info(
@@ -162,11 +168,13 @@ export async function getModelClient(
             models: await Promise.all(
               FREE_OPENROUTER_MODEL_NAMES.map(
                 async (name: string) =>
-                  (await getRegularModelClient(
-                    { provider: "openrouter", name },
-                    settings,
-                    openRouterProvider,
-                  )).modelClient.model,
+                  (
+                    await getRegularModelClient(
+                      { provider: "openrouter", name },
+                      settings,
+                      openRouterProvider,
+                    )
+                  ).modelClient.model,
               ),
             ),
           }),
@@ -412,14 +420,18 @@ async function getRegularModelClient(
         try {
           sessionToken = await clerkCreateSessionToken(credentials);
         } catch (error) {
-          logger.warn("Failed to get fresh session token for Roo Code, using stored client token:", error);
+          logger.warn(
+            "Failed to get fresh session token for Roo Code, using stored client token:",
+            error,
+          );
           sessionToken = credentials.clientToken;
         }
       } else {
         sessionToken = "unauthenticated";
       }
 
-      const rooCodeApiUrl = process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy/v1";
+      const rooCodeApiUrl =
+        process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy/v1";
       const provider = createOpenAICompatible({
         name: "roo-code",
         baseURL: rooCodeApiUrl,

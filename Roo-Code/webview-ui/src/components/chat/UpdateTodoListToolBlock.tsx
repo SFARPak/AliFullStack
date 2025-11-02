@@ -27,7 +27,13 @@ interface UpdateTodoListToolBlockProps {
 }
 
 const STATUS_OPTIONS = [
-	{ value: "", label: "Not Started", color: "var(--vscode-foreground)", border: "#bbb", bg: "transparent" },
+	{
+		value: "",
+		label: "Not Started",
+		color: "var(--vscode-foreground)",
+		border: "#bbb",
+		bg: "transparent",
+	},
 	{
 		value: "in_progress",
 		label: "In Progress",
@@ -351,7 +357,12 @@ const UpdateTodoListToolBlock: React.FC<UpdateTodoListToolBlockProps> = ({
 								)
 							})}
 							{adding ? (
-								<li style={{ marginTop: 2, display: "flex", alignItems: "center" }}>
+								<li
+									style={{
+										marginTop: 2,
+										display: "flex",
+										alignItems: "center",
+									}}>
 									<span style={{ width: 14, marginRight: 6 }} />
 									<input
 										ref={newInputRef}

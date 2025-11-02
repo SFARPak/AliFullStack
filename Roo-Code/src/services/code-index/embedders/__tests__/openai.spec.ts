@@ -226,7 +226,9 @@ describe("OpenAiEmbedder", () => {
 					.mockResolvedValueOnce({
 						data: Array(12)
 							.fill(null)
-							.map((_, i) => ({ embedding: [i * 0.1, i * 0.1 + 0.1, i * 0.1 + 0.2] })),
+							.map((_, i) => ({
+								embedding: [i * 0.1, i * 0.1 + 0.1, i * 0.1 + 0.2],
+							})),
 						usage: { prompt_tokens: 96000, total_tokens: 96000 },
 					})
 					.mockResolvedValueOnce({

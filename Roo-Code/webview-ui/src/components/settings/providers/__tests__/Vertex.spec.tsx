@@ -110,7 +110,10 @@ describe("Vertex", () => {
 				(r: { value: string; label: string }) => r.value === "asia-east1" && r.label === "asia-east1",
 			)
 			expect(asiaEast1Regions).toHaveLength(1)
-			expect(asiaEast1Regions[0]).toEqual({ value: "asia-east1", label: "asia-east1" })
+			expect(asiaEast1Regions[0]).toEqual({
+				value: "asia-east1",
+				label: "asia-east1",
+			})
 		})
 	})
 
@@ -129,7 +132,10 @@ describe("Vertex", () => {
 		})
 
 		it("should NOT render URL context checkbox for non-Gemini models", () => {
-			const apiConfiguration = { ...defaultApiConfiguration, apiModelId: "claude-3-opus@20240229" }
+			const apiConfiguration = {
+				...defaultApiConfiguration,
+				apiModelId: "claude-3-opus@20240229",
+			}
 			render(
 				<Vertex apiConfiguration={apiConfiguration} setApiConfigurationField={mockSetApiConfigurationField} />,
 			)
@@ -199,7 +205,10 @@ describe("Vertex", () => {
 		})
 
 		it("should NOT render grounding search checkbox for non-Gemini models", () => {
-			const apiConfiguration = { ...defaultApiConfiguration, apiModelId: "claude-3-opus@20240229" }
+			const apiConfiguration = {
+				...defaultApiConfiguration,
+				apiModelId: "claude-3-opus@20240229",
+			}
 			render(
 				<Vertex apiConfiguration={apiConfiguration} setApiConfigurationField={mockSetApiConfigurationField} />,
 			)

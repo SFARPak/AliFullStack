@@ -169,7 +169,9 @@ function checkAreaTranslations(area) {
 
 			// Check if the file exists in the locale
 			if (!fs.existsSync(localeFilePath)) {
-				missingTranslations[locale][name] = { file: "File is missing entirely" }
+				missingTranslations[locale][name] = {
+					file: "File is missing entirely",
+				}
 				continue
 			}
 
@@ -207,7 +209,10 @@ function checkAreaTranslations(area) {
 		}
 	}
 
-	return { missingTranslations, hasMissingTranslations: outputResults(missingTranslations, area) }
+	return {
+		missingTranslations,
+		hasMissingTranslations: outputResults(missingTranslations, area),
+	}
 }
 
 // Function to output results for an area

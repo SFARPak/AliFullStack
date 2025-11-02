@@ -116,7 +116,9 @@ describe("LMStudio Fetcher", () => {
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
 			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/v1/models`)
 			expect(MockedLMStudioClientConstructor).toHaveBeenCalledTimes(1)
-			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({ baseUrl: lmsUrl })
+			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({
+				baseUrl: lmsUrl,
+			})
 			expect(mockListDownloadedModels).toHaveBeenCalledTimes(1)
 			expect(mockListDownloadedModels).toHaveBeenCalledWith("llm")
 			expect(mockListLoaded).toHaveBeenCalled() // we now call it to get context data
@@ -136,7 +138,9 @@ describe("LMStudio Fetcher", () => {
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
 			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/v1/models`)
 			expect(MockedLMStudioClientConstructor).toHaveBeenCalledTimes(1)
-			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({ baseUrl: lmsUrl })
+			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({
+				baseUrl: lmsUrl,
+			})
 			expect(mockListDownloadedModels).toHaveBeenCalledTimes(1)
 			expect(mockListLoaded).toHaveBeenCalledTimes(1)
 
@@ -353,7 +357,9 @@ describe("LMStudio Fetcher", () => {
 			mockedAxios.get.mockResolvedValueOnce({ data: { status: "ok" } })
 			mockListDownloadedModels.mockResolvedValueOnce(mockDownloadedModels)
 			mockListLoaded.mockResolvedValueOnce(
-				mockLoadedModels.map((model) => ({ getModelInfo: vi.fn().mockResolvedValueOnce(model) })),
+				mockLoadedModels.map((model) => ({
+					getModelInfo: vi.fn().mockResolvedValueOnce(model),
+				})),
 			)
 
 			const result = await getLMStudioModels(baseUrl)
@@ -375,7 +381,9 @@ describe("LMStudio Fetcher", () => {
 			await getLMStudioModels("")
 
 			expect(mockedAxios.get).toHaveBeenCalledWith(`${defaultBaseUrl}/v1/models`)
-			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({ baseUrl: defaultLmsUrl })
+			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({
+				baseUrl: defaultLmsUrl,
+			})
 		})
 
 		it("should transform https baseUrl to wss for LMStudioClient", async () => {
@@ -387,7 +395,9 @@ describe("LMStudio Fetcher", () => {
 			await getLMStudioModels(httpsBaseUrl)
 
 			expect(mockedAxios.get).toHaveBeenCalledWith(`${httpsBaseUrl}/v1/models`)
-			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({ baseUrl: wssLmsUrl })
+			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({
+				baseUrl: wssLmsUrl,
+			})
 		})
 
 		it("should return an empty object if lmsUrl is unparsable", async () => {
@@ -446,7 +456,9 @@ describe("LMStudio Fetcher", () => {
 
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
 			expect(MockedLMStudioClientConstructor).toHaveBeenCalledTimes(1)
-			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({ baseUrl: lmsUrl })
+			expect(MockedLMStudioClientConstructor).toHaveBeenCalledWith({
+				baseUrl: lmsUrl,
+			})
 			expect(mockListLoaded).toHaveBeenCalledTimes(1)
 			expect(consoleErrorSpy).toHaveBeenCalledWith(
 				`Error fetching LMStudio models: ${JSON.stringify(listError, Object.getOwnPropertyNames(listError), 2)}`,

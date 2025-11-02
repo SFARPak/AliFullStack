@@ -219,7 +219,9 @@ describe("DirectoryScanner", () => {
 		})
 
 		it("should delete points for removed files", async () => {
-			;(mockCacheManager.getAllHashes as any).mockReturnValue({ "old/file.js": "old-hash" })
+			;(mockCacheManager.getAllHashes as any).mockReturnValue({
+				"old/file.js": "old-hash",
+			})
 
 			await scanner.scanDirectory("/test")
 			expect(mockVectorStore.deletePointsByFilePath).toHaveBeenCalledWith("old/file.js")

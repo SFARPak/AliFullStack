@@ -252,7 +252,12 @@ export const CheckboxExample = () => (
 									{
 										type: "generic_type",
 										text: () => "React.Component",
-										children: [{ type: "member_expression", text: () => "React.Component" }],
+										children: [
+											{
+												type: "member_expression",
+												text: () => "React.Component",
+											},
+										],
 									},
 								],
 							},
@@ -261,7 +266,12 @@ export const CheckboxExample = () => (
 						fields: () => {
 							return {
 								name: [{ type: "type_identifier", text: () => "TestComponent" }],
-								class_heritage: [{ type: "extends_clause", text: () => "extends React.Component" }],
+								class_heritage: [
+									{
+										type: "extends_clause",
+										text: () => "extends React.Component",
+									},
+								],
 							}
 						},
 					},

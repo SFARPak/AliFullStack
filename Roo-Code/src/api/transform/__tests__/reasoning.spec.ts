@@ -539,7 +539,11 @@ describe("reasoning.ts", () => {
 					reasoningEffort: effort,
 				}
 
-				const options = { ...baseOptions, model: modelWithEffort, reasoningEffort: effort }
+				const options = {
+					...baseOptions,
+					model: modelWithEffort,
+					reasoningEffort: effort,
+				}
 				const result = getOpenAiReasoning(options)
 				expect(result).toEqual({ reasoning_effort: effort })
 			})

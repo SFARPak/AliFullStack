@@ -111,7 +111,11 @@ describe("getModelMaxOutputTokens", () => {
 			enableReasoningEffort: false, // Not using reasoning
 		}
 
-		const result = getModelMaxOutputTokens({ modelId: anthropicModelId, model, settings })
+		const result = getModelMaxOutputTokens({
+			modelId: anthropicModelId,
+			model,
+			settings,
+		})
 		expect(result).toBe(ANTHROPIC_DEFAULT_MAX_TOKENS) // Should be 8192, not 64_000
 	})
 
@@ -129,7 +133,11 @@ describe("getModelMaxOutputTokens", () => {
 			enableReasoningEffort: false, // Not using reasoning
 		}
 
-		const result = getModelMaxOutputTokens({ modelId: geminiModelId, model, settings })
+		const result = getModelMaxOutputTokens({
+			modelId: geminiModelId,
+			model,
+			settings,
+		})
 		expect(result).toBe(65_535) // Should use model.maxTokens since it's within 20% threshold
 	})
 
@@ -323,7 +331,12 @@ describe("shouldUseReasoningBudget", () => {
 		// Should return true regardless of settings
 		expect(shouldUseReasoningBudget({ model })).toBe(true)
 		expect(shouldUseReasoningBudget({ model, settings: {} })).toBe(true)
-		expect(shouldUseReasoningBudget({ model, settings: { enableReasoningEffort: false } })).toBe(true)
+		expect(
+			shouldUseReasoningBudget({
+				model,
+				settings: { enableReasoningEffort: false },
+			}),
+		).toBe(true)
 	})
 
 	test("should return true when model supports reasoning budget and settings enable reasoning effort", () => {
@@ -382,7 +395,12 @@ describe("shouldUseReasoningEffort", () => {
 		// Should return true regardless of settings (unless explicitly disabled)
 		expect(shouldUseReasoningEffort({ model })).toBe(true)
 		expect(shouldUseReasoningEffort({ model, settings: {} })).toBe(true)
-		expect(shouldUseReasoningEffort({ model, settings: { reasoningEffort: undefined } })).toBe(true)
+		expect(
+			shouldUseReasoningEffort({
+				model,
+				settings: { reasoningEffort: undefined },
+			}),
+		).toBe(true)
 	})
 
 	test("should return false when enableReasoningEffort is false, even if reasoningEffort is set", () => {

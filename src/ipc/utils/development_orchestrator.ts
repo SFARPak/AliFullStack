@@ -27,7 +27,7 @@ export enum DevelopmentPhase {
   TESTING = "testing",
   COMPLETION = "completion",
   HUMAN_INTERVENTION = "human_intervention",
-  ERROR = "error"
+  ERROR = "error",
 }
 
 /**
@@ -79,7 +79,7 @@ export class DevelopmentOrchestrator {
     appId: number,
     frontendFramework: string = "react",
     backendFramework?: string,
-    requirements?: string[]
+    requirements?: string[],
   ): Promise<void> {
     logger.info(`Starting autonomous development for app ${appId}`);
 
@@ -96,8 +96,8 @@ export class DevelopmentOrchestrator {
       metadata: {
         frontendFramework,
         backendFramework,
-        requirements: requirements || []
-      }
+        requirements: requirements || [],
+      },
     };
 
     this.activeDevelopments.set(appId, state);
@@ -107,7 +107,10 @@ export class DevelopmentOrchestrator {
       await this.executeDevelopmentPhase(state);
     } catch (error) {
       logger.error(`Error in autonomous development for app ${appId}:`, error);
-      await this.handleDevelopmentError(state, error instanceof Error ? error.message : String(error));
+      await this.handleDevelopmentError(
+        state,
+        error instanceof Error ? error.message : String(error),
+      );
     }
   }
 
@@ -130,7 +133,9 @@ export class DevelopmentOrchestrator {
   /**
    * Execute the current development phase
    */
-  private async executeDevelopmentPhase(state: DevelopmentState): Promise<void> {
+  private async executeDevelopmentPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     switch (state.phase) {
       case DevelopmentPhase.INITIALIZING:
         await this.handleInitializingPhase(state);
@@ -189,7 +194,9 @@ export class DevelopmentOrchestrator {
   /**
    * Handle the initializing phase
    */
-  private async handleInitializingPhase(state: DevelopmentState): Promise<void> {
+  private async handleInitializingPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Initializing development for app ${state.appId}`);
     state.progress = 5;
     state.phase = DevelopmentPhase.FRONTEND_SETUP;
@@ -201,7 +208,9 @@ export class DevelopmentOrchestrator {
   /**
    * Handle frontend setup phase
    */
-  private async handleFrontendSetupPhase(state: DevelopmentState): Promise<void> {
+  private async handleFrontendSetupPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Setting up frontend for app ${state.appId}`);
     state.progress = 10;
 
@@ -214,14 +223,19 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Frontend setup failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Frontend setup failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle frontend development phase
    */
-  private async handleFrontendDevelopmentPhase(state: DevelopmentState): Promise<void> {
+  private async handleFrontendDevelopmentPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Starting frontend development for app ${state.appId}`);
     state.progress = 20;
 
@@ -245,7 +259,7 @@ export class DevelopmentOrchestrator {
       await this.generateInitialFrontend(state, frontendPath);
 
       // Wait for initial development to stabilize
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       state.phase = DevelopmentPhase.FRONTEND_REVIEW;
       state.progress = 40;
@@ -253,14 +267,19 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Frontend development failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Frontend development failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle frontend review phase
    */
-  private async handleFrontendReviewPhase(state: DevelopmentState): Promise<void> {
+  private async handleFrontendReviewPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Reviewing frontend for app ${state.appId}`);
     state.progress = 45;
 
@@ -275,21 +294,28 @@ export class DevelopmentOrchestrator {
       } else {
         // Frontend is good, move to backend
         state.frontendComplete = true;
-        state.phase = state.metadata.backendFramework ? DevelopmentPhase.BACKEND_SETUP : DevelopmentPhase.COMPLETION;
+        state.phase = state.metadata.backendFramework
+          ? DevelopmentPhase.BACKEND_SETUP
+          : DevelopmentPhase.COMPLETION;
         state.progress = state.metadata.backendFramework ? 55 : 100;
       }
 
       state.lastActivity = new Date();
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Frontend review failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Frontend review failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle frontend improvement phase
    */
-  private async handleFrontendImprovementPhase(state: DevelopmentState): Promise<void> {
+  private async handleFrontendImprovementPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Improving frontend for app ${state.appId}`);
     state.progress = 55;
 
@@ -304,14 +330,19 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Frontend improvement failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Frontend improvement failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle backend setup phase
    */
-  private async handleBackendSetupPhase(state: DevelopmentState): Promise<void> {
+  private async handleBackendSetupPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Setting up backend for app ${state.appId}`);
     state.progress = 65;
 
@@ -324,14 +355,19 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Backend setup failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Backend setup failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle backend development phase
    */
-  private async handleBackendDevelopmentPhase(state: DevelopmentState): Promise<void> {
+  private async handleBackendDevelopmentPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Starting backend development for app ${state.appId}`);
     state.progress = 75;
 
@@ -349,13 +385,17 @@ export class DevelopmentOrchestrator {
       const backendPath = path.join(appPath, "backend");
 
       // Start backend development server
-      await this.startBackendServer(state.appId, backendPath, state.metadata.backendFramework);
+      await this.startBackendServer(
+        state.appId,
+        backendPath,
+        state.metadata.backendFramework,
+      );
 
       // Generate initial backend code based on requirements
       await this.generateInitialBackend(state, backendPath);
 
       // Wait for initial development to stabilize
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       state.phase = DevelopmentPhase.BACKEND_REVIEW;
       state.progress = 85;
@@ -363,14 +403,19 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Backend development failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Backend development failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle backend review phase
    */
-  private async handleBackendReviewPhase(state: DevelopmentState): Promise<void> {
+  private async handleBackendReviewPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Reviewing backend for app ${state.appId}`);
     state.progress = 88;
 
@@ -392,14 +437,19 @@ export class DevelopmentOrchestrator {
       state.lastActivity = new Date();
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Backend review failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Backend review failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   /**
    * Handle backend improvement phase
    */
-  private async handleBackendImprovementPhase(state: DevelopmentState): Promise<void> {
+  private async handleBackendImprovementPhase(
+    state: DevelopmentState,
+  ): Promise<void> {
     logger.info(`Improving backend for app ${state.appId}`);
     state.progress = 93;
 
@@ -414,7 +464,10 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Backend improvement failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Backend improvement failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -435,7 +488,10 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Integration failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Integration failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -456,7 +512,10 @@ export class DevelopmentOrchestrator {
 
       await this.executeDevelopmentPhase(state);
     } catch (error) {
-      await this.handleDevelopmentError(state, `Testing failed: ${error instanceof Error ? error.message : String(error)}`);
+      await this.handleDevelopmentError(
+        state,
+        `Testing failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -472,13 +531,20 @@ export class DevelopmentOrchestrator {
     this.activeDevelopments.delete(state.appId);
 
     // Send completion notification
-    await this.sendNotification(state.appId, "Development completed successfully!", "success");
+    await this.sendNotification(
+      state.appId,
+      "Development completed successfully!",
+      "success",
+    );
   }
 
   /**
    * Handle development errors
    */
-  private async handleDevelopmentError(state: DevelopmentState, error: string): Promise<void> {
+  private async handleDevelopmentError(
+    state: DevelopmentState,
+    error: string,
+  ): Promise<void> {
     logger.error(`Development error for app ${state.appId}: ${error}`);
     state.errors.push(error);
     state.phase = DevelopmentPhase.ERROR;
@@ -488,15 +554,24 @@ export class DevelopmentOrchestrator {
     state.humanInterventionRequired = true;
     state.humanInterventionMessage = `Development encountered an error: ${error}. Please review and continue.`;
 
-    await this.sendNotification(state.appId, state.humanInterventionMessage, "error");
+    await this.sendNotification(
+      state.appId,
+      state.humanInterventionMessage,
+      "error",
+    );
   }
 
   /**
    * Start frontend development server
    */
-  private async startFrontendServer(appId: number, frontendPath: string): Promise<void> {
+  private async startFrontendServer(
+    appId: number,
+    frontendPath: string,
+  ): Promise<void> {
     try {
-      logger.info(`Frontend server setup for app ${appId} - will be started when user runs the app`);
+      logger.info(
+        `Frontend server setup for app ${appId} - will be started when user runs the app`,
+      );
       // The frontend server will be started when the user clicks "Run App"
       // For now, we just log that we're ready to start development
     } catch (error) {
@@ -508,9 +583,15 @@ export class DevelopmentOrchestrator {
   /**
    * Start backend development server
    */
-  private async startBackendServer(appId: number, backendPath: string, framework?: string): Promise<void> {
+  private async startBackendServer(
+    appId: number,
+    backendPath: string,
+    framework?: string,
+  ): Promise<void> {
     try {
-      logger.info(`Starting backend server for app ${appId} with framework ${framework}`);
+      logger.info(
+        `Starting backend server for app ${appId} with framework ${framework}`,
+      );
       // Backend server starting is handled by the setupBackendFramework function
       // We just need to ensure it's running
     } catch (error) {
@@ -522,13 +603,16 @@ export class DevelopmentOrchestrator {
   /**
    * Generate initial frontend code
    */
-  private async generateInitialFrontend(state: DevelopmentState, frontendPath: string): Promise<void> {
+  private async generateInitialFrontend(
+    state: DevelopmentState,
+    frontendPath: string,
+  ): Promise<void> {
     const requirements = state.metadata.requirements || [];
 
     // Send initial development prompt to LLM
     const prompt = `
 You are developing a React frontend application. The user requirements are:
-${requirements.join('\n')}
+${requirements.join("\n")}
 
 Please generate a well-structured React application with the following structure:
 - Clean, modern UI using Tailwind CSS and shadcn/ui components
@@ -542,24 +626,29 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
 `;
 
     // This would trigger an LLM call - for now, we'll just log
-    logger.info(`Generating initial frontend for app ${state.appId} with requirements: ${requirements.join(', ')}`);
+    logger.info(
+      `Generating initial frontend for app ${state.appId} with requirements: ${requirements.join(", ")}`,
+    );
 
     // In a real implementation, this would call the LLM API
     // For now, we'll simulate completion
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
   /**
    * Generate initial backend code
    */
-  private async generateInitialBackend(state: DevelopmentState, backendPath: string): Promise<void> {
+  private async generateInitialBackend(
+    state: DevelopmentState,
+    backendPath: string,
+  ): Promise<void> {
     const requirements = state.metadata.requirements || [];
     const framework = state.metadata.backendFramework;
 
     // Send initial development prompt to LLM
     const prompt = `
 You are developing a ${framework} backend application. The user requirements are:
-${requirements.join('\n')}
+${requirements.join("\n")}
 
 Please generate a well-structured backend application with:
 - Proper API endpoints
@@ -576,17 +665,22 @@ For backend files, use paths like "backend/main.py" or "backend/server.js" etc.
 Current AI_RULES.md contains development guidelines. Follow them strictly.
 `;
 
-    logger.info(`Generating initial backend for app ${state.appId} with framework ${framework} and requirements: ${requirements.join(', ')}`);
+    logger.info(
+      `Generating initial backend for app ${state.appId} with framework ${framework} and requirements: ${requirements.join(", ")}`,
+    );
 
     // In a real implementation, this would call the LLM API
     // For now, we'll simulate completion
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
   /**
    * Review code quality using LLM
    */
-  private async reviewCodeQuality(state: DevelopmentState, component: "frontend" | "backend"): Promise<string[]> {
+  private async reviewCodeQuality(
+    state: DevelopmentState,
+    component: "frontend" | "backend",
+  ): Promise<string[]> {
     logger.info(`Reviewing ${component} code quality for app ${state.appId}`);
 
     // In a real implementation, this would analyze the code and call LLM for review
@@ -595,11 +689,11 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
       "Add proper error boundaries",
       "Implement loading states",
       "Add input validation",
-      "Improve accessibility"
+      "Improve accessibility",
     ];
 
     // Simulate LLM review time
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     return Math.random() > 0.7 ? mockImprovements : []; // 30% chance of finding improvements
   }
@@ -607,14 +701,19 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
   /**
    * Apply code improvements suggested by LLM
    */
-  private async applyCodeImprovements(state: DevelopmentState, component: "frontend" | "backend"): Promise<void> {
+  private async applyCodeImprovements(
+    state: DevelopmentState,
+    component: "frontend" | "backend",
+  ): Promise<void> {
     const improvements = state.metadata.improvements || [];
 
-    logger.info(`Applying ${improvements.length} improvements to ${component} for app ${state.appId}`);
+    logger.info(
+      `Applying ${improvements.length} improvements to ${component} for app ${state.appId}`,
+    );
 
     // In a real implementation, this would apply the LLM suggestions
     // For now, we'll simulate the work
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
   }
 
   /**
@@ -625,7 +724,7 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
 
     // In a real implementation, this would run integration tests
     // For now, we'll simulate testing
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   /**
@@ -636,13 +735,17 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
 
     // In a real implementation, this would run test suites
     // For now, we'll simulate testing
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   /**
    * Send notification to user
    */
-  private async sendNotification(appId: number, message: string, type: "info" | "success" | "error" = "info"): Promise<void> {
+  private async sendNotification(
+    appId: number,
+    message: string,
+    type: "info" | "success" | "error" = "info",
+  ): Promise<void> {
     // This would send a notification to the UI
     logger.info(`Notification for app ${appId}: ${message}`);
 

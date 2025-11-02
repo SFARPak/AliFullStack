@@ -13,7 +13,9 @@ import { SambaNovaHandler } from "../sambanova"
 vitest.mock("openai", () => {
 	const createMock = vitest.fn()
 	return {
-		default: vitest.fn(() => ({ chat: { completions: { create: createMock } } })),
+		default: vitest.fn(() => ({
+			chat: { completions: { create: createMock } },
+		})),
 	}
 })
 
@@ -24,7 +26,9 @@ describe("SambaNovaHandler", () => {
 	beforeEach(() => {
 		vitest.clearAllMocks()
 		mockCreate = (OpenAI as unknown as any)().chat.completions.create
-		handler = new SambaNovaHandler({ sambaNovaApiKey: "test-sambanova-api-key" })
+		handler = new SambaNovaHandler({
+			sambaNovaApiKey: "test-sambanova-api-key",
+		})
 	})
 
 	it("should use the correct SambaNova base URL", () => {
@@ -57,7 +61,9 @@ describe("SambaNovaHandler", () => {
 
 	it("completePrompt method should return text from SambaNova API", async () => {
 		const expectedResponse = "This is a test response from SambaNova"
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: expectedResponse } }],
+		})
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe(expectedResponse)
 	})
@@ -102,7 +108,10 @@ describe("SambaNovaHandler", () => {
 						.fn()
 						.mockResolvedValueOnce({
 							done: false,
-							value: { choices: [{ delta: {} }], usage: { prompt_tokens: 10, completion_tokens: 20 } },
+							value: {
+								choices: [{ delta: {} }],
+								usage: { prompt_tokens: 10, completion_tokens: 20 },
+							},
 						})
 						.mockResolvedValueOnce({ done: true }),
 				}),
@@ -113,7 +122,11 @@ describe("SambaNovaHandler", () => {
 		const firstChunk = await stream.next()
 
 		expect(firstChunk.done).toBe(false)
-		expect(firstChunk.value).toEqual({ type: "usage", inputTokens: 10, outputTokens: 20 })
+		expect(firstChunk.value).toEqual({
+			type: "usage",
+			inputTokens: 10,
+			outputTokens: 20,
+		})
 	})
 
 	it("createMessage should pass correct parameters to SambaNova client", async () => {

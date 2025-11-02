@@ -157,7 +157,12 @@ describe("OpenRouterHandler", () => {
 			// Verify stream chunks
 			expect(chunks).toHaveLength(2) // One text chunk and one usage chunk
 			expect(chunks[0]).toEqual({ type: "text", text: "test response" })
-			expect(chunks[1]).toEqual({ type: "usage", inputTokens: 10, outputTokens: 20, totalCost: 0.001 })
+			expect(chunks[1]).toEqual({
+				type: "usage",
+				inputTokens: 10,
+				outputTokens: 20,
+				totalCost: 0.001,
+			})
 
 			// Verify OpenAI client was called with correct parameters.
 			expect(mockCreate).toHaveBeenCalledWith(
@@ -166,12 +171,22 @@ describe("OpenRouterHandler", () => {
 					messages: [
 						{
 							content: [
-								{ cache_control: { type: "ephemeral" }, text: "test system prompt", type: "text" },
+								{
+									cache_control: { type: "ephemeral" },
+									text: "test system prompt",
+									type: "text",
+								},
 							],
 							role: "system",
 						},
 						{
-							content: [{ cache_control: { type: "ephemeral" }, text: "test message", type: "text" }],
+							content: [
+								{
+									cache_control: { type: "ephemeral" },
+									text: "test message",
+									type: "text",
+								},
+							],
 							role: "user",
 						},
 					],
@@ -243,7 +258,9 @@ describe("OpenRouterHandler", () => {
 						expect.objectContaining({
 							role: "system",
 							content: expect.arrayContaining([
-								expect.objectContaining({ cache_control: { type: "ephemeral" } }),
+								expect.objectContaining({
+									cache_control: { type: "ephemeral" },
+								}),
 							]),
 						}),
 					]),
@@ -272,7 +289,9 @@ describe("OpenRouterHandler", () => {
 	describe("completePrompt", () => {
 		it("returns correct response", async () => {
 			const handler = new OpenRouterHandler(mockOptions)
-			const mockResponse = { choices: [{ message: { content: "test completion" } }] }
+			const mockResponse = {
+				choices: [{ message: { content: "test completion" } }],
+			}
 
 			const mockCreate = vitest.fn().mockResolvedValue(mockResponse)
 			;(OpenAI as any).prototype.chat = {

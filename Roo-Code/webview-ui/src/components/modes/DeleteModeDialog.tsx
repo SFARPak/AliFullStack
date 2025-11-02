@@ -34,7 +34,9 @@ export const DeleteModeDialog: React.FC<DeleteModeDialogProps> = ({ open, onOpen
 					<AlertDialogDescription>
 						{modeToDelete && (
 							<>
-								{t("prompts:deleteMode.message", { modeName: modeToDelete.name })}
+								{t("prompts:deleteMode.message", {
+									modeName: modeToDelete.name,
+								})}
 								{modeToDelete.rulesFolderPath && (
 									<div className="mt-2">
 										{t("prompts:deleteMode.rulesFolder", {

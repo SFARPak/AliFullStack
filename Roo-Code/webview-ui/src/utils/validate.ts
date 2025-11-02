@@ -181,7 +181,9 @@ function validateProviderAgainstOrganizationSettings(
 
 		if (!providerConfig) {
 			return {
-				message: i18next.t("settings:validation.providerNotAllowed", { provider }),
+				message: i18next.t("settings:validation.providerNotAllowed", {
+					provider,
+				}),
 				code: "PROVIDER_NOT_ALLOWED",
 			}
 		}
@@ -244,7 +246,10 @@ export function validateBedrockArn(arn: string, region?: string) {
 		return {
 			isValid: true,
 			arnRegion,
-			errorMessage: i18next.t("settings:validation.arn.regionMismatch", { arnRegion, region }),
+			errorMessage: i18next.t("settings:validation.arn.regionMismatch", {
+				arnRegion,
+				region,
+			}),
 		}
 	}
 

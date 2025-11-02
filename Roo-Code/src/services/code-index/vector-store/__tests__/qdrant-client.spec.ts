@@ -1290,7 +1290,11 @@ describe("QdrantVectorStore", () => {
 							codeChunk: "button code",
 							startLine: 1,
 							endLine: 5,
-							pathSegments: { "0": "src", "1": "components", "2": "Button.tsx" },
+							pathSegments: {
+								"0": "src",
+								"1": "components",
+								"2": "Button.tsx",
+							},
 						},
 					},
 				],

@@ -78,7 +78,12 @@ export async function applySourceMapsToComponentStack(componentStack: string): P
 				if (!match) return line
 
 				const [_, componentName, fileName, lineNumber, columnNumber] = match
-				console.debug(`Processing component stack line:`, { componentName, fileName, lineNumber, columnNumber })
+				console.debug(`Processing component stack line:`, {
+					componentName,
+					fileName,
+					lineNumber,
+					columnNumber,
+				})
 
 				try {
 					// Create a synthetic stack frame for StackTrace.js

@@ -259,10 +259,16 @@ export async function presentAssistantMessage(cline: Task) {
 			}
 
 			const pushToolResult = (content: ToolResponse) => {
-				cline.userMessageContent.push({ type: "text", text: `${toolDescription()} Result:` })
+				cline.userMessageContent.push({
+					type: "text",
+					text: `${toolDescription()} Result:`,
+				})
 
 				if (typeof content === "string") {
-					cline.userMessageContent.push({ type: "text", text: content || "(tool did not return anything)" })
+					cline.userMessageContent.push({
+						type: "text",
+						text: content || "(tool did not return anything)",
+					})
 				} else {
 					cline.userMessageContent.push(...content)
 				}

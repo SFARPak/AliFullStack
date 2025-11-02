@@ -409,7 +409,10 @@ export class CustomModesManager {
 					.map((err) => `${err.path.join(".")}: ${err.message}`)
 					.join(", ")
 				const errorMessage = `Invalid mode configuration: ${errorMessages}`
-				logger.error("Mode validation failed", { slug, errors: validationResult.error.errors })
+				logger.error("Mode validation failed", {
+					slug,
+					errors: validationResult.error.errors,
+				})
 				vscode.window.showErrorMessage(t("common:customModes.errors.updateFailed", { error: errorMessage }))
 				return
 			}
@@ -455,7 +458,10 @@ export class CustomModesManager {
 			})
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
-			logger.error("Failed to update custom mode", { slug, error: errorMessage })
+			logger.error("Failed to update custom mode", {
+				slug,
+				error: errorMessage,
+			})
 			vscode.window.showErrorMessage(t("common:customModes.errors.updateFailed", { error: errorMessage }))
 		}
 	}
@@ -778,7 +784,9 @@ export class CustomModesManager {
 				const stats = await fs.stat(modeRulesDir)
 				if (stats.isDirectory()) {
 					// Extract content specific to this mode by looking for the mode-specific rules
-					const entries = await fs.readdir(modeRulesDir, { withFileTypes: true })
+					const entries = await fs.readdir(modeRulesDir, {
+						withFileTypes: true,
+					})
 
 					for (const entry of entries) {
 						if (entry.isFile()) {
@@ -791,7 +799,10 @@ export class CustomModesManager {
 								const relativePath = path.relative(modeRulesDir, filePath)
 								// Normalize path to use forward slashes for cross-platform compatibility
 								const normalizedRelativePath = relativePath.replace(/\\/g, "/")
-								rulesFiles.push({ relativePath: normalizedRelativePath, content: content.trim() })
+								rulesFiles.push({
+									relativePath: normalizedRelativePath,
+									content: content.trim(),
+								})
 							}
 						}
 					}
@@ -830,7 +841,10 @@ export class CustomModesManager {
 			return { success: true, yaml: yamlContent }
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : String(error)
-			logger.error("Failed to export mode with rules", { slug, error: errorMessage })
+			logger.error("Failed to export mode with rules", {
+				slug,
+				error: errorMessage,
+			})
 			return { success: false, error: errorMessage }
 		}
 	}
@@ -934,7 +948,10 @@ export class CustomModesManager {
 
 				// Validate the structure
 				if (!parsed?.customModes || !Array.isArray(parsed.customModes) || parsed.customModes.length === 0) {
-					return { success: false, error: "Invalid import format: Expected 'customModes' array in YAML" }
+					return {
+						success: false,
+						error: "Invalid import format: Expected 'customModes' array in YAML",
+					}
 				}
 
 				importData = parsed as ImportData

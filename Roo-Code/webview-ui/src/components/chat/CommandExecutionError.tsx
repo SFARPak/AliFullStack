@@ -8,7 +8,14 @@ export const CommandExecutionError = () => {
 
 	const onClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
 		e.preventDefault()
-		window.postMessage({ type: "action", action: "settingsButtonClicked", values: { section: "terminal" } }, "*")
+		window.postMessage(
+			{
+				type: "action",
+				action: "settingsButtonClicked",
+				values: { section: "terminal" },
+			},
+			"*",
+		)
 	}, [])
 
 	return (

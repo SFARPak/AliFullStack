@@ -68,7 +68,9 @@ describe("CustomModesManager", () => {
 		// mockWorkspacePath is now defined at the top level
 		mockWorkspaceFolders = [{ uri: { fsPath: mockWorkspacePath } }]
 		;(vscode.workspace as any).workspaceFolders = mockWorkspaceFolders
-		;(vscode.workspace.onDidSaveTextDocument as Mock).mockReturnValue({ dispose: vi.fn() })
+		;(vscode.workspace.onDidSaveTextDocument as Mock).mockReturnValue({
+			dispose: vi.fn(),
+		})
 		;(getWorkspacePath as Mock).mockReturnValue(mockWorkspacePath)
 		;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 			return path === mockSettingsPath || path === mockRoomodes
@@ -95,9 +97,23 @@ describe("CustomModesManager", () => {
 
 	describe("getCustomModes", () => {
 		it("should handle valid YAML in .roomodes file and JSON for global customModes", async () => {
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 
-			const roomodesModes = [{ slug: "mode2", name: "Mode 2", roleDefinition: "Role 2", groups: ["read"] }]
+			const roomodesModes = [
+				{
+					slug: "mode2",
+					name: "Mode 2",
+					roleDefinition: "Role 2",
+					groups: ["read"],
+				},
+			]
 
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
@@ -116,13 +132,33 @@ describe("CustomModesManager", () => {
 
 		it("should merge modes with .roomodes taking precedence", async () => {
 			const settingsModes = [
-				{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] },
-				{ slug: "mode2", name: "Mode 2", roleDefinition: "Role 2", groups: ["read"] },
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+				{
+					slug: "mode2",
+					name: "Mode 2",
+					roleDefinition: "Role 2",
+					groups: ["read"],
+				},
 			]
 
 			const roomodesModes = [
-				{ slug: "mode2", name: "Mode 2 Override", roleDefinition: "Role 2 Override", groups: ["read"] },
-				{ slug: "mode3", name: "Mode 3", roleDefinition: "Role 3", groups: ["read"] },
+				{
+					slug: "mode2",
+					name: "Mode 2 Override",
+					roleDefinition: "Role 2 Override",
+					groups: ["read"],
+				},
+				{
+					slug: "mode3",
+					name: "Mode 3",
+					roleDefinition: "Role 3",
+					groups: ["read"],
+				},
 			]
 
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
@@ -148,7 +184,14 @@ describe("CustomModesManager", () => {
 		})
 
 		it("should handle missing .roomodes file", async () => {
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockSettingsPath
@@ -167,7 +210,14 @@ describe("CustomModesManager", () => {
 		})
 
 		it("should handle invalid YAML in .roomodes", async () => {
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
@@ -188,7 +238,14 @@ describe("CustomModesManager", () => {
 
 		it("should memoize results for 10 seconds", async () => {
 			// Setup test data
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
 					return yaml.stringify({ customModes: settingsModes })
@@ -230,7 +287,14 @@ describe("CustomModesManager", () => {
 
 		it("should invalidate cache when modes are updated", async () => {
 			// Setup initial data
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
 					return yaml.stringify({ customModes: settingsModes })
@@ -276,7 +340,14 @@ describe("CustomModesManager", () => {
 
 		it("should invalidate cache when modes are deleted", async () => {
 			// Setup initial data
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
 					return yaml.stringify({ customModes: settingsModes })
@@ -312,7 +383,14 @@ describe("CustomModesManager", () => {
 
 		it("should invalidate cache when modes are updated (simulating file changes)", async () => {
 			// Setup initial data
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
 					return yaml.stringify({ customModes: settingsModes })
@@ -373,7 +451,14 @@ describe("CustomModesManager", () => {
 
 		it("should refresh cache after TTL expires", async () => {
 			// Setup test data
-			const settingsModes = [{ slug: "mode1", name: "Mode 1", roleDefinition: "Role 1", groups: ["read"] }]
+			const settingsModes = [
+				{
+					slug: "mode1",
+					name: "Mode 1",
+					roleDefinition: "Role 1",
+					groups: ["read"],
+				},
+			]
 			;(fs.readFile as Mock).mockImplementation(async (path: string) => {
 				if (path === mockSettingsPath) {
 					return yaml.stringify({ customModes: settingsModes })
@@ -459,7 +544,13 @@ describe("CustomModesManager", () => {
 			]
 
 			const existingModes = [
-				{ slug: "mode2", name: "Mode 2", roleDefinition: "Role 2", groups: ["read"], source: "global" },
+				{
+					slug: "mode2",
+					name: "Mode 2",
+					roleDefinition: "Role 2",
+					groups: ["read"],
+					source: "global",
+				},
 			]
 
 			let settingsContent = { customModes: existingModes }
@@ -641,7 +732,9 @@ describe("CustomModesManager", () => {
 			const settingsPath = path.join(mockStoragePath, "settings", GlobalFileNames.customModes)
 			await manager.getCustomModesFilePath()
 
-			expect(fs.mkdir).toHaveBeenCalledWith(path.dirname(settingsPath), { recursive: true })
+			expect(fs.mkdir).toHaveBeenCalledWith(path.dirname(settingsPath), {
+				recursive: true,
+			})
 		})
 
 		it("creates default config if file doesn't exist", async () => {
@@ -1248,7 +1341,9 @@ describe("CustomModesManager", () => {
 		})
 
 		it("should return false when mode is not in .roomodes file", async () => {
-			const roomodesContent = { customModes: [{ slug: "other-mode", name: "Other Mode" }] }
+			const roomodesContent = {
+				customModes: [{ slug: "other-mode", name: "Other Mode" }],
+			}
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
 			})
@@ -1281,7 +1376,9 @@ describe("CustomModesManager", () => {
 		})
 
 		it("should return false when rules directory doesn't exist", async () => {
-			const roomodesContent = { customModes: [{ slug: "test-mode", name: "Test Mode" }] }
+			const roomodesContent = {
+				customModes: [{ slug: "test-mode", name: "Test Mode" }],
+			}
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
 			})
@@ -1299,7 +1396,9 @@ describe("CustomModesManager", () => {
 		})
 
 		it("should return false when rules directory is empty", async () => {
-			const roomodesContent = { customModes: [{ slug: "test-mode", name: "Test Mode" }] }
+			const roomodesContent = {
+				customModes: [{ slug: "test-mode", name: "Test Mode" }],
+			}
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
 			})
@@ -1318,7 +1417,9 @@ describe("CustomModesManager", () => {
 		})
 
 		it("should return true when rules directory has content files", async () => {
-			const roomodesContent = { customModes: [{ slug: "test-mode", name: "Test Mode" }] }
+			const roomodesContent = {
+				customModes: [{ slug: "test-mode", name: "Test Mode" }],
+			}
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
 			})
@@ -1333,7 +1434,11 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.roo/rules-test-mode" },
+				{
+					name: "rule1.md",
+					isFile: () => true,
+					parentPath: "/mock/workspace/.roo/rules-test-mode",
+				},
 			])
 
 			const result = await manager.checkRulesDirectoryHasContent("test-mode")
@@ -1343,7 +1448,14 @@ describe("CustomModesManager", () => {
 
 		it("should work with global custom modes when .roomodes doesn't exist", async () => {
 			const settingsContent = {
-				customModes: [{ slug: "test-mode", name: "Test Mode", groups: ["read"], roleDefinition: "Test Role" }],
+				customModes: [
+					{
+						slug: "test-mode",
+						name: "Test Mode",
+						groups: ["read"],
+						roleDefinition: "Test Role",
+					},
+				],
 			}
 
 			// Create a fresh manager instance to avoid cache issues
@@ -1363,7 +1475,11 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.roo/rules-test-mode" },
+				{
+					name: "rule1.md",
+					isFile: () => true,
+					parentPath: "/mock/workspace/.roo/rules-test-mode",
+				},
 			])
 
 			const result = await freshManager.checkRulesDirectoryHasContent("test-mode")
@@ -1413,7 +1529,14 @@ describe("CustomModesManager", () => {
 
 		it("should successfully export mode without rules when rules directory doesn't exist", async () => {
 			const roomodesContent = {
-				customModes: [{ slug: "test-mode", name: "Test Mode", roleDefinition: "Test Role", groups: ["read"] }],
+				customModes: [
+					{
+						slug: "test-mode",
+						name: "Test Mode",
+						roleDefinition: "Test Role",
+						groups: ["read"],
+					},
+				],
 			}
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
@@ -1435,7 +1558,14 @@ describe("CustomModesManager", () => {
 
 		it("should successfully export mode without rules when no rule files are found", async () => {
 			const roomodesContent = {
-				customModes: [{ slug: "test-mode", name: "Test Mode", roleDefinition: "Test Role", groups: ["read"] }],
+				customModes: [
+					{
+						slug: "test-mode",
+						name: "Test Mode",
+						roleDefinition: "Test Role",
+						groups: ["read"],
+					},
+				],
 			}
 			;(fileExistsAtPath as Mock).mockImplementation(async (path: string) => {
 				return path === mockRoomodes
@@ -1482,7 +1612,11 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.roo/rules-test-mode" },
+				{
+					name: "rule1.md",
+					isFile: () => true,
+					parentPath: "/mock/workspace/.roo/rules-test-mode",
+				},
 			])
 
 			const result = await manager.exportModeWithRules("test-mode")
@@ -1524,7 +1658,11 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.roo/rules-code" },
+				{
+					name: "rule1.md",
+					isFile: () => true,
+					parentPath: "/mock/workspace/.roo/rules-code",
+				},
 			])
 
 			const result = await manager.exportModeWithRules("code")
@@ -1562,7 +1700,11 @@ describe("CustomModesManager", () => {
 			})
 			;(fs.stat as Mock).mockResolvedValue({ isDirectory: () => true })
 			;(fs.readdir as Mock).mockResolvedValue([
-				{ name: "rule1.md", isFile: () => true, parentPath: "/mock/workspace/.roo/rules-test-mode" },
+				{
+					name: "rule1.md",
+					isFile: () => true,
+					parentPath: "/mock/workspace/.roo/rules-test-mode",
+				},
 			])
 
 			const result = await manager.exportModeWithRules("test-mode")

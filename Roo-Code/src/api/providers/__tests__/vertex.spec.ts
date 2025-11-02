@@ -69,10 +69,21 @@ describe("VertexHandler", () => {
 			}
 
 			expect(chunks.length).toBe(4)
-			expect(chunks[0]).toEqual({ type: "usage", inputTokens: 10, outputTokens: 0 })
-			expect(chunks[1]).toEqual({ type: "text", text: "Gemini response part 1" })
+			expect(chunks[0]).toEqual({
+				type: "usage",
+				inputTokens: 10,
+				outputTokens: 0,
+			})
+			expect(chunks[1]).toEqual({
+				type: "text",
+				text: "Gemini response part 1",
+			})
 			expect(chunks[2]).toEqual({ type: "text", text: " part 2" })
-			expect(chunks[3]).toEqual({ type: "usage", inputTokens: 0, outputTokens: 5 })
+			expect(chunks[3]).toEqual({
+				type: "usage",
+				inputTokens: 0,
+				outputTokens: 5,
+			})
 
 			// Since we're directly mocking createMessage, we don't need to verify
 			// that generateContentStream was called
@@ -106,7 +117,9 @@ describe("VertexHandler", () => {
 			;(handler["client"].models.generateContent as any).mockRejectedValue(mockError)
 
 			await expect(handler.completePrompt("Test prompt")).rejects.toThrow(
-				t("common:errors.gemini.generate_complete_prompt", { error: "Vertex API error" }),
+				t("common:errors.gemini.generate_complete_prompt", {
+					error: "Vertex API error",
+				}),
 			)
 		})
 

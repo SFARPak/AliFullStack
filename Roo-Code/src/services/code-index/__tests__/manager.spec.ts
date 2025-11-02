@@ -343,7 +343,9 @@ describe("CodeIndexManager - handleSettingsChange regression", () => {
 
 		it("should validate embedder during _recreateServices when validation succeeds", async () => {
 			// Arrange
-			mockServiceFactoryInstance.validateEmbedder.mockResolvedValue({ valid: true })
+			mockServiceFactoryInstance.validateEmbedder.mockResolvedValue({
+				valid: true,
+			})
 
 			// Act - directly call the private method for testing
 			await (manager as any)._recreateServices()

@@ -158,7 +158,13 @@ export function TodoListDisplay({ todos }: { todos: any[] }) {
 					}}>
 					{allCompleted ? "All tasks completed!" : mostImportantTodo?.content || "No pending tasks"}
 				</span>
-				<div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						gap: 4,
+						flexShrink: 0,
+					}}>
 					<span
 						className="codicon codicon-checklist"
 						style={{

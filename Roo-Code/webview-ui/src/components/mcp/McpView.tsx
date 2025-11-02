@@ -82,7 +82,10 @@ const McpView = ({ onDone }: McpViewProps) => {
 								checked={enableMcpServerCreation}
 								onChange={(e: any) => {
 									setEnableMcpServerCreation(e.target.checked)
-									vscode.postMessage({ type: "enableMcpServerCreation", bool: e.target.checked })
+									vscode.postMessage({
+										type: "enableMcpServerCreation",
+										bool: e.target.checked,
+									})
 								}}>
 								<span style={{ fontWeight: "500" }}>{t("mcp:enableServerCreation.title")}</span>
 							</VSCodeCheckbox>
@@ -109,7 +112,12 @@ const McpView = ({ onDone }: McpViewProps) => {
 
 						{/* Server List */}
 						{servers.length > 0 && (
-							<div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+									gap: "10px",
+								}}>
 								{servers.map((server) => (
 									<ServerRow
 										key={`${server.name}-${server.source || "global"}`}
@@ -396,7 +404,10 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 										</div>
 									) : (
 										<div
-											style={{ padding: "10px 0", color: "var(--vscode-descriptionForeground)" }}>
+											style={{
+												padding: "10px 0",
+												color: "var(--vscode-descriptionForeground)",
+											}}>
 											{t("mcp:emptyState.noTools")}
 										</div>
 									)}
@@ -423,7 +434,10 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 										</div>
 									) : (
 										<div
-											style={{ padding: "10px 0", color: "var(--vscode-descriptionForeground)" }}>
+											style={{
+												padding: "10px 0",
+												color: "var(--vscode-descriptionForeground)",
+											}}>
 											{t("mcp:emptyState.noResources")}
 										</div>
 									)}
@@ -456,7 +470,10 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 										</div>
 									) : (
 										<div
-											style={{ padding: "10px 0", color: "var(--vscode-descriptionForeground)" }}>
+											style={{
+												padding: "10px 0",
+												color: "var(--vscode-descriptionForeground)",
+											}}>
 											{t("mcp:emptyState.noErrors")}
 										</div>
 									)}
@@ -533,7 +550,10 @@ const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer; alwaysAllowM
 								appearance="secondary"
 								onClick={handleRestart}
 								disabled={server.status === "connecting"}
-								style={{ width: "calc(100% - 20px)", margin: "0 10px 10px 10px" }}>
+								style={{
+									width: "calc(100% - 20px)",
+									margin: "0 10px 10px 10px",
+								}}>
 								{server.status === "connecting"
 									? t("mcp:serverStatus.retrying")
 									: t("mcp:serverStatus.retryConnection")}

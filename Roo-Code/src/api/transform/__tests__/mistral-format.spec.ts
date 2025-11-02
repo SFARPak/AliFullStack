@@ -62,7 +62,10 @@ describe("convertToMistralMessages", () => {
 
 		expect(Array.isArray(content)).toBe(true)
 		expect(content).toHaveLength(2)
-		expect(content[0]).toEqual({ type: "text", text: "What is in this image?" })
+		expect(content[0]).toEqual({
+			type: "text",
+			text: "What is in this image?",
+		})
 		expect(content[1]).toEqual({
 			type: "image_url",
 			imageUrl: { url: "data:image/jpeg;base64,base64data" },
@@ -129,7 +132,10 @@ describe("convertToMistralMessages", () => {
 		}>
 		expect(Array.isArray(userContent)).toBe(true)
 		expect(userContent).toHaveLength(2)
-		expect(userContent[0]).toEqual({ type: "text", text: "Here's the weather data and an image:" })
+		expect(userContent[0]).toEqual({
+			type: "text",
+			text: "Here's the weather data and an image:",
+		})
 		expect(userContent[1]).toEqual({
 			type: "image_url",
 			imageUrl: { url: "data:image/png;base64,imagedata123" },

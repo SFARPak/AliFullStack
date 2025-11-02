@@ -149,7 +149,12 @@ describe("MistralHandler", () => {
 											content: [
 												{
 													type: "thinking",
-													thinking: [{ type: "text", text: "Let me think about this..." }],
+													thinking: [
+														{
+															type: "text",
+															text: "Let me think about this...",
+														},
+													],
 												},
 												{ type: "text", text: "Here's the answer" },
 											],
@@ -174,7 +179,10 @@ describe("MistralHandler", () => {
 			}
 
 			expect(results).toHaveLength(2)
-			expect(results[0]).toEqual({ type: "reasoning", text: "Let me think about this..." })
+			expect(results[0]).toEqual({
+				type: "reasoning",
+				text: "Let me think about this...",
+			})
 			expect(results[1]).toEqual({ type: "text", text: "Here's the answer" })
 		})
 

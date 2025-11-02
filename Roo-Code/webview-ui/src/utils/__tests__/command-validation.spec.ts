@@ -1148,10 +1148,22 @@ describe("Unified Command Decision Functions", () => {
 					expect(details.deniedMatches).toHaveLength(2)
 
 					// Check specific matches
-					expect(details.allowedMatches[0]).toEqual({ command: "npm install", match: "npm" })
-					expect(details.allowedMatches[1]).toEqual({ command: "echo done", match: "echo" })
-					expect(details.deniedMatches[0]).toEqual({ command: "npm install", match: null })
-					expect(details.deniedMatches[1]).toEqual({ command: "echo done", match: null })
+					expect(details.allowedMatches[0]).toEqual({
+						command: "npm install",
+						match: "npm",
+					})
+					expect(details.allowedMatches[1]).toEqual({
+						command: "echo done",
+						match: "echo",
+					})
+					expect(details.deniedMatches[0]).toEqual({
+						command: "npm install",
+						match: null,
+					})
+					expect(details.deniedMatches[1]).toEqual({
+						command: "echo done",
+						match: null,
+					})
 				})
 
 				it("detects subshells correctly", () => {
@@ -1168,8 +1180,14 @@ describe("Unified Command Decision Functions", () => {
 
 					expect(details.decision).toBe("auto_deny")
 					expect(details.subCommands).toEqual(["npm test", "git push origin"])
-					expect(details.deniedMatches[0]).toEqual({ command: "npm test", match: "npm test" })
-					expect(details.deniedMatches[1]).toEqual({ command: "git push origin", match: "git push" })
+					expect(details.deniedMatches[0]).toEqual({
+						command: "npm test",
+						match: "npm test",
+					})
+					expect(details.deniedMatches[1]).toEqual({
+						command: "git push origin",
+						match: "git push",
+					})
 				})
 			})
 

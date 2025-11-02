@@ -6,7 +6,11 @@ import * as readline from "readline"
 import { byLengthAsc, Fzf } from "fzf"
 import { getBinPath } from "../ripgrep"
 
-export type FileResult = { path: string; type: "file" | "folder"; label?: string }
+export type FileResult = {
+	path: string
+	type: "file" | "folder"
+	label?: string
+}
 
 export async function executeRipgrep({
 	args,
@@ -25,7 +29,10 @@ export async function executeRipgrep({
 
 	return new Promise((resolve, reject) => {
 		const rgProcess = childProcess.spawn(rgPath, args)
-		const rl = readline.createInterface({ input: rgProcess.stdout, crlfDelay: Infinity })
+		const rl = readline.createInterface({
+			input: rgProcess.stdout,
+			crlfDelay: Infinity,
+		})
 		const fileResults: FileResult[] = []
 		const dirSet = new Set<string>() // Track unique directory paths.
 
@@ -37,7 +44,11 @@ export async function executeRipgrep({
 					const relativePath = path.relative(workspacePath, line)
 
 					// Add the file itself.
-					fileResults.push({ path: relativePath, type: "file", label: path.basename(relativePath) })
+					fileResults.push({
+						path: relativePath,
+						type: "file",
+						label: path.basename(relativePath),
+					})
 
 					// Extract and store all parent directory paths.
 					let dirPath = path.dirname(relativePath)

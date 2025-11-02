@@ -274,11 +274,12 @@ describe("useMcpToolTool", () => {
 			// Ensure validation passes so askApproval is reached and throws
 			mockProviderRef.deref.mockReturnValueOnce({
 				getMcpHub: () => ({
-					getAllServers: vi
-						.fn()
-						.mockReturnValue([
-							{ name: "test_server", tools: [{ name: "test_tool", description: "desc" }] },
-						]),
+					getAllServers: vi.fn().mockReturnValue([
+						{
+							name: "test_server",
+							tools: [{ name: "test_tool", description: "desc" }],
+						},
+					]),
 					callTool: vi.fn(),
 				}),
 				postMessageToWebview: vi.fn(),

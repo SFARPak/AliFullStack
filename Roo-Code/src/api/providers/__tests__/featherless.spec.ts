@@ -170,7 +170,9 @@ describe("FeatherlessHandler", () => {
 
 	it("completePrompt method should return text from Featherless API", async () => {
 		const expectedResponse = "This is a test response from Featherless"
-		mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: expectedResponse } }] })
+		mockCreate.mockResolvedValueOnce({
+			choices: [{ message: { content: expectedResponse } }],
+		})
 		const result = await handler.completePrompt("test prompt")
 		expect(result).toBe(expectedResponse)
 	})
@@ -215,7 +217,10 @@ describe("FeatherlessHandler", () => {
 						.fn()
 						.mockResolvedValueOnce({
 							done: false,
-							value: { choices: [{ delta: {} }], usage: { prompt_tokens: 10, completion_tokens: 20 } },
+							value: {
+								choices: [{ delta: {} }],
+								usage: { prompt_tokens: 10, completion_tokens: 20 },
+							},
 						})
 						.mockResolvedValueOnce({ done: true }),
 				}),
@@ -226,7 +231,11 @@ describe("FeatherlessHandler", () => {
 		const firstChunk = await stream.next()
 
 		expect(firstChunk.done).toBe(false)
-		expect(firstChunk.value).toEqual({ type: "usage", inputTokens: 10, outputTokens: 20 })
+		expect(firstChunk.value).toEqual({
+			type: "usage",
+			inputTokens: 10,
+			outputTokens: 20,
+		})
 	})
 
 	it("createMessage should pass correct parameters to Featherless client for DeepSeek R1", async () => {
