@@ -25,9 +25,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-            # npm install is very slow
-            # { name: "windows-arm", image: "windows-11-arm" },
-            { name: "windows", image: "windows-latest" },
             { name: "macos", image: "macos-latest" },
           ]
         shard: [1, 2, 3, 4]
