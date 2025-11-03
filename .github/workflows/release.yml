@@ -1,5 +1,3 @@
-# .github/workflows/release.yml
-
 # Need to write to repo contents to upload the app to GitHub Release
 # See: https://www.electronforge.io/config/publishers/github#authentication
 permissions:
@@ -30,9 +28,6 @@ jobs:
             { name: "macos", image: "macos-latest" },
           ]
     runs-on: ${{ matrix.os.image }}
-    # env:
-    # CSC_LINK: ${{ secrets.CSC_LINK }}
-    # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
     steps:
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -55,35 +50,6 @@ jobs:
         if: contains(matrix.os.name, 'macos')
       - run: npm rebuild @rollup/rollup-win32-x64-msvc || true
         if: contains(matrix.os.name, 'windows')
-      # - name: add macos cert
-      #   if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12
-      #   env:
-      #     MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
-      #     MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-      #   run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
-      # Windows only
-      # - name: Set up certificate
-      #   if: contains(matrix.os.name, 'windows')
-      #   run: |
-      #     echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
-      #   shell: bash
-      # - name: Set variables
-      #   if: contains(matrix.os.name, 'windows')
-      #   id: variables
-      #   run: |
-      #     echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
-      #     echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
-      #     echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
-      #     echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> "$GITHUB_ENV"
-      #   shell: bash
-      # - name: Code signing with Software Trust Manager
-      #   if: contains(matrix.os.name, 'windows')
-      #   uses: digicert/ssm-code-signing@v1.1.0
-      # - name: Sync certificate (Windows)
-      #   if: contains(matrix.os.name, 'windows')
-      #   run: |
-      #     smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
-      #   shell: bash
       # Publish (all platforms)
       - name: Publish app
         env:
@@ -93,9 +59,51 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          # CSC_LINK: ${{ secrets.CSC_LINK }}
-          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: npm run publish
+        run: |
+          set -e
+          echo "=== Running publish (npm run publish) ==="
+          npm run publish 2>&1 | sed -n '1,500p'
+        shell: bash
+
+      - name: Wait for GitHub to register release uploads
+        # Some publishers upload files asynchronously; wait and then list assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          VERSION=$(node -e "console.log(require('./package.json').version)")
+          TAG="v${VERSION}"
+          echo "Waiting for GitHub to register release ${TAG} assets..."
+          # Poll releases/tags endpoint for up to 90s (9 attempts)
+          attempts=0
+          max=9
+          sleep_interval=10
+          while [ $attempts -lt $max ]; do
+            echo "Attempt $((attempts+1))/${max}..."
+            # Use the tag endpoint to retrieve the release by tag
+            resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG}" || true)
+            if echo "$resp" | grep -q "\"message\": \"Not Found\""; then
+              echo "Release ${TAG} not found yet."
+            else
+              echo "Release found; printing release summary:"
+              echo "$resp" | jq -r '. | {name: .name, tag_name: .tag_name, draft: .draft, published_at: .published_at, html_url: .html_url, assets_count: .assets | length}'
+              echo "Assets list (name | size | url):"
+              echo "$resp" | jq -r '.assets[] | "\(.name) | \(.size) | \(.browser_download_url)"' || true
+              assets_count=$(echo "$resp" | jq '.assets | length')
+              if [ "$assets_count" -gt 0 ]; then
+                echo "Assets are present (count=$assets_count)"
+                break
+              else
+                echo "No assets yet; will retry."
+              fi
+            fi
+            attempts=$((attempts+1))
+            sleep $sleep_interval
+          done
+          if [ $attempts -eq $max ]; then
+            echo "Warning: Assets did not appear within the expected time. The verify job may fail."
+          fi
+        shell: bash
 
   verify-assets:
     name: Verify Release Assets
@@ -116,4 +124,7 @@ jobs:
       - name: Verify all release assets are uploaded
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/verify-release-assets.js
+        run: |
+          echo "Running release asset verification..."
+          node scripts/verify-release-assets.js
+        shell: bash

@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const fetch = require("node-fetch");
 
 /**
  * Verifies that all expected binary assets are present in the GitHub release
@@ -11,6 +12,10 @@ async function verifyReleaseAssets() {
   try {
     // Read version from package.json
     const packagePath = path.join(__dirname, "..", "package.json");
+    if (!fs.existsSync(packagePath)) {
+      console.error("❌ package.json not found at", packagePath);
+      process.exit(1);
+    }
     const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
     const version = packageJson.version;
 
@@ -28,10 +33,9 @@ async function verifyReleaseAssets() {
 
     const inGitHubActions = process.env.GITHUB_ACTIONS === "true";
 
-    // ✅ Skip token validation in GitHub Actions (since built-in token is limited)
     if (!inGitHubActions) {
       console.log("🔐 Checking GITHUB_TOKEN permissions...");
-
+      // Validate token by calling /user
       const userCheck = await fetch("https://api.github.com/user", {
         headers: {
           Authorization: `token ${token}`,
@@ -52,48 +56,40 @@ async function verifyReleaseAssets() {
       console.log(`✅ Authenticated as: ${userData.login}`);
     } else {
       console.log("🏃 Running inside GitHub Actions — no user authentication check needed");
+      // quick repo check to ensure token can access repo
+      const appCheck = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "alifullstack-release-verifier",
+        },
+      });
 
-      // Test API access by fetching org/user info
-      try {
-        const appCheck = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: "application/vnd.github.v3+json",
-            "User-Agent": "alifullstack-release-verifier",
-          },
-        });
-
-        if (!appCheck.ok) {
-          const body = await appCheck.text();
-          console.error("❌ Token authentication failed!");
-          console.error(`Status: ${appCheck.status} ${appCheck.statusText}`);
-          console.error(`Response body: ${body}`);
-          process.exit(1);
-        }
-
-        const repoData = await appCheck.json();
-        console.log(`✅ Token authenticated for repository: ${repoData.full_name}`);
-      } catch (error) {
-        console.error("❌ Error testing token authentication:", error.message);
+      if (!appCheck.ok) {
+        const body = await appCheck.text();
+        console.error("❌ Token authentication failed on repo check!");
+        console.error(`Status: ${appCheck.status} ${appCheck.statusText}`);
+        console.error(`Response body: ${body}`);
         process.exit(1);
       }
+
+      const repoData = await appCheck.json();
+      console.log(`✅ Token authenticated for repository: ${repoData.full_name}`);
     }
 
-    // --- Fetch releases with retry logic ---
     const tagName = `v${version}`;
-    const maxRetries = 5;
+    const maxRetries = 8;
     const baseDelay = 10000; // 10 seconds
     let release = null;
     let lastError = null;
 
+    // Try to fetch the release by tag name. This avoids scanning the entire releases list.
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(
-          `📡 Attempt ${attempt}/${maxRetries}: Fetching releases to find: ${tagName}`,
-        );
+        console.log(`📡 Attempt ${attempt}/${maxRetries}: Fetching release by tag: ${tagName}`);
 
-        const allReleasesUrl = `https://api.github.com/repos/${owner}/${repo}/releases`;
-        const response = await fetch(allReleasesUrl, {
+        const releaseUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tagName}`;
+        const response = await fetch(releaseUrl, {
           headers: {
             Authorization: `token ${token}`,
             Accept: "application/vnd.github.v3+json",
@@ -102,29 +98,36 @@ async function verifyReleaseAssets() {
         });
 
         if (!response.ok) {
-          console.error(`❌ GitHub API error: ${response.status} ${response.statusText}`);
-          const errorBody = await response.text();
-          console.error(`Response Body: ${errorBody}`);
-          throw new Error(`GitHub API returned ${response.status}`);
-        }
-
-        const allReleases = await response.json();
-
-        const releaseExists = allReleases.some((r) => r.tag_name === tagName);
-        if (!releaseExists) {
-          console.warn(`⚠️ Release ${tagName} not found. Retrying...`);
+          const body = await response.text();
+          console.warn(`⚠️ GitHub API returned ${response.status} ${response.statusText}`);
+          console.warn("Response body:", body);
+          if (response.status === 404) {
+            console.warn(`⚠️ Release ${tagName} not found (404). Will retry.`);
+          } else {
+            console.warn("⚠️ Non-404 response; will retry after delay.");
+          }
           if (attempt < maxRetries) {
             const delay = baseDelay * attempt;
             console.log(`⏳ Waiting ${delay / 1000}s before retry...`);
             await new Promise((r) => setTimeout(r, delay));
+            continue;
+          } else {
+            throw new Error(`Failed to fetch release: ${response.status}`);
           }
-          continue;
         }
 
-        release = allReleases.find((r) => r.tag_name === tagName);
-        console.log(
-          `✅ Found release: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`,
-        );
+        release = await response.json();
+
+        console.log(`✅ Found release: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`);
+        // If release exists but has zero assets, wait and retry (registrations can be delayed)
+        const assets = release.assets || [];
+        console.log(`📦 Found ${assets.length} assets in release ${tagName}`);
+        if (assets.length === 0 && attempt < maxRetries) {
+          const delay = baseDelay * attempt;
+          console.log(`⚠️ No assets present yet. Waiting ${delay / 1000}s before retry...`);
+          await new Promise((r) => setTimeout(r, delay));
+          continue;
+        }
         break;
       } catch (err) {
         lastError = err;
@@ -147,6 +150,7 @@ async function verifyReleaseAssets() {
 
     console.log(`📦 Found ${assets.length} assets in release ${tagName}`);
     console.log(`📄 Release status: ${release.draft ? "DRAFT" : "PUBLISHED"}`);
+    console.log("");
 
     // --- Define expected assets ---
     const normalizeVersionForPlatform = (version, platform) => {
@@ -179,7 +183,11 @@ async function verifyReleaseAssets() {
 
     const actualAssets = assets.map((a) => a.name);
     console.log("📋 Actual assets:");
-    actualAssets.forEach((a) => console.log(`  - ${a}`));
+    if (actualAssets.length === 0) {
+      console.log("(none)");
+    } else {
+      actualAssets.forEach((a) => console.log(`  - ${a}`));
+    }
     console.log("");
 
     // --- Compare assets ---
@@ -187,6 +195,15 @@ async function verifyReleaseAssets() {
     if (missingAssets.length > 0) {
       console.error("❌ VERIFICATION FAILED! Missing assets:");
       missingAssets.forEach((a) => console.error(`  - ${a}`));
+      console.error("");
+      // For debugging, emit the full release JSON to help identify naming differences
+      console.error("🔎 Full release JSON preview (first 2000 chars):");
+      try {
+        const releaseJson = JSON.stringify(release, null, 2);
+        console.error(releaseJson.substring(0, 2000));
+      } catch (_) {
+        // ignore
+      }
       process.exit(1);
     }
 
@@ -206,7 +223,7 @@ async function verifyReleaseAssets() {
     console.log(`  Published: ${release.published_at}`);
     console.log(`  URL: ${release.html_url}`);
   } catch (error) {
-    console.error("❌ Error verifying release assets:", error.message);
+    console.error("❌ Error verifying release assets:", error && error.message ? error.message : error);
     process.exit(1);
   }
 }
