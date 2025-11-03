@@ -1,5 +1,3 @@
-# Need to write to repo contents to upload the app to GitHub Release
-# See: https://www.electronforge.io/config/publishers/github#authentication
 permissions:
   contents: write
 
@@ -8,49 +6,108 @@ on:
   workflow_dispatch:
   push:
     branches: [main, release/**]
+
 jobs:
   build:
     environment: release
     permissions:
       contents: write
     strategy:
-      # Uncomment max-parallel to prevent race condition (where multiple releases are
-      # created concurrently). Typically though, we'll create a release manually ahead of time
-      # which prevents the race.
-      # max-parallel: 1
       matrix:
-        # See https://github.com/SFARPak/dyad/issues/96
+        # Use the recommended minimum runner images to ensure compatibility:
+        # - ubuntu: ubuntu-22.04
+        # - windows: windows-2022
+        # - macOS: macos-13 (minimum supported macOS runner)
         os:
-          [
-            { name: "windows", image: "windows-latest" },
-            { name: "linux", image: "ubuntu-22.04" },
-            { name: "macos-intel", image: "macos-13" },
-            { name: "macos", image: "macos-latest" },
-          ]
+          - { name: "windows", image: "windows-2022" }
+          - { name: "linux", image: "ubuntu-22.04" }
+          - { name: "macos-intel", image: "macos-13" }
+          - { name: "macos", image: "macos-13" }
     runs-on: ${{ matrix.os.image }}
+    env:
+      CI: true
+
     steps:
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Use Node.js
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: 20
-      - name: Clean up
+          cache: 'npm'
+
+      # Ensure npm cache dir exists on Windows so actions/cache doesn't fail
+      - name: Ensure npm cache directory exists (Windows)
+        if: runner.os == 'Windows'
         run: |
-          rm -rf node_modules
-          rm -f package-lock.json
-          npm cache clean --force
+          powershell -Command "New-Item -Path 'C:\npm\cache' -ItemType Directory -Force | Out-Null"
+
+      - name: Cache npm cache and node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.os == 'Windows' && 'C:\\npm\\cache' || '~/.npm' }}
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # CI-only cleanup to avoid npm optional deps corruption (runner-local only)
+      - name: Clean up potential corrupted install (CI-only)
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            echo "Removing node_modules and package-lock.json (runner-only)"
+            powershell -Command "if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules } ; if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }"
+          else
+            rm -rf node_modules package-lock.json || true
+          fi
         shell: bash
-      - run: npm install --include=optional
-      - run: npm rebuild @rollup/rollup-linux-x64-gnu || true
-        if: contains(matrix.os.name, 'linux')
-      - run: npm rebuild @rollup/rollup-darwin-x64 || true
-        if: contains(matrix.os.name, 'macos-intel')
-      - run: npm rebuild @rollup/rollup-darwin-arm64 || true
-        if: contains(matrix.os.name, 'macos')
-      - run: npm rebuild @rollup/rollup-win32-x64-msvc || true
-        if: contains(matrix.os.name, 'windows')
-      # Publish (all platforms)
+
+      - name: Configure npm for CI (cache path + disable optional deps)
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            npm config set cache "C:\\npm\\cache" --global
+          else
+            npm config set cache "${HOME}/.npm" --global
+          fi
+          # Disable optional deps in CI to avoid failing native optional installs (workaround).
+          npm config set optional false --global
+        shell: bash
+
+      - name: Install dependencies (npm ci || npm install fallback)
+        run: |
+          set -e
+          echo "Attempting npm ci for reproducible install..."
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            npm ci --no-audit --prefer-offline || (powershell -Command "if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }" ; npm install --no-audit --prefer-offline)
+          else
+            npm ci --no-audit --prefer-offline || (rm -f package-lock.json && npm install --no-audit --prefer-offline)
+          fi
+        shell: bash
+
+      # Try platform-specific native rebuilds if present; non-fatal
+      - name: Try rebuild rollup native binary (non-fatal)
+        run: |
+          set -e || true
+          if [[ "${{ matrix.os.name }}" == "linux" ]]; then
+            npm rebuild @rollup/rollup-linux-x64-gnu || true
+          elif [[ "${{ matrix.os.name }}" == "macos-intel" ]]; then
+            npm rebuild @rollup/rollup-darwin-x64 || true
+          elif [[ "${{ matrix.os.name }}" == "macos" ]]; then
+            npm rebuild @rollup/rollup-darwin-arm64 || true
+          elif [[ "${{ matrix.os.name }}" == "windows" ]]; then
+            npm rebuild @rollup/rollup-win32-x64-msvc || true
+          fi
+        shell: bash
+
+      - name: Build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+        run: |
+          npm run build
+        shell: bash
+
       - name: Publish app
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
@@ -66,7 +123,6 @@ jobs:
         shell: bash
 
       - name: Wait for GitHub to register release uploads
-        # Some publishers upload files asynchronously; wait and then list assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -74,13 +130,11 @@ jobs:
           VERSION=$(node -e "console.log(require('./package.json').version)")
           TAG="v${VERSION}"
           echo "Waiting for GitHub to register release ${TAG} assets..."
-          # Poll releases/tags endpoint for up to 90s (9 attempts)
           attempts=0
           max=9
           sleep_interval=10
           while [ $attempts -lt $max ]; do
             echo "Attempt $((attempts+1))/${max}..."
-            # Use the tag endpoint to retrieve the release by tag
             resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG}" || true)
             if echo "$resp" | grep -q "\"message\": \"Not Found\""; then
               echo "Release ${TAG} not found yet."
@@ -108,7 +162,7 @@ jobs:
   verify-assets:
     name: Verify Release Assets
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: read
@@ -117,10 +171,12 @@ jobs:
     steps:
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Use Node.js
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: 20
+
       - name: Verify all release assets are uploaded
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
