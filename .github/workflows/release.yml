@@ -5,7 +5,12 @@ name: Release app
 on:
   workflow_dispatch:
   push:
-    branches: [main, release/**]
+    branches:
+      - main
+      - release/**
+      - 'v*'          # run on branches named like v0.0.6
+    tags:
+      - 'v*.*.*'      # keep tag-based releases as well
 
 jobs:
   build:
@@ -14,10 +19,6 @@ jobs:
       contents: write
     strategy:
       matrix:
-        # Use the recommended minimum runner images to ensure compatibility:
-        # - ubuntu: ubuntu-22.04
-        # - windows: windows-2022
-        # - macOS: macos-13 (minimum supported macOS runner)
         os:
           - { name: "windows", image: "windows-2022" }
           - { name: "linux", image: "ubuntu-22.04" }
@@ -37,7 +38,6 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      # Ensure npm cache dir exists on Windows so actions/cache doesn't fail
       - name: Ensure npm cache directory exists (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -53,11 +53,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # CI-only cleanup to avoid npm optional deps corruption (runner-local only)
       - name: Clean up potential corrupted install (CI-only)
         run: |
           if [ "${{ runner.os }}" = "Windows" ]; then
-            echo "Removing node_modules and package-lock.json (runner-only)"
             powershell -Command "if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules } ; if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }"
           else
             rm -rf node_modules package-lock.json || true
@@ -71,14 +69,12 @@ jobs:
           else
             npm config set cache "${HOME}/.npm" --global
           fi
-          # Disable optional deps in CI to avoid failing native optional installs (workaround).
           npm config set optional false --global
         shell: bash
 
       - name: Install dependencies (npm ci || npm install fallback)
         run: |
           set -e
-          echo "Attempting npm ci for reproducible install..."
           if [ "${{ runner.os }}" = "Windows" ]; then
             npm ci --no-audit --prefer-offline || (powershell -Command "if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }" ; npm install --no-audit --prefer-offline)
           else
@@ -86,10 +82,8 @@ jobs:
           fi
         shell: bash
 
-      # Try platform-specific native rebuilds if present; non-fatal
       - name: Try rebuild rollup native binary (non-fatal)
         run: |
-          set -e || true
           if [[ "${{ matrix.os.name }}" == "linux" ]]; then
             npm rebuild @rollup/rollup-linux-x64-gnu || true
           elif [[ "${{ matrix.os.name }}" == "macos-intel" ]]; then
@@ -104,8 +98,7 @@ jobs:
       - name: Build
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-        run: |
-          npm run build
+        run: npm run build
         shell: bash
 
       - name: Publish app
@@ -129,34 +122,24 @@ jobs:
           set -e
           VERSION=$(node -e "console.log(require('./package.json').version)")
           TAG="v${VERSION}"
-          echo "Waiting for GitHub to register release ${TAG} assets..."
           attempts=0
           max=9
           sleep_interval=10
           while [ $attempts -lt $max ]; do
-            echo "Attempt $((attempts+1))/${max}..."
             resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG}" || true)
             if echo "$resp" | grep -q "\"message\": \"Not Found\""; then
               echo "Release ${TAG} not found yet."
             else
-              echo "Release found; printing release summary:"
               echo "$resp" | jq -r '. | {name: .name, tag_name: .tag_name, draft: .draft, published_at: .published_at, html_url: .html_url, assets_count: .assets | length}'
-              echo "Assets list (name | size | url):"
               echo "$resp" | jq -r '.assets[] | "\(.name) | \(.size) | \(.browser_download_url)"' || true
               assets_count=$(echo "$resp" | jq '.assets | length')
               if [ "$assets_count" -gt 0 ]; then
-                echo "Assets are present (count=$assets_count)"
                 break
-              else
-                echo "No assets yet; will retry."
               fi
             fi
             attempts=$((attempts+1))
             sleep $sleep_interval
           done
-          if [ $attempts -eq $max ]; then
-            echo "Warning: Assets did not appear within the expected time. The verify job may fail."
-          fi
         shell: bash
 
   verify-assets:
@@ -180,7 +163,5 @@ jobs:
       - name: Verify all release assets are uploaded
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Running release asset verification..."
-          node scripts/verify-release-assets.js
+        run: node scripts/verify-release-assets.js
         shell: bash
