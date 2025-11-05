@@ -12,7 +12,7 @@ Inspired by tools like *Lovable*, *v0.dev*, and *Bolt*, but with no lock-in or c
 
 ## 👏 Acknowledgments
 
-AliFullstack builds on top of other awesome open-source projects:
+AliFullstack is built on top of other awesome open-source projects:
 
 - [Dyad](https://github.com/dyad-sh/dyad)
 - [Roo-Code](https://github.com/RooCodeInc/Roo-Code)
@@ -265,7 +265,7 @@ Be the first to know about:
 - 🧠 Devlogs
 - 🚀 Launches
 
-📧 Subscribe via the [website](https://alifullstack.alitech.io) or follow us on [Reddit](https://www.reddit.com/r/alifullstackbuilders/).
+<!-- 📧 Subscribe via the [website](https://alifullstack.alitech.io) or follow us on [Reddit](https://www.reddit.com/r/alifullstackbuilders/). -->
 
 ---
 
