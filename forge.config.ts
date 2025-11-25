@@ -66,7 +66,7 @@ const config: ForgeConfig = {
     executableName: "alifullstack",
 
     osxSign: undefined, // Temporarily disable signing for development build
-    osxNotarize: undefined, // Temporarily disable notarization for development build
+    osxNotarize: false, // Temporarily disable notarization for development build
     asar: true,
     ignore,
     // ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
