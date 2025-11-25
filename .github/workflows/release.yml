@@ -63,7 +63,7 @@ jobs:
 
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
         shell: bash
 
       - name: Try rebuild rollup native binary (non-fatal)
