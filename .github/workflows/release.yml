@@ -22,8 +22,8 @@ jobs:
         os:
           - { name: "windows", image: "windows-2022" }
           - { name: "linux", image: "ubuntu-22.04" }
-          - { name: "macos-intel", image: "macos-13" }
-          - { name: "macos", image: "macos-13" }
+          - { name: "macos-intel", image: "macos-15-intel" }
+          - { name: "macos", image: "macos-latest" }
     runs-on: ${{ matrix.os.image }}
     env:
       CI: true
