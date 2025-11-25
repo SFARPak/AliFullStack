@@ -36,69 +36,53 @@ jobs:
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: 20
-          cache: 'npm'
-
-      - name: Ensure npm cache directory exists (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          powershell -Command "New-Item -Path 'C:\npm\cache' -ItemType Directory -Force | Out-Null"
-
-      - name: Cache npm cache and node_modules
-        uses: actions/cache@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          path: |
-            ${{ runner.os == 'Windows' && 'C:\\npm\\cache' || '~/.npm' }}
-            node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          version: latest
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "store_path=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.store_path }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-pnpm-store-
 
       - name: Clean up potential corrupted install (CI-only)
         run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            powershell -Command "if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules } ; if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }"
-          else
-            rm -rf node_modules package-lock.json || true
-          fi
+          rm -rf node_modules
+          rm -f pnpm-lock.yaml
+          rm -rf .pnpm-store
+          pnpm store prune --force || true
         shell: bash
 
-      - name: Configure npm for CI (cache path + disable optional deps)
-        run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            npm config set cache "C:\\npm\\cache" --global
-          else
-            npm config set cache "${HOME}/.npm" --global
-          fi
-          npm config set optional false --global
-        shell: bash
 
-      - name: Install dependencies (npm ci || npm install fallback)
-        run: |
-          set -e
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            npm ci --no-audit --prefer-offline || (powershell -Command "if (Test-Path package-lock.json) { Remove-Item -Force package-lock.json }" ; npm install --no-audit --prefer-offline)
-          else
-            npm ci --no-audit --prefer-offline || (rm -f package-lock.json && npm install --no-audit --prefer-offline)
-          fi
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
         shell: bash
 
       - name: Try rebuild rollup native binary (non-fatal)
         run: |
           if [[ "${{ matrix.os.name }}" == "linux" ]]; then
-            npm rebuild @rollup/rollup-linux-x64-gnu || true
+            pnpm rebuild @rollup/rollup-linux-x64-gnu || true
           elif [[ "${{ matrix.os.name }}" == "macos-intel" ]]; then
-            npm rebuild @rollup/rollup-darwin-x64 || true
+            pnpm rebuild @rollup/rollup-darwin-x64 || true
           elif [[ "${{ matrix.os.name }}" == "macos" ]]; then
-            npm rebuild @rollup/rollup-darwin-arm64 || true
+            pnpm rebuild @rollup/rollup-darwin-arm64 || true
           elif [[ "${{ matrix.os.name }}" == "windows" ]]; then
-            npm rebuild @rollup/rollup-win32-x64-msvc || true
+            pnpm rebuild @rollup/rollup-win32-x64-msvc || true
           fi
         shell: bash
 
       - name: Build
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-        run: npm run build
+        run: pnpm run build
         shell: bash
 
       - name: Publish app
@@ -109,10 +93,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-        run: |
-          set -e
-          echo "=== Running publish (npm run publish) ==="
-          npm run publish 2>&1 | sed -n '1,500p'
+        run: pnpm run publish
         shell: bash
 
       - name: Wait for GitHub to register release uploads
