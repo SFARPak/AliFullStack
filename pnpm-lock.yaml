@@ -342,6 +342,9 @@ importers:
       lint-staged:
         specifier: ^15.5.2
         version: 15.5.2
+      node-fetch:
+        specifier: ^2.7.0
+        version: 2.7.0(encoding@0.1.13)
       oxlint:
         specifier: ^1.8.0
         version: 1.30.0

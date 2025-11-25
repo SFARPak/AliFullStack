@@ -83,7 +83,8 @@
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
     "vite": "^5.4.17",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.1",
+    "node-fetch": "^2.7.0"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^3.0.15",
