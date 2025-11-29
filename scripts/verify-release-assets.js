@@ -2,7 +2,6 @@
 
 const fs = require("fs");
 const path = require("path");
-const fetch = require("node-fetch");
 
 /**
  * Verifies that all expected binary assets are present in the GitHub release
