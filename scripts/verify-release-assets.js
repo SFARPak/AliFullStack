@@ -1,7 +1,43 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
+
+/**
+ * Simple fetch polyfill using https module to avoid dependencies
+ */
+function fetch(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, {
+      method: options.method || 'GET',
+      headers: options.headers || {},
+    }, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const body = Buffer.concat(chunks).toString('utf8');
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          statusText: res.statusMessage,
+          text: () => Promise.resolve(body),
+          json: () => {
+            try {
+              return Promise.resolve(JSON.parse(body));
+            } catch (e) {
+              return Promise.reject(e);
+            }
+          },
+        });
+      });
+    });
+
+    req.on('error', (err) => reject(err));
+    req.end();
+  });
+}
 
 /**
  * Verifies that all expected binary assets are present in the GitHub release
