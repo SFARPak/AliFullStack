@@ -79,36 +79,57 @@ export function registerVersionHandlers() {
       return [];
     }
 
-    // Determine the current ref dynamically (main, master, or current branch)
-    let currentRef = "main";
+    // Determine the current ref dynamically (current branch, main, or master)
+    let currentRef: string;
     try {
-      await git.resolveRef({
+      // First, try to get the current branch
+      const currentBranch = await git.currentBranch({
         fs,
         dir: appPath,
-        ref: "main",
+        fullname: false,
       });
+      if (currentBranch) {
+        currentRef = currentBranch;
+      } else {
+        // If no current branch (detached HEAD), try main
+        try {
+          await git.resolveRef({
+            fs,
+            dir: appPath,
+            ref: "main",
+          });
+          currentRef = "main";
+        } catch {
+          // Try master branch if main doesn't exist
+          try {
+            await git.resolveRef({
+              fs,
+              dir: appPath,
+              ref: "master",
+            });
+            currentRef = "master";
+          } catch {
+            throw new Error("Could not resolve any branch reference");
+          }
+        }
+      }
     } catch {
-      // Try master branch if main doesn't exist
+      // Fallback: try main, then master
       try {
         await git.resolveRef({
           fs,
           dir: appPath,
-          ref: "master",
+          ref: "main",
         });
-        currentRef = "master";
+        currentRef = "main";
       } catch {
-        // Try to get current branch name
         try {
-          const currentBranch = await git.currentBranch({
+          await git.resolveRef({
             fs,
             dir: appPath,
-            fullname: false,
+            ref: "master",
           });
-          if (currentBranch) {
-            currentRef = currentBranch;
-          } else {
-            throw new Error("Could not determine current branch");
-          }
+          currentRef = "master";
         } catch {
           throw new Error("Could not resolve any branch reference");
         }
