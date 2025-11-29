@@ -79,9 +79,46 @@ export function registerVersionHandlers() {
       return [];
     }
 
+    // Determine the current ref dynamically (main, master, or current branch)
+    let currentRef = "main";
+    try {
+      await git.resolveRef({
+        fs,
+        dir: appPath,
+        ref: "main",
+      });
+    } catch {
+      // Try master branch if main doesn't exist
+      try {
+        await git.resolveRef({
+          fs,
+          dir: appPath,
+          ref: "master",
+        });
+        currentRef = "master";
+      } catch {
+        // Try to get current branch name
+        try {
+          const currentBranch = await git.currentBranch({
+            fs,
+            dir: appPath,
+            fullname: false,
+          });
+          if (currentBranch) {
+            currentRef = currentBranch;
+          } else {
+            throw new Error("Could not determine current branch");
+          }
+        } catch {
+          throw new Error("Could not resolve any branch reference");
+        }
+      }
+    }
+
     const commits = await git.log({
       fs,
       dir: appPath,
+      ref: currentRef,
       // KEEP UP TO DATE WITH ChatHeader.tsx
       depth: 100_000, // Limit to last 100_000 commits for performance
     });
