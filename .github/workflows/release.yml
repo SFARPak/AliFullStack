@@ -96,33 +96,6 @@ jobs:
         run: pnpm run publish
         shell: bash
 
-      - name: Wait for GitHub to register release uploads
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          VERSION=$(node -e "console.log(require('./package.json').version)")
-          TAG="v${VERSION}"
-          attempts=0
-          max=9
-          sleep_interval=10
-          while [ $attempts -lt $max ]; do
-            resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG}" || true)
-            if echo "$resp" | grep -q "\"message\": \"Not Found\""; then
-              echo "Release ${TAG} not found yet."
-            else
-              echo "$resp" | jq -r '. | {name: .name, tag_name: .tag_name, draft: .draft, published_at: .published_at, html_url: .html_url, assets_count: .assets | length}'
-              echo "$resp" | jq -r '.assets[] | "\(.name) | \(.size) | \(.browser_download_url)"' || true
-              assets_count=$(echo "$resp" | jq '.assets | length')
-              if [ "$assets_count" -gt 0 ]; then
-                break
-              fi
-            fi
-            attempts=$((attempts+1))
-            sleep $sleep_interval
-          done
-        shell: bash
-
   verify-assets:
     name: Verify Release Assets
     needs: build
