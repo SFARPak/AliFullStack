@@ -27,7 +27,9 @@ async function getJson(url) {
 }
 
 async function main() {
-  const tag = process.env.GITHUB_REF_NAME || process.env.TAG_NAME;
+  // normalize tags to strip "release/" prefix if present
+  let tag = process.env.GITHUB_REF_NAME || process.env.TAG_NAME || '';
+  tag = tag.replace(/^release\//, ''); // remove 'release/' if it exists
 
   if (!tag) {
     console.error("❌ No TAG_NAME or GITHUB_REF_NAME detected.");
