@@ -57,7 +57,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     protocols: [
       {
-        name: "Dyad",
+        name: "AliFullstack",
         schemes: ["dyad"],
       },
     ],

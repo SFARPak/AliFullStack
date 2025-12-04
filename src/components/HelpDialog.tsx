@@ -406,7 +406,7 @@ Session ID: ${sessionId}
                     "https://www.alifullstack.alitech.io/docs",
                   );
                 }}
-                className="w-full py-6 bg-(--background-lightest)"
+                className="w-full py-6 bg-[var(--background-lightest)]"
               >
                 <BookOpenIcon className="mr-2 h-5 w-5" /> Open Docs
               </Button>
@@ -421,7 +421,7 @@ Session ID: ${sessionId}
               variant="outline"
               onClick={handleReportBug}
               disabled={isLoading}
-              className="w-full py-6 bg-(--background-lightest)"
+              className="w-full py-6 bg-[var(--background-lightest)]"
             >
               <BugIcon className="mr-2 h-5 w-5" />{" "}
               {isLoading ? "Preparing Report..." : "Report a Bug"}
@@ -436,7 +436,7 @@ Session ID: ${sessionId}
               variant="outline"
               onClick={handleUploadChatSession}
               disabled={isUploading || !selectedChatId}
-              className="w-full py-6 bg-(--background-lightest)"
+              className="w-full py-6 bg-[var(--background-lightest)]"
             >
               <UploadIcon className="mr-2 h-5 w-5" />{" "}
               {isUploading ? "Preparing Upload..." : "Upload Chat Session"}

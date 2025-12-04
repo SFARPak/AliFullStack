@@ -30,7 +30,7 @@ export const DyadExecuteSql: React.FC<DyadExecuteSqlProps> = ({
 
   return (
     <div
-      className={`bg-(--background-lightest) hover:bg-(--background-lighter) rounded-lg px-4 py-2 border my-2 cursor-pointer ${
+      className={`bg-[var(--background-lightest)] hover:bg-[var(--background-lighter)] rounded-lg px-4 py-2 border my-2 cursor-pointer ${
         inProgress
           ? "border-amber-500"
           : aborted

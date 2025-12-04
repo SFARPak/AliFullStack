@@ -20,7 +20,7 @@ export const DyadDelete: React.FC<DyadDeleteProps> = ({
   const fileName = path ? path.split("/").pop() : "";
 
   return (
-    <div className="bg-(--background-lightest) rounded-lg px-4 py-2 border border-red-500 my-2">
+    <div className="bg-[var(--background-lightest)] rounded-lg px-4 py-2 border border-red-500 my-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Trash2 size={16} className="text-red-500" />

@@ -47,7 +47,7 @@ export const DyadOutput: React.FC<DyadOutputProps> = ({
 
   return (
     <div
-      className={`relative bg-(--background-lightest) hover:bg-(--background-lighter) rounded-lg px-4 py-2 border my-2 cursor-pointer min-h-18 ${borderColor}`}
+      className={`relative bg-[var(--background-lightest)] hover:bg-[var(--background-lighter)] rounded-lg px-4 py-2 border my-2 cursor-pointer min-h-18 ${borderColor}`}
       onClick={() => setIsContentVisible(!isContentVisible)}
     >
       {/* Top-left label badge */}

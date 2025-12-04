@@ -63,7 +63,7 @@ function PromptCard({
   return (
     <div
       data-testid="prompt-card"
-      className="border rounded-lg p-4 bg-(--background-lightest) min-w-80"
+      className="border rounded-lg p-4 bg-[var(--background-lightest)] min-w-80"
     >
       <div className="space-y-2">
         <div className="flex items-start justify-between">

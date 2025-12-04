@@ -24,7 +24,7 @@ export const DyadAddDependency: React.FC<DyadAddDependencyProps> = ({
 
   return (
     <div
-      className={`bg-(--background-lightest) dark:bg-gray-900 hover:bg-(--background-lighter) rounded-lg px-4 py-3 border my-2 border-border ${
+      className={`bg-[var(--background-lightest)] dark:bg-gray-900 hover:bg-[var(--background-lighter)] rounded-lg px-4 py-3 border my-2 border-border ${
         hasChildren ? "cursor-pointer" : ""
       }`}
       onClick={

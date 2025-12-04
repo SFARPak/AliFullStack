@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This integrated test plan combines the UI Selenium test plan and functional Selenium test plan into a comprehensive testing strategy for the AliFullStack (Dyad) Electron application. The plan ensures complete coverage of all critical application areas while eliminating overlaps between UI-focused and functionally-focused tests.
+This integrated test plan combines the UI Selenium test plan and functional Selenium test plan into a comprehensive testing strategy for the AliFullStack (AliFullstack) Electron application. The plan ensures complete coverage of all critical application areas while eliminating overlaps between UI-focused and functionally-focused tests.
 
 **Key Integration Principles:**
 - **UI Tests**: Focus on interface interactions, visual elements, and user experience

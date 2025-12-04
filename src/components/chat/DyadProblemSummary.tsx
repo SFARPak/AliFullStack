@@ -96,7 +96,7 @@ export const DyadProblemSummary: React.FC<DyadProblemSummaryProps> = ({
 
   return (
     <div
-      className="bg-(--background-lightest) hover:bg-(--background-lighter) rounded-lg px-4 py-2 border border-border my-2 cursor-pointer"
+      className="bg-[var(--background-lightest)] hover:bg-[var(--background-lighter)] rounded-lg px-4 py-2 border border-border my-2 cursor-pointer"
       onClick={() => setIsContentVisible(!isContentVisible)}
       data-testid="problem-summary"
     >

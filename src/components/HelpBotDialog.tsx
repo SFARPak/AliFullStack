@@ -179,7 +179,7 @@ export function HelpBotDialog({ isOpen, onClose }: HelpBotDialogProps) {
               </div>
             </div>
           )}
-          <div className="flex-1 overflow-auto rounded-md border p-3 bg-(--background-lightest)">
+          <div className="flex-1 overflow-auto rounded-md border p-3 bg-[var(--background-lightest)]">
             {messages.length === 0 ? (
               <div className="space-y-3">
                 <div className="text-sm text-muted-foreground">

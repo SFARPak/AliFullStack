@@ -133,7 +133,7 @@ export function SetupBanner() {
 
   return (
     <>
-      <p className="text-xl text-zinc-700 dark:text-zinc-300 p-4">Setup Dyad</p>
+      <p className="text-xl text-zinc-700 dark:text-zinc-300 p-4">AliFullstack</p>
       <div className={bannerClasses}>
         <Accordion
           type="multiple"

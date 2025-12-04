@@ -193,7 +193,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
             onClick={() => router.history.back()}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 mb-4 bg-(--background-lightest) py-5"
+            className="flex items-center gap-2 mb-4 bg-[var(--background-lightest)] py-5"
           >
             <ArrowLeft className="h-4 w-4" />
             Go Back
@@ -222,7 +222,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
             onClick={() => router.history.back()}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 mb-4 bg-(--background-lightest) py-5"
+            className="flex items-center gap-2 mb-4 bg-[var(--background-lightest)] py-5"
           >
             <ArrowLeft className="h-4 w-4" />
             Go Back
@@ -284,7 +284,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
         )}
 
         {isDyad && !settingsLoading && (
-          <div className="mt-6 flex items-center justify-between p-4 bg-(--background-lightest) rounded-lg border">
+          <div className="mt-6 flex items-center justify-between p-4 bg-[var(--background-lightest)] rounded-lg border">
             <div>
               <h3 className="font-medium">Enable Dyad Pro</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">

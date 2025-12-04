@@ -242,7 +242,7 @@ export function BackendChatHeader({
             <button
               data-testid="toggle-todo-panel-button"
               onClick={onToggleTodo}
-              className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
+              className="cursor-pointer p-2 hover:bg-[var(--background-lightest)] rounded-md"
             >
               <CheckSquare size={20} className={isTodoPanelOpen ? "text-primary" : ""} />
             </button>
@@ -250,7 +250,7 @@ export function BackendChatHeader({
           <button
             data-testid="toggle-preview-panel-button"
             onClick={onTogglePreview}
-            className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
+            className="cursor-pointer p-2 hover:bg-[var(--background-lightest)] rounded-md"
           >
             {isPreviewOpen ? (
               <PanelRightClose size={20} />

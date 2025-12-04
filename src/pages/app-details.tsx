@@ -208,7 +208,7 @@ export default function AppDetailsPage() {
           onClick={() => router.history.back()}
           variant="outline"
           size="sm"
-          className="absolute top-4 left-4 flex items-center gap-1 bg-(--background-lightest) py-5"
+          className="absolute top-4 left-4 flex items-center gap-1 bg-[var(--background-lightest)] py-5"
         >
           <ArrowLeft className="h-3 w-4" />
           Back
@@ -231,7 +231,7 @@ export default function AppDetailsPage() {
         onClick={() => router.history.back()}
         variant="outline"
         size="sm"
-        className="absolute top-4 left-4 flex items-center gap-1 bg-(--background-lightest) py-2"
+        className="absolute top-4 left-4 flex items-center gap-1 bg-[var(--background-lightest)] py-2"
       >
         <ArrowLeft className="h-3 w-4" />
         Back

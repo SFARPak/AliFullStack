@@ -112,7 +112,7 @@ const TreeNode = ({ node, level }: TreeNodeProps) => {
   return (
     <li className="py-0.5">
       <div
-        className="flex items-center hover:bg-(--sidebar) rounded cursor-pointer px-1.5 py-0.5 text-sm"
+        className="flex items-center hover:bg-[var(--sidebar)] rounded cursor-pointer px-1.5 py-0.5 text-sm"
         onClick={handleClick}
       >
         {node.isDirectory && (

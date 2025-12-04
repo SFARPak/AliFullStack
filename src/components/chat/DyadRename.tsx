@@ -24,7 +24,7 @@ export const DyadRename: React.FC<DyadRenameProps> = ({
   const toFileName = to ? to.split("/").pop() : "";
 
   return (
-    <div className="bg-(--background-lightest) rounded-lg px-4 py-2 border border-amber-500 my-2">
+    <div className="bg-[var(--background-lightest)] rounded-lg px-4 py-2 border border-amber-500 my-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileEdit size={16} className="text-amber-500" />

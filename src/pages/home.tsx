@@ -249,7 +249,7 @@ export default function HomePage() {
 
       {/* Release Notes Dialog */}
       <Dialog open={releaseNotesOpen} onOpenChange={setReleaseNotesOpen}>
-        <DialogContent className="max-w-4xl bg-(--docs-bg) pr-0 pt-4 pl-4 gap-1">
+        <DialogContent className="max-w-4xl bg-[var(--docs-bg)] pr-0 pt-4 pl-4 gap-1">
           <DialogHeader>
             <DialogTitle>What's new in v{appVersion}?</DialogTitle>
             <Button

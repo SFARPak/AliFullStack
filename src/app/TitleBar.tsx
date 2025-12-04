@@ -77,7 +77,7 @@ export const TitleBar = () => {
 
   return (
     <>
-      <div className="@container z-11 w-full h-11 bg-(--sidebar) absolute top-0 left-0 app-region-drag flex items-center">
+      <div className="@container z-11 w-full h-11 bg-[var(--sidebar)] absolute top-0 left-0 app-region-drag flex items-center">
         <div className="flex items-center flex-shrink-0">
           <div className={`${showWindowControls ? "pl-2" : "pl-18"}`}></div>
           <img src={logo} alt="AliFullStack Logo" className="w-12 h-8" />

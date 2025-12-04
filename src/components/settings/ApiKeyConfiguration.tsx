@@ -94,7 +94,7 @@ export function ApiKeyConfiguration({
     >
       <AccordionItem
         value="settings-key"
-        className="border rounded-lg px-4 bg-(--background-lightest)"
+        className="border rounded-lg px-4 bg-[var(--background-lightest)]"
       >
         <AccordionTrigger className="text-lg font-medium hover:no-underline cursor-pointer">
           API Key from Settings
@@ -158,7 +158,7 @@ export function ApiKeyConfiguration({
       {!isDyad && envVarName && (
         <AccordionItem
           value="env-key"
-          className="border rounded-lg px-4 bg-(--background-lightest)"
+          className="border rounded-lg px-4 bg-[var(--background-lightest)]"
         >
           <AccordionTrigger className="text-lg font-medium hover:no-underline cursor-pointer">
             API Key from Environment Variable

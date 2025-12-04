@@ -30,7 +30,7 @@ function getKeyButtonText({
   if (isDyad) {
     return isConfigured
       ? "Manage Dyad Pro Subscription"
-      : "Setup Dyad Pro Subscription";
+      : "AliFullstack Pro Subscription";
   }
   return isConfigured ? "Manage API Keys" : "Setup API Key";
 }
@@ -57,7 +57,7 @@ export function ProviderSettingsHeader({
         onClick={onBackClick}
         variant="outline"
         size="sm"
-        className="flex items-center gap-2 mb-4 bg-(--background-lightest) py-5"
+        className="flex items-center gap-2 mb-4 bg-[var(--background-lightest)] py-5"
       >
         <ArrowLeft className="h-4 w-4" />
         Go Back

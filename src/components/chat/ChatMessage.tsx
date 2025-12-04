@@ -61,7 +61,7 @@ const ChatMessage = ({ message, isLastMessage }: ChatMessageProps) => {
       <div className={`mt-2 w-full max-w-3xl mx-auto group`}>
         <div
           className={`rounded-lg p-2 ${
-            message.role === "assistant" ? "" : "ml-24 bg-(--sidebar-accent)"
+            message.role === "assistant" ? "" : "ml-24 bg-[var(--sidebar-accent)]"
           }`}
         >
           {message.role === "assistant" &&
@@ -70,7 +70,7 @@ const ChatMessage = ({ message, isLastMessage }: ChatMessageProps) => {
           isLastMessage ? (
             <div className="flex h-6 items-center space-x-2 p-2">
               <motion.div
-                className="h-3 w-3 rounded-full bg-(--primary) dark:bg-blue-500"
+                className="h-3 w-3 rounded-full bg-[var(--primary)] dark:bg-blue-500"
                 animate={{ y: [0, -12, 0] }}
                 transition={{
                   repeat: Number.POSITIVE_INFINITY,
@@ -80,7 +80,7 @@ const ChatMessage = ({ message, isLastMessage }: ChatMessageProps) => {
                 }}
               />
               <motion.div
-                className="h-3 w-3 rounded-full bg-(--primary) dark:bg-blue-500"
+                className="h-3 w-3 rounded-full bg-[var(--primary)] dark:bg-blue-500"
                 animate={{ y: [0, -12, 0] }}
                 transition={{
                   repeat: Number.POSITIVE_INFINITY,
@@ -91,7 +91,7 @@ const ChatMessage = ({ message, isLastMessage }: ChatMessageProps) => {
                 }}
               />
               <motion.div
-                className="h-3 w-3 rounded-full bg-(--primary) dark:bg-blue-500"
+                className="h-3 w-3 rounded-full bg-[var(--primary)] dark:bg-blue-500"
                 animate={{ y: [0, -12, 0] }}
                 transition={{
                   repeat: Number.POSITIVE_INFINITY,
@@ -112,9 +112,9 @@ const ChatMessage = ({ message, isLastMessage }: ChatMessageProps) => {
                   <DyadMarkdownParser content={message.content} />
                   {isLastMessage && isStreaming && (
                     <div className="mt-4 ml-4 relative w-5 h-5 animate-spin">
-                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-(--primary) dark:bg-blue-500 rounded-full"></div>
-                      <div className="absolute bottom-0 left-0 w-2 h-2 bg-(--primary) dark:bg-blue-500 rounded-full opacity-80"></div>
-                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-(--primary) dark:bg-blue-500 rounded-full opacity-60"></div>
+                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-[var(--primary)] dark:bg-blue-500 rounded-full"></div>
+                      <div className="absolute bottom-0 left-0 w-2 h-2 bg-[var(--primary)] dark:bg-blue-500 rounded-full opacity-80"></div>
+                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-[var(--primary)] dark:bg-blue-500 rounded-full opacity-60"></div>
                     </div>
                   )}
                 </>

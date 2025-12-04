@@ -19,7 +19,7 @@ export function PrivacyBanner() {
     return null;
   }
   return (
-    <div className="fixed bg-(--background)/90 bottom-4 right-4  backdrop-blur-md border border-gray-200 dark:border-gray-700 p-4 rounded-lg shadow-lg z-50 max-w-md">
+    <div className="fixed bg-[var(--background)]/90 bottom-4 right-4  backdrop-blur-md border border-gray-200 dark:border-gray-700 p-4 rounded-lg shadow-lg z-50 max-w-md">
       <div className="flex flex-col gap-3">
         <div>
           <h4 className="text-base font-semibold text-gray-800 dark:text-gray-200">

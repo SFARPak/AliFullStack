@@ -1,0 +1,36 @@
+name: Download Links
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Read Table
+        id: read_table
+        run: |
+          TABLE=$(cat README.md | grep -E '^[|].*[|].*[|]$' | awk 'NR>1 {print $2, $3, $4}' | sed 's/^[ \t]*//;s/[ \t]*$//')
+          echo "::set-output name=table::$(echo "$TABLE")"
+
+      - name: Generate Download Links
+        id: generate_links
+        run: |
+          LINKS=""
+          IFS=$'\n'
+          for row in ${{ steps.read_table.outputs.table }}; do
+            OS=$(echo "$row" | awk '{print $1}')
+            PAGE=$(echo "$row" | awk '{print $2}')
+            MIRROR=$(echo "$row" | awk '{print $3}')
+
+            LINKS="$LINKS- **$OS:**\n  - [Download Page]($PAGE)\n  - [Download Mirror]($MIRROR)\n"
+          done
+          echo "::set-output name=links::$(echo "$LINKS")"
+
+      - name: Display Download Links
+        run: |
+          echo "Download Links:"
+          echo "${{ steps.generate_links.outputs.links }}"

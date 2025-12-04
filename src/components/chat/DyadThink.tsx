@@ -43,7 +43,7 @@ export const DyadThink: React.FC<DyadThinkProps> = ({ children, node }) => {
 
   return (
     <div
-      className={`relative bg-(--background-lightest) dark:bg-zinc-900 hover:bg-(--background-lighter) rounded-lg px-4 py-2 border my-2 cursor-pointer ${
+      className={`relative bg-[var(--background-lightest)] dark:bg-zinc-900 hover:bg-[var(--background-lighter)] rounded-lg px-4 py-2 border my-2 cursor-pointer ${
         inProgress ? "border-purple-500" : "border-border"
       }`}
       onClick={() => setIsExpanded(!isExpanded)}
