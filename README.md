@@ -19,7 +19,7 @@ AliFullstack builds on top of other awesome open-source projects:
 - [Roo-Code](https://github.com/RooCodeInc/Roo-Code)
 - [React](https://github.com/facebook/react)
 - [NextJS](https://github.com/vercel/next.js)
--[Vue](https://github.com/vuejs/core)
+- [Vue](https://github.com/vuejs/core)
 - [Django](https://github.com/django/django)
 - [FastAPI](https://github.com/fastapi/fastapi)
 - [Flask](https://github.com/pallets/flask)
@@ -122,23 +122,23 @@ No sign-up. No cloud lock-in. Just download and build.
 <tr>
 <th>Operating System</th>
 <th>Download</th>
-<th>Alternative Download</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Windows_11_logo.svg" style="width: 80px;"/></td>
-<td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="Windows x64" src="https://img.shields.io/badge/Windows%20x64-0078D4?style=for-the-badge&logo=windows&logoColor=white"/></a></p></td>
-<td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="Windows arm64" src="https://img.shields.io/badge/Windows%20arm64-0078D4?style=for-the-badge&logo=windows&logoColor=white"/></a></p></td>
+<td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="Windows" src="https://img.shields.io/badge/Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white"/></a></p></td>
 </tr>
 <tr>
 <td><img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" style="width: 80px;"/></td>
-<td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="Linux x64" src="https://img.shields.io/badge/Linux%20x64-FF6900?style=for-the-badge&logo=linux&logoColor=black"/></a></p></td>
-<td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="Linux arm64" src="https://img.shields.io/badge/Linux%20arm64-FF6900?style=for-the-badge&logo=linux&logoColor=black"/></a></p></td>
+<td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="Linux Ubuntu" src="https://img.shields.io/badge/Linux%20Ubuntu-FF6900?style=for-the-badge&logo=ubuntu&logoColor=white"/></a></p></td>
 </tr>
 <tr>
-<td><img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" style="width: 80px;"/></td>
+<td><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Logo_Apple.svg" style="width: 80px;"/></td>
 <td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="macOS Intel" src="https://img.shields.io/badge/macOS%20Intel-000000?style=for-the-badge&logo=apple&logoColor=white"/></a></p></td>
+</tr>
+<tr>
+<td><img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Logo_Apple.svg" style="width: 80px;"/></td>
 <td><p><a href="https://github.com/SFARPak/AliFullStack/releases/latest"><img alt="macOS Apple Silicon" src="https://img.shields.io/badge/macOS%20Apple%20Silicon-000000?style=for-the-badge&logo=apple&logoColor=white"/></a></p></td>
 </tr>
 </tbody>
