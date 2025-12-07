@@ -31,12 +31,12 @@ export function getTypeScriptCachePath(): string {
 export function getUserDataPath(): string {
   const electron = getElectron();
 
-  // When running in Electron and app is ready
-  if (process.env.NODE_ENV !== "development" && electron) {
-    return electron!.app.getPath("userData");
+  // When running in Electron
+  if (electron) {
+    return electron.app.getPath("userData");
   }
 
-  // For development or when the Electron app object isn't available
+  // When the Electron app object isn't available
   return path.resolve("./userData");
 }
 
