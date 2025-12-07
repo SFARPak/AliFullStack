@@ -14,8 +14,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { refreshAppIframe } = useRunApp();
-  const previewMode = useAtomValue(previewModeAtom);
+  console.log("RootLayout rendering");
+  try {
+    const { refreshAppIframe } = useRunApp();
+    console.log("useRunApp hook called successfully");
+    const previewMode = useAtomValue(previewModeAtom);
+    console.log("previewMode:", previewMode);
   // Global keyboard listener for refresh events
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -37,6 +41,7 @@ export default function RootLayout({
     };
   }, [refreshAppIframe, previewMode]);
 
+  console.log("RootLayout about to return JSX");
   return (
     <>
       <ThemeProvider>
@@ -53,4 +58,8 @@ export default function RootLayout({
       </ThemeProvider>
     </>
   );
+  } catch (error) {
+    console.error("Error in RootLayout:", error);
+    return <div>Error loading layout</div>;
+  }
 }

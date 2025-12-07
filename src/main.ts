@@ -292,6 +292,8 @@ async function handleDeepLinkReturn(url: string) {
       // Send message to renderer to trigger re-render
       mainWindow?.webContents.send("deep-link-received", {
         type: parsed.hostname,
+        code,
+        state,
       });
       // Focus the main window to bring app to front after authentication
       if (mainWindow) {

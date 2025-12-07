@@ -4,6 +4,8 @@
 
 These rules define how to create a **modern 3D landing page** with Webflow-like aesthetics using **React, TypeScript, Tailwind CSS, and open-source 3D libraries** such as Three.js, React Three Fiber, and Spline alternatives.
 
+- Before starting anything create a detailed development plan as development_plan.md in the app directory and write detailed development plan along with TODOs.
+
 ---
 
 ## Core Tech Stack

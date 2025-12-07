@@ -3,14 +3,17 @@ import os from "node:os";
 import { IS_TEST_BUILD } from "../ipc/utils/test_utils";
 
 export function getAliFullStackAppPath(appPath: string): string {
-  if (IS_TEST_BUILD) {
-    const electron = getElectron();
+  const electron = getElectron();
+  if (electron) {
+    // In Electron environment (including release mode), use userData directory
+    // to ensure writability and avoid read-only installation directories
     return path.join(
-      electron!.app.getPath("userData"),
+      electron.app.getPath("userData"),
       "alifullstack-apps",
       appPath,
     );
   }
+  // Fallback for non-Electron environments
   return path.join(os.homedir(), "alifullstack-apps", appPath);
 }
 

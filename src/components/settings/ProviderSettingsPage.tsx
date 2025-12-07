@@ -11,7 +11,11 @@ import {} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { showError } from "@/lib/toast";
-import { UserSettings } from "@/lib/schemas";
+import {
+  UserSettings,
+  AzureProviderSetting,
+  VertexProviderSetting,
+} from "@/lib/schemas";
 
 import { ProviderSettingsHeader } from "./ProviderSettingsHeader";
 import { ApiKeyConfiguration } from "./ApiKeyConfiguration";
@@ -39,6 +43,15 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
 
   // Find the specific provider data from the fetched list
   const providerData = allProviders?.find((p) => p.id === provider);
+  useEffect(() => {
+    const layoutMainContentContainer = document.getElementById(
+      "layout-main-content-container",
+    );
+    if (layoutMainContentContainer) {
+      layoutMainContentContainer.scrollTo(0, 0);
+    }
+  }, [providerData?.id]);
+
   const supportsCustomModels =
     providerData?.type === "custom" || providerData?.type === "cloud";
 
@@ -54,7 +67,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
     ? "Dyad"
     : (providerData?.name ?? "Unknown Provider");
   const providerWebsiteUrl = isDyad
-    ? "https://academy.alifullstack.alitech.io/settings"
+    ? "https://academy.dyad.sh/settings"
     : providerData?.websiteUrl;
   const hasFreeTier = isDyad ? false : providerData?.hasFreeTier;
   const envVarName = isDyad ? undefined : providerData?.envVarName;
@@ -69,19 +82,33 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
     userApiKey !== "Not Set";
   const hasEnvKey = !!(envVarName && envVars[envVarName]);
 
-  // Special handling for Azure OpenAI configuration
-  const isAzureConfigured =
-    provider === "azure"
-      ? !!(envVars["AZURE_API_KEY"] && envVars["AZURE_RESOURCE_NAME"])
-      : false;
+  const azureSettings = settings?.providerSettings?.azure as
+    | AzureProviderSetting
+    | undefined;
+  const azureApiKeyFromSettings = (azureSettings?.apiKey?.value ?? "").trim();
+  const azureResourceNameFromSettings = (
+    azureSettings?.resourceName ?? ""
+  ).trim();
+  const azureHasSavedSettings = Boolean(
+    azureApiKeyFromSettings && azureResourceNameFromSettings,
+  );
+  const azureHasEnvConfiguration = Boolean(
+    envVars["AZURE_API_KEY"] && envVars["AZURE_RESOURCE_NAME"],
+  );
 
-  // Special handling for Vertex configuration status
-  const vertexSettings = settings?.providerSettings?.vertex as any;
+  const vertexSettings = settings?.providerSettings?.vertex as
+    | VertexProviderSetting
+    | undefined;
   const isVertexConfigured = Boolean(
     vertexSettings?.projectId &&
       vertexSettings?.location &&
       vertexSettings?.serviceAccountKey?.value,
   );
+
+  const isAzureConfigured =
+    provider === "azure"
+      ? azureHasSavedSettings || azureHasEnvConfiguration
+      : false;
 
   const isConfigured =
     provider === "azure"
@@ -91,8 +118,8 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
         : isValidUserKey || hasEnvKey; // Configured if either is set
 
   // --- Save Handler ---
-  const handleSaveKey = async () => {
-    if (!apiKeyInput) {
+  const handleSaveKey = async (value: string) => {
+    if (!value.trim()) {
       setSaveError("API Key cannot be empty.");
       return;
     }
@@ -105,13 +132,13 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
           [provider]: {
             ...settings?.providerSettings?.[provider],
             apiKey: {
-              value: apiKeyInput,
+              value,
             },
           },
         },
       };
       if (isDyad) {
-        settingsUpdate.enableAliFullStackPro = true;
+        settingsUpdate.enableDyadPro = true;
       }
       await updateSettings(settingsUpdate);
       setApiKeyInput(""); // Clear input on success
@@ -152,7 +179,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
     setIsSaving(true);
     try {
       await updateSettings({
-        enableAliFullStackPro: enabled,
+        enableDyadPro: enabled,
       });
     } catch (error: any) {
       showError(`Error toggling Dyad Pro: ${error}`);
@@ -193,7 +220,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
             onClick={() => router.history.back()}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 mb-4 bg-[var(--background-lightest)] py-5"
+            className="flex items-center gap-2 mb-4 bg-(--background-lightest) py-5"
           >
             <ArrowLeft className="h-4 w-4" />
             Go Back
@@ -222,7 +249,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
             onClick={() => router.history.back()}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 mb-4 bg-[var(--background-lightest)] py-5"
+            className="flex items-center gap-2 mb-4 bg-(--background-lightest) py-5"
           >
             <ArrowLeft className="h-4 w-4" />
             Go Back
@@ -280,11 +307,12 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
             onSaveKey={handleSaveKey}
             onDeleteKey={handleDeleteKey}
             isDyad={isDyad}
+            updateSettings={updateSettings}
           />
         )}
 
         {isDyad && !settingsLoading && (
-          <div className="mt-6 flex items-center justify-between p-4 bg-[var(--background-lightest)] rounded-lg border">
+          <div className="mt-6 flex items-center justify-between p-4 bg-(--background-lightest) rounded-lg border">
             <div>
               <h3 className="font-medium">Enable Dyad Pro</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -292,7 +320,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
               </p>
             </div>
             <Switch
-              checked={settings?.enableAliFullStackPro}
+              checked={settings?.enableDyadPro}
               onCheckedChange={handleToggleDyadPro}
               disabled={isSaving}
             />

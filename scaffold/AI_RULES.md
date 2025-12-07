@@ -25,6 +25,7 @@ Available packages and libraries:
 
 ## TL;DR Quick Rules
 
+- Before starting anything create a detailed development plan as development_plan.md in the app directory and write detailed development plan along with TODOs.
 - Use **React + TypeScript**.
 - Keep routes in `src/App.tsx`.
 - Pages → `src/pages/`, Components → `src/components/`.

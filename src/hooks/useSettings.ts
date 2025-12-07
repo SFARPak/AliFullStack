@@ -6,8 +6,8 @@ import { type UserSettings } from "@/lib/schemas";
 import { usePostHog } from "posthog-js/react";
 import { useAppVersion } from "./useAppVersion";
 
-const TELEMETRY_CONSENT_KEY = "alifullstackTelemetryConsent";
-const TELEMETRY_USER_ID_KEY = "alifullstackTelemetryUserId";
+const TELEMETRY_CONSENT_KEY = "dyadTelemetryConsent";
+const TELEMETRY_USER_ID_KEY = "dyadTelemetryUserId";
 
 export function isTelemetryOptedIn() {
   return window.localStorage.getItem(TELEMETRY_CONSENT_KEY) === "opted_in";

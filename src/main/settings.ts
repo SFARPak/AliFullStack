@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   enableProLazyEditsMode: true,
   enableProSmartFilesContextMode: true,
   selectedChatMode: "build",
-  enableAutoFixProblems: true,
+  enableAutoFixProblems: false,
   enableAutoUpdate: true,
   releaseChannel: "stable",
   selectedTemplateId: DEFAULT_TEMPLATE_ID,
@@ -134,7 +134,10 @@ export function readSettings(): UserSettings {
 
     // Validate and merge with defaults
     const validatedSettings = UserSettingsSchema.parse(combinedSettings);
-
+    // "conservative" is deprecated, use undefined to use the default value
+    if (validatedSettings.proSmartContextOption === "conservative") {
+      validatedSettings.proSmartContextOption = undefined;
+    }
     return validatedSettings;
   } catch (error) {
     logger.error("Error reading settings:", error);

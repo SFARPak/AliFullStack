@@ -1,4 +1,5 @@
 # Tech Stack
+- Before starting anything create a detailed development plan as development_plan.md in the app directory and write detailed development plan along with TODOs.
 - You are building a Next.js application.
 - Use TypeScript.
 - Use Next.js App Router (app directory).

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { ProviderSettingsGrid } from "@/components/ProviderSettings";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
@@ -11,7 +11,7 @@ import { ThinkingBudgetSelector } from "@/components/ThinkingBudgetSelector";
 import { useSettings } from "@/hooks/useSettings";
 import { useAppVersion } from "@/hooks/useAppVersion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { GitHubIntegration } from "@/components/GitHubIntegration";
 import { VercelIntegration } from "@/components/VercelIntegration";
@@ -24,16 +24,23 @@ import { AutoUpdateSwitch } from "@/components/AutoUpdateSwitch";
 import { ReleaseChannelSelector } from "@/components/ReleaseChannelSelector";
 import { NeonIntegration } from "@/components/NeonIntegration";
 import { RuntimeModeSelector } from "@/components/RuntimeModeSelector";
+import { NodePathSelector } from "@/components/NodePathSelector";
+import { ToolsMcpSettings } from "@/components/settings/ToolsMcpSettings";
+import { ZoomSelector } from "@/components/ZoomSelector";
+import { useSetAtom } from "jotai";
+import { activeSettingsSectionAtom } from "@/atoms/viewAtoms";
 
 export default function SettingsPage() {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
-  const [isDeleteAllAppsDialogOpen, setIsDeleteAllAppsDialogOpen] =
-    useState(false);
-  const [isDeletingAllApps, setIsDeletingAllApps] = useState(false);
   const appVersion = useAppVersion();
   const { settings, updateSettings } = useSettings();
   const router = useRouter();
+  const setActiveSettingsSection = useSetAtom(activeSettingsSectionAtom);
+
+  useEffect(() => {
+    setActiveSettingsSection("general-settings");
+  }, [setActiveSettingsSection]);
 
   const handleResetEverything = async () => {
     setIsResetting(true);
@@ -52,23 +59,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteAllApps = async () => {
-    setIsDeletingAllApps(true);
-    try {
-      const ipcClient = IpcClient.getInstance();
-      await ipcClient.deleteAllApps();
-      showSuccess("Successfully deleted all apps.");
-    } catch (error) {
-      console.error("Error deleting all apps:", error);
-      showError(
-        error instanceof Error ? error.message : "An unknown error occurred",
-      );
-    } finally {
-      setIsDeletingAllApps(false);
-      setIsDeleteAllAppsDialogOpen(false);
-    }
-  };
-
   return (
     <div className="min-h-screen px-8 py-4">
       <div className="max-w-5xl mx-auto">
@@ -76,7 +66,7 @@ export default function SettingsPage() {
           onClick={() => router.history.back()}
           variant="outline"
           size="sm"
-          className="flex items-center gap-2 mb-4 bg-[var(--background-lightest)] py-5"
+          className="flex items-center gap-2 mb-4 bg-(--background-lightest) py-5"
         >
           <ArrowLeft className="h-4 w-4" />
           Go Back
@@ -139,6 +129,17 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Tools (MCP) */}
+          <div
+            id="tools-mcp"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6"
+          >
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Tools (MCP)
+            </h2>
+            <ToolsMcpSettings />
+          </div>
+
           {/* Experiments Section */}
           <div
             id="experiments"
@@ -192,28 +193,6 @@ export default function SettingsPage() {
               <div className="flex items-start justify-between flex-col sm:flex-row sm:items-center gap-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                    Delete All Apps
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    This will delete all your apps and their files. This action
-                    cannot be undone.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsDeleteAllAppsDialogOpen(true)}
-                  disabled={isDeletingAllApps}
-                  className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isDeletingAllApps && (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  )}
-                  {isDeletingAllApps ? "Deleting..." : "Delete All Apps"}
-                </button>
-              </div>
-
-              <div className="flex items-start justify-between flex-col sm:flex-row sm:items-center gap-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                     Reset Everything
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -224,9 +203,8 @@ export default function SettingsPage() {
                 <button
                   onClick={() => setIsResetDialogOpen(true)}
                   disabled={isResetting}
-                  className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isResetting && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isResetting ? "Resetting..." : "Reset Everything"}
                 </button>
               </div>
@@ -234,16 +212,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-
-      <ConfirmationDialog
-        isOpen={isDeleteAllAppsDialogOpen}
-        title="Delete All Apps"
-        message="Are you sure you want to delete all apps? This will delete all your apps and their files. This action cannot be undone."
-        confirmText="Delete All Apps"
-        cancelText="Cancel"
-        onConfirm={handleDeleteAllApps}
-        onCancel={() => setIsDeleteAllAppsDialogOpen(false)}
-      />
 
       <ConfirmationDialog
         isOpen={isResetDialogOpen}
@@ -298,6 +266,10 @@ export function GeneralSettings({ appVersion }: { appVersion: string | null }) {
         </div>
       </div>
 
+      <div className="mt-4">
+        <ZoomSelector />
+      </div>
+
       <div className="space-y-1 mt-4">
         <AutoUpdateSwitch />
         <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -312,6 +284,9 @@ export function GeneralSettings({ appVersion }: { appVersion: string | null }) {
 
       <div className="mt-4">
         <RuntimeModeSelector />
+      </div>
+      <div className="mt-4">
+        <NodePathSelector />
       </div>
 
       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-4">

@@ -197,6 +197,9 @@ export type ContextPathResults = {
 export const ReleaseChannelSchema = z.enum(["stable", "beta"]);
 export type ReleaseChannel = z.infer<typeof ReleaseChannelSchema>;
 
+export const ZoomLevelSchema = z.enum(["90", "100", "110", "125", "150"]);
+export type ZoomLevel = z.infer<typeof ZoomLevelSchema>;
+
 /**
  * Zod schema for user settings
  */
@@ -231,6 +234,7 @@ export const UserSettingsSchema = z.object({
   enableAutoUpdate: z.boolean(),
   releaseChannel: ReleaseChannelSchema,
   runtimeMode2: RuntimeMode2Schema.optional(),
+  zoomLevel: ZoomLevelSchema.optional(),
 
   ////////////////////////////////
   // E2E TESTING ONLY.

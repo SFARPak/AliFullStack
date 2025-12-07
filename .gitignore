@@ -101,3 +101,6 @@ out/
 sqlite.db
 userData/
 .env.local
+
+# dyad
+dyad
