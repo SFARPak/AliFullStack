@@ -640,6 +640,10 @@ export async function processFullResponseActions(
       let content: string | Buffer = tag.content;
       const fullFilePath = safeJoin(appPath, filePath);
 
+      logger.log(`[DEBUG] Processing dyad-write tag: filePath=${filePath}, appPath=${appPath}, fullFilePath=${fullFilePath}`);
+      logger.log(`[DEBUG] App path exists: ${fs.existsSync(appPath)}`);
+      logger.log(`[DEBUG] Full file path directory exists: ${fs.existsSync(path.dirname(fullFilePath))}`);
+
       try {
         // Check if this is a search_replace operation
         if (typeof content === "string" && content.startsWith("SEARCH_REPLACE:")) {
@@ -649,11 +653,15 @@ export async function processFullResponseActions(
             const oldString = parts[1];
             const newString = parts.slice(2).join(":");
 
+            logger.log(`[DEBUG] Search-replace operation: oldString length=${oldString.length}, newString length=${newString.length}`);
+
             if (fs.existsSync(fullFilePath)) {
               let fileContent = fs.readFileSync(fullFilePath, 'utf8');
+              logger.log(`[DEBUG] Original file content length: ${fileContent.length}`);
 
               if (fileContent.includes(oldString)) {
                 fileContent = fileContent.replace(oldString, newString);
+                logger.log(`[DEBUG] About to write search-replace result, new content length: ${fileContent.length}`);
                 fs.writeFileSync(fullFilePath, fileContent);
                 logger.log(`Successfully applied search_replace to file: ${fullFilePath}`);
                 writtenFiles.push(filePath);
@@ -715,11 +723,15 @@ export async function processFullResponseActions(
 
           // Ensure directory exists
           const dirPath = path.dirname(fullFilePath);
+          logger.log(`[DEBUG] Ensuring directory exists: ${dirPath}`);
           fs.mkdirSync(dirPath, { recursive: true });
+          logger.log(`[DEBUG] Directory creation result: ${fs.existsSync(dirPath)}`);
 
           // Write file content
+          logger.log(`[DEBUG] About to write file content, content type: ${typeof content}, length: ${content.length}`);
           fs.writeFileSync(fullFilePath, content);
           logger.log(`Successfully wrote file: ${fullFilePath}`);
+          logger.log(`[DEBUG] File write verification: ${fs.existsSync(fullFilePath)}`);
           writtenFiles.push(filePath);
 
           // Handle Supabase function deployment
@@ -750,6 +762,11 @@ export async function processFullResponseActions(
           }, "File write commit", filePath);
         }
       } catch (error) {
+        logger.error(`[DEBUG] Failed to write file: ${filePath}, error:`, error);
+        logger.error(`[DEBUG] Full file path: ${fullFilePath}`);
+        logger.error(`[DEBUG] App path: ${appPath}`);
+        logger.error(`[DEBUG] Directory path: ${path.dirname(fullFilePath)}`);
+        logger.error(`[DEBUG] Directory exists: ${fs.existsSync(path.dirname(fullFilePath))}`);
         errors.push({
           message: `Failed to write file: ${filePath}`,
           error: error,
@@ -762,6 +779,10 @@ export async function processFullResponseActions(
       const filePath = tag.path;
       let content: string | Buffer = tag.content;
       const fullFilePath = safeJoin(appPath, filePath);
+
+      logger.log(`[DEBUG] Processing write_to_file tag: filePath=${filePath}, appPath=${appPath}, fullFilePath=${fullFilePath}`);
+      logger.log(`[DEBUG] App path exists: ${fs.existsSync(appPath)}`);
+      logger.log(`[DEBUG] Full file path directory exists: ${fs.existsSync(path.dirname(fullFilePath))}`);
 
       try {
         // Check if content (stripped of whitespace) exactly matches a file ID and replace with actual file content
@@ -790,11 +811,15 @@ export async function processFullResponseActions(
 
         // Ensure directory exists
         const dirPath = path.dirname(fullFilePath);
+        logger.log(`[DEBUG] Ensuring directory exists: ${dirPath}`);
         fs.mkdirSync(dirPath, { recursive: true });
+        logger.log(`[DEBUG] Directory creation result: ${fs.existsSync(dirPath)}`);
 
         // Write file content
+        logger.log(`[DEBUG] About to write file content, content type: ${typeof content}, length: ${content.length}`);
         fs.writeFileSync(fullFilePath, content);
         logger.log(`Successfully wrote file via write_to_file tag: ${fullFilePath}`);
+        logger.log(`[DEBUG] File write verification: ${fs.existsSync(fullFilePath)}`);
         writtenFiles.push(filePath);
 
         // Handle Supabase function deployment
@@ -824,6 +849,11 @@ export async function processFullResponseActions(
           return commitHash;
         }, "Write to file commit", filePath);
       } catch (error) {
+        logger.error(`[DEBUG] Failed to write file via write_to_file tag: ${filePath}, error:`, error);
+        logger.error(`[DEBUG] Full file path: ${fullFilePath}`);
+        logger.error(`[DEBUG] App path: ${appPath}`);
+        logger.error(`[DEBUG] Directory path: ${path.dirname(fullFilePath)}`);
+        logger.error(`[DEBUG] Directory exists: ${fs.existsSync(path.dirname(fullFilePath))}`);
         errors.push({
           message: `Failed to write file via write_to_file tag: ${filePath}`,
           error: error,
@@ -836,16 +866,25 @@ export async function processFullResponseActions(
       const filePath = tag.file;
       const fullFilePath = safeJoin(appPath, filePath);
 
+      logger.log(`[DEBUG] Processing search_replace tag: filePath=${filePath}, appPath=${appPath}, fullFilePath=${fullFilePath}`);
+      logger.log(`[DEBUG] App path exists: ${fs.existsSync(appPath)}`);
+      logger.log(`[DEBUG] Full file path directory exists: ${fs.existsSync(path.dirname(fullFilePath))}`);
+      logger.log(`[DEBUG] File exists: ${fs.existsSync(fullFilePath)}`);
+
       try {
         if (fs.existsSync(fullFilePath)) {
           let fileContent = fs.readFileSync(fullFilePath, 'utf8');
+          logger.log(`[DEBUG] Original file content length: ${fileContent.length}`);
 
           // Replace old_string with new_string
           const oldString = tag.old_string.replace(/"/g, '"').replace(/</g, '<').replace(/>/g, '>').replace(/&/g, '&');
           const newString = tag.new_string.replace(/"/g, '"').replace(/</g, '<').replace(/>/g, '>').replace(/&/g, '&');
 
+          logger.log(`[DEBUG] Search-replace: oldString length=${oldString.length}, newString length=${newString.length}`);
+
           if (fileContent.includes(oldString)) {
             fileContent = fileContent.replace(oldString, newString);
+            logger.log(`[DEBUG] About to write search-replace result, new content length: ${fileContent.length}`);
             fs.writeFileSync(fullFilePath, fileContent);
             logger.log(`Successfully applied search_replace to file: ${fullFilePath}`);
             writtenFiles.push(filePath);
@@ -879,7 +918,12 @@ export async function processFullResponseActions(
           });
         }
       } catch (error) {
-        logger.error(`Failed to apply search_replace to file: ${fullFilePath}`, error);
+        logger.error(`[DEBUG] Failed to apply search_replace to file: ${fullFilePath}, error:`, error);
+        logger.error(`[DEBUG] File path: ${filePath}`);
+        logger.error(`[DEBUG] App path: ${appPath}`);
+        logger.error(`[DEBUG] Directory path: ${path.dirname(fullFilePath)}`);
+        logger.error(`[DEBUG] Directory exists: ${fs.existsSync(path.dirname(fullFilePath))}`);
+        logger.error(`[DEBUG] File exists: ${fs.existsSync(fullFilePath)}`);
         errors.push({
           message: `Failed to apply search_replace to file: ${filePath}`,
           error: error,

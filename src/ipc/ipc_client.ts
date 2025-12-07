@@ -102,6 +102,8 @@ export interface GitHubDeviceFlowErrorData {
 
 export interface DeepLinkData {
   type: string;
+  code?: string;
+  state?: string;
 }
 
 interface DeleteCustomModelParams {
@@ -272,6 +274,9 @@ export class IpcClient {
 
   public static getInstance(): IpcClient {
     if (!IpcClient.instance) {
+      if (!(window as any).electron) {
+        throw new Error("Cannot create IpcClient: window.electron is not available. This app must be run in an Electron environment.");
+      }
       IpcClient.instance = new IpcClient();
     }
     return IpcClient.instance;

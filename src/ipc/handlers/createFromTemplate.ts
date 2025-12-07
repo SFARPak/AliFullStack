@@ -6,8 +6,70 @@ import { app } from "electron";
 import { readSettings } from "@/main/settings";
 import { getTemplateOrThrow } from "../utils/template_utils";
 import log from "electron-log";
+import os from "os";
 
 const logger = log.scope("createFromTemplate");
+
+/**
+ * Get the effective scaffold path, handling packaged app read-only issues
+ * In packaged apps, scaffolds are in ASAR (read-only), so extract to temp directory first
+ */
+async function getEffectiveScaffoldPath(scaffoldPath: string): Promise<string> {
+  // In development, scaffolds are directly accessible
+  if (!app.isPackaged) {
+    return scaffoldPath;
+  }
+
+  // In packaged apps, scaffolds might be in read-only ASAR
+  if (!fs.existsSync(scaffoldPath)) {
+    throw new Error(`Scaffold not found at: ${scaffoldPath}`);
+  }
+
+  // Test if we can read from the scaffold path (check for read-only access)
+  try {
+    const testFile = path.join(scaffoldPath, 'AI_RULES.md');
+    if (fs.existsSync(testFile)) {
+      fs.readFileSync(testFile, 'utf8'); // Test read access
+    }
+  } catch (readError) {
+    logger.warn(`Cannot read from scaffold path ${scaffoldPath}, likely read-only ASAR:`, readError instanceof Error ? readError.message : String(readError));
+
+    // Extract scaffold to temporary directory
+    const tempDir = path.join(os.tmpdir(), 'alifullstack-scaffolds');
+    const scaffoldName = path.basename(scaffoldPath);
+    const tempScaffoldPath = path.join(tempDir, scaffoldName);
+
+    // Check if already extracted and up to date
+    if (fs.existsSync(tempScaffoldPath)) {
+      logger.info(`Using previously extracted scaffold at: ${tempScaffoldPath}`);
+      return tempScaffoldPath;
+    }
+
+    // Extract scaffold to temp directory
+    logger.info(`Extracting scaffold from ${scaffoldPath} to ${tempScaffoldPath}`);
+    await fs.ensureDir(tempDir);
+
+    try {
+      await fs.copy(scaffoldPath, tempScaffoldPath, {
+        overwrite: true,
+        recursive: true,
+        filter: (src, dest) => {
+          // Exclude node_modules and .git from extraction
+          const relativePath = path.relative(scaffoldPath, src);
+          return !relativePath.includes('node_modules') && !relativePath.includes('.git') && !relativePath.includes('.DS_Store');
+        }
+      });
+      logger.info(`Successfully extracted scaffold to: ${tempScaffoldPath}`);
+      return tempScaffoldPath;
+    } catch (extractError) {
+      logger.error(`Failed to extract scaffold:`, extractError instanceof Error ? extractError.message : String(extractError));
+      throw new Error(`Failed to extract scaffold from read-only location: ${extractError instanceof Error ? extractError.message : String(extractError)}`);
+    }
+  }
+
+  // Scaffold is readable, use directly
+  return scaffoldPath;
+}
 
 /**
  * Create essential files immediately to ensure basic functionality
@@ -542,9 +604,16 @@ export async function createFromTemplate({
       logger.info(`Setting up React scaffold in frontend folder`);
     }
 
+    logger.info(`[DEBUG] Electron app.getAppPath(): ${appPath}`);
+    logger.info(`[DEBUG] Scaffold path resolved to: ${scaffoldPath}`);
+
+    // Get effective scaffold path (handles read-only ASAR in packaged apps)
+    const actualScaffoldPath = await getEffectiveScaffoldPath(scaffoldPath);
+    logger.info(`Using effective scaffold path: ${actualScaffoldPath}`);
+
     // EMERGENCY DEBUG: Create a debug file immediately
     try {
-      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}\nTemplate: ${templateId}\nScaffold Path: ${scaffoldPath}`;
+      const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}\nTemplate: ${templateId}\nScaffold Path: ${scaffoldPath}\nApp Path: ${appPath}\nScaffold Exists: ${fs.existsSync(scaffoldPath)}\nScaffold Contents: ${fs.existsSync(scaffoldPath) ? fs.readdirSync(scaffoldPath).join(', ') : 'N/A'}`;
       await fs.writeFile(path.join(frontendPath, 'DEBUG_FULL_STACK.txt'), debugContent);
       logger.info('✅ DEBUG: Full stack debug file created');
     } catch (debugError) {
@@ -586,8 +655,6 @@ export async function createFromTemplate({
       logger.error(`Error verifying scaffold contents:`, scaffoldError);
       throw scaffoldError;
     }
-
-    const actualScaffoldPath = scaffoldPath;
 
     // IMMEDIATE FALLBACK: Create essential files right away to ensure they exist
     logger.info(`🔄 Creating essential files immediately as fallback`);
@@ -980,7 +1047,12 @@ Available packages and libraries:
         scaffoldPath = path.join(appPath, "scaffold");
       }
 
-      logger.info(`Using scaffold path: ${scaffoldPath}`);
+      logger.info(`[DEBUG] Template scaffold - Electron app.getAppPath(): ${appPath}`);
+      logger.info(`[DEBUG] Template scaffold path resolved to: ${scaffoldPath}`);
+
+      // Get effective scaffold path (handles read-only ASAR in packaged apps)
+      const actualScaffoldPath = await getEffectiveScaffoldPath(scaffoldPath);
+      logger.info(`Using effective scaffold path: ${actualScaffoldPath}`);
       if (!fs.existsSync(scaffoldPath)) {
         logger.error(`Scaffold directory not found at: ${scaffoldPath}`);
         throw new Error(`Scaffold directory not found at: ${scaffoldPath}`);
@@ -1341,15 +1413,21 @@ export async function setupBackendFramework(backendPath: string, framework: stri
     const appPath = app.getAppPath();
     const scaffoldPath = path.join(appPath, "scaffold-backend", framework);
 
-    if (fs.existsSync(scaffoldPath)) {
-      logger.info(`Found scaffold for ${framework} at ${scaffoldPath}, copying to ${backendPath}`);
+    logger.info(`[DEBUG] Backend scaffold - Electron app.getAppPath(): ${appPath}`);
+    logger.info(`[DEBUG] Backend scaffold path resolved to: ${scaffoldPath}`);
+
+    // Get effective scaffold path (handles read-only ASAR in packaged apps)
+    const actualScaffoldPath = await getEffectiveScaffoldPath(scaffoldPath);
+
+    if (fs.existsSync(actualScaffoldPath)) {
+      logger.info(`Found scaffold for ${framework} at ${actualScaffoldPath}, copying to ${backendPath}`);
 
       // Copy the scaffold-backend directory to backendPath
-      await fs.copy(scaffoldPath, backendPath, {
+      await fs.copy(actualScaffoldPath, backendPath, {
         overwrite: true,
         filter: (src, dest) => {
           // Exclude .DS_Store and other unwanted files
-          const relativePath = path.relative(scaffoldPath, src);
+          const relativePath = path.relative(actualScaffoldPath, src);
           const shouldExclude = relativePath === '.DS_Store' || relativePath.includes('.git');
           if (shouldExclude) {
             logger.debug(`Excluding ${src} from copy`);
@@ -1358,9 +1436,9 @@ export async function setupBackendFramework(backendPath: string, framework: stri
         }
       });
 
-      logger.info(`Successfully copied ${framework} scaffold from ${scaffoldPath} to ${backendPath}`);
+      logger.info(`Successfully copied ${framework} scaffold from ${actualScaffoldPath} to ${backendPath}`);
     } else {
-      logger.warn(`Scaffold not found for ${framework} at ${scaffoldPath}, falling back to programmatic setup`);
+      logger.warn(`Scaffold not found for ${framework} at ${actualScaffoldPath}, falling back to programmatic setup`);
 
       // Fallback to programmatic setup if scaffold doesn't exist
       switch (framework) {

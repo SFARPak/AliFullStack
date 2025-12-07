@@ -60,6 +60,7 @@ export function SetupBanner() {
   }, [checkNode]);
 
   const handleGoogleSetupClick = () => {
+    console.log("handleGoogleSetupClick called, navigating to google provider settings");
     posthog.capture("setup-flow:ai-provider-setup:google:click");
     navigate({
       to: providerSettingsRoute.id,

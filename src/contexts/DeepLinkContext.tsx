@@ -10,18 +10,31 @@ const DeepLinkContext = createContext<DeepLinkContextType>({
 });
 
 export function DeepLinkProvider({ children }: { children: React.ReactNode }) {
+  console.log("DeepLinkProvider rendering");
   const [lastDeepLink, setLastDeepLink] = useState<
     (DeepLinkData & { timestamp: number }) | null
   >(null);
 
   useEffect(() => {
-    const ipcClient = IpcClient.getInstance();
-    const unsubscribe = ipcClient.onDeepLinkReceived((data) => {
-      // Update with timestamp to ensure state change even if same type comes twice
-      setLastDeepLink({ ...data, timestamp: Date.now() });
-    });
-
-    return unsubscribe;
+    if (!(window as any).electron) {
+      console.warn("DeepLinkProvider: window.electron not available, skipping deep link setup");
+      return;
+    }
+    console.log("DeepLinkProvider useEffect starting");
+    try {
+      const ipcClient = IpcClient.getInstance();
+      console.log("IPC client instance obtained");
+      const unsubscribe = ipcClient.onDeepLinkReceived((data) => {
+        console.log("Deep link received:", data);
+        // Update with timestamp to ensure state change even if same type comes twice
+        setLastDeepLink({ ...data, timestamp: Date.now() });
+      });
+      console.log("DeepLinkProvider useEffect completed");
+      return unsubscribe;
+    } catch (error) {
+      console.error("Error in DeepLinkProvider useEffect:", error);
+      return () => {};
+    }
   }, []);
 
   return (

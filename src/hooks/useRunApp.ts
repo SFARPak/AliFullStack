@@ -16,6 +16,17 @@ import { showInputRequest } from "@/lib/toast";
 const useRunAppLoadingAtom = atom(false);
 
 export function useRunApp() {
+  if (!(window as any).electron) {
+    console.warn("useRunApp: window.electron not available, returning noop functions");
+    return {
+      loading: false,
+      runApp: () => Promise.resolve(),
+      stopApp: () => Promise.resolve(),
+      restartApp: () => Promise.resolve(),
+      app: null,
+      refreshAppIframe: () => {},
+    };
+  }
   const [loading, setLoading] = useAtom(useRunAppLoadingAtom);
   const [app, setApp] = useAtom(currentAppAtom);
   const setAppOutput = useSetAtom(appOutputAtom);
