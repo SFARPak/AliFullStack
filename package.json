@@ -1,9 +1,10 @@
 {
   "name": "alifullstack",
   "productName": "AliFullStack",
-  "version": "0.0.6",
+  "version": "0.0.9",
   "description": "Free, local, open-source AI app builder",
   "main": ".vite/build/main.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/SFARPak/AliFullStack.git"
