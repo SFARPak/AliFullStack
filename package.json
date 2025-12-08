@@ -3,7 +3,7 @@
   "productName": "AliFullStack",
   "version": "0.0.9",
   "description": "Free, local, open-source AI app builder",
-  "main": ".vite/build/main.js",
+  "main": ".vite/build/main.cjs",
   "type": "module",
   "repository": {
     "type": "git",

@@ -12,6 +12,8 @@ export default defineConfig({
     rollupOptions: {
       external: ["better-sqlite3"],
       output: {
+        format: 'cjs',
+        entryFileNames: '[name].cjs',
         sourcemap: true,
       },
     },
