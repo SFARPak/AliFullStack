@@ -138,6 +138,15 @@ export const MODEL_OPTIONS: Record<string, ModelOption[]> = {
       temperature: 0,
       dollarSigns: 2,
     },
+    {
+      name: "gemini-3-pro-preview",
+      displayName: "Gemini 3 Pro Preview",
+      description: "Google's Gemini 3 Pro preview model",
+      maxOutputTokens: 65_535,
+      contextWindow: 1_048_576,
+      temperature: 0,
+      dollarSigns: 4,
+    },
   ],
   vertex: [
     // Vertex Gemini 2.5 Pro
