@@ -1058,7 +1058,7 @@ export async function createFromTemplate({
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@dyad-sh/react-vite-component-tagger": "^0.8.0",
+    "@alifullstack-sh/react-vite-component-tagger": "^0.8.0",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",
@@ -1471,7 +1471,7 @@ async function cloneRepo(repoUrl: string): Promise<string> {
         url: apiUrl,
         method: "GET",
         headers: {
-          "User-Agent": "Dyad", // GitHub API requires a User-Agent
+          "User-Agent": "AliFullStack", // GitHub API requires a User-Agent
           Accept: "application/vnd.github.v3+json",
         },
       });

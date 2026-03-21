@@ -36,8 +36,8 @@ let rememberedOrigin = null; // e.g. "http://localhost:5173"
 /* ---------- optional resources for HTML injection ---------------------- */
 
 let stacktraceJsContent = null;
-let dyadShimContent = null;
-let dyadComponentSelectorClientContent = null;
+let alifullstackShimContent = null;
+let alifullstackComponentSelectorClientContent = null;
 try {
   const stackTraceLibPath = path.join(
     __dirname,
@@ -56,30 +56,30 @@ try {
 }
 
 try {
-  const dyadShimPath = path.join(__dirname, "dyad-shim.js");
-  dyadShimContent = fs.readFileSync(dyadShimPath, "utf-8");
-  parentPort?.postMessage("[proxy-worker] dyad-shim.js loaded.");
+  const alifullstackShimPath = path.join(__dirname, "alifullstack-shim.js");
+  alifullstackShimContent = fs.readFileSync(alifullstackShimPath, "utf-8");
+  parentPort?.postMessage("[proxy-worker] alifullstack-shim.js loaded.");
 } catch (error) {
   parentPort?.postMessage(
-    `[proxy-worker] Failed to read dyad-shim.js: ${error.message}`,
+    `[proxy-worker] Failed to read alifullstack-shim.js: ${error.message}`,
   );
 }
 
 try {
-  const dyadComponentSelectorClientPath = path.join(
+  const alifullstackComponentSelectorClientPath = path.join(
     __dirname,
-    "dyad-component-selector-client.js",
+    "alifullstack-component-selector-client.js",
   );
-  dyadComponentSelectorClientContent = fs.readFileSync(
-    dyadComponentSelectorClientPath,
+  alifullstackComponentSelectorClientContent = fs.readFileSync(
+    alifullstackComponentSelectorClientPath,
     "utf-8",
   );
   parentPort?.postMessage(
-    "[proxy-worker] dyad-component-selector-client.js loaded.",
+    "[proxy-worker] alifullstack-component-selector-client.js loaded.",
   );
 } catch (error) {
   parentPort?.postMessage(
-    `[proxy-worker] Failed to read dyad-component-selector-client.js: ${error.message}`,
+    `[proxy-worker] Failed to read alifullstack-component-selector-client.js: ${error.message}`,
   );
 }
 
@@ -90,8 +90,8 @@ function needsInjection(pathname) {
 
 function injectHTML(buf) {
   let txt = buf.toString("utf8");
-  // These are strings that were used since the first version of the dyad shim.
-  // If the dyad shim is used from legacy apps which came pre-baked with the shim
+  // These are strings that were used since the first version of the alifullstack shim.
+  // If the alifullstack shim is used from legacy apps which came pre-baked with the shim
   // as a vite plugin, then do not inject the shim twice to avoid weird behaviors.
   const legacyAppWithShim =
     txt.includes("window-error") && txt.includes("unhandled-rejection");
@@ -107,19 +107,19 @@ function injectHTML(buf) {
       );
     }
 
-    if (dyadShimContent) {
-      scripts.push(`<script>${dyadShimContent}</script>`);
+    if (alifullstackShimContent) {
+      scripts.push(`<script>${alifullstackShimContent}</script>`);
     } else {
       scripts.push(
-        '<script>console.warn("[proxy-worker] dyad shim was not injected.");</script>',
+        '<script>console.warn("[proxy-worker] alifullstack shim was not injected.");</script>',
       );
     }
   }
-  if (dyadComponentSelectorClientContent) {
-    scripts.push(`<script>${dyadComponentSelectorClientContent}</script>`);
+  if (alifullstackComponentSelectorClientContent) {
+    scripts.push(`<script>${alifullstackComponentSelectorClientContent}</script>`);
   } else {
     scripts.push(
-      '<script>console.warn("[proxy-worker] dyad component selector client was not injected.");</script>',
+      '<script>console.warn("[proxy-worker] alifullstack component selector client was not injected.");</script>',
     );
   }
   const allScripts = scripts.join("\n");

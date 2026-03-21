@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-console.log("🚀 Testing Dyad-Write Tag Removal from Chat Responses");
+console.log("🚀 Testing AliFullStack-Write Tag Removal from Chat Responses");
 console.log("==================================================\n");
 
 const testResponse = `This is some content before the tag.
 
-<dyad-write path="backend/server.js">
+<alifullstack-write path="backend/server.js">
 const express = require('express');
 const app = express();
 app.listen(3001);
-</dyad-write>
+</alifullstack-write>
 
 And this is content after the tag.
 
@@ -17,10 +17,10 @@ And this is content after the tag.
 
 More content here.
 
-<dyad-write path="frontend/App.tsx">
+<alifullstack-write path="frontend/App.tsx">
 import React from 'react';
 function App() { return <div>Hello</div>; }
-</dyad-write>
+</alifullstack-write>
 
 Final content.`;
 
@@ -29,14 +29,14 @@ console.log("-----------------------------");
 console.log(testResponse);
 console.log("\n");
 
-// Test the dyad-write tag removal logic
-const dyadWriteTagRegex = /<dyad-write[^>]*>[\s\S]*?<\/dyad-write>/gi;
+// Test the alifullstack-write tag removal logic
+const alifullstackWriteTagRegex = /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi;
 const terminalTagRegex = /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/g;
 
 let cleanedResponse = testResponse;
 
-// Remove dyad-write tags
-cleanedResponse = cleanedResponse.replace(dyadWriteTagRegex, "");
+// Remove alifullstack-write tags
+cleanedResponse = cleanedResponse.replace(alifullstackWriteTagRegex, "");
 
 // Remove terminal command tags
 cleanedResponse = cleanedResponse.replace(terminalTagRegex, "");
@@ -50,33 +50,33 @@ console.log(cleanedResponse);
 console.log("\n");
 
 // Check that tags are actually removed
-const hasDyadWriteTags = /<dyad-write[^>]*>[\s\S]*?<\/dyad-write>/gi.test(
+const hasAliFullStackWriteTags = /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi.test(
   testResponse,
 );
 const hasTerminalTags =
   /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/g.test(testResponse);
 
-const cleanedHasDyadWriteTags =
-  /<dyad-write[^>]*>[\s\S]*?<\/dyad-write>/gi.test(cleanedResponse);
+const cleanedHasAliFullStackWriteTags =
+  /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi.test(cleanedResponse);
 const cleanedHasTerminalTags =
   /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/g.test(cleanedResponse);
 
 console.log("📊 Tag Removal Results:");
 console.log("-----------------------");
 console.log(
-  `Original had dyad-write tags: ${hasDyadWriteTags ? "❌ (found)" : "✅ (none found)"}`,
+  `Original had alifullstack-write tags: ${hasAliFullStackWriteTags ? "❌ (found)" : "✅ (none found)"}`,
 );
 console.log(
   `Original had terminal tags: ${hasTerminalTags ? "❌ (found)" : "✅ (none found)"}`,
 );
 console.log(
-  `Cleaned has dyad-write tags: ${cleanedHasDyadWriteTags ? "❌ (still present)" : "✅ (removed)"}`,
+  `Cleaned has alifullstack-write tags: ${cleanedHasAliFullStackWriteTags ? "❌ (still present)" : "✅ (removed)"}`,
 );
 console.log(
   `Cleaned has terminal tags: ${cleanedHasTerminalTags ? "❌ (still present)" : "✅ (removed)"}`,
 );
 
-const success = !cleanedHasDyadWriteTags && !cleanedHasTerminalTags;
+const success = !cleanedHasAliFullStackWriteTags && !cleanedHasTerminalTags;
 console.log(
   `\n${success ? "✅" : "❌"} Overall Result: ${success ? "ALL TAGS SUCCESSFULLY REMOVED" : "SOME TAGS STILL PRESENT"}`,
 );

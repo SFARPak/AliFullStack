@@ -71,14 +71,14 @@ export function ProModeSelector() {
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent>Configure Dyad Pro settings</TooltipContent>
+        <TooltipContent>Configure AliFullStack Pro settings</TooltipContent>
       </Tooltip>
       <PopoverContent className="w-80 border-primary/20">
         <div className="space-y-4">
           <div className="space-y-1">
             <h4 className="font-medium flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-primary font-medium">Dyad Pro</span>
+              <span className="text-primary font-medium">AliFullStack Pro</span>
             </h4>
             <div className="h-px bg-gradient-to-r from-primary/50 via-primary/20 to-transparent" />
           </div>
@@ -99,9 +99,9 @@ export function ProModeSelector() {
           <div className="flex flex-col gap-5">
             <SelectorRow
               id="pro-enabled"
-              label="Enable Dyad Pro"
-              description="Use Dyad Pro AI credits"
-              tooltip="Uses Dyad Pro AI credits for the main AI model and Pro modes."
+              label="Enable AliFullStack Pro"
+              description="Use AliFullStack Pro AI credits"
+              tooltip="Uses AliFullStack Pro AI credits for the main AI model and Pro modes."
               isTogglable={hasProKey}
               settingEnabled={Boolean(settings?.enableAliFullStackPro)}
               toggle={toggleProEnabled}

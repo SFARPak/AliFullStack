@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import { extractCodebase } from "../../utils/codebase";
 import { validateChatContext } from "../utils/context_paths_utils";
 import log from "electron-log";
@@ -29,7 +29,7 @@ export async function extractMentionedAppsCodebases(
 
   for (const app of mentionedApps) {
     try {
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
       const chatContext = validateChatContext(app.chatContext);
 
       const { formattedOutput } = await extractCodebase({

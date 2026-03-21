@@ -57,24 +57,20 @@ const config: ForgeConfig = {
   packagerConfig: {
     protocols: [
       {
-        name: "Dyad",
-        schemes: ["dyad"],
+        name: "AliFullStack",
+        schemes: ["alifullstack"],
       },
     ],
     icon: "./assets/icon/logo",
 
     executableName: "alifullstack",
     osxSign: {
-      identity: process.env.APPLE_SIGNING_IDENTITY,
-      hardenedRuntime: true,
-      entitlements: "assets/entitlements/entitlements.plist",
-      "entitlements-inherit": "assets/entitlements/entitlements.inherit.plist",
-      "signature-flags": "library",
+      identity: process.env.APPLE_TEAM_ID,
     },
     osxNotarize: {
-      appleId: process.env.APPLE_ID,
-      appleIdPassword: process.env.APPLE_PASSWORD,
-      teamId: process.env.APPLE_TEAM_ID,
+      appleId: process.env.APPLE_ID as string,
+      appleIdPassword: process.env.APPLE_PASSWORD as string,
+      teamId: process.env.APPLE_TEAM_ID as string,
     },
     asar: true,
     ignore,
@@ -90,7 +86,7 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     new MakerDeb({
       options: {
-        mimeType: ["x-scheme-handler/dyad"],
+        mimeType: ["x-scheme-handler/alifullstack"],
       },
     }),
   ],

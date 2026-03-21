@@ -11,14 +11,14 @@ import {
 import { CodeHighlight } from "./CodeHighlight";
 import { CustomTagState } from "./stateTypes";
 
-interface DyadEditProps {
+interface AliFullStackEditProps {
   children?: ReactNode;
   node?: any;
   path?: string;
   description?: string;
 }
 
-export const DyadEdit: React.FC<DyadEditProps> = ({
+export const AliFullStackEdit: React.FC<AliFullStackEditProps> = ({
   children,
   node,
   path: pathProp,

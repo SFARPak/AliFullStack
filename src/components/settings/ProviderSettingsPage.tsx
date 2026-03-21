@@ -42,22 +42,22 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
   const supportsCustomModels =
     providerData?.type === "custom" || providerData?.type === "cloud";
 
-  const isDyad = provider === "auto";
+  const isAliFullStack = provider === "auto";
 
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Use fetched data (or defaults for Dyad)
-  const providerDisplayName = isDyad
-    ? "Dyad"
+  // Use fetched data (or defaults for AliFullStack)
+  const providerDisplayName = isAliFullStack
+    ? "AliFullStack"
     : (providerData?.name ?? "Unknown Provider");
-  const providerWebsiteUrl = isDyad
+  const providerWebsiteUrl = isAliFullStack
     ? "https://academy.alifullstack.alitech.io/settings"
     : providerData?.websiteUrl;
-  const hasFreeTier = isDyad ? false : providerData?.hasFreeTier;
-  const envVarName = isDyad ? undefined : providerData?.envVarName;
+  const hasFreeTier = isAliFullStack ? false : providerData?.hasFreeTier;
+  const envVarName = isAliFullStack ? undefined : providerData?.envVarName;
 
   // Use provider ID (which is the 'provider' prop)
   const userApiKey = settings?.providerSettings?.[provider]?.apiKey?.value;
@@ -110,7 +110,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
           },
         },
       };
-      if (isDyad) {
+      if (isAliFullStack) {
         settingsUpdate.enableAliFullStackPro = true;
       }
       await updateSettings(settingsUpdate);
@@ -147,15 +147,15 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
     }
   };
 
-  // --- Toggle Dyad Pro Handler ---
-  const handleToggleDyadPro = async (enabled: boolean) => {
+  // --- Toggle AliFullStack Pro Handler ---
+  const handleToggleAliFullStackPro = async (enabled: boolean) => {
     setIsSaving(true);
     try {
       await updateSettings({
         enableAliFullStackPro: enabled,
       });
     } catch (error: any) {
-      showError(`Error toggling Dyad Pro: ${error}`);
+      showError(`Error toggling AliFullStack Pro: ${error}`);
     } finally {
       setIsSaving(false);
     }
@@ -214,7 +214,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
   }
 
   // Handle case where provider is not found (e.g., invalid ID in URL)
-  if (!providerData && !isDyad) {
+  if (!providerData && !isAliFullStack) {
     return (
       <div className="min-h-screen px-8 py-4">
         <div className="max-w-4xl mx-auto">
@@ -251,7 +251,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
           isLoading={settingsLoading}
           hasFreeTier={hasFreeTier}
           providerWebsiteUrl={providerWebsiteUrl}
-          isDyad={isDyad}
+          isAliFullStack={isAliFullStack}
           onBackClick={() => router.history.back()}
         />
 
@@ -279,21 +279,21 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
             onApiKeyInputChange={setApiKeyInput}
             onSaveKey={handleSaveKey}
             onDeleteKey={handleDeleteKey}
-            isDyad={isDyad}
+            isAliFullStack={isAliFullStack}
           />
         )}
 
-        {isDyad && !settingsLoading && (
+        {isAliFullStack && !settingsLoading && (
           <div className="mt-6 flex items-center justify-between p-4 bg-(--background-lightest) rounded-lg border">
             <div>
-              <h3 className="font-medium">Enable Dyad Pro</h3>
+              <h3 className="font-medium">Enable AliFullStack Pro</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Toggle to enable Dyad Pro
+                Toggle to enable AliFullStack Pro
               </p>
             </div>
             <Switch
               checked={settings?.enableAliFullStackPro}
-              onCheckedChange={handleToggleDyadPro}
+              onCheckedChange={handleToggleAliFullStackPro}
               disabled={isSaving}
             />
           </div>

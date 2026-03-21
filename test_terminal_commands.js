@@ -14,9 +14,9 @@ This is a test message with a terminal command.
 
 This should not appear in the chat.
 
-<dyad-run-backend-terminal-cmd>npm install express</dyad-run-backend-terminal-cmd>
+<alifullstack-run-backend-terminal-cmd>npm install express</alifullstack-run-backend-terminal-cmd>
 
-<dyad-run-frontend-terminal-cmd>npm run build</dyad-run-frontend-terminal-cmd>
+<alifullstack-run-frontend-terminal-cmd>npm run build</alifullstack-run-frontend-terminal-cmd>
 
 End of test message.
 `;
@@ -26,21 +26,21 @@ function testRegexPattern() {
   console.log("🧪 Testing regex pattern for terminal command tags...\n");
 
   const customTagNames = [
-    "dyad-write",
-    "dyad-rename",
-    "dyad-delete",
-    "dyad-add-dependency",
-    "dyad-execute-sql",
-    "dyad-add-integration",
-    "dyad-output",
-    "dyad-problem-report",
-    "dyad-chat-summary",
-    "dyad-edit",
-    "dyad-codebase-context",
+    "alifullstack-write",
+    "alifullstack-rename",
+    "alifullstack-delete",
+    "alifullstack-add-dependency",
+    "alifullstack-execute-sql",
+    "alifullstack-add-integration",
+    "alifullstack-output",
+    "alifullstack-problem-report",
+    "alifullstack-chat-summary",
+    "alifullstack-edit",
+    "alifullstack-codebase-context",
     "think",
-    "dyad-command",
-    "dyad-run-backend-terminal-cmd",
-    "dyad-run-frontend-terminal-cmd",
+    "alifullstack-command",
+    "alifullstack-run-backend-terminal-cmd",
+    "alifullstack-run-frontend-terminal-cmd",
     "run_terminal_cmd",
   ];
 
@@ -70,8 +70,8 @@ function testRegexPattern() {
   const terminalTags = matches.filter(
     (m) =>
       m.tag === "run_terminal_cmd" ||
-      m.tag === "dyad-run-backend-terminal-cmd" ||
-      m.tag === "dyad-run-frontend-terminal-cmd",
+      m.tag === "alifullstack-run-backend-terminal-cmd" ||
+      m.tag === "alifullstack-run-frontend-terminal-cmd",
   );
 
   console.log(`\n✅ Terminal command tags found: ${terminalTags.length}`);
@@ -95,9 +95,9 @@ function testParserLogic() {
     switch (tag) {
       case "run_terminal_cmd":
         return null; // Should return null (not render)
-      case "dyad-run-backend-terminal-cmd":
+      case "alifullstack-run-backend-terminal-cmd":
         return null; // Should return null (not render)
-      case "dyad-run-frontend-terminal-cmd":
+      case "alifullstack-run-frontend-terminal-cmd":
         return null; // Should return null (not render)
       default:
         return `RENDER_${tag}`; // Other tags should render
@@ -107,8 +107,8 @@ function testParserLogic() {
   // Test each terminal command tag
   const testTags = [
     { tag: "run_terminal_cmd", content: "ls -la" },
-    { tag: "dyad-run-backend-terminal-cmd", content: "npm install express" },
-    { tag: "dyad-run-frontend-terminal-cmd", content: "npm run build" },
+    { tag: "alifullstack-run-backend-terminal-cmd", content: "npm install express" },
+    { tag: "alifullstack-run-frontend-terminal-cmd", content: "npm run build" },
   ];
 
   let allReturnNull = true;
@@ -131,8 +131,8 @@ function testContentSplitting() {
 
   const customTagNames = [
     "run_terminal_cmd",
-    "dyad-run-backend-terminal-cmd",
-    "dyad-run-frontend-terminal-cmd",
+    "alifullstack-run-backend-terminal-cmd",
+    "alifullstack-run-frontend-terminal-cmd",
   ];
 
   const tagPattern = new RegExp(
@@ -200,8 +200,8 @@ function testContentSplitting() {
   const terminalCommandsFound = terminalTagPieces.filter(
     (p) =>
       p.tag === "run_terminal_cmd" ||
-      p.tag === "dyad-run-backend-terminal-cmd" ||
-      p.tag === "dyad-run-frontend-terminal-cmd",
+      p.tag === "alifullstack-run-backend-terminal-cmd" ||
+      p.tag === "alifullstack-run-frontend-terminal-cmd",
   );
 
   console.log(

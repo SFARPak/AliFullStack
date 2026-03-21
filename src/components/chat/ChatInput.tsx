@@ -106,6 +106,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
     error: proposalError,
     refreshProposal,
   } = useProposal(chatId);
+  const [retryCount, setRetryCount] = useState(0);
   const { proposal, messageId } = proposalResult ?? {};
 
   useEffect(() => {
@@ -113,6 +114,66 @@ export function ChatInput({ chatId }: { chatId?: number }) {
       setShowError(true);
     }
   }, [error]);
+
+  // Auto-continue logic for Autonomous mode
+  useEffect(() => {
+    if (
+      settings?.executionMode === "autonomous" &&
+      proposal?.type === "action-proposal" &&
+      !isStreaming &&
+      chatId &&
+      proposal.actions.some((a) => a.id === "keep-going")
+    ) {
+      console.log("Auto-triggering 'Keep going' in Autonomous mode");
+      setRetryCount(0); // Reset retry count on success
+      streamMessage({
+        prompt: "Keep going",
+        chatId,
+        redo: false,
+      });
+    }
+  }, [proposal, settings?.executionMode, isStreaming, chatId, streamMessage]);
+
+  // Auto-retry logic for Autonomous mode on transient errors
+  useEffect(() => {
+    if (
+      settings?.executionMode === "autonomous" &&
+      error &&
+      !isStreaming &&
+      chatId &&
+      retryCount < 3
+    ) {
+      const isTransient =
+        error.toLowerCase().includes("timeout") ||
+        error.toLowerCase().includes("network") ||
+        error.toLowerCase().includes("rate limit") ||
+        error.toLowerCase().includes("exhausted");
+
+      if (isTransient) {
+        console.log(
+          `Auto-retrying error (attempt ${retryCount + 1}) in Autonomous mode: ${error}`,
+        );
+        const timer = setTimeout(() => {
+          setRetryCount((prev) => prev + 1);
+          // Redo the last Turn
+          // Note: We don't easily have access to 'messages' here in the same way, so we tell the AI to retry.
+          streamMessage({
+            prompt: "Please retry your last task. It failed with an error.",
+            chatId,
+            redo: false,
+          });
+        }, 5000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [
+    error,
+    settings?.executionMode,
+    isStreaming,
+    chatId,
+    retryCount,
+    streamMessage,
+  ]);
 
   const fetchChatMessages = useCallback(async () => {
     if (!chatId) {
@@ -452,7 +513,7 @@ function WriteCodeProperlyButton() {
       return;
     }
     streamMessage({
-      prompt: `Write the code in the previous message in the correct format using \`<dyad-write>\` tags!`,
+      prompt: `Write the code in the previous message in the correct format using \`<alifullstack-write>\` tags!`,
       chatId,
       redo: false,
     });

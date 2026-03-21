@@ -34,7 +34,7 @@ testWithPo("Azure provider settings UI", async ({ po }) => {
   ).toBeVisible();
   await expect(po.page.getByText("Find your resource name")).toBeVisible();
   await expect(
-    po.page.getByText("Set these environment variables before starting Dyad"),
+    po.page.getByText("Set these environment variables before starting AliFullStack"),
   ).toBeVisible();
 
   // Check that status indicators show "Not Set" (since no env vars are configured in test)

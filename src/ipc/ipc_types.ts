@@ -140,7 +140,7 @@ export interface SystemDebugInfo {
   telemetryId: string;
   telemetryConsent: string;
   telemetryUrl: string;
-  dyadVersion: string;
+  alifullstackVersion: string;
   platform: string;
   architecture: string;
   logs: string;

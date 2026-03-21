@@ -7,7 +7,7 @@ test("create next.js app", async ({ po }) => {
   await po.snapshotSettings();
 
   // Create an app
-  await po.sendPrompt("tc=edit-made-with-dyad");
+  await po.sendPrompt("tc=edit-made-with-alifullstack");
   await po.approveProposal();
 
   await po.clickRestart();

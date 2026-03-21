@@ -21,8 +21,8 @@ The AliFullstack application includes a sophisticated terminal system that suppo
 ### 2. Terminal Command Tags
 
 - `<run_terminal_cmd>` - General commands with intelligent routing
-- `<dyad-run-backend-terminal-cmd>` - Explicit backend commands
-- `<dyad-run-frontend-terminal-cmd>` - Explicit frontend commands
+- `<alifullstack-run-backend-terminal-cmd>` - Explicit backend commands
+- `<alifullstack-run-frontend-terminal-cmd>` - Explicit frontend commands
 
 ### 3. Intelligent Command Routing Logic
 
@@ -56,11 +56,11 @@ const isNodeCommand =
    - Lines 220-269: Backend terminal command processing
    - Lines 272-311: Frontend terminal command processing
 
-2. **`src/ipc/utils/dyad_tag_parser.ts`** - Tag parsing functions
+2. **`src/ipc/utils/alifullstack_tag_parser.ts`** - Tag parsing functions
 
-   - `getDyadRunBackendTerminalCmdTags()` - Backend command extraction
-   - `getDyadRunFrontendTerminalCmdTags()` - Frontend command extraction
-   - `getDyadRunTerminalCmdTags()` - General command extraction
+   - `getAliFullStackRunBackendTerminalCmdTags()` - Backend command extraction
+   - `getAliFullStackRunFrontendTerminalCmdTags()` - Frontend command extraction
+   - `getAliFullStackRunTerminalCmdTags()` - General command extraction
 
 3. **`src/ipc/utils/runShellCommand.ts`** - Shell command execution
    - Synchronous command execution with stdout/stderr capture

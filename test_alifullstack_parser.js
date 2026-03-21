@@ -1,5 +1,5 @@
 /**
- * Integration test for DyadMarkdownParser to verify terminal command handling
+ * Integration test for AliFullStackMarkdownParser to verify terminal command handling
  */
 
 const fs = require("fs");
@@ -13,35 +13,35 @@ Let me help you check the current directory structure.
 
 I can see the files now. Let me also check if there are any backend processes running.
 
-<dyad-run-backend-terminal-cmd>ps aux | grep node</dyad-run-backend-terminal-cmd>
+<alifullstack-run-backend-terminal-cmd>ps aux | grep node</alifullstack-run-backend-terminal-cmd>
 
 And let me check the frontend build status.
 
-<dyad-run-frontend-terminal-cmd>npm run build-status</dyad-run-frontend-terminal-cmd>
+<alifullstack-run-frontend-terminal-cmd>npm run build-status</alifullstack-run-frontend-terminal-cmd>
 
 All commands executed successfully. The directory structure looks good.
 `;
 
 // Simulate the parseCustomTags function logic
 function testParseCustomTags(content) {
-  console.log("🧪 Testing DyadMarkdownParser parseCustomTags function...\n");
+  console.log("🧪 Testing AliFullStackMarkdownParser parseCustomTags function...\n");
 
   const customTagNames = [
-    "dyad-write",
-    "dyad-rename",
-    "dyad-delete",
-    "dyad-add-dependency",
-    "dyad-execute-sql",
-    "dyad-add-integration",
-    "dyad-output",
-    "dyad-problem-report",
-    "dyad-chat-summary",
-    "dyad-edit",
-    "dyad-codebase-context",
+    "alifullstack-write",
+    "alifullstack-rename",
+    "alifullstack-delete",
+    "alifullstack-add-dependency",
+    "alifullstack-execute-sql",
+    "alifullstack-add-integration",
+    "alifullstack-output",
+    "alifullstack-problem-report",
+    "alifullstack-chat-summary",
+    "alifullstack-edit",
+    "alifullstack-codebase-context",
     "think",
-    "dyad-command",
-    "dyad-run-backend-terminal-cmd",
-    "dyad-run-frontend-terminal-cmd",
+    "alifullstack-command",
+    "alifullstack-run-backend-terminal-cmd",
+    "alifullstack-run-frontend-terminal-cmd",
     "run_terminal_cmd",
   ];
 
@@ -114,36 +114,36 @@ function testRenderCustomTag(tagInfo) {
 
   switch (tag) {
     case "think":
-      return `<DyadThink>${content}</DyadThink>`;
-    case "dyad-write":
-      return `<DyadWrite path="${attributes.path}">${content}</DyadWrite>`;
-    case "dyad-rename":
-      return `<DyadRename from="${attributes.from}" to="${attributes.to}">${content}</DyadRename>`;
-    case "dyad-delete":
-      return `<DyadDelete path="${attributes.path}">${content}</DyadDelete>`;
-    case "dyad-add-dependency":
-      return `<DyadAddDependency packages="${attributes.packages}">${content}</DyadAddDependency>`;
-    case "dyad-execute-sql":
-      return `<DyadExecuteSql description="${attributes.description}">${content}</DyadExecuteSql>`;
-    case "dyad-add-integration":
-      return `<DyadAddIntegration provider="${attributes.provider}">${content}</DyadAddIntegration>`;
-    case "dyad-edit":
-      return `<DyadEdit path="${attributes.path}">${content}</DyadEdit>`;
-    case "dyad-codebase-context":
-      return `<DyadCodebaseContext files="${attributes.files}">${content}</DyadCodebaseContext>`;
-    case "dyad-output":
-      return `<DyadOutput type="${attributes.type}">${content}</DyadOutput>`;
-    case "dyad-problem-report":
-      return `<DyadProblemSummary summary="${attributes.summary}">${content}</DyadProblemSummary>`;
-    case "dyad-chat-summary":
+      return `<AliFullStackThink>${content}</AliFullStackThink>`;
+    case "alifullstack-write":
+      return `<AliFullStackWrite path="${attributes.path}">${content}</AliFullStackWrite>`;
+    case "alifullstack-rename":
+      return `<AliFullStackRename from="${attributes.from}" to="${attributes.to}">${content}</AliFullStackRename>`;
+    case "alifullstack-delete":
+      return `<AliFullStackDelete path="${attributes.path}">${content}</AliFullStackDelete>`;
+    case "alifullstack-add-dependency":
+      return `<AliFullStackAddDependency packages="${attributes.packages}">${content}</AliFullStackAddDependency>`;
+    case "alifullstack-execute-sql":
+      return `<AliFullStackExecuteSql description="${attributes.description}">${content}</AliFullStackExecuteSql>`;
+    case "alifullstack-add-integration":
+      return `<AliFullStackAddIntegration provider="${attributes.provider}">${content}</AliFullStackAddIntegration>`;
+    case "alifullstack-edit":
+      return `<AliFullStackEdit path="${attributes.path}">${content}</AliFullStackEdit>`;
+    case "alifullstack-codebase-context":
+      return `<AliFullStackCodebaseContext files="${attributes.files}">${content}</AliFullStackCodebaseContext>`;
+    case "alifullstack-output":
+      return `<AliFullStackOutput type="${attributes.type}">${content}</AliFullStackOutput>`;
+    case "alifullstack-problem-report":
+      return `<AliFullStackProblemSummary summary="${attributes.summary}">${content}</AliFullStackProblemSummary>`;
+    case "alifullstack-chat-summary":
       return null;
-    case "dyad-command":
+    case "alifullstack-command":
       return null;
     case "run_terminal_cmd":
       return null; // Should return null (not render)
-    case "dyad-run-backend-terminal-cmd":
+    case "alifullstack-run-backend-terminal-cmd":
       return null; // Should return null (not render)
-    case "dyad-run-frontend-terminal-cmd":
+    case "alifullstack-run-frontend-terminal-cmd":
       return null; // Should return null (not render)
     default:
       return null;
@@ -152,7 +152,7 @@ function testRenderCustomTag(tagInfo) {
 
 // Main test function
 function runIntegrationTest() {
-  console.log("🚀 DyadMarkdownParser Integration Test\n");
+  console.log("🚀 AliFullStackMarkdownParser Integration Test\n");
   console.log("=".repeat(60));
 
   // Test 1: Parse the content
@@ -181,8 +181,8 @@ function runIntegrationTest() {
   const terminalCommandTags = terminalTags.filter(
     (p) =>
       p.tagInfo.tag === "run_terminal_cmd" ||
-      p.tagInfo.tag === "dyad-run-backend-terminal-cmd" ||
-      p.tagInfo.tag === "dyad-run-frontend-terminal-cmd",
+      p.tagInfo.tag === "alifullstack-run-backend-terminal-cmd" ||
+      p.tagInfo.tag === "alifullstack-run-frontend-terminal-cmd",
   );
 
   console.log(
@@ -240,7 +240,7 @@ function runIntegrationTest() {
 
   if (allTestsPassed) {
     console.log(
-      "\n🎉 SUCCESS: DyadMarkdownParser correctly handles terminal commands!",
+      "\n🎉 SUCCESS: AliFullStackMarkdownParser correctly handles terminal commands!",
     );
     console.log("   - Terminal command tags are parsed correctly");
     console.log("   - Tags return null (not rendered in UI)");

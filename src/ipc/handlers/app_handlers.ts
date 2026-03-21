@@ -13,7 +13,7 @@ import type {
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { getDyadAppPath, getUserDataPath } from "../../paths/paths";
+import { getAliFullStackAppPath, getUserDataPath } from "../../paths/paths";
 import { ChildProcess, spawn, execSync } from "node:child_process";
 import git from "isomorphic-git";
 import { promises as fsPromises } from "node:fs";
@@ -146,7 +146,7 @@ import { routeTerminalOutput } from "./terminal_handlers";
 import net from "net";
 
 const DEFAULT_COMMAND =
-  "(node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/dyadComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && pnpm install && pnpm run dev --port 32100 --host) || (node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/dyadComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && npm install --legacy-peer-deps && npm run dev -- --port 32100 --host)";
+  "(node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/alifullstackComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && pnpm install && pnpm run dev --port 32100 --host) || (node -e \"try { const pkg = require('./package.json'); if (pkg.dependencies && pkg.dependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.dependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } if (pkg.devDependencies && pkg.devDependencies['@SFARPak/react-vite-component-tagger']) { delete pkg.devDependencies['@SFARPak/react-vite-component-tagger']; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2)); } } catch(e) {}; try { const fs = require('fs'); if (fs.existsSync('./vite.config.ts')) { let config = fs.readFileSync('./vite.config.ts', 'utf8'); config = config.replace(/import.*@SFARPak\\/react-vite-component-tagger.*;\\s*/g, ''); config = config.replace(/alifullstackComponentTagger[^}]*},?\\s*/g, ''); config = config.replace(/applyComponentTagger[^}]*},?\\s*/g, ''); fs.writeFileSync('./vite.config.ts', config); } } catch(e) {}\" && npm install --legacy-peer-deps && npm run dev -- --port 32100 --host)";
 async function copyDir(
   source: string,
   destination: string,
@@ -480,7 +480,7 @@ export async function executeComplexCommand(
   try {
     // Create temporary script file
     const tempDir = os.tmpdir();
-    const scriptName = `dyad-script-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.sh`;
+    const scriptName = `alifullstack-script-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.sh`;
     const scriptPath = path.join(tempDir, scriptName);
 
     // Write the command to the script file
@@ -1651,7 +1651,7 @@ async function executeAppInDocker({
   installCommand?: string | null;
   startCommand?: string | null;
 }): Promise<void> {
-  const containerName = `dyad-app-${appId}`;
+  const containerName = `alifullstack-app-${appId}`;
 
   // First, check if Docker is available
   try {
@@ -1701,7 +1701,7 @@ async function executeAppInDocker({
   }
 
   // Create a Dockerfile in the app directory if it doesn't exist
-  const dockerfilePath = path.join(appPath, "Dockerfile.dyad");
+  const dockerfilePath = path.join(appPath, "Dockerfile.alifullstack");
   if (!fs.existsSync(dockerfilePath)) {
     const dockerfileContent = `FROM node:22-alpine
 
@@ -1720,7 +1720,7 @@ RUN npm install -g pnpm
   // Build the Docker image
   const buildProcess = spawn(
     "docker",
-    ["build", "-f", "Dockerfile.dyad", "-t", `dyad-app-${appId}`, "."],
+    ["build", "-f", "Dockerfile.alifullstack", "-t", `alifullstack-app-${appId}`, "."],
     {
       cwd: appPath,
       stdio: "pipe",
@@ -1782,12 +1782,12 @@ RUN npm install -g pnpm
       "-v",
       `${appPath}:/app`,
       "-v",
-      `dyad-pnpm-${appId}:/app/.pnpm-store`,
+      `alifullstack-pnpm-${appId}:/app/.pnpm-store`,
       "-e",
       "PNPM_STORE_PATH=/app/.pnpm-store",
       "-w",
       workingDir,
-      `dyad-app-${appId}`,
+      `alifullstack-app-${appId}`,
       "sh",
       "-c",
       getCommand({ installCommand, startCommand }),
@@ -1887,7 +1887,7 @@ async function stopDockerContainersOnPort(port: number): Promise<void> {
 }
 
 export function registerAppHandlers() {
-  handle("restart-dyad", async () => {
+  handle("restart-alifullstack", async () => {
     app.relaunch();
     app.quit();
   });
@@ -1911,14 +1911,20 @@ export function registerAppHandlers() {
   handle(
     "create-app",
     async (
-      _,
+      event,
       params: CreateAppParams,
     ): Promise<{ app: any; chatId: number }> => {
       const appPath = params.name;
-      const fullAppPath = getDyadAppPath(appPath);
+      const fullAppPath = getAliFullStackAppPath(appPath);
       if (fs.existsSync(fullAppPath)) {
         throw new Error(`App already exists at: ${fullAppPath}`);
       }
+
+      const sendProgress = (message: string) => {
+        safeSend(event.sender, "app:loading-progress", { message });
+      };
+
+      sendProgress("Initializing database entries...");
       // Create a new app
       const [app] = await db
         .insert(apps)
@@ -1937,6 +1943,7 @@ export function registerAppHandlers() {
         })
         .returning();
 
+      sendProgress("Applying application template...");
       await createFromTemplate({
         fullAppPath,
         selectedTemplateId: params.selectedTemplateId,
@@ -1946,6 +1953,7 @@ export function registerAppHandlers() {
 
       // Initialize git repo and create first commit
       try {
+        sendProgress("Initializing Git repository...");
         logger.info(`Initializing Git repository for app: ${fullAppPath}`);
 
         // Check if .git already exists (might happen if copy/app creation already set it up)
@@ -1990,6 +1998,7 @@ export function registerAppHandlers() {
           }
         }
 
+        sendProgress("Staging files for initial commit...");
         // Stage all files
         let addedSuccess = false;
         try {
@@ -2005,6 +2014,7 @@ export function registerAppHandlers() {
           // Continue anyway - might be empty directory
         }
 
+        sendProgress("Creating initial version commit...");
         // Create initial commit
         if (addedSuccess) {
           try {
@@ -2060,6 +2070,7 @@ export function registerAppHandlers() {
         }
       }, 0);
 
+      sendProgress("App creation successful!");
       return { app, chatId: chat.id };
     },
   );
@@ -2075,7 +2086,7 @@ export function registerAppHandlers() {
         throw new Error("App not found");
       }
 
-      const fullAppPath = getDyadAppPath(app.path);
+      const fullAppPath = getAliFullStackAppPath(app.path);
       const settings = readSettings();
 
       if (params.folderType === "frontend") {
@@ -2242,8 +2253,8 @@ export function registerAppHandlers() {
         throw new Error("Original app not found.");
       }
 
-      const originalAppPath = getDyadAppPath(originalApp.path);
-      const newAppPath = getDyadAppPath(newAppName);
+      const originalAppPath = getAliFullStackAppPath(originalApp.path);
+      const newAppPath = getAliFullStackAppPath(newAppName);
 
       // 3. Copy the app folder
       try {
@@ -2311,7 +2322,7 @@ export function registerAppHandlers() {
     }
 
     // Get app files
-    const appPath = getDyadAppPath(app.path);
+    const appPath = getAliFullStackAppPath(app.path);
     let allFiles: string[] = [];
 
     // Scan frontend folder if it exists
@@ -2383,7 +2394,7 @@ export function registerAppHandlers() {
     });
     return {
       apps: allApps,
-      appBasePath: getDyadAppPath("$APP_BASE_PATH"),
+      appBasePath: getAliFullStackAppPath("$APP_BASE_PATH"),
     };
   });
 
@@ -2398,7 +2409,7 @@ export function registerAppHandlers() {
         throw new Error("App not found");
       }
 
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
       let fullPath: string;
 
       // Check if the filePath starts with frontend/ or backend/
@@ -2482,7 +2493,7 @@ export function registerAppHandlers() {
 
         logger.debug(`Starting app ${appId} in path ${app.path}`);
 
-        const appPath = getDyadAppPath(app.path);
+        const appPath = getAliFullStackAppPath(app.path);
         try {
           // There may have been a previous run that left a process on port 32100.
           await cleanUpPort(32100);
@@ -2616,7 +2627,7 @@ export function registerAppHandlers() {
             throw new Error("App not found");
           }
 
-          const appPath = getDyadAppPath(app.path);
+          const appPath = getAliFullStackAppPath(app.path);
 
           // Remove node_modules if requested
           if (removeNodeModules) {
@@ -2675,7 +2686,7 @@ export function registerAppHandlers() {
         throw new Error("App not found");
       }
 
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
       let finalFullPath: string;
 
       // Check if the filePath starts with frontend/ or backend/
@@ -2806,7 +2817,7 @@ export function registerAppHandlers() {
         }
 
         // Delete app files
-        const appPath = getDyadAppPath(app.path);
+        const appPath = getAliFullStackAppPath(app.path);
         try {
           await fsPromises.rm(appPath, { recursive: true, force: true });
         } catch (error: any) {
@@ -2864,7 +2875,7 @@ export function registerAppHandlers() {
     // Delete all app files
     logger.log("deleting all app files...");
     for (const app of allApps) {
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
       if (fs.existsSync(appPath)) {
         try {
           await fsPromises.rm(appPath, { recursive: true, force: true });
@@ -2944,8 +2955,8 @@ export function registerAppHandlers() {
           }
         }
 
-        const oldAppPath = getDyadAppPath(app.path);
-        const newAppPath = getDyadAppPath(appPath);
+        const oldAppPath = getAliFullStackAppPath(app.path);
+        const newAppPath = getAliFullStackAppPath(appPath);
         // Only move files if needed
         if (newAppPath !== oldAppPath) {
           // Move app files
@@ -3064,11 +3075,11 @@ export function registerAppHandlers() {
     // Doing this last because it's the most time-consuming and the least important
     // in terms of resetting the app state.
     logger.log("removing all app files...");
-    const dyadAppPath = getDyadAppPath(".");
-    if (fs.existsSync(dyadAppPath)) {
-      await fsPromises.rm(dyadAppPath, { recursive: true, force: true });
+    const alifullstackAppPath = getAliFullStackAppPath(".");
+    if (fs.existsSync(alifullstackAppPath)) {
+      await fsPromises.rm(alifullstackAppPath, { recursive: true, force: true });
       // Recreate the base directory
-      await fsPromises.mkdir(dyadAppPath, { recursive: true });
+      await fsPromises.mkdir(alifullstackAppPath, { recursive: true });
     }
     logger.log("all app files removed.");
     logger.log("reset all complete.");
@@ -3091,7 +3102,7 @@ export function registerAppHandlers() {
       throw new Error("App not found");
     }
 
-    const appPath = getDyadAppPath(app.path);
+    const appPath = getAliFullStackAppPath(app.path);
 
     return withLock(appId, async () => {
       try {

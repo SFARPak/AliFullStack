@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChevronUp, ChevronDown, Code2, FileText } from "lucide-react";
 import { CustomTagState } from "./stateTypes";
 
-interface DyadCodebaseContextProps {
+interface AliFullStackCodebaseContextProps {
   children: React.ReactNode;
   node?: {
     properties?: {
@@ -12,7 +12,7 @@ interface DyadCodebaseContextProps {
   };
 }
 
-export const DyadCodebaseContext: React.FC<DyadCodebaseContextProps> = ({
+export const AliFullStackCodebaseContext: React.FC<AliFullStackCodebaseContextProps> = ({
   node,
 }) => {
   const state = node?.properties?.state as CustomTagState;

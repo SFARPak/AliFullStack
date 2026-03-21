@@ -4,7 +4,7 @@
 
 > ✅ 100% Local | 🚀 LLM-Powered | 🧠 BYO AI API Key | 🧩 Framework-Agnostic | 💡 Open Source
 
-Inspired by tools like _Lovable_, _v0.dev_, and _Bolt_, but with no lock-in or cloud dependency. Built on top of [Dyad](https://github.com/dyad-sh/dyad), AliFullStack gives you the power of AI without sacrificing control.
+Inspired by tools like _Lovable_, _v0.dev_, and _Bolt_, but with no lock-in or cloud dependency. Built on top of [AliFullStack](https://github.com/alifullstack-sh/alifullstack), AliFullStack gives you the power of AI without sacrificing control.
 
 ![AliFullStack Screenshot](https://github.com/user-attachments/assets/f6c83dfc-6ffd-4d32-93dd-4b9c46d17790)
 
@@ -14,7 +14,7 @@ Inspired by tools like _Lovable_, _v0.dev_, and _Bolt_, but with no lock-in or c
 
 AliFullstack builds on top of other awesome open-source projects:
 
-- [Dyad](https://github.com/dyad-sh/dyad)
+- [AliFullStack](https://github.com/alifullstack-sh/alifullstack)
 - [Roo-Code](https://github.com/RooCodeInc/Roo-Code)
 - [React](https://github.com/facebook/react)
 - [NextJS](https://github.com/vercel/next.js) -[Vue](https://github.com/vuejs/core)
@@ -77,7 +77,7 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 - [x] [Google Vertex AI](https://cloud.google.com/vertex-ai)
 - [x] [Anthropic Claude](https://www.anthropic.com)
 - [x] [OpenRouter](https://openrouter.ai)
-- [x] [Dyad](https://alifullstack.alitech.io)
+- [x] [AliFullStack](https://alifullstack.alitech.io)
 - [x] [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 - [x] [xAI](https://x.ai)
 - [x] [AWS Bedrock](https://aws.amazon.com/bedrock/)

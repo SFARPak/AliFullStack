@@ -107,7 +107,7 @@ const validInvokeChannels = [
   "open-ios",
   "open-android",
   "check-problems",
-  "restart-dyad",
+  "restart-alifullstack",
   "get-templates",
   "portal:migrate-create",
   // Help bot
@@ -144,6 +144,7 @@ const validReceiveChannels = [
   "help:chat:response:chunk",
   "help:chat:response:end",
   "help:chat:response:error",
+  "app:loading-progress",
 ] as const;
 
 type ValidInvokeChannel = (typeof validInvokeChannels)[number];

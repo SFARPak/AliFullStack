@@ -10,7 +10,7 @@ import * as path from "path";
 import { createLoggedHandler } from "./safe_handle";
 
 import log from "electron-log";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import { UpdateChatParams } from "../ipc_types";
 
 const logger = log.scope("chat_handlers");
@@ -35,7 +35,7 @@ export function registerChatHandlers() {
       // Get the current git revision of main branch
       initialCommitHash = await git.resolveRef({
         fs,
-        dir: getDyadAppPath(app.path),
+        dir: getAliFullStackAppPath(app.path),
         ref: "main",
       });
     } catch (error) {
@@ -188,7 +188,7 @@ export function registerChatHandlers() {
       throw new Error("App not found");
     }
 
-    const backendPath = path.join(getDyadAppPath(app.path), "backend");
+    const backendPath = path.join(getAliFullStackAppPath(app.path), "backend");
 
     // Check if backend directory exists
     if (!fs.existsSync(backendPath)) {
@@ -234,7 +234,7 @@ export function registerChatHandlers() {
       throw new Error("App not found");
     }
 
-    const frontendPath = path.join(getDyadAppPath(app.path), "frontend");
+    const frontendPath = path.join(getAliFullStackAppPath(app.path), "frontend");
 
     // Check if frontend directory exists
     if (!fs.existsSync(frontendPath)) {

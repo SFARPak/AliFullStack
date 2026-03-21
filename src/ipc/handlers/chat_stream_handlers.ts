@@ -19,7 +19,7 @@ import {
   SUPABASE_AVAILABLE_SYSTEM_PROMPT,
   SUPABASE_NOT_AVAILABLE_SYSTEM_PROMPT,
 } from "../../prompts/supabase_prompt";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import { readSettings } from "../../main/settings";
 import type { ChatResponseEnd, ChatStreamParams } from "../ipc_types";
 import { extractCodebase, readFileWithCache } from "../../utils/codebase";
@@ -51,11 +51,11 @@ import { generateProblemReport } from "../processors/tsc";
 import { createProblemFixPrompt } from "@/shared/problem_prompt";
 import { AsyncVirtualFileSystem } from "../../../shared/VirtualFilesystem";
 import {
-  getDyadAddDependencyTags,
-  getDyadWriteTags,
-  getDyadDeleteTags,
-  getDyadRenameTags,
-} from "../utils/dyad_tag_parser";
+  getAliFullStackAddDependencyTags,
+  getAliFullStackWriteTags,
+  getAliFullStackDeleteTags,
+  getAliFullStackRenameTags,
+} from "../utils/alifullstack_tag_parser";
 import { fileExists } from "../utils/file_utils";
 import { FileUploadsState } from "../utils/file_uploads_state";
 import { OpenAIResponsesProviderOptions } from "@ai-sdk/openai";
@@ -76,7 +76,7 @@ const activeStreams = new Map<number, AbortController>();
 const partialResponses = new Map<number, string>();
 
 // Directory for storing temporary files
-const TEMP_DIR = path.join(os.tmpdir(), "dyad-attachments");
+const TEMP_DIR = path.join(os.tmpdir(), "alifullstack-attachments");
 
 // Common helper functions
 const TEXT_FILE_EXTENSIONS = [
@@ -141,7 +141,7 @@ async function processStreamChunks({
         inThinkingBlock = true;
       }
 
-      chunk += escapeDyadTags(part.text);
+      chunk += escapeAliFullStackTags(part.text);
     }
 
     if (!chunk) {
@@ -256,7 +256,7 @@ export function registerChatStreamHandlers() {
               originalName: attachment.name,
             });
 
-            // Add instruction for AI to use dyad-write tag
+            // Add instruction for AI to use alifullstack-write tag
             attachmentInfo += `\n\nFile to upload to codebase: ${attachment.name} (file id: ${fileId})\n`;
           } else {
             // For chat-context, use the existing logic
@@ -264,8 +264,8 @@ export function registerChatStreamHandlers() {
             // If it's a text-based file, try to include the content
             if (await isTextFile(filePath)) {
               try {
-                attachmentInfo += `<dyad-text-attachment filename="${attachment.name}" type="${attachment.type}" path="${filePath}">
-                </dyad-text-attachment>
+                attachmentInfo += `<alifullstack-text-attachment filename="${attachment.name}" type="${attachment.type}" path="${filePath}">
+                </alifullstack-text-attachment>
                 \n\n`;
               } catch (err) {
                 logger.error(`Error reading file content: ${err}`);
@@ -302,7 +302,7 @@ export function registerChatStreamHandlers() {
         try {
           const componentFileContent = await readFile(
             path.join(
-              getDyadAppPath(chat.app.path),
+              getAliFullStackAppPath(chat.app.path),
               req.selectedComponent.relativePath,
             ),
             "utf8",
@@ -393,7 +393,7 @@ ${componentSnippet}
         // Normal AI processing for non-test prompts
         const settings = readSettings();
 
-        const appPath = getDyadAppPath(updatedChat.app.path);
+        const appPath = getAliFullStackAppPath(updatedChat.app.path);
         const chatContext = req.selectedComponent
           ? {
               contextPaths: [
@@ -497,7 +497,7 @@ ${componentSnippet}
         const finalChatMode = req.chatMode || settings.selectedChatMode;
 
         // For backend mode, read AI_RULES.md from backend folder if it exists
-        let aiRulesPath = getDyadAppPath(updatedChat.app.path);
+        let aiRulesPath = getAliFullStackAppPath(updatedChat.app.path);
         if (finalChatMode === "backend") {
           const backendRulesPath = path.join(
             aiRulesPath,
@@ -565,7 +565,7 @@ ${componentSnippet}
           );
         // If there's mixed attachments (e.g. some upload to codebase attachments and some upload images as chat context attachemnts)
         // we will just include the file upload system prompt, otherwise the AI gets confused and doesn't reliably
-        // print out the dyad-write tags.
+        // print out the alifullstack-write tags.
         // Usually, AI models will want to use the image as reference to generate code (e.g. UI mockups) anyways, so
         // it's not that critical to include the image analysis instructions.
         if (hasUploadedAttachments) {
@@ -573,14 +573,14 @@ ${componentSnippet}
   
 When files are attached to this conversation, upload them to the codebase using this exact format:
 
-<dyad-write path="path/to/destination/filename.ext" description="Upload file to codebase">
+<alifullstack-write path="path/to/destination/filename.ext" description="Upload file to codebase">
 DYAD_ATTACHMENT_X
-</dyad-write>
+</alifullstack-write>
 
 Example for file with id of DYAD_ATTACHMENT_0:
-<dyad-write path="src/components/Button.jsx" description="Upload file to codebase">
+<alifullstack-write path="src/components/Button.jsx" description="Upload file to codebase">
 DYAD_ATTACHMENT_0
-</dyad-write>
+</alifullstack-write>
 
   `;
         } else if (hasImageAttachments) {
@@ -633,7 +633,7 @@ This conversation includes one or more image attachments. When the user uploads 
             // and eats up extra tokens.
             content:
               settings.selectedChatMode === "ask"
-                ? removeDyadTags(removeNonEssentialTags(msg.content))
+                ? removeAliFullStackTags(removeNonEssentialTags(msg.content))
                 : removeNonEssentialTags(msg.content),
           })),
         ];
@@ -678,21 +678,21 @@ This conversation includes one or more image attachments. When the user uploads 
           chatMessages: ModelMessage[];
           modelClient: ModelClient;
         }) => {
-          const dyadRequestId = uuidv4();
+          const alifullstackRequestId = uuidv4();
           if (isEngineEnabled) {
             logger.log(
               "sending AI request to engine with request id:",
-              dyadRequestId,
+              alifullstackRequestId,
             );
           } else {
             logger.log("sending AI request");
           }
           // Build provider options with correct Google/Vertex thinking config gating
           const providerOptions: Record<string, any> = {
-            "dyad-engine": {
-              dyadRequestId,
+            "alifullstack-engine": {
+              alifullstackRequestId,
             },
-            "dyad-gateway": getExtraProviderOptions(
+            "alifullstack-gateway": getExtraProviderOptions(
               modelClient.builtinProviderId,
               settings,
             ),
@@ -750,7 +750,7 @@ This conversation includes one or more image attachments. When the user uploads 
               }
               const message = errorMessage || JSON.stringify(error);
               const requestIdPrefix = isEngineEnabled
-                ? `[Request ID: ${dyadRequestId}] `
+                ? `[Request ID: ${alifullstackRequestId}] `
                 : "";
               event.sender.send(
                 "chat:response:error",
@@ -820,16 +820,16 @@ This conversation includes one or more image attachments. When the user uploads 
           if (
             !abortController.signal.aborted &&
             settings.selectedChatMode !== "ask" &&
-            hasUnclosedDyadWrite(fullResponse)
+            hasUnclosedAliFullStackWrite(fullResponse)
           ) {
             let continuationAttempts = 0;
             while (
-              hasUnclosedDyadWrite(fullResponse) &&
+              hasUnclosedAliFullStackWrite(fullResponse) &&
               continuationAttempts < 2 &&
               !abortController.signal.aborted
             ) {
               logger.warn(
-                `Received unclosed dyad-write tag, attempting to continue, attempt #${continuationAttempts + 1}`,
+                `Received unclosed alifullstack-write tag, attempting to continue, attempt #${continuationAttempts + 1}`,
               );
               continuationAttempts++;
 
@@ -856,7 +856,7 @@ This conversation includes one or more image attachments. When the user uploads 
               }
             }
           }
-          const addDependencies = getDyadAddDependencyTags(fullResponse);
+          const addDependencies = getAliFullStackAddDependencyTags(fullResponse);
           if (
             !abortController.signal.aborted &&
             // If there are dependencies, we don't want to auto-fix problems
@@ -870,7 +870,7 @@ This conversation includes one or more image attachments. When the user uploads 
               // IF auto-fix is enabled
               let problemReport = await generateProblemReport({
                 fullResponse,
-                appPath: getDyadAppPath(updatedChat.app.path),
+                appPath: getAliFullStackAppPath(updatedChat.app.path),
               });
 
               let autoFixAttempts = 0;
@@ -881,14 +881,14 @@ This conversation includes one or more image attachments. When the user uploads 
                 autoFixAttempts < 2 &&
                 !abortController.signal.aborted
               ) {
-                fullResponse += `<dyad-problem-report summary="${problemReport.problems.length} problems">
+                fullResponse += `<alifullstack-problem-report summary="${problemReport.problems.length} problems">
 ${problemReport.problems
   .map(
     (problem) =>
       `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
   )
   .join("\n")}
-</dyad-problem-report>`;
+</alifullstack-problem-report>`;
 
                 logger.info(
                   `Attempting to auto-fix problems, attempt #${autoFixAttempts + 1}`,
@@ -897,15 +897,15 @@ ${problemReport.problems
                 const problemFixPrompt = createProblemFixPrompt(problemReport);
 
                 const virtualFileSystem = new AsyncVirtualFileSystem(
-                  getDyadAppPath(updatedChat.app.path),
+                  getAliFullStackAppPath(updatedChat.app.path),
                   {
                     fileExists: (fileName: string) => fileExists(fileName),
                     readFile: (fileName: string) => readFileWithCache(fileName),
                   },
                 );
-                const writeTags = getDyadWriteTags(fullResponse);
-                const renameTags = getDyadRenameTags(fullResponse);
-                const deletePaths = getDyadDeleteTags(fullResponse);
+                const writeTags = getAliFullStackWriteTags(fullResponse);
+                const renameTags = getAliFullStackRenameTags(fullResponse);
+                const deletePaths = getAliFullStackDeleteTags(fullResponse);
                 virtualFileSystem.applyResponseChanges({
                   deletePaths,
                   renameTags,
@@ -968,7 +968,7 @@ ${problemReport.problems
 
                 problemReport = await generateProblemReport({
                   fullResponse,
-                  appPath: getDyadAppPath(updatedChat.app.path),
+                  appPath: getAliFullStackAppPath(updatedChat.app.path),
                 });
               }
             } catch (error) {
@@ -1016,9 +1016,9 @@ ${problemReport.problems
 
       // Only save the response and process it if we weren't aborted
       if (!abortController.signal.aborted && fullResponse) {
-        // Scrape from: <dyad-chat-summary>Renaming profile file</dyad-chat-title>
+        // Scrape from: <alifullstack-chat-summary>Renaming profile file</alifullstack-chat-title>
         const chatTitle = fullResponse.match(
-          /<dyad-chat-summary>(.*?)<\/dyad-chat-summary>/,
+          /<alifullstack-chat-summary>(.*?)<\/alifullstack-chat-summary>/,
         );
         if (chatTitle) {
           await db
@@ -1035,7 +1035,8 @@ ${problemReport.problems
           .where(eq(messages.id, placeholderAssistantMessage.id));
         const settings = readSettings();
         if (
-          settings.autoApproveChanges &&
+          (settings.autoApproveChanges ||
+            settings.executionMode === "autonomous") &&
           settings.selectedChatMode !== "ask"
         ) {
           const status = await processFullResponseActions(
@@ -1188,7 +1189,7 @@ async function replaceTextAttachmentWithContent(
       // Replace the placeholder tag with the full content
       const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const tagPattern = new RegExp(
-        `<dyad-text-attachment filename="[^"]*" type="[^"]*" path="${escapedPath}">\\s*<\\/dyad-text-attachment>`,
+        `<alifullstack-text-attachment filename="[^"]*" type="[^"]*" path="${escapedPath}">\\s*<\\/alifullstack-text-attachment>`,
         "g",
       );
 
@@ -1281,18 +1282,18 @@ function removeThinkingTags(text: string): string {
 
 export function removeProblemReportTags(text: string): string {
   const problemReportRegex =
-    /<dyad-problem-report[^>]*>[\s\S]*?<\/dyad-problem-report>/g;
+    /<alifullstack-problem-report[^>]*>[\s\S]*?<\/alifullstack-problem-report>/g;
   return text.replace(problemReportRegex, "").trim();
 }
 
-export function removeDyadTags(text: string): string {
-  const dyadRegex = /<dyad-[^>]*>[\s\S]*?<\/dyad-[^>]*>/g;
-  return text.replace(dyadRegex, "").trim();
+export function removeAliFullStackTags(text: string): string {
+  const alifullstackRegex = /<alifullstack-[^>]*>[\s\S]*?<\/alifullstack-[^>]*>/g;
+  return text.replace(alifullstackRegex, "").trim();
 }
 
-export function hasUnclosedDyadWrite(text: string): boolean {
-  // Find the last opening dyad-write tag
-  const openRegex = /<dyad-write[^>]*>/g;
+export function hasUnclosedAliFullStackWrite(text: string): boolean {
+  // Find the last opening alifullstack-write tag
+  const openRegex = /<alifullstack-write[^>]*>/g;
   let lastOpenIndex = -1;
   let match;
 
@@ -1307,19 +1308,19 @@ export function hasUnclosedDyadWrite(text: string): boolean {
 
   // Look for a closing tag after the last opening tag
   const textAfterLastOpen = text.substring(lastOpenIndex);
-  const hasClosingTag = /<\/dyad-write>/.test(textAfterLastOpen);
+  const hasClosingTag = /<\/alifullstack-write>/.test(textAfterLastOpen);
 
   return !hasClosingTag;
 }
 
-function escapeDyadTags(text: string): string {
-  // Escape dyad tags in reasoning content
+function escapeAliFullStackTags(text: string): string {
+  // Escape alifullstack tags in reasoning content
   // We are replacing the opening tag with a look-alike character
-  // to avoid issues where thinking content includes dyad tags
+  // to avoid issues where thinking content includes alifullstack tags
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text.replace(/<dyad/g, "＜dyad").replace(/<\/dyad/g, "＜/dyad");
+  return text.replace(/<alifullstack/g, "＜alifullstack").replace(/<\/alifullstack/g, "＜/alifullstack");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

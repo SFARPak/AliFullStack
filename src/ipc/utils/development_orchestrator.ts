@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import log from "electron-log";
 import { runShellCommand } from "./runShellCommand";
 import { addTerminalOutput } from "../handlers/terminal_handlers";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import { db } from "../../db";
 import { apps } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -249,7 +249,7 @@ export class DevelopmentOrchestrator {
         throw new Error(`App ${state.appId} not found`);
       }
 
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
       const frontendPath = path.join(appPath, "frontend");
 
       // Start frontend development server
@@ -381,7 +381,7 @@ export class DevelopmentOrchestrator {
         throw new Error(`App ${state.appId} not found`);
       }
 
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
       const backendPath = path.join(appPath, "backend");
 
       // Start backend development server
@@ -657,7 +657,7 @@ Please generate a well-structured backend application with:
 - Error handling
 - Clean, maintainable code
 
-IMPORTANT: Use proper dyad-write tags to create files. Always include the "path" attribute.
+IMPORTANT: Use proper alifullstack-write tags to create files. Always include the "path" attribute.
 For backend files, use paths like "backend/main.py" or "backend/server.js" etc.
 
 **DO NOT attempt to run backend servers manually.** The system automatically handles server startup when users click the "Run App" button. Focus ONLY on creating code files. The system will automatically detect the framework and start the appropriate server.

@@ -1,25 +1,25 @@
 import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 
-import { DyadWrite } from "./DyadWrite";
-import { DyadRename } from "./DyadRename";
-import { DyadDelete } from "./DyadDelete";
-import { DyadAddDependency } from "./DyadAddDependency";
-import { DyadExecuteSql } from "./DyadExecuteSql";
-import { DyadAddIntegration } from "./DyadAddIntegration";
-import { DyadEdit } from "./DyadEdit";
-import { DyadCodebaseContext } from "./DyadCodebaseContext";
-import { DyadThink } from "./DyadThink";
-import { DyadSearchReplace } from "./DyadSearchReplace";
+import { AliFullStackWrite } from "./AliFullStackWrite";
+import { AliFullStackRename } from "./AliFullStackRename";
+import { AliFullStackDelete } from "./AliFullStackDelete";
+import { AliFullStackAddDependency } from "./AliFullStackAddDependency";
+import { AliFullStackExecuteSql } from "./AliFullStackExecuteSql";
+import { AliFullStackAddIntegration } from "./AliFullStackAddIntegration";
+import { AliFullStackEdit } from "./AliFullStackEdit";
+import { AliFullStackCodebaseContext } from "./AliFullStackCodebaseContext";
+import { AliFullStackThink } from "./AliFullStackThink";
+import { AliFullStackSearchReplace } from "./AliFullStackSearchReplace";
 import { CodeHighlight } from "./CodeHighlight";
 import { useAtomValue } from "jotai";
 import { isStreamingAtom } from "@/atoms/chatAtoms";
 import { CustomTagState } from "./stateTypes";
-import { DyadOutput } from "./DyadOutput";
-import { DyadProblemSummary } from "./DyadProblemSummary";
+import { AliFullStackOutput } from "./AliFullStackOutput";
+import { AliFullStackProblemSummary } from "./AliFullStackProblemSummary";
 import { IpcClient } from "@/ipc/ipc_client";
 
-interface DyadMarkdownParserProps {
+interface AliFullStackMarkdownParserProps {
   content: string;
 }
 
@@ -68,9 +68,9 @@ export const VanillaMarkdownParser = ({ content }: { content: string }) => {
 };
 
 /**
- * Custom component to parse markdown content with Dyad-specific tags
+ * Custom component to parse markdown content with AliFullStack-specific tags
  */
-export const DyadMarkdownParser: React.FC<DyadMarkdownParserProps> = ({
+export const AliFullStackMarkdownParser: React.FC<AliFullStackMarkdownParserProps> = ({
   content,
 }) => {
   const isStreaming = useAtomValue(isStreamingAtom);
@@ -112,19 +112,19 @@ function preprocessUnclosedTags(content: string): {
   inProgressTags: Map<string, Set<number>>;
 } {
   const customTagNames = [
-    "dyad-write",
-    "dyad-rename",
-    "dyad-delete",
-    "dyad-add-dependency",
-    "dyad-execute-sql",
-    "dyad-add-integration",
-    "dyad-output",
-    "dyad-problem-report",
-    "dyad-chat-summary",
-    "dyad-edit",
-    "dyad-codebase-context",
+    "alifullstack-write",
+    "alifullstack-rename",
+    "alifullstack-delete",
+    "alifullstack-add-dependency",
+    "alifullstack-execute-sql",
+    "alifullstack-add-integration",
+    "alifullstack-output",
+    "alifullstack-problem-report",
+    "alifullstack-chat-summary",
+    "alifullstack-edit",
+    "alifullstack-codebase-context",
     "think",
-    "dyad-command",
+    "alifullstack-command",
     "search_replace",
   ];
 
@@ -180,19 +180,19 @@ function parseCustomTags(content: string): ContentPiece[] {
   const { processedContent, inProgressTags } = preprocessUnclosedTags(content);
 
   const customTagNames = [
-    "dyad-write",
-    "dyad-rename",
-    "dyad-delete",
-    "dyad-add-dependency",
-    "dyad-execute-sql",
-    "dyad-add-integration",
-    "dyad-output",
-    "dyad-problem-report",
-    "dyad-chat-summary",
-    "dyad-edit",
-    "dyad-codebase-context",
+    "alifullstack-write",
+    "alifullstack-rename",
+    "alifullstack-delete",
+    "alifullstack-add-dependency",
+    "alifullstack-execute-sql",
+    "alifullstack-add-integration",
+    "alifullstack-output",
+    "alifullstack-problem-report",
+    "alifullstack-chat-summary",
+    "alifullstack-edit",
+    "alifullstack-codebase-context",
     "think",
-    "dyad-command",
+    "alifullstack-command",
     "run_terminal_cmd",
     "search_replace",
   ];
@@ -282,7 +282,7 @@ function renderCustomTag(
   switch (tag) {
     case "think":
       return (
-        <DyadThink
+        <AliFullStackThink
           node={{
             properties: {
               state: getState({ isStreaming, inProgress }),
@@ -290,11 +290,11 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadThink>
+        </AliFullStackThink>
       );
-    case "dyad-write":
+    case "alifullstack-write":
       return (
-        <DyadWrite
+        <AliFullStackWrite
           node={{
             properties: {
               path: attributes.path || "",
@@ -304,12 +304,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadWrite>
+        </AliFullStackWrite>
       );
 
-    case "dyad-rename":
+    case "alifullstack-rename":
       return (
-        <DyadRename
+        <AliFullStackRename
           node={{
             properties: {
               from: attributes.from || "",
@@ -318,12 +318,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadRename>
+        </AliFullStackRename>
       );
 
-    case "dyad-delete":
+    case "alifullstack-delete":
       return (
-        <DyadDelete
+        <AliFullStackDelete
           node={{
             properties: {
               path: attributes.path || "",
@@ -331,12 +331,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadDelete>
+        </AliFullStackDelete>
       );
 
-    case "dyad-add-dependency":
+    case "alifullstack-add-dependency":
       return (
-        <DyadAddDependency
+        <AliFullStackAddDependency
           node={{
             properties: {
               packages: attributes.packages || "",
@@ -344,12 +344,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadAddDependency>
+        </AliFullStackAddDependency>
       );
 
-    case "dyad-execute-sql":
+    case "alifullstack-execute-sql":
       return (
-        <DyadExecuteSql
+        <AliFullStackExecuteSql
           node={{
             properties: {
               state: getState({ isStreaming, inProgress }),
@@ -358,12 +358,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadExecuteSql>
+        </AliFullStackExecuteSql>
       );
 
-    case "dyad-add-integration":
+    case "alifullstack-add-integration":
       return (
-        <DyadAddIntegration
+        <AliFullStackAddIntegration
           node={{
             properties: {
               provider: attributes.provider || "",
@@ -371,12 +371,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadAddIntegration>
+        </AliFullStackAddIntegration>
       );
 
-    case "dyad-edit":
+    case "alifullstack-edit":
       return (
-        <DyadEdit
+        <AliFullStackEdit
           node={{
             properties: {
               path: attributes.path || "",
@@ -386,12 +386,12 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadEdit>
+        </AliFullStackEdit>
       );
 
-    case "dyad-codebase-context":
+    case "alifullstack-codebase-context":
       return (
-        <DyadCodebaseContext
+        <AliFullStackCodebaseContext
           node={{
             properties: {
               files: attributes.files || "",
@@ -400,32 +400,32 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadCodebaseContext>
+        </AliFullStackCodebaseContext>
       );
 
-    case "dyad-output":
+    case "alifullstack-output":
       return (
-        <DyadOutput
+        <AliFullStackOutput
           type={attributes.type as "warning" | "error"}
           message={attributes.message}
         >
           {content}
-        </DyadOutput>
+        </AliFullStackOutput>
       );
 
-    case "dyad-problem-report":
+    case "alifullstack-problem-report":
       return (
-        <DyadProblemSummary summary={attributes.summary}>
+        <AliFullStackProblemSummary summary={attributes.summary}>
           {content}
-        </DyadProblemSummary>
+        </AliFullStackProblemSummary>
       );
 
-    case "dyad-chat-summary":
-      // Don't render anything for dyad-chat-summary
+    case "alifullstack-chat-summary":
+      // Don't render anything for alifullstack-chat-summary
       return null;
 
-    case "dyad-command":
-      // Don't render anything for dyad-command
+    case "alifullstack-command":
+      // Don't render anything for alifullstack-command
       return null;
 
     case "run_terminal_cmd":
@@ -434,7 +434,7 @@ function renderCustomTag(
 
     case "search_replace":
       return (
-        <DyadSearchReplace
+        <AliFullStackSearchReplace
           node={{
             properties: {
               state: getState({ isStreaming, inProgress }),
@@ -442,7 +442,7 @@ function renderCustomTag(
           }}
         >
           {content}
-        </DyadSearchReplace>
+        </AliFullStackSearchReplace>
       );
 
     default:

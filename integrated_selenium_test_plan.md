@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This integrated test plan combines the UI Selenium test plan and functional Selenium test plan into a comprehensive testing strategy for the AliFullStack (Dyad) Electron application. The plan ensures complete coverage of all critical application areas while eliminating overlaps between UI-focused and functionally-focused tests.
+This integrated test plan combines the UI Selenium test plan and functional Selenium test plan into a comprehensive testing strategy for the AliFullStack (AliFullStack) Electron application. The plan ensures complete coverage of all critical application areas while eliminating overlaps between UI-focused and functionally-focused tests.
 
 **Key Integration Principles:**
 
@@ -179,7 +179,7 @@ public class TestDataFactory {
         return ChatTestData.builder()
             .messages(List.of(
                 createMessage("Create a todo app"),
-                createAIMessage("<dyad-write path=\"src/App.js\">...</dyad-write>")
+                createAIMessage("<alifullstack-write path=\"src/App.js\">...</alifullstack-write>")
             ))
             .build();
     }

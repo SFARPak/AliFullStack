@@ -16,14 +16,14 @@ import { FileEditor } from "../preview_panel/FileEditor";
 import { useAtomValue } from "jotai";
 import { selectedAppIdAtom } from "@/atoms/appAtoms";
 
-interface DyadWriteProps {
+interface AliFullStackWriteProps {
   children?: ReactNode;
   node?: any;
   path?: string;
   description?: string;
 }
 
-export const DyadWrite: React.FC<DyadWriteProps> = ({
+export const AliFullStackWrite: React.FC<AliFullStackWriteProps> = ({
   children,
   node,
   path: pathProp,

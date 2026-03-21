@@ -42,7 +42,7 @@ export function HelpDialog({ isOpen, onClose }: HelpDialogProps) {
   const selectedChatId = useAtomValue(selectedChatIdAtom);
   const { settings } = useSettings();
 
-  const isDyadProUser = settings?.providerSettings?.["auto"]?.apiKey?.value;
+  const isAliFullStackProUser = settings?.providerSettings?.["auto"]?.apiKey?.value;
 
   // Function to reset all dialog state
   const resetDialogState = () => {
@@ -92,7 +92,7 @@ Issues that do not meet these requirements will be closed and may need to be res
 <!-- What actually happened? -->
 
 ## System Information
-- Dyad Version: ${debugInfo.dyadVersion}
+- AliFullStack Version: ${debugInfo.alifullstackVersion}
 - Platform: ${debugInfo.platform}
 - Architecture: ${debugInfo.architecture}
 - Node Version: ${debugInfo.nodeVersion || "n/a"}
@@ -110,7 +110,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       // Create the GitHub issue URL with the pre-filled body
       const encodedBody = encodeURIComponent(issueBody);
       const encodedTitle = encodeURIComponent("[bug] <WRITE TITLE HERE>");
-      const githubIssueUrl = `https://github.com/SFARPak/dyad/issues/new?title=${encodedTitle}&labels=bug,filed-from-app&body=${encodedBody}`;
+      const githubIssueUrl = `https://github.com/SFARPak/alifullstack/issues/new?title=${encodedTitle}&labels=bug,filed-from-app&body=${encodedBody}`;
 
       // Open the pre-filled GitHub issue page
       IpcClient.getInstance().openExternalUrl(githubIssueUrl);
@@ -118,7 +118,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       console.error("Failed to prepare bug report:", error);
       // Fallback to opening the regular GitHub issue page
       IpcClient.getInstance().openExternalUrl(
-        "https://github.com/SFARPak/dyad/issues/new",
+        "https://github.com/SFARPak/alifullstack/issues/new",
       );
     } finally {
       setIsLoading(false);
@@ -230,7 +230,7 @@ Session ID: ${sessionId}
 
     const encodedBody = encodeURIComponent(issueBody);
     const encodedTitle = encodeURIComponent("[session report] <add title>");
-    const githubIssueUrl = `https://github.com/SFARPak/dyad/issues/new?title=${encodedTitle}&labels=support&body=${encodedBody}`;
+    const githubIssueUrl = `https://github.com/SFARPak/alifullstack/issues/new?title=${encodedTitle}&labels=support&body=${encodedBody}`;
 
     IpcClient.getInstance().openExternalUrl(githubIssueUrl);
     handleClose();
@@ -332,7 +332,7 @@ Session ID: ${sessionId}
             <div className="border rounded-md p-3">
               <h3 className="font-medium mb-2">System Information</h3>
               <div className="text-sm bg-slate-50 dark:bg-slate-900 rounded p-2 max-h-32 overflow-y-auto">
-                <p>Dyad Version: {chatLogsData.debugInfo.dyadVersion}</p>
+                <p>AliFullStack Version: {chatLogsData.debugInfo.alifullstackVersion}</p>
                 <p>Platform: {chatLogsData.debugInfo.platform}</p>
                 <p>Architecture: {chatLogsData.debugInfo.architecture}</p>
                 <p>
@@ -374,13 +374,13 @@ Session ID: ${sessionId}
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Need help with Dyad?</DialogTitle>
+          <DialogTitle>Need help with AliFullStack?</DialogTitle>
         </DialogHeader>
         <DialogDescription className="">
           If you need help or want to report an issue, here are some options:
         </DialogDescription>
         <div className="flex flex-col space-y-4 w-full">
-          {isDyadProUser ? (
+          {isAliFullStackProUser ? (
             <div className="flex flex-col space-y-2">
               <Button
                 variant="default"
@@ -389,11 +389,11 @@ Session ID: ${sessionId}
                 }}
                 className="w-full py-6 border-primary/50 shadow-sm shadow-primary/10 transition-all hover:shadow-md hover:shadow-primary/15"
               >
-                <SparklesIcon className="mr-2 h-5 w-5" /> Chat with Dyad help
+                <SparklesIcon className="mr-2 h-5 w-5" /> Chat with AliFullStack help
                 bot (Pro)
               </Button>
               <p className="text-sm text-muted-foreground px-2">
-                Opens an in-app help chat assistant that searches through Dyad's
+                Opens an in-app help chat assistant that searches through AliFullStack's
                 docs.
               </p>
             </div>

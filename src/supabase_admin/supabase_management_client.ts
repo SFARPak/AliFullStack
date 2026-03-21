@@ -3,7 +3,7 @@ import { readSettings, writeSettings } from "../main/settings";
 import {
   SupabaseManagementAPI,
   SupabaseManagementAPIError,
-} from "@dyad-sh/supabase-management-js";
+} from "@alifullstack-sh/supabase-management-js";
 import log from "electron-log";
 import { IS_TEST_BUILD } from "../ipc/utils/test_utils";
 import { apiFetch } from "../ipc/utils/api_client";
@@ -188,7 +188,7 @@ export async function deploySupabaseFunctions({
     JSON.stringify({
       entrypoint_path: "index.ts",
       name: functionName,
-      // See: https://github.com/SFARPak/dyad/issues/1010
+      // See: https://github.com/SFARPak/alifullstack/issues/1010
       verify_jwt: false,
     }),
   );

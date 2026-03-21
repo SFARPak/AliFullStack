@@ -4,7 +4,7 @@ import { AppUpgrade } from "../ipc_types";
 import { db } from "../../db";
 import { apps } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
@@ -113,7 +113,7 @@ async function applyComponentTagger(appPath: string) {
   // Add import statement if not present
   if (
     !content.includes(
-      "import dyadComponentTagger from '@SFARPak/react-vite-component-tagger';",
+      "import alifullstackComponentTagger from '@SFARPak/react-vite-component-tagger';",
     )
   ) {
     // Add it after the last import statement
@@ -128,17 +128,17 @@ async function applyComponentTagger(appPath: string) {
     lines.splice(
       lastImportIndex + 1,
       0,
-      "import dyadComponentTagger from '@SFARPak/react-vite-component-tagger';",
+      "import alifullstackComponentTagger from '@SFARPak/react-vite-component-tagger';",
     );
     content = lines.join("\n");
   }
 
   // Add plugin to plugins array
   if (content.includes("plugins: [")) {
-    if (!content.includes("dyadComponentTagger()")) {
+    if (!content.includes("alifullstackComponentTagger()")) {
       content = content.replace(
         "plugins: [",
-        "plugins: [dyadComponentTagger(), ",
+        "plugins: [alifullstackComponentTagger(), ",
       );
     }
   } else {
@@ -257,7 +257,7 @@ export function registerAppUpgradeHandlers() {
     "get-app-upgrades",
     async (_, { appId }: { appId: number }): Promise<AppUpgrade[]> => {
       const app = await getApp(appId);
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
 
       const upgradesWithStatus = availableUpgrades.map((upgrade) => {
         let isNeeded = false;
@@ -281,7 +281,7 @@ export function registerAppUpgradeHandlers() {
       }
 
       const app = await getApp(appId);
-      const appPath = getDyadAppPath(app.path);
+      const appPath = getAliFullStackAppPath(app.path);
 
       if (upgradeId === "component-tagger") {
         await applyComponentTagger(appPath);

@@ -2,14 +2,14 @@ import type React from "react";
 import type { ReactNode } from "react";
 import { FileEdit } from "lucide-react";
 
-interface DyadRenameProps {
+interface AliFullStackRenameProps {
   children?: ReactNode;
   node?: any;
   from?: string;
   to?: string;
 }
 
-export const DyadRename: React.FC<DyadRenameProps> = ({
+export const AliFullStackRename: React.FC<AliFullStackRenameProps> = ({
   children,
   node,
   from: fromProp,

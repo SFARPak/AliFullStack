@@ -69,7 +69,7 @@ export function useStreamChat({
     }: {
       prompt: string;
       chatId: number;
-      chatMode?: "build" | "ask" | "backend";
+      chatMode?: "build" | "ask" | "backend" | "fullstack" | "maintain";
       redo?: boolean;
       attachments?: FileAttachment[];
       selectedComponent?: ComponentSelection | null;

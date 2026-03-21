@@ -40,7 +40,7 @@ export function ErrorBoundary({ error }: ErrorComponentProps) {
 ${error?.stack ? `\n\`\`\`\n${error.stack.slice(0, 1000)}\n\`\`\`` : ""}
 
 ## System Information
-- Dyad Version: ${debugInfo.dyadVersion}
+- AliFullStack Version: ${debugInfo.alifullstackVersion}
 - Platform: ${debugInfo.platform}
 - Architecture: ${debugInfo.architecture}
 - Node Version: ${debugInfo.nodeVersion || "Not available"}
@@ -57,9 +57,9 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       // Create the GitHub issue URL with the pre-filled body
       const encodedBody = encodeURIComponent(issueBody);
       const encodedTitle = encodeURIComponent(
-        "[bug] Error in Dyad application",
+        "[bug] Error in AliFullStack application",
       );
-      const githubIssueUrl = `https://github.com/SFARPak/dyad/issues/new?title=${encodedTitle}&labels=bug,filed-from-app,client-error&body=${encodedBody}`;
+      const githubIssueUrl = `https://github.com/SFARPak/AliFullStack/issues/new?title=${encodedTitle}&labels=bug,filed-from-app,client-error&body=${encodedBody}`;
 
       // Open the pre-filled GitHub issue page
       await IpcClient.getInstance().openExternalUrl(githubIssueUrl);
@@ -67,7 +67,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       console.error("Failed to prepare bug report:", err);
       // Fallback to opening the regular GitHub issue page
       IpcClient.getInstance().openExternalUrl(
-        "https://github.com/SFARPak/dyad/issues/new",
+        "https://github.com/SFARPak/AliFullStack/issues/new",
       );
     } finally {
       setIsLoading(false);
@@ -103,7 +103,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md flex items-center gap-2">
           <LightbulbIcon className="h-4 w-4 text-blue-700 dark:text-blue-400 flex-shrink-0" />
           <p className="text-sm text-blue-700 dark:text-blue-400">
-            <strong>Tip:</strong> Try closing and re-opening Dyad as a temporary
+            <strong>Tip:</strong> Try closing and re-opening AliFullStack as a temporary
             workaround.
           </p>
         </div>

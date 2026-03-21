@@ -2,21 +2,21 @@ import { normalizePath } from "../../../shared/normalizePath";
 import log from "electron-log";
 import { SqlQuery } from "../../lib/schemas";
 
-const logger = log.scope("dyad_tag_parser");
+const logger = log.scope("alifullstack_tag_parser");
 
-export function getDyadWriteTags(fullResponse: string): {
+export function getAliFullStackWriteTags(fullResponse: string): {
   path: string;
   content: string;
   description?: string;
 }[] {
-  const dyadWriteRegex = /<dyad-write([^>]*)>([\s\S]*?)<\/dyad-write>/gi;
+  const alifullstackWriteRegex = /<alifullstack-write([^>]*)>([\s\S]*?)<\/alifullstack-write>/gi;
   const pathRegex = /path="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
 
   let match;
   const tags: { path: string; content: string; description?: string }[] = [];
 
-  while ((match = dyadWriteRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackWriteRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
     let content = match[2].trim();
 
@@ -24,7 +24,7 @@ export function getDyadWriteTags(fullResponse: string): {
     const descriptionMatch = descriptionRegex.exec(attributesString);
 
     if (pathMatch && pathMatch[1]) {
-      // Direct dyad-write tag with path attribute
+      // Direct alifullstack-write tag with path attribute
       const path = pathMatch[1];
       const description = descriptionMatch?.[1];
 
@@ -54,7 +54,7 @@ export function getDyadWriteTags(fullResponse: string): {
 
       // Add nested search_replace tags (convert to write operations)
       for (const tag of searchReplaceTags) {
-        // For search_replace in dyad-write context, we need to read the file and apply the changes
+        // For search_replace in alifullstack-write context, we need to read the file and apply the changes
         // But since this is parsing, we'll mark it for later processing
         tags.push({
           path: tag.file,
@@ -65,7 +65,7 @@ export function getDyadWriteTags(fullResponse: string): {
 
       if (writeToFileTags.length === 0 && searchReplaceTags.length === 0) {
         logger.warn(
-          "Found <dyad-write> tag without a valid 'path' attribute and no nested tags:",
+          "Found <alifullstack-write> tag without a valid 'path' attribute and no nested tags:",
           match[0],
         );
       }
@@ -74,15 +74,15 @@ export function getDyadWriteTags(fullResponse: string): {
   return tags;
 }
 
-export function getDyadRenameTags(fullResponse: string): {
+export function getAliFullStackRenameTags(fullResponse: string): {
   from: string;
   to: string;
 }[] {
-  const dyadRenameRegex =
-    /<dyad-rename from="([^"]+)" to="([^"]+)"[^>]*>([\s\S]*?)<\/dyad-rename>/g;
+  const alifullstackRenameRegex =
+    /<alifullstack-rename from="([^"]+)" to="([^"]+)"[^>]*>([\s\S]*?)<\/alifullstack-rename>/g;
   let match;
   const tags: { from: string; to: string }[] = [];
-  while ((match = dyadRenameRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackRenameRegex.exec(fullResponse)) !== null) {
     tags.push({
       from: normalizePath(match[1]),
       to: normalizePath(match[2]),
@@ -91,46 +91,46 @@ export function getDyadRenameTags(fullResponse: string): {
   return tags;
 }
 
-export function getDyadDeleteTags(fullResponse: string): string[] {
-  const dyadDeleteRegex =
-    /<dyad-delete path="([^"]+)"[^>]*>([\s\S]*?)<\/dyad-delete>/g;
+export function getAliFullStackDeleteTags(fullResponse: string): string[] {
+  const alifullstackDeleteRegex =
+    /<alifullstack-delete path="([^"]+)"[^>]*>([\s\S]*?)<\/alifullstack-delete>/g;
   let match;
   const paths: string[] = [];
-  while ((match = dyadDeleteRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackDeleteRegex.exec(fullResponse)) !== null) {
     paths.push(normalizePath(match[1]));
   }
   return paths;
 }
 
-export function getDyadAddDependencyTags(fullResponse: string): string[] {
-  const dyadAddDependencyRegex =
-    /<dyad-add-dependency packages="([^"]+)">[^<]*<\/dyad-add-dependency>/g;
+export function getAliFullStackAddDependencyTags(fullResponse: string): string[] {
+  const alifullstackAddDependencyRegex =
+    /<alifullstack-add-dependency packages="([^"]+)">[^<]*<\/alifullstack-add-dependency>/g;
   let match;
   const packages: string[] = [];
-  while ((match = dyadAddDependencyRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackAddDependencyRegex.exec(fullResponse)) !== null) {
     packages.push(...match[1].split(" "));
   }
   return packages;
 }
 
-export function getDyadChatSummaryTag(fullResponse: string): string | null {
-  const dyadChatSummaryRegex =
-    /<dyad-chat-summary>([\s\S]*?)<\/dyad-chat-summary>/g;
-  const match = dyadChatSummaryRegex.exec(fullResponse);
+export function getAliFullStackChatSummaryTag(fullResponse: string): string | null {
+  const alifullstackChatSummaryRegex =
+    /<alifullstack-chat-summary>([\s\S]*?)<\/alifullstack-chat-summary>/g;
+  const match = alifullstackChatSummaryRegex.exec(fullResponse);
   if (match && match[1]) {
     return match[1].trim();
   }
   return null;
 }
 
-export function getDyadExecuteSqlTags(fullResponse: string): SqlQuery[] {
-  const dyadExecuteSqlRegex =
-    /<dyad-execute-sql([^>]*)>([\s\S]*?)<\/dyad-execute-sql>/g;
+export function getAliFullStackExecuteSqlTags(fullResponse: string): SqlQuery[] {
+  const alifullstackExecuteSqlRegex =
+    /<alifullstack-execute-sql([^>]*)>([\s\S]*?)<\/alifullstack-execute-sql>/g;
   const descriptionRegex = /description="([^"]+)"/;
   let match;
   const queries: { content: string; description?: string }[] = [];
 
-  while ((match = dyadExecuteSqlRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackExecuteSqlRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1] || "";
     let content = match[2].trim();
     const descriptionMatch = descriptionRegex.exec(attributesString);
@@ -152,26 +152,26 @@ export function getDyadExecuteSqlTags(fullResponse: string): SqlQuery[] {
   return queries;
 }
 
-export function getDyadCommandTags(fullResponse: string): string[] {
-  const dyadCommandRegex =
-    /<dyad-command type="([^"]+)"[^>]*><\/dyad-command>/g;
+export function getAliFullStackCommandTags(fullResponse: string): string[] {
+  const alifullstackCommandRegex =
+    /<alifullstack-command type="([^"]+)"[^>]*><\/alifullstack-command>/g;
   let match;
   const commands: string[] = [];
 
-  while ((match = dyadCommandRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackCommandRegex.exec(fullResponse)) !== null) {
     commands.push(match[1]);
   }
 
   return commands;
 }
 
-export function getDyadRunBackendTerminalCmdTags(fullResponse: string): {
+export function getAliFullStackRunBackendTerminalCmdTags(fullResponse: string): {
   command: string;
   cwd?: string;
   description?: string;
 }[] {
-  const dyadRunBackendTerminalCmdRegex =
-    /<dyad-run-backend-terminal-cmd([^>]*)>([\s\S]*?)<\/dyad-run-backend-terminal-cmd>/g;
+  const alifullstackRunBackendTerminalCmdRegex =
+    /<alifullstack-run-backend-terminal-cmd([^>]*)>([\s\S]*?)<\/alifullstack-run-backend-terminal-cmd>/g;
   const cwdRegex = /cwd="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
 
@@ -179,7 +179,7 @@ export function getDyadRunBackendTerminalCmdTags(fullResponse: string): {
   const commands: { command: string; cwd?: string; description?: string }[] =
     [];
 
-  while ((match = dyadRunBackendTerminalCmdRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackRunBackendTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
     const command = match[2].trim();
 
@@ -195,13 +195,13 @@ export function getDyadRunBackendTerminalCmdTags(fullResponse: string): {
   return commands;
 }
 
-export function getDyadRunFrontendTerminalCmdTags(fullResponse: string): {
+export function getAliFullStackRunFrontendTerminalCmdTags(fullResponse: string): {
   command: string;
   cwd?: string;
   description?: string;
 }[] {
-  const dyadRunFrontendTerminalCmdRegex =
-    /<dyad-run-frontend-terminal-cmd([^>]*)>([\s\S]*?)<\/dyad-run-frontend-terminal-cmd>/g;
+  const alifullstackRunFrontendTerminalCmdRegex =
+    /<alifullstack-run-frontend-terminal-cmd([^>]*)>([\s\S]*?)<\/alifullstack-run-frontend-terminal-cmd>/g;
   const cwdRegex = /cwd="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
 
@@ -210,7 +210,7 @@ export function getDyadRunFrontendTerminalCmdTags(fullResponse: string): {
     [];
 
   while (
-    (match = dyadRunFrontendTerminalCmdRegex.exec(fullResponse)) !== null
+    (match = alifullstackRunFrontendTerminalCmdRegex.exec(fullResponse)) !== null
   ) {
     const attributesString = match[1];
     const command = match[2].trim();
@@ -227,12 +227,12 @@ export function getDyadRunFrontendTerminalCmdTags(fullResponse: string): {
   return commands;
 }
 
-export function getDyadRunTerminalCmdTags(fullResponse: string): {
+export function getAliFullStackRunTerminalCmdTags(fullResponse: string): {
   command: string;
   cwd?: string;
   description?: string;
 }[] {
-  const dyadRunTerminalCmdRegex =
+  const alifullstackRunTerminalCmdRegex =
     /<run_terminal_cmd([^>]*)>([\s\S]*?)<\/run_terminal_cmd>/g;
   const cwdRegex = /cwd="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
@@ -241,7 +241,7 @@ export function getDyadRunTerminalCmdTags(fullResponse: string): {
   const commands: { command: string; cwd?: string; description?: string }[] =
     [];
 
-  while ((match = dyadRunTerminalCmdRegex.exec(fullResponse)) !== null) {
+  while ((match = alifullstackRunTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
     const command = match[2].trim();
 

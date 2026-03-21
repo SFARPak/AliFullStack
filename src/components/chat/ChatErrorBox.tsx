@@ -18,7 +18,7 @@ export function ChatErrorBox({
         {error}
         <span className="ml-1">
           <ExternalLink href="https://alifullstack.alitech.io/pro">
-            Access with Dyad Pro
+            Access with AliFullStack Pro
           </ExternalLink>
         </span>{" "}
         or switch to another model.
@@ -37,7 +37,7 @@ export function ChatErrorBox({
         {error}
         <span className="ml-1">
           <ExternalLink href="https://alifullstack.alitech.io/pro">
-            Upgrade to Dyad Pro
+            Upgrade to AliFullStack Pro
           </ExternalLink>
         </span>{" "}
         or read the
@@ -54,9 +54,9 @@ export function ChatErrorBox({
     return (
       <ChatInfoContainer onDismiss={onDismiss}>
         <span>
-          Looks like you don't have a valid Dyad Pro key.{" "}
+          Looks like you don't have a valid AliFullStack Pro key.{" "}
           <ExternalLink href="https://alifullstack.alitech.io/pro">
-            Upgrade to Dyad Pro
+            Upgrade to AliFullStack Pro
           </ExternalLink>{" "}
           today.
         </span>
@@ -67,9 +67,9 @@ export function ChatErrorBox({
     return (
       <ChatInfoContainer onDismiss={onDismiss}>
         <span>
-          You have used all of your Dyad AI credits this month.{" "}
+          You have used all of your AliFullStack AI credits this month.{" "}
           <ExternalLink href="https://academy.alifullstack.alitech.io/subscription">
-            Upgrade to Dyad Max
+            Upgrade to AliFullStack Max
           </ExternalLink>{" "}
           and get more AI credits
         </span>

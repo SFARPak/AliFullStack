@@ -133,7 +133,7 @@ export function SetupBanner() {
 
   return (
     <>
-      <p className="text-xl text-zinc-700 dark:text-zinc-300 p-4">Setup Dyad</p>
+      <p className="text-xl text-zinc-700 dark:text-zinc-300 p-4">Setup AliFullStack</p>
       <div className={bannerClasses}>
         <Accordion
           type="multiple"
@@ -358,7 +358,7 @@ function NodeInstallButton({
     case "finished-checking":
       return (
         <div className="mt-3 text-sm text-red-600 dark:text-red-400">
-          Node.js not detected. Closing and re-opening Dyad usually fixes this.
+          Node.js not detected. Closing and re-opening AliFullStack usually fixes this.
         </div>
       );
     default:

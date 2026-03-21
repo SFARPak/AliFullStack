@@ -277,8 +277,8 @@ export class IpcClient {
     return IpcClient.instance;
   }
 
-  public async restartDyad(): Promise<void> {
-    await this.ipcRenderer.invoke("restart-dyad");
+  public async restartAliFullStack(): Promise<void> {
+    await this.ipcRenderer.invoke("restart-alifullstack");
   }
 
   public async reloadEnvPath(): Promise<void> {
@@ -381,7 +381,7 @@ export class IpcClient {
     options: {
       selectedComponent: ComponentSelection | null;
       chatId: number;
-      chatMode?: "build" | "ask" | "backend";
+      chatMode?: "build" | "ask" | "backend" | "fullstack" | "maintain";
       redo?: boolean;
       attachments?: FileAttachment[];
       onUpdate: (messages: Message[]) => void;

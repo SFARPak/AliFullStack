@@ -1,7 +1,7 @@
 import { testSkipIfWindows } from "./helpers/test_helper";
 
 testSkipIfWindows("send message to engine", async ({ po }) => {
-  await po.setUpDyadPro();
+  await po.setUpAliFullStackPro();
   await po.selectModel({ provider: "Google", model: "Gemini 2.5 Pro" });
   await po.sendPrompt("[dump] tc=turbo-edits");
 
@@ -12,7 +12,7 @@ testSkipIfWindows("send message to engine", async ({ po }) => {
 testSkipIfWindows(
   "send message to engine - smart context conservative",
   async ({ po }) => {
-    await po.setUpDyadPro();
+    await po.setUpAliFullStackPro();
     const proModesDialog = await po.openProModesDialog({
       location: "home-chat-input-container",
     });
@@ -27,7 +27,7 @@ testSkipIfWindows(
 );
 
 testSkipIfWindows("send message to engine - openai gpt-5", async ({ po }) => {
-  await po.setUpDyadPro();
+  await po.setUpAliFullStackPro();
   // By default, it's using auto which points to Flash 2.5 and doesn't
   // use engine.
   await po.selectModel({ provider: "OpenAI", model: "GPT 5" });
@@ -39,7 +39,7 @@ testSkipIfWindows("send message to engine - openai gpt-5", async ({ po }) => {
 testSkipIfWindows(
   "send message to engine - anthropic claude sonnet 4",
   async ({ po }) => {
-    await po.setUpDyadPro();
+    await po.setUpAliFullStackPro();
     // By default, it's using auto which points to Flash 2.5 and doesn't
     // use engine.
     await po.selectModel({ provider: "Anthropic", model: "Claude 4 Sonnet" });
@@ -52,7 +52,7 @@ testSkipIfWindows(
 testSkipIfWindows(
   "smart auto should send message to engine",
   async ({ po }) => {
-    await po.setUpDyadPro();
+    await po.setUpAliFullStackPro();
     await po.sendPrompt("[dump] tc=turbo-edits");
 
     await po.snapshotServerDump("request");
@@ -63,7 +63,7 @@ testSkipIfWindows(
 testSkipIfWindows(
   "regular auto should send message to engine",
   async ({ po }) => {
-    await po.setUpDyadPro();
+    await po.setUpAliFullStackPro();
     const proModesDialog = await po.openProModesDialog({
       location: "home-chat-input-container",
     });

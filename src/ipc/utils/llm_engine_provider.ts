@@ -41,7 +41,7 @@ or to provide a custom fetch implementation for e.g. testing.
   fetch?: FetchFunction;
 
   originalProviderId: string;
-  dyadOptions: {
+  alifullstackOptions: {
     enableLazyEdits?: boolean;
     enableSmartFilesContext?: boolean;
     smartContextMode?: "balanced" | "conservative";
@@ -49,7 +49,7 @@ or to provide a custom fetch implementation for e.g. testing.
   settings: UserSettings;
 }
 
-export interface DyadEngineProvider {
+export interface AliFullStackEngineProvider {
   /**
 Creates a model for text generation.
 */
@@ -67,11 +67,11 @@ Creates a chat model for text generation.
   ): LanguageModelV2;
 }
 
-export function createDyadEngine(
+export function createAliFullStackEngine(
   options: ExampleProviderSettings,
-): DyadEngineProvider {
+): AliFullStackEngineProvider {
   const baseURL = withoutTrailingSlash(options.baseURL);
-  logger.info("creating dyad engine with baseURL", baseURL);
+  logger.info("creating alifullstack engine with baseURL", baseURL);
 
   // Track request ID attempts
   const requestIdAttempts = new Map<string, number>();
@@ -93,7 +93,7 @@ export function createDyadEngine(
   }
 
   const getCommonModelConfig = (): CommonModelConfig => ({
-    provider: `dyad-engine`,
+    provider: `alifullstack-engine`,
     url: ({ path }) => {
       const url = new URL(`${baseURL}${path}`);
       if (options.queryParams) {
@@ -133,9 +133,9 @@ export function createDyadEngine(
               options.settings,
             ),
           };
-          const requestId = parsedBody.dyadRequestId;
-          if ("dyadRequestId" in parsedBody) {
-            delete parsedBody.dyadRequestId;
+          const requestId = parsedBody.alifullstackRequestId;
+          if ("alifullstackRequestId" in parsedBody) {
+            delete parsedBody.alifullstackRequestId;
           }
 
           // Track and modify requestId with attempt number
@@ -148,12 +148,12 @@ export function createDyadEngine(
 
           // Add files to the request if they exist
           if (files?.length) {
-            parsedBody.dyad_options = {
+            parsedBody.alifullstack_options = {
               files,
-              enable_lazy_edits: options.dyadOptions.enableLazyEdits,
+              enable_lazy_edits: options.alifullstackOptions.enableLazyEdits,
               enable_smart_files_context:
-                options.dyadOptions.enableSmartFilesContext,
-              smart_context_mode: options.dyadOptions.smartContextMode,
+                options.alifullstackOptions.enableSmartFilesContext,
+              smart_context_mode: options.alifullstackOptions.smartContextMode,
             };
           }
 
@@ -163,7 +163,7 @@ export function createDyadEngine(
             headers: {
               ...init.headers,
               ...(modifiedRequestId && {
-                "X-Dyad-Request-Id": modifiedRequestId,
+                "X-AliFullStack-Request-Id": modifiedRequestId,
               }),
             },
             body: JSON.stringify(parsedBody),

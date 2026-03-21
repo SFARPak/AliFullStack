@@ -106,7 +106,7 @@ export const customLight: editor.IStandaloneThemeData = {
   },
 };
 
-editor.defineTheme("dyad-light", customLight);
+editor.defineTheme("alifullstack-light", customLight);
 
 export const customDark: editor.IStandaloneThemeData = {
   base: "vs-dark",
@@ -178,7 +178,7 @@ export const customDark: editor.IStandaloneThemeData = {
   },
 };
 
-editor.defineTheme("dyad-dark", customDark);
+editor.defineTheme("alifullstack-dark", customDark);
 
 // Function to dispose of Monaco models for a specific file path
 export function disposeMonacoModel(filePath: string) {

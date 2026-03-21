@@ -10,7 +10,7 @@ import { providerSettingsRoute } from "@/routes/settings/providers/$provider";
 import { cn } from "@/lib/utils";
 import { useDeepLink } from "@/contexts/DeepLinkContext";
 import { useEffect, useState } from "react";
-import { DyadProSuccessDialog } from "@/components/DyadProSuccessDialog";
+import { AliFullStackProSuccessDialog } from "@/components/AliFullStackProSuccessDialog";
 import { useTheme } from "@/contexts/ThemeContext";
 import { IpcClient } from "@/ipc/ipc_client";
 import { useUserBudgetInfo } from "@/hooks/useUserBudgetInfo";
@@ -45,16 +45,16 @@ export const TitleBar = () => {
     checkPlatform();
   }, []);
 
-  const showDyadProSuccessDialog = () => {
+  const showAliFullStackProSuccessDialog = () => {
     setIsSuccessDialogOpen(true);
   };
 
   const { lastDeepLink } = useDeepLink();
   useEffect(() => {
     const handleDeepLink = async () => {
-      if (lastDeepLink?.type === "dyad-pro-return") {
+      if (lastDeepLink?.type === "alifullstack-pro-return") {
         await refreshSettings();
-        showDyadProSuccessDialog();
+        showAliFullStackProSuccessDialog();
       }
     };
     handleDeepLink();
@@ -72,7 +72,7 @@ export const TitleBar = () => {
     }
   };
 
-  const isDyadPro = !!settings?.providerSettings?.auto?.apiKey?.value;
+  const isAliFullStackPro = !!settings?.providerSettings?.auto?.apiKey?.value;
   const isAliFullStackProEnabled = Boolean(settings?.enableAliFullStackPro);
 
   return (
@@ -101,8 +101,8 @@ export const TitleBar = () => {
         </div>
 
         <div className="flex items-center flex-shrink-0 ml-auto">
-          {isDyadPro && (
-            <DyadProButton
+          {isAliFullStackPro && (
+            <AliFullStackProButton
               isAliFullStackProEnabled={isAliFullStackProEnabled}
             />
           )}
@@ -118,7 +118,7 @@ export const TitleBar = () => {
         </div>
       </div>
 
-      <DyadProSuccessDialog
+      <AliFullStackProSuccessDialog
         isOpen={isSuccessDialogOpen}
         onClose={() => setIsSuccessDialogOpen(false)}
       />
@@ -207,7 +207,7 @@ function WindowsControls() {
   );
 }
 
-export function DyadProButton({
+export function AliFullStackProButton({
   isAliFullStackProEnabled,
 }: {
   isAliFullStackProEnabled: boolean;
@@ -216,7 +216,7 @@ export function DyadProButton({
   const { userBudget } = useUserBudgetInfo();
   return (
     <Button
-      data-testid="title-bar-dyad-pro-button"
+      data-testid="title-bar-alifullstack-pro-button"
       onClick={() => {
         navigate({
           to: providerSettingsRoute.id,

@@ -20,7 +20,7 @@ export function registerSupabaseHandlers() {
     return supabase.getProjects();
   });
 
-  // Set app project - links a Dyad app to a Supabase project
+  // Set app project - links a AliFullStack app to a Supabase project
   handle(
     "supabase:set-app-project",
     async (_, { project, app }: { project: string; app: number }) => {
@@ -33,7 +33,7 @@ export function registerSupabaseHandlers() {
     },
   );
 
-  // Unset app project - removes the link between a Dyad app and a Supabase project
+  // Unset app project - removes the link between a AliFullStack app and a Supabase project
   handle("supabase:unset-app-project", async (_, { app }: { app: number }) => {
     await db
       .update(apps)

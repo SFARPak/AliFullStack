@@ -95,6 +95,11 @@ export function ChatModeSelector({ appId }: { appId?: number }) {
 
     // Update the chat mode
     updateSettings({ selectedChatMode: newMode });
+
+    // If switching to maintain mode, also enable autonomous mode
+    if (newMode === "maintain") {
+      updateSettings({ executionMode: "autonomous" });
+    }
   };
 
   const getModeDisplayName = (mode: ChatMode) => {
@@ -107,6 +112,8 @@ export function ChatModeSelector({ appId }: { appId?: number }) {
         return "Backend";
       case "fullstack":
         return "Full Stack";
+      case "maintain":
+        return "Maintain";
       default:
         return "Build";
     }
@@ -174,6 +181,17 @@ export function ChatModeSelector({ appId }: { appId?: number }) {
             <span className="font-medium">Full Stack</span>
             <span className="text-xs text-muted-foreground">
               Full stack development (frontend + backend)
+            </span>
+          </div>
+        </SelectItem>
+        <SelectItem value="maintain">
+          <div className="flex flex-col items-start font-bold">
+            <span className="font-bold flex items-center gap-1.5 text-primary">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              Maintain
+            </span>
+            <span className="text-xs text-muted-foreground font-normal">
+              Autonomous maintenance - fix bugs and refactor
             </span>
           </div>
         </SelectItem>

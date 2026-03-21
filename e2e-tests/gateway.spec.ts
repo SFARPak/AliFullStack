@@ -1,7 +1,7 @@
 import { testSkipIfWindows } from "./helpers/test_helper";
 
 testSkipIfWindows("claude 4 sonnet", async ({ po }) => {
-  await po.setUpDyadPro();
+  await po.setUpAliFullStackPro();
   // Disable the pro modes so it routes to gateway.
   const proModesDialog = await po.openProModesDialog({
     location: "home-chat-input-container",

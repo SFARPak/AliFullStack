@@ -48,6 +48,7 @@ export default function HomePage() {
   const { settings, updateSettings } = useSettings();
   const setIsPreviewOpen = useSetAtom(isPreviewOpenAtom);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingSteps, setLoadingSteps] = useState<string[]>([]);
   const { streamMessage } = useStreamChat({ hasChatId: false });
   const posthog = usePostHog();
   const appVersion = useAppVersion();
@@ -55,6 +56,19 @@ export default function HomePage() {
   const [releaseUrl, setReleaseUrl] = useState("");
   const { theme } = useTheme();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handleProgress = (data: { message: string }) => {
+      setLoadingSteps((prev) => [...prev, data.message]);
+    };
+
+    const ipc = (window as any).electron.ipcRenderer;
+    ipc.on("app:loading-progress", handleProgress);
+
+    return () => {
+      ipc.removeListener("app:loading-progress", handleProgress);
+    };
+  }, []);
   useEffect(() => {
     const updateLastVersionLaunched = async () => {
       if (
@@ -119,6 +133,7 @@ export default function HomePage() {
 
     try {
       setIsLoading(true);
+      setLoadingSteps(["Starting app creation..."]);
       // Create the chat and navigate
       const result = await IpcClient.getInstance().createApp({
         name: generateCuteAppName(),
@@ -171,10 +186,21 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-gray-200">
             Building your app
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-center max-w-md mb-8">
-            We're setting up your app with AI magic. <br />
-            This might take a moment...
-          </p>
+          <div className="text-gray-600 dark:text-gray-400 text-center max-w-md mb-8 min-h-[4rem]">
+            {loadingSteps.map((step, idx) => (
+              <p
+                key={idx}
+                className={`text-sm ${idx === loadingSteps.length - 1 ? "font-medium text-primary animate-pulse" : "opacity-60"}`}
+              >
+                {step}
+              </p>
+            ))}
+            {loadingSteps.length === 1 && (
+              <p className="text-xs mt-2 opacity-50 italic">
+                This might take a moment...
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );

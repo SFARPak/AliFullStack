@@ -18,7 +18,7 @@ import log from "electron-log";
 import { FREE_OPENROUTER_MODEL_NAMES } from "../shared/language_model_constants";
 import { getLanguageModelProviders } from "../shared/language_model_helpers";
 import { LanguageModelProvider } from "../ipc_types";
-import { createDyadEngine } from "./llm_engine_provider";
+import { createAliFullStackEngine } from "./llm_engine_provider";
 
 import { LM_STUDIO_BASE_URL } from "./lm_studio_utils";
 import { createOllamaProvider } from "./ollama_provider";
@@ -29,8 +29,8 @@ import {
   clerkCreateSessionToken,
 } from "../handlers/roocode_auth_handlers";
 
-const dyadEngineUrl = process.env.ALIFULLSTACK_ENGINE_URL;
-const dyadGatewayUrl = process.env.ALIFULLSTACK_GATEWAY_URL;
+const alifullstackEngineUrl = process.env.ALIFULLSTACK_ENGINE_URL;
+const alifullstackGatewayUrl = process.env.ALIFULLSTACK_GATEWAY_URL;
 
 const AUTO_MODELS = [
   {
@@ -72,7 +72,7 @@ export async function getModelClient(
 }> {
   const allProviders = await getLanguageModelProviders();
 
-  const dyadApiKey = settings.providerSettings?.auto?.apiKey?.value;
+  const alifullstackApiKey = settings.providerSettings?.auto?.apiKey?.value;
 
   // --- Handle specific provider ---
   const providerConfig = allProviders.find((p) => p.id === model.provider);
@@ -81,23 +81,23 @@ export async function getModelClient(
     throw new Error(`Configuration not found for provider: ${model.provider}`);
   }
 
-  // Handle Dyad Pro override
-  if (dyadApiKey && settings.enableAliFullStackPro) {
-    // Check if the selected provider supports Dyad Pro (has a gateway prefix) OR
+  // Handle AliFullStack Pro override
+  if (alifullstackApiKey && settings.enableAliFullStackPro) {
+    // Check if the selected provider supports AliFullStack Pro (has a gateway prefix) OR
     // we're using local engine.
     // IMPORTANT: some providers like OpenAI have an empty string gateway prefix,
     // so we do a nullish and not a truthy check here.
-    if (providerConfig.gatewayPrefix != null || dyadEngineUrl) {
+    if (providerConfig.gatewayPrefix != null || alifullstackEngineUrl) {
       const isEngineEnabled =
         settings.enableProSmartFilesContextMode ||
         settings.enableProLazyEditsMode;
       const provider = isEngineEnabled
-        ? createDyadEngine({
-            apiKey: dyadApiKey,
+        ? createAliFullStackEngine({
+            apiKey: alifullstackApiKey,
             baseURL:
-              dyadEngineUrl ?? "https://engine.alifullstack.alitech.io/v1",
+              alifullstackEngineUrl ?? "https://engine.alifullstack.alitech.io/v1",
             originalProviderId: model.provider,
-            dyadOptions: {
+            alifullstackOptions: {
               enableLazyEdits:
                 settings.selectedChatMode === "ask"
                   ? false
@@ -109,23 +109,23 @@ export async function getModelClient(
             settings,
           })
         : createOpenAICompatible({
-            name: "dyad-gateway",
-            apiKey: dyadApiKey,
+            name: "alifullstack-gateway",
+            apiKey: alifullstackApiKey,
             baseURL:
-              dyadGatewayUrl ??
+              alifullstackGatewayUrl ??
               "https://llm-gateway.alifullstack.alitech.io/v1",
           });
 
       logger.info(
-        `\x1b[1;97;44m Using Dyad Pro API key for model: ${model.name}. engine_enabled=${isEngineEnabled} \x1b[0m`,
+        `\x1b[1;97;44m Using AliFullStack Pro API key for model: ${model.name}. engine_enabled=${isEngineEnabled} \x1b[0m`,
       );
       if (isEngineEnabled) {
         logger.info(
-          `\x1b[1;30;42m Using Dyad Pro engine: ${dyadEngineUrl ?? "<prod>"} \x1b[0m`,
+          `\x1b[1;30;42m Using AliFullStack Pro engine: ${alifullstackEngineUrl ?? "<prod>"} \x1b[0m`,
         );
       } else {
         logger.info(
-          `\x1b[1;30;43m Using Dyad Pro gateway: ${dyadGatewayUrl ?? "<prod>"} \x1b[0m`,
+          `\x1b[1;30;43m Using AliFullStack Pro gateway: ${alifullstackGatewayUrl ?? "<prod>"} \x1b[0m`,
         );
       }
       // Do not use free variant (for openrouter).
@@ -148,7 +148,7 @@ export async function getModelClient(
       };
     } else {
       logger.warn(
-        `Dyad Pro enabled, but provider ${model.provider} does not have a gateway prefix defined. Falling back to direct provider connection.`,
+        `AliFullStack Pro enabled, but provider ${model.provider} does not have a gateway prefix defined. Falling back to direct provider connection.`,
       );
       // Fall through to regular provider logic if gateway prefix is missing
     }

@@ -2,7 +2,7 @@ import { db } from "../../db";
 import { chats, messages } from "../../db/schema";
 import { and, eq } from "drizzle-orm";
 import fs from "node:fs";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import path from "node:path";
 import git from "isomorphic-git";
 import { safeJoin } from "../utils/path_utils";
@@ -52,17 +52,17 @@ function createSafeGitOperation(warnings: Output[], errors: Output[]) {
 import { readSettings } from "@/main/settings";
 import { writeMigrationFile } from "../utils/file_utils";
 import {
-  getDyadWriteTags,
-  getDyadRenameTags,
-  getDyadDeleteTags,
-  getDyadAddDependencyTags,
-  getDyadExecuteSqlTags,
-  getDyadRunBackendTerminalCmdTags,
-  getDyadRunFrontendTerminalCmdTags,
-  getDyadRunTerminalCmdTags,
+  getAliFullStackWriteTags,
+  getAliFullStackRenameTags,
+  getAliFullStackDeleteTags,
+  getAliFullStackAddDependencyTags,
+  getAliFullStackExecuteSqlTags,
+  getAliFullStackRunBackendTerminalCmdTags,
+  getAliFullStackRunFrontendTerminalCmdTags,
+  getAliFullStackRunTerminalCmdTags,
   getWriteToFileTags,
   getSearchReplaceTags,
-} from "../utils/dyad_tag_parser";
+} from "../utils/alifullstack_tag_parser";
 import { runShellCommand } from "../utils/runShellCommand";
 import { storeDbTimestampAtCurrentVersion } from "../utils/neon_timestamp_utils";
 
@@ -139,7 +139,7 @@ export async function processFullResponseActions(
   }
 
   const settings: UserSettings = readSettings();
-  const appPath = getDyadAppPath(chatWithApp.app.path);
+  const appPath = getAliFullStackAppPath(chatWithApp.app.path);
   const writtenFiles: string[] = [];
   const renamedFiles: string[] = [];
   const deletedFiles: string[] = [];
@@ -153,20 +153,20 @@ export async function processFullResponseActions(
 
   try {
     // Extract all tags
-    const dyadWriteTags = getDyadWriteTags(fullResponse);
+    const alifullstackWriteTags = getAliFullStackWriteTags(fullResponse);
     const writeToFileTags = getWriteToFileTags(fullResponse);
     const searchReplaceTags = getSearchReplaceTags(fullResponse);
-    const dyadRenameTags = getDyadRenameTags(fullResponse);
-    const dyadDeletePaths = getDyadDeleteTags(fullResponse);
-    const dyadAddDependencyPackages = getDyadAddDependencyTags(fullResponse);
-    const dyadExecuteSqlQueries = chatWithApp.app.supabaseProjectId
-      ? getDyadExecuteSqlTags(fullResponse)
+    const alifullstackRenameTags = getAliFullStackRenameTags(fullResponse);
+    const alifullstackDeletePaths = getAliFullStackDeleteTags(fullResponse);
+    const alifullstackAddDependencyPackages = getAliFullStackAddDependencyTags(fullResponse);
+    const alifullstackExecuteSqlQueries = chatWithApp.app.supabaseProjectId
+      ? getAliFullStackExecuteSqlTags(fullResponse)
       : [];
-    const dyadRunBackendTerminalCmdTags =
-      getDyadRunBackendTerminalCmdTags(fullResponse);
-    const dyadRunFrontendTerminalCmdTags =
-      getDyadRunFrontendTerminalCmdTags(fullResponse);
-    const dyadRunTerminalCmdTags = getDyadRunTerminalCmdTags(fullResponse);
+    const alifullstackRunBackendTerminalCmdTags =
+      getAliFullStackRunBackendTerminalCmdTags(fullResponse);
+    const alifullstackRunFrontendTerminalCmdTags =
+      getAliFullStackRunFrontendTerminalCmdTags(fullResponse);
+    const alifullstackRunTerminalCmdTags = getAliFullStackRunTerminalCmdTags(fullResponse);
 
     // Determine the chat mode to route general terminal commands appropriately
     let chatMode = settings.selectedChatMode;
@@ -194,8 +194,8 @@ export async function processFullResponseActions(
     }
 
     // Handle SQL execution tags
-    if (dyadExecuteSqlQueries.length > 0) {
-      for (const query of dyadExecuteSqlQueries) {
+    if (alifullstackExecuteSqlQueries.length > 0) {
+      for (const query of alifullstackExecuteSqlQueries) {
         try {
           await executeSupabaseSql({
             supabaseProjectId: chatWithApp.app.supabaseProjectId!,
@@ -225,12 +225,12 @@ export async function processFullResponseActions(
           });
         }
       }
-      logger.log(`Executed ${dyadExecuteSqlQueries.length} SQL queries`);
+      logger.log(`Executed ${alifullstackExecuteSqlQueries.length} SQL queries`);
     }
 
     // Handle backend terminal command tags
-    if (dyadRunBackendTerminalCmdTags.length > 0) {
-      for (const cmdTag of dyadRunBackendTerminalCmdTags) {
+    if (alifullstackRunBackendTerminalCmdTags.length > 0) {
+      for (const cmdTag of alifullstackRunBackendTerminalCmdTags) {
         try {
           const backendPath = path.join(appPath, "backend");
           // Ensure backend directory exists
@@ -310,13 +310,13 @@ export async function processFullResponseActions(
         }
       }
       logger.log(
-        `Executed ${dyadRunBackendTerminalCmdTags.length} backend terminal commands`,
+        `Executed ${alifullstackRunBackendTerminalCmdTags.length} backend terminal commands`,
       );
     }
 
     // Handle frontend terminal command tags
-    if (dyadRunFrontendTerminalCmdTags.length > 0) {
-      for (const cmdTag of dyadRunFrontendTerminalCmdTags) {
+    if (alifullstackRunFrontendTerminalCmdTags.length > 0) {
+      for (const cmdTag of alifullstackRunFrontendTerminalCmdTags) {
         try {
           const frontendPath = path.join(appPath, "frontend");
           const cwd = cmdTag.cwd
@@ -385,13 +385,13 @@ export async function processFullResponseActions(
         }
       }
       logger.log(
-        `Executed ${dyadRunFrontendTerminalCmdTags.length} frontend terminal commands`,
+        `Executed ${alifullstackRunFrontendTerminalCmdTags.length} frontend terminal commands`,
       );
     }
 
     // Handle general terminal command tags - route based on chat mode
-    if (dyadRunTerminalCmdTags.length > 0) {
-      for (const cmdTag of dyadRunTerminalCmdTags) {
+    if (alifullstackRunTerminalCmdTags.length > 0) {
+      for (const cmdTag of alifullstackRunTerminalCmdTags) {
         // Clean up the command - remove any "cmd:" prefix that AI might add
         let cleanCommand = cmdTag.command.trim();
         if (cleanCommand.startsWith("cmd:")) {
@@ -566,15 +566,15 @@ export async function processFullResponseActions(
         }
       }
       logger.log(
-        `Executed ${dyadRunTerminalCmdTags.length} general terminal commands`,
+        `Executed ${alifullstackRunTerminalCmdTags.length} general terminal commands`,
       );
     }
 
     // Handle add dependency tags
-    if (dyadAddDependencyPackages.length > 0) {
+    if (alifullstackAddDependencyPackages.length > 0) {
       try {
         await executeAddDependency({
-          packages: dyadAddDependencyPackages,
+          packages: alifullstackAddDependencyPackages,
           message: message,
           appPath,
         });
@@ -590,7 +590,7 @@ export async function processFullResponseActions(
         }
       } catch (error) {
         errors.push({
-          message: `Failed to add dependencies: ${dyadAddDependencyPackages.join(
+          message: `Failed to add dependencies: ${alifullstackAddDependencyPackages.join(
             ", ",
           )}`,
           error: error,
@@ -617,7 +617,7 @@ export async function processFullResponseActions(
     //////////////////////
 
     // Process file deletions one by one
-    for (const filePath of dyadDeletePaths) {
+    for (const filePath of alifullstackDeletePaths) {
       const fullFilePath = safeJoin(appPath, filePath);
 
       try {
@@ -677,7 +677,7 @@ export async function processFullResponseActions(
     }
 
     // Process file renames one by one
-    for (const tag of dyadRenameTags) {
+    for (const tag of alifullstackRenameTags) {
       try {
         const fromPath = safeJoin(appPath, tag.from);
         const toPath = safeJoin(appPath, tag.to);
@@ -763,11 +763,11 @@ export async function processFullResponseActions(
     }
 
     // Only remove terminal command tags that don't need UI rendering
-    // Keep dyad-write, dyad-rename, dyad-delete, dyad-add-dependency, dyad-execute-sql, write_to_file, and search_replace tags
-    // as they are rendered by the DyadMarkdownParser as interactive UI components
+    // Keep alifullstack-write, alifullstack-rename, alifullstack-delete, alifullstack-add-dependency, alifullstack-execute-sql, write_to_file, and search_replace tags
+    // as they are rendered by the AliFullStackMarkdownParser as interactive UI components
     const terminalTagRemovalRegexes = [
-      /<dyad-run-backend-terminal-cmd[^>]*>[\s\S]*?<\/dyad-run-backend-terminal-cmd>/gi,
-      /<dyad-run-frontend-terminal-cmd[^>]*>[\s\S]*?<\/dyad-run-frontend-terminal-cmd>/gi,
+      /<alifullstack-run-backend-terminal-cmd[^>]*>[\s\S]*?<\/alifullstack-run-backend-terminal-cmd>/gi,
+      /<alifullstack-run-frontend-terminal-cmd[^>]*>[\s\S]*?<\/alifullstack-run-frontend-terminal-cmd>/gi,
       /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/gi,
     ];
 
@@ -775,8 +775,8 @@ export async function processFullResponseActions(
       fullResponse = fullResponse.replace(regex, "");
     }
 
-    // Process all dyad-write tags one by one
-    for (const tag of dyadWriteTags) {
+    // Process all alifullstack-write tags one by one
+    for (const tag of alifullstackWriteTags) {
       const filePath = tag.path;
       let content: string | Buffer = tag.content;
       const fullFilePath = safeJoin(appPath, filePath);
@@ -1091,7 +1091,7 @@ export async function processFullResponseActions(
       writtenFiles.length > 0 ||
       renamedFiles.length > 0 ||
       deletedFiles.length > 0 ||
-      dyadAddDependencyPackages.length > 0 ||
+      alifullstackAddDependencyPackages.length > 0 ||
       writeToFileTags.length > 0 ||
       searchReplaceTags.length > 0;
 
@@ -1167,13 +1167,13 @@ export async function processFullResponseActions(
     ${safeWarnings
       .map(
         (warning) =>
-          `<dyad-output type="warning" message="${warning.message}">${warning.error}</dyad-output>`,
+          `<alifullstack-output type="warning" message="${warning.message}">${warning.error}</alifullstack-output>`,
       )
       .join("\n")}
     ${safeErrors
       .map(
         (error) =>
-          `<dyad-output type="error" message="${error.message}">${error.error}</dyad-output>`,
+          `<alifullstack-output type="error" message="${error.message}">${error.error}</alifullstack-output>`,
       )
       .join("\n")}
     ${fileOperationConfirmations.join("\n")}

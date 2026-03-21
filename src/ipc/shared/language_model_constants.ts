@@ -434,7 +434,7 @@ export const CLOUD_PROVIDERS: Record<
     displayName: "Google Vertex AI",
     hasFreeTier: false,
     websiteUrl: "https://console.cloud.google.com/vertex-ai",
-    // Use the same gateway prefix as Google Gemini for Dyad Pro compatibility.
+    // Use the same gateway prefix as Google Gemini for AliFullStack Pro compatibility.
     gatewayPrefix: "gemini/",
     secondary: true,
   },
@@ -445,9 +445,9 @@ export const CLOUD_PROVIDERS: Record<
     gatewayPrefix: "openrouter/",
   },
   auto: {
-    displayName: "Dyad",
+    displayName: "AliFullStack",
     websiteUrl: "https://academy.alifullstack.alitech.io/settings",
-    gatewayPrefix: "dyad/",
+    gatewayPrefix: "alifullstack/",
   },
   azure: {
     displayName: "Azure OpenAI",

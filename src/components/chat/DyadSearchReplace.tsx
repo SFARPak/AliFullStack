@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Search, ChevronDown, ChevronUp, Loader, FileText } from "lucide-react";
-import { VanillaMarkdownParser } from "./DyadMarkdownParser";
+import { VanillaMarkdownParser } from "./AliFullStackMarkdownParser";
 import { CustomTagState } from "./stateTypes";
 
-interface DyadSearchReplaceProps {
+interface AliFullStackSearchReplaceProps {
   node?: any;
   children?: React.ReactNode;
 }
 
-export const DyadSearchReplace: React.FC<DyadSearchReplaceProps> = ({
+export const AliFullStackSearchReplace: React.FC<AliFullStackSearchReplaceProps> = ({
   children,
   node,
 }) => {

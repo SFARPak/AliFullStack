@@ -104,7 +104,7 @@ export function ImportAppDialog({ isOpen, onClose }: ImportAppDialogProps) {
     onSuccess: async (result) => {
       showSuccess(
         !hasAiRules
-          ? "App imported successfully. Dyad will automatically generate an AI_RULES.md now."
+          ? "App imported successfully. AliFullStack will automatically generate an AI_RULES.md now."
           : "App imported successfully",
       );
       onClose();
@@ -162,7 +162,7 @@ export function ImportAppDialog({ isOpen, onClose }: ImportAppDialogProps) {
         <DialogHeader>
           <DialogTitle>Import App</DialogTitle>
           <DialogDescription>
-            Select an existing app folder to import into Dyad.
+            Select an existing app folder to import into AliFullStack.
           </DialogDescription>
         </DialogHeader>
 
@@ -281,14 +281,14 @@ export function ImportAppDialog({ isOpen, onClose }: ImportAppDialogProps) {
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>
-                          AI_RULES.md lets Dyad know which tech stack to use for
+                          AI_RULES.md lets AliFullStack know which tech stack to use for
                           editing the app
                         </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                   <AlertDescription>
-                    No AI_RULES.md found. Dyad will automatically generate one
+                    No AI_RULES.md found. AliFullStack will automatically generate one
                     after importing.
                   </AlertDescription>
                 </Alert>

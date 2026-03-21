@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import { createLoggedHandler } from "./safe_handle";
 import log from "electron-log";
-import { getDyadAppPath } from "../../paths/paths";
+import { getAliFullStackAppPath } from "../../paths/paths";
 import { apps } from "@/db/schema";
 import { db } from "@/db";
 import { chats } from "@/db/schema";
@@ -48,7 +48,7 @@ export function registerImportHandlers() {
   // Handler for checking if an app name is already taken
   handle("check-app-name", async (_, { appName }: { appName: string }) => {
     // Check filesystem
-    const appPath = getDyadAppPath(appName);
+    const appPath = getAliFullStackAppPath(appName);
     try {
       await fs.access(appPath);
       return { exists: true };
@@ -83,7 +83,7 @@ export function registerImportHandlers() {
         throw new Error("Source folder does not exist");
       }
 
-      const destPath = getDyadAppPath(appName);
+      const destPath = getAliFullStackAppPath(appName);
 
       // Check if the app already exists
       const errorMessage = "An app with this name already exists";
@@ -95,7 +95,7 @@ export function registerImportHandlers() {
           throw error;
         }
       }
-      // Copy the app folder to the Dyad apps directory.
+      // Copy the app folder to the AliFullStack apps directory.
       // Why not use fs.cp? Because we want stable ordering for
       // tests.
       await copyDirectoryRecursive(sourcePath, destPath);
