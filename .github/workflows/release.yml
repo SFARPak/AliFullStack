@@ -41,7 +41,7 @@ jobs:
           rm -f package-lock.json
           npm cache clean --force
         shell: bash
-      - run: npm install --include=optional
+      - run: npm ci --include=optional || npm install --include=optional
       - run: npm rebuild @rollup/rollup-linux-x64-gnu || true
         if: contains(matrix.os.name, 'linux')
       - run: npm rebuild @rollup/rollup-darwin-x64 || true
@@ -62,7 +62,7 @@ jobs:
         run: |
           set -e
           echo "=== Running publish (npm run publish) ==="
-          npm run publish 2>&1 | sed -n '1,500p'
+          DEBUG=electron-forge:* npm run publish 2>&1 | tee publish.log
         shell: bash
 
       - name: Wait for GitHub to register release uploads

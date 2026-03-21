@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from "electron";
+import { app, BrowserWindow, dialog, session } from "electron";
 import * as path from "node:path";
 import { registerIpcHandlers } from "./ipc/ipc_host";
 import dotenv from "dotenv";
@@ -61,6 +61,7 @@ export async function onReady() {
   initializeDatabase();
   const settings = readSettings();
   await onFirstRunMaybe(settings);
+  setupPermissionHandlers();
   await createWindow();
 
   logger.info("Auto-update enabled=", settings.enableAutoUpdate);
@@ -327,5 +328,31 @@ app.on("activate", async () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+function setupPermissionHandlers() {
+  session.defaultSession.setPermissionRequestHandler(
+    (webContents, permission, callback) => {
+      const { hostname } = new URL(webContents.getURL());
+
+      // Define internal domains to auto-allow
+      const trustedDomains = ["localhost", "alifullstack.alitech.io"];
+
+      if (trustedDomains.includes(hostname)) {
+        return callback(true);
+      }
+
+      // Prompt for other permissions
+      dialog
+        .showMessageBox({
+          type: "question",
+          buttons: ["Allow", "Deny"],
+          defaultId: 0,
+          title: "Permission Request",
+          message: `The app is requesting permission for: ${permission}. Do you want to allow this?`,
+          checkboxLabel: "Remember my choice",
+        })
+        .then(({ response, checkboxChecked }) => {
+          callback(response === 0);
+        });
+    },
+  );
+}

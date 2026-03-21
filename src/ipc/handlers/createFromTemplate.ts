@@ -739,8 +739,8 @@ export async function createFromTemplate({
         const srcPath = path.join(actualScaffoldPath, item.name);
         const destPath = path.join(frontendPath, item.name);
 
-        // Skip node_modules and .git directories
-        if (item.name === "node_modules" || item.name === ".git") {
+        // Skip .git directory
+        if (item.name === ".git") {
           logger.debug(`Skipping ${item.name} directory`);
           continue;
         }
@@ -752,11 +752,11 @@ export async function createFromTemplate({
               overwrite: true,
               recursive: true,
               filter: (src, dest) => {
-                // Exclude .git and node_modules from subdirectories too
+                // Exclude .git from subdirectories but allow node_modules for speed
                 const relativePath = path.relative(srcPath, src);
                 return (
                   !relativePath.includes(".git") &&
-                  !relativePath.includes("node_modules")
+                  !relativePath.includes(".DS_Store")
                 );
               },
             });
@@ -961,15 +961,23 @@ export async function createFromTemplate({
       );
     }
 
-    // Install npm dependencies for React scaffold
+    // Install npm dependencies for React scaffold only if node_modules wasn't copied
     try {
+      const nodeModulesPath = path.join(frontendPath, "node_modules");
       const packageJsonPath = path.join(frontendPath, "package.json");
+
       logger.info(`Checking for package.json at: ${packageJsonPath}`);
       if (fs.existsSync(packageJsonPath)) {
-        logger.info(
-          `Found package.json, installing React scaffold dependencies in ${frontendPath}`,
-        );
-        await installDependenciesForFramework(frontendPath, "nodejs");
+        if (fs.existsSync(nodeModulesPath)) {
+          logger.info(
+            `✅ node_modules found and copied from scaffold. Skipping dependency installation step to save time.`,
+          );
+        } else {
+          logger.info(
+            `Installing React scaffold dependencies in ${frontendPath} (using optimized installer)`,
+          );
+          await installDependenciesForFramework(frontendPath, "nodejs");
+        }
       } else {
         logger.error(
           `package.json not found at ${packageJsonPath} after copying scaffold`,
@@ -1165,8 +1173,8 @@ Available packages and libraries:
         const srcPath = path.join(scaffoldPath, item.name);
         const destPath = path.join(frontendPath, item.name);
 
-        // Skip node_modules and .git directories
-        if (item.name === "node_modules" || item.name === ".git") {
+        // Skip .git directory
+        if (item.name === ".git") {
           logger.debug(`Skipping ${item.name} directory`);
           continue;
         }
@@ -1178,11 +1186,11 @@ Available packages and libraries:
               overwrite: true,
               recursive: true,
               filter: (src, dest) => {
-                // Exclude .git and node_modules from subdirectories too
+                // Exclude .git from subdirectories but keep node_modules for speed
                 const relativePath = path.relative(srcPath, src);
                 return (
                   !relativePath.includes(".git") &&
-                  !relativePath.includes("node_modules")
+                  !relativePath.includes(".DS_Store")
                 );
               },
             });
@@ -1201,14 +1209,22 @@ Available packages and libraries:
 
       logger.info(`Successfully copied scaffold to ${frontendPath}`);
 
-      // Install frontend dependencies
+      // Install frontend dependencies only if node_modules wasn't copied
       try {
+        const nodeModulesPath = path.join(frontendPath, "node_modules");
         const packageJsonPath = path.join(frontendPath, "package.json");
+
         if (fs.existsSync(packageJsonPath)) {
-          logger.info(
-            `Installing React scaffold dependencies in ${frontendPath}`,
-          );
-          await installDependenciesForFramework(frontendPath, "nodejs");
+          if (fs.existsSync(nodeModulesPath)) {
+            logger.info(
+              `✅ node_modules found in scaffold and copied. Skipping dependency installation step to save time.`,
+            );
+          } else {
+            logger.info(
+              `Installing React scaffold dependencies in ${frontendPath} (using optimized installer)`,
+            );
+            await installDependenciesForFramework(frontendPath, "nodejs");
+          }
         }
       } catch (installError) {
         logger.warn(
@@ -2852,9 +2868,27 @@ export async function startBackendServer(
 }
 
 function getInstallCommandForFramework(framework: string): string {
+  const { execSync } = require("child_process");
+
+  const isCommandAvailable = (cmd: string) => {
+    try {
+      execSync(`${cmd} --version`, { stdio: "ignore" });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   switch (framework) {
     case "nodejs":
-      return "npm install";
+      if (isCommandAvailable("pnpm")) {
+        return "pnpm install";
+      }
+      if (isCommandAvailable("yarn")) {
+        return "yarn install";
+      }
+      // npm fallback with performance flags
+      return "npm install --prefer-offline --no-audit --no-fund";
     case "python":
     case "django":
     case "fastapi":

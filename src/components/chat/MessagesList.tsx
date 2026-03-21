@@ -154,73 +154,21 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
                 size="sm"
                 disabled={isRetryLoading}
                 onClick={async () => {
-                  if (!selectedChatId) {
-                    console.error("No chat selected");
-                    return;
-                  }
+                  if (!selectedChatId) return;
+
+                  // Find the last user message
+                  const lastUserMessage = [...safeMessages]
+                    .reverse()
+                    .find((message) => message.role === "user");
+                  if (!lastUserMessage) return;
 
                   setIsRetryLoading(true);
                   try {
-                    // The last message is usually an assistant, but it might not be.
-                    const lastVersion = versions[0];
-                    const lastMessage = safeMessages[safeMessages.length - 1];
-                    let shouldRedo = true;
-                    if (
-                      lastVersion.oid === lastMessage.commitHash &&
-                      lastMessage.role === "assistant"
-                    ) {
-                      const previousAssistantMessage =
-                        safeMessages[safeMessages.length - 3];
-                      if (
-                        previousAssistantMessage?.role === "assistant" &&
-                        previousAssistantMessage?.commitHash
-                      ) {
-                        console.debug(
-                          "Reverting to previous assistant version",
-                        );
-                        await revertVersion({
-                          versionId: previousAssistantMessage.commitHash,
-                        });
-                        shouldRedo = false;
-                      } else {
-                        const chat =
-                          await IpcClient.getInstance().getChat(selectedChatId);
-                        if (chat.initialCommitHash) {
-                          console.debug(
-                            "Reverting to initial commit hash",
-                            chat.initialCommitHash,
-                          );
-                          await revertVersion({
-                            versionId: chat.initialCommitHash,
-                          });
-                        } else {
-                          showWarning(
-                            "No initial commit hash found for chat. Need to manually undo code changes",
-                          );
-                        }
-                      }
-                    }
-
-                    // Find the last user message
-                    const lastUserMessage = [...safeMessages]
-                      .reverse()
-                      .find((message) => message.role === "user");
-                    if (!lastUserMessage) {
-                      console.error("No user message found");
-                      return;
-                    }
-                    // Need to do a redo, if we didn't delete the message from a revert.
-                    const redo = shouldRedo;
-                    console.debug("Streaming message with redo", redo);
-
                     streamMessage({
                       prompt: lastUserMessage.content,
                       chatId: selectedChatId,
-                      redo,
+                      redo: true,
                     });
-                  } catch (error) {
-                    console.error("Error during retry operation:", error);
-                    showError("Failed to retry message");
                   } finally {
                     setIsRetryLoading(false);
                   }
@@ -232,6 +180,22 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
                   <RefreshCw size={16} />
                 )}
                 Retry
+              </Button>
+            )}
+            {!!safeMessages.length && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  if (!selectedChatId) return;
+                  streamMessage({
+                    prompt: "Please continue where you left off.",
+                    chatId: selectedChatId,
+                    redo: false,
+                  });
+                }}
+              >
+                Continue
               </Button>
             )}
           </div>
