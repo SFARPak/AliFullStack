@@ -1058,7 +1058,7 @@ export async function createFromTemplate({
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@alifullstack-sh/react-vite-component-tagger": "^0.8.0",
+    "@dyad-sh/react-vite-component-tagger": "^0.8.0",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",

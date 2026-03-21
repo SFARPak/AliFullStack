@@ -34,19 +34,10 @@ jobs:
       - name: Install node modules
         run: npm install --no-audit --no-fund --progress=false
       - name: Presubmit check (e.g. lint, format)
-        # do not run this on Windows (it fails and not necessary)
-        # Only run on shard 1 to avoid redundant execution
-        if: contains(matrix.os.name, 'macos') && matrix.shard == 1
         run: npm run presubmit
       - name: Type-checking
-        # do not run this on windows (it's redunant)
-        # Only run on shard 1 to avoid redundant execution
-        if: contains(matrix.os.name, 'macos') && matrix.shard == 1
         run: npm run ts
       - name: Unit tests
-        # do not run this on windows (it's redunant)
-        # Only run on shard 1 to avoid redundant execution
-        if: contains(matrix.os.name, 'macos') && matrix.shard == 1
         run: npm run test
       - name: Setup pnpm
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0

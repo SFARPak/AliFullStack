@@ -38,7 +38,6 @@ jobs:
       - name: Clean up
         run: |
           rm -rf node_modules
-          rm -f package-lock.json
           npm cache clean --force
         shell: bash
       - run: npm ci --include=optional || npm install --include=optional

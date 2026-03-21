@@ -38,7 +38,7 @@ jobs:
 
       - name: Clean up
         run: |
-          rm -rf node_modules package-lock.json || true
+          rm -rf node_modules || true
           npm cache clean --force || true
 
       - name: Install dependencies
