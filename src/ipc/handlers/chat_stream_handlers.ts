@@ -512,6 +512,7 @@ ${componentSnippet}
         let systemPrompt = constructSystemPrompt({
           aiRules: await readAiRules(aiRulesPath),
           chatMode: finalChatMode,
+          executionMode: settings.executionMode,
         });
 
         // Add information about mentioned apps if any

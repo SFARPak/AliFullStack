@@ -826,6 +826,7 @@ export const constructSystemPrompt = ({
   aiRules,
   chatMode = "build",
   backendFramework,
+  executionMode,
 }: {
   aiRules: string | undefined;
   chatMode?:
@@ -838,9 +839,16 @@ export const constructSystemPrompt = ({
     | "flask"
     | "nodejs";
   backendFramework?: string;
+  executionMode?: "autonomous" | "manual";
 }) => {
   let systemPrompt;
   let rules = aiRules ?? DEFAULT_AI_RULES;
+
+  const modeInstruction =
+    executionMode === "autonomous"
+      ? "\n\n# Execution Mode: Autonomous\nYou are currently in **AUTONOMOUS MODE**. This means you should prioritize finishing the task completely in a single turn if possible. Execute your development plan immediately without waiting for user confirmation between steps."
+      : "\n\n# Execution Mode: User Input\nYou are currently in **USER INPUT MODE**. You should follow your development plan and always ensure the user is informed of your progress. If a step is complex or high-risk, consider pausing for clarification or approval.";
+
 
   if (chatMode === "ask") {
     systemPrompt = ASK_MODE_SYSTEM_PROMPT;
@@ -866,7 +874,7 @@ export const constructSystemPrompt = ({
     systemPrompt = BUILD_SYSTEM_PROMPT;
   }
 
-  return systemPrompt.replace("[[AI_RULES]]", rules);
+  return systemPrompt.replace("[[AI_RULES]]", rules) + modeInstruction;
 };
 
 export const readAiRules = async (dyadAppPath: string) => {
