@@ -2810,10 +2810,22 @@ export function registerAppHandlers() {
         try {
           await fsPromises.rm(appPath, { recursive: true, force: true });
         } catch (error: any) {
-          logger.error(`Error deleting app files for app ${appId}:`, error);
-          throw new Error(
-            `App deleted from database, but failed to delete app files. Please delete app files from ${appPath} manually.\n\nError: ${error.message}`,
-          );
+          // Fallback to rm -rf on Unix-based systems if native rm fails (e.g., handles ENOTEMPTY better)
+          if (process.platform === "darwin" || process.platform === "linux") {
+            try {
+              execSync(`rm -rf "${appPath}"`);
+            } catch (fallbackError: any) {
+              logger.error(`Error deleting app files for app ${appId}:`, error);
+              throw new Error(
+                `App deleted from database, but failed to delete app files. Please delete app files from ${appPath} manually.\n\nError: ${error.message}`,
+              );
+            }
+          } else {
+            logger.error(`Error deleting app files for app ${appId}:`, error);
+            throw new Error(
+              `App deleted from database, but failed to delete app files. Please delete app files from ${appPath} manually.\n\nError: ${error.message}`,
+            );
+          }
         }
       });
     },
@@ -2858,7 +2870,22 @@ export function registerAppHandlers() {
           await fsPromises.rm(appPath, { recursive: true, force: true });
           logger.log(`Deleted app files for ${app.name} at ${appPath}`);
         } catch (error: any) {
-          logger.warn(`Error deleting app files for ${app.name}:`, error);
+          // Fallback to rm -rf on Unix-based systems
+          if (process.platform === "darwin" || process.platform === "linux") {
+            try {
+              execSync(`rm -rf "${appPath}"`);
+              logger.log(
+                `Deleted app files (fallback) for ${app.name} at ${appPath}`,
+              );
+            } catch (fallbackError: any) {
+              logger.warn(
+                `Error deleting app files for ${app.name} (fallback):`,
+                fallbackError,
+              );
+            }
+          } else {
+            logger.warn(`Error deleting app files for ${app.name}:`, error);
+          }
           // Continue with other apps even if one fails
         }
       }
