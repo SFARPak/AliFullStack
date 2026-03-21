@@ -95,11 +95,17 @@ export const TitleBar = () => {
         </div>
 
         <div className="flex-1 flex justify-center items-center absolute inset-0 pointer-events-none">
-          <span className="text-lg font-semibold no-app-region-drag pointer-events-auto">AliFullStack</span>
+          <span className="text-lg font-semibold no-app-region-drag pointer-events-auto">
+            AliFullStack
+          </span>
         </div>
 
         <div className="flex items-center flex-shrink-0 ml-auto">
-          {isDyadPro && <DyadProButton isAliFullStackProEnabled={isAliFullStackProEnabled} />}
+          {isDyadPro && (
+            <DyadProButton
+              isAliFullStackProEnabled={isAliFullStackProEnabled}
+            />
+          )}
 
           {/* Preview Header */}
           {location.pathname === "/chat" && (

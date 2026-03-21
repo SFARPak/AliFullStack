@@ -1744,7 +1744,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				if (response === "messageResponse") {
 					currentUserContent.push(
 						{ type: "text" as const, text: formatResponse.tooManyMistakes(text) },
-							...formatResponse.imageBlocks(images),
+						...formatResponse.imageBlocks(images),
 					)
 
 					await this.say("user_feedback", text, images)

@@ -42,7 +42,13 @@ export function ChatPanel({
   const [systemMessageCount, setSystemMessageCount] = useState(0);
 
   // Debug logging
-  console.log("ChatPanel render:", { isBackendMode, isFullstackMode, isFrontendMode, isTodoPanelOpen, showTodoToggle: isFullstackMode || isFrontendMode });
+  console.log("ChatPanel render:", {
+    isBackendMode,
+    isFullstackMode,
+    isFrontendMode,
+    isTodoPanelOpen,
+    showTodoToggle: isFullstackMode || isFrontendMode,
+  });
   // Reference to store the processed prompt so we don't submit it twice
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +93,7 @@ export function ChatPanel({
   useEffect(() => {
     const handleAppOutput = (output: AppOutput) => {
       // Increment counter to trigger auto-scroll for system messages
-      setSystemMessageCount(prev => prev + 1);
+      setSystemMessageCount((prev) => prev + 1);
     };
 
     // Register the callback with IpcClient
@@ -107,7 +113,11 @@ export function ChatPanel({
   useEffect(() => {
     if (!isUserScrolling && systemMessageCount > 0) {
       const { scrollTop, clientHeight, scrollHeight } =
-        messagesContainerRef.current || { scrollTop: 0, clientHeight: 0, scrollHeight: 0 };
+        messagesContainerRef.current || {
+          scrollTop: 0,
+          clientHeight: 0,
+          scrollHeight: 0,
+        };
       const threshold = 280;
       const isNearBottom =
         scrollHeight - (scrollTop + clientHeight) <= threshold;
@@ -184,7 +194,10 @@ export function ChatPanel({
   // Default frontend mode
   return (
     <div className="flex h-full">
-      <div className="flex flex-col flex-1 min-w-0" style={{ minWidth: '300px' }}>
+      <div
+        className="flex flex-col flex-1 min-w-0"
+        style={{ minWidth: "300px" }}
+      >
         <ChatHeader
           isVersionPaneOpen={isVersionPaneOpen}
           isPreviewOpen={isPreviewOpen}
@@ -196,7 +209,9 @@ export function ChatPanel({
         />
         <div className="flex flex-1 overflow-hidden">
           {!isVersionPaneOpen && (
-            <div className={`${(isFullstackMode || isFrontendMode) && isTodoPanelOpen ? 'min-w-0' : 'flex-1'} flex flex-col min-w-0`}>
+            <div
+              className={`${(isFullstackMode || isFrontendMode) && isTodoPanelOpen ? "min-w-0" : "flex-1"} flex flex-col min-w-0`}
+            >
               <MessagesList
                 messages={messages}
                 messagesEndRef={messagesEndRef}

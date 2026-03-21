@@ -10,9 +10,14 @@ import { addTerminalOutput } from "../handlers/terminal_handlers";
 const logger = log.scope("start_proxy_server");
 
 // Helper function to log to both electron-log and console
-function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
+function logToConsole(
+  message: string,
+  level: "info" | "warn" | "error" | "debug" = "info",
+) {
   logger[level](message);
-  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
+  console.log(
+    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
+  );
 }
 
 export async function startProxy(
@@ -53,7 +58,12 @@ export async function startProxy(
     const possiblePaths = [
       path.resolve(__dirname, "..", "..", "..", "worker", "proxy_server.js"), // Inside ASAR
       path.resolve(process.resourcesPath, "worker", "proxy_server.js"), // In Resources
-      path.resolve(process.resourcesPath, "app.asar", "worker", "proxy_server.js"), // Explicit ASAR path
+      path.resolve(
+        process.resourcesPath,
+        "app.asar",
+        "worker",
+        "proxy_server.js",
+      ), // Explicit ASAR path
     ];
 
     let foundPath: string | null = null;
@@ -68,7 +78,9 @@ export async function startProxy(
     }
 
     if (!foundPath) {
-      throw new Error(`Could not find proxy_server.js worker file. Tried paths: ${possiblePaths.join(', ')}`);
+      throw new Error(
+        `Could not find proxy_server.js worker file. Tried paths: ${possiblePaths.join(", ")}`,
+      );
     }
     workerPath = foundPath;
   } else {
@@ -95,7 +107,7 @@ export async function startProxy(
       if (!m.startsWith("proxy-server-start url=")) {
         // Determine which terminal to route to based on terminalType
         let targetTerminals: ("frontend" | "backend")[] = [];
-        
+
         if (terminalType === "frontend") {
           targetTerminals = ["frontend"];
         } else if (terminalType === "backend") {

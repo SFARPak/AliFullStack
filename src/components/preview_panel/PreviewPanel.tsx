@@ -71,17 +71,10 @@ export function PreviewPanel() {
   // This prevents the preview from being stuck in a non-functional state when
   // switching to backend mode, but allows manual override.
   useEffect(() => {
-    if (
-      settings?.selectedChatMode === "backend" &&
-      previewMode === "preview"
-    ) {
+    if (settings?.selectedChatMode === "backend" && previewMode === "preview") {
       setPreviewMode("code");
     }
-  }, [
-    settings?.selectedChatMode,
-    previewMode,
-    setPreviewMode,
-  ]);
+  }, [settings?.selectedChatMode, previewMode, setPreviewMode]);
 
   useEffect(() => {
     const previousAppId = runningAppIdRef.current;

@@ -55,15 +55,20 @@ async function verifyReleaseAssets() {
       const userData = await userCheck.json();
       console.log(`✅ Authenticated as: ${userData.login}`);
     } else {
-      console.log("🏃 Running inside GitHub Actions — no user authentication check needed");
+      console.log(
+        "🏃 Running inside GitHub Actions — no user authentication check needed",
+      );
       // quick repo check to ensure token can access repo
-      const appCheck = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "alifullstack-release-verifier",
+      const appCheck = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}`,
+        {
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json",
+            "User-Agent": "alifullstack-release-verifier",
+          },
         },
-      });
+      );
 
       if (!appCheck.ok) {
         const body = await appCheck.text();
@@ -74,7 +79,9 @@ async function verifyReleaseAssets() {
       }
 
       const repoData = await appCheck.json();
-      console.log(`✅ Token authenticated for repository: ${repoData.full_name}`);
+      console.log(
+        `✅ Token authenticated for repository: ${repoData.full_name}`,
+      );
     }
 
     const tagName = `v${version}`;
@@ -86,7 +93,9 @@ async function verifyReleaseAssets() {
     // Try to fetch the release by tag name. This avoids scanning the entire releases list.
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`📡 Attempt ${attempt}/${maxRetries}: Fetching release by tag: ${tagName}`);
+        console.log(
+          `📡 Attempt ${attempt}/${maxRetries}: Fetching release by tag: ${tagName}`,
+        );
 
         const releaseUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tagName}`;
         const response = await fetch(releaseUrl, {
@@ -99,7 +108,9 @@ async function verifyReleaseAssets() {
 
         if (!response.ok) {
           const body = await response.text();
-          console.warn(`⚠️ GitHub API returned ${response.status} ${response.statusText}`);
+          console.warn(
+            `⚠️ GitHub API returned ${response.status} ${response.statusText}`,
+          );
           console.warn("Response body:", body);
           if (response.status === 404) {
             console.warn(`⚠️ Release ${tagName} not found (404). Will retry.`);
@@ -118,13 +129,17 @@ async function verifyReleaseAssets() {
 
         release = await response.json();
 
-        console.log(`✅ Found release: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`);
+        console.log(
+          `✅ Found release: ${release.tag_name} (${release.draft ? "DRAFT" : "PUBLISHED"})`,
+        );
         // If release exists but has zero assets, wait and retry (registrations can be delayed)
         const assets = release.assets || [];
         console.log(`📦 Found ${assets.length} assets in release ${tagName}`);
         if (assets.length === 0 && attempt < maxRetries) {
           const delay = baseDelay * attempt;
-          console.log(`⚠️ No assets present yet. Waiting ${delay / 1000}s before retry...`);
+          console.log(
+            `⚠️ No assets present yet. Waiting ${delay / 1000}s before retry...`,
+          );
           await new Promise((r) => setTimeout(r, delay));
           continue;
         }
@@ -141,7 +156,9 @@ async function verifyReleaseAssets() {
     }
 
     if (!release) {
-      console.error(`❌ Release ${tagName} not found after ${maxRetries} attempts`);
+      console.error(
+        `❌ Release ${tagName} not found after ${maxRetries} attempts`,
+      );
       if (lastError) console.error(`Last error: ${lastError.message}`);
       process.exit(1);
     }
@@ -191,7 +208,9 @@ async function verifyReleaseAssets() {
     console.log("");
 
     // --- Compare assets ---
-    const missingAssets = expectedAssets.filter((a) => !actualAssets.includes(a));
+    const missingAssets = expectedAssets.filter(
+      (a) => !actualAssets.includes(a),
+    );
     if (missingAssets.length > 0) {
       console.error("❌ VERIFICATION FAILED! Missing assets:");
       missingAssets.forEach((a) => console.error(`  - ${a}`));
@@ -207,7 +226,9 @@ async function verifyReleaseAssets() {
       process.exit(1);
     }
 
-    const unexpectedAssets = actualAssets.filter((a) => !expectedAssets.includes(a));
+    const unexpectedAssets = actualAssets.filter(
+      (a) => !expectedAssets.includes(a),
+    );
     if (unexpectedAssets.length > 0) {
       console.warn("⚠️ Unexpected assets found:");
       unexpectedAssets.forEach((a) => console.warn(`  - ${a}`));
@@ -215,7 +236,9 @@ async function verifyReleaseAssets() {
     }
 
     console.log("✅ VERIFICATION PASSED!");
-    console.log(`🎉 All ${expectedAssets.length} expected assets are present in release ${tagName}`);
+    console.log(
+      `🎉 All ${expectedAssets.length} expected assets are present in release ${tagName}`,
+    );
     console.log("");
     console.log("📊 Release Summary:");
     console.log(`  Release: ${release.name || tagName}`);
@@ -223,7 +246,10 @@ async function verifyReleaseAssets() {
     console.log(`  Published: ${release.published_at}`);
     console.log(`  URL: ${release.html_url}`);
   } catch (error) {
-    console.error("❌ Error verifying release assets:", error && error.message ? error.message : error);
+    console.error(
+      "❌ Error verifying release assets:",
+      error && error.message ? error.message : error,
+    );
     process.exit(1);
   }
 }

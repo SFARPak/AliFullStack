@@ -108,7 +108,10 @@ export function ChatHeader({
   // REMINDER: KEEP UP TO DATE WITH app_handlers.ts
   const versionPostfix = versions.length === 100_000 ? `+` : "";
 
-  const isNotMainBranch = branchInfo && branchInfo.branch !== "main" && branchInfo.branch !== "<no-git-repo>";
+  const isNotMainBranch =
+    branchInfo &&
+    branchInfo.branch !== "main" &&
+    branchInfo.branch !== "<no-git-repo>";
 
   const currentBranchName = branchInfo?.branch;
 
@@ -166,7 +169,8 @@ export function ChatHeader({
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>
-                          This app does not have git version control initialized yet.
+                          This app does not have git version control initialized
+                          yet.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -235,7 +239,10 @@ export function ChatHeader({
               onClick={onToggleTodo}
               className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
             >
-              <CheckSquare size={20} className={isTodoPanelOpen ? "text-primary" : ""} />
+              <CheckSquare
+                size={20}
+                className={isTodoPanelOpen ? "text-primary" : ""}
+              />
             </button>
           )}
           <button

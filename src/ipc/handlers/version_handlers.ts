@@ -378,7 +378,12 @@ export function registerVersionHandlers() {
           app.neonPreviewBranchId
         ) {
           // Check if the gitRef matches any of the common default branch names
-          const isDefaultBranch = ["main", "master", "develop", "development"].includes(gitRef);
+          const isDefaultBranch = [
+            "main",
+            "master",
+            "develop",
+            "development",
+          ].includes(gitRef);
           if (isDefaultBranch) {
             logger.info(
               `Switching Postgres to development branch for app ${appId}`,

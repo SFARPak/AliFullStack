@@ -1,5 +1,9 @@
 import { safeSend } from "../utils/safe_sender";
-import { frontendTerminalOutputAtom, backendTerminalOutputAtom, activeTerminalAtom } from "../../atoms/appAtoms";
+import {
+  frontendTerminalOutputAtom,
+  backendTerminalOutputAtom,
+  activeTerminalAtom,
+} from "../../atoms/appAtoms";
 import { getDefaultStore } from "jotai";
 import { ipcMain } from "electron";
 import log from "electron-log";
@@ -7,9 +11,14 @@ import log from "electron-log";
 const logger = log.scope("terminal_handlers");
 
 // Helper function to log to both electron-log and console
-function logToConsole(message: string, level: "info" | "warn" | "error" | "debug" = "info") {
+function logToConsole(
+  message: string,
+  level: "info" | "warn" | "error" | "debug" = "info",
+) {
   logger[level](message);
-  console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
+  console.log(
+    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
+  );
 }
 
 export function registerTerminalHandlers() {
@@ -17,7 +26,12 @@ export function registerTerminalHandlers() {
 }
 
 // Function to add output to a specific terminal
-export function addTerminalOutput(appId: number, terminal: "frontend" | "backend", message: string, type: "command" | "output" | "success" | "error" = "output") {
+export function addTerminalOutput(
+  appId: number,
+  terminal: "frontend" | "backend",
+  message: string,
+  type: "command" | "output" | "success" | "error" = "output",
+) {
   const store = getDefaultStore();
 
   // Format message with timestamp and type indicator
@@ -34,7 +48,12 @@ export function addTerminalOutput(appId: number, terminal: "frontend" | "backend
   }
 
   // Map our types to AppOutput types
-  let appOutputType: "stdout" | "stderr" | "info" | "client-error" | "input-requested";
+  let appOutputType:
+    | "stdout"
+    | "stderr"
+    | "info"
+    | "client-error"
+    | "input-requested";
   switch (type) {
     case "error":
       appOutputType = "stderr";
@@ -51,7 +70,7 @@ export function addTerminalOutput(appId: number, terminal: "frontend" | "backend
     message: formattedMessage,
     timestamp: Date.now(),
     type: appOutputType,
-    appId
+    appId,
   };
 
   if (terminal === "frontend") {
@@ -72,11 +91,20 @@ export function addTerminalOutput(appId: number, terminal: "frontend" | "backend
     }
   }
 
-  logToConsole(`Added ${type} output to ${terminal} terminal: ${message}`, "info");
+  logToConsole(
+    `Added ${type} output to ${terminal} terminal: ${message}`,
+    "info",
+  );
 }
 
 // Function to add output to appropriate terminal based on terminalType (used by app handlers)
-export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: number, terminalType: "frontend" | "backend" | "main", type: "stdout" | "stderr" | "info" | "client-error" | "input-requested", message: string) {
+export function routeTerminalOutput(
+  event: Electron.IpcMainInvokeEvent,
+  appId: number,
+  terminalType: "frontend" | "backend" | "main",
+  type: "stdout" | "stderr" | "info" | "client-error" | "input-requested",
+  message: string,
+) {
   // Route to appropriate terminal - handle "main" type by routing to both frontend and backend terminals
   let targetTerminals: ("frontend" | "backend")[] = [];
 
@@ -110,7 +138,15 @@ export function routeTerminalOutput(event: Electron.IpcMainInvokeEvent, appId: n
   let systemMessage = message;
 
   // For backend server logs, enhance visibility
-  if (terminalType === "backend" && (message.includes("HTTP/") || message.includes("OPTIONS") || message.includes("GET") || message.includes("POST") || message.includes("PUT") || message.includes("DELETE"))) {
+  if (
+    terminalType === "backend" &&
+    (message.includes("HTTP/") ||
+      message.includes("OPTIONS") ||
+      message.includes("GET") ||
+      message.includes("POST") ||
+      message.includes("PUT") ||
+      message.includes("DELETE"))
+  ) {
     systemMessageType = "info"; // Use info type to make server logs stand out
     systemMessage = `[${terminalType.toUpperCase()}] ${message}`;
   }

@@ -8,7 +8,10 @@ interface DyadSearchReplaceProps {
   children?: React.ReactNode;
 }
 
-export const DyadSearchReplace: React.FC<DyadSearchReplaceProps> = ({ children, node }) => {
+export const DyadSearchReplace: React.FC<DyadSearchReplaceProps> = ({
+  children,
+  node,
+}) => {
   const state = node?.properties?.state as CustomTagState;
   const inProgress = state === "pending";
   const [isExpanded, setIsExpanded] = useState(inProgress);
@@ -104,7 +107,9 @@ export const DyadSearchReplace: React.FC<DyadSearchReplaceProps> = ({ children, 
               </div>
               <div className="border border-red-200 dark:border-red-800 rounded p-2 bg-red-50 dark:bg-red-950/20">
                 <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-x-auto">
-                  {typeof searchContent === "string" ? searchContent : String(searchContent)}
+                  {typeof searchContent === "string"
+                    ? searchContent
+                    : String(searchContent)}
                 </pre>
               </div>
             </div>

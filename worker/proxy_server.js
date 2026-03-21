@@ -149,36 +149,42 @@ function buildTargetURL(clientReq) {
 /* ----------------------------------------------------------------------- */
 
 const server = http.createServer((clientReq, clientRes) => {
-  parentPort?.postMessage(`[proxy] Request: ${clientReq.method} ${clientReq.url}`);
+  parentPort?.postMessage(
+    `[proxy] Request: ${clientReq.method} ${clientReq.url}`,
+  );
 
   let responseSent = false; // Track if response has been initiated
 
   // Handle preflight OPTIONS requests
-  if (clientReq.method === 'OPTIONS') {
+  if (clientReq.method === "OPTIONS") {
     clientRes.writeHead(200, {
       "access-control-allow-origin": "*",
-      "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
-      "access-control-allow-headers": "content-type, authorization, x-requested-with",
-      "access-control-max-age": "86400"
+      "access-control-allow-methods":
+        "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH",
+      "access-control-allow-headers":
+        "content-type, authorization, x-requested-with",
+      "access-control-max-age": "86400",
     });
     responseSent = true;
     return clientRes.end();
   }
 
   // Health check endpoint
-  if (clientReq.url === '/proxy-health') {
+  if (clientReq.url === "/proxy-health") {
     clientRes.writeHead(200, {
       "content-type": "application/json",
       "access-control-allow-origin": "*",
       "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "access-control-allow-headers": "*"
+      "access-control-allow-headers": "*",
     });
     responseSent = true;
-    return clientRes.end(JSON.stringify({
-      status: "ok",
-      upstream: rememberedOrigin,
-      timestamp: new Date().toISOString()
-    }));
+    return clientRes.end(
+      JSON.stringify({
+        status: "ok",
+        upstream: rememberedOrigin,
+        timestamp: new Date().toISOString(),
+      }),
+    );
   }
 
   let target;
@@ -186,7 +192,9 @@ const server = http.createServer((clientReq, clientRes) => {
     target = buildTargetURL(clientReq);
     parentPort?.postMessage(`[proxy] Forwarding to: ${target.href}`);
   } catch (err) {
-    parentPort?.postMessage(`[proxy] Error building target URL: ${err.message}`);
+    parentPort?.postMessage(
+      `[proxy] Error building target URL: ${err.message}`,
+    );
     if (!responseSent) {
       clientRes.writeHead(400, { "content-type": "text/plain" });
       responseSent = true;
@@ -227,14 +235,16 @@ const server = http.createServer((clientReq, clientRes) => {
   };
 
   const upReq = lib.request(upOpts, (upRes) => {
-    parentPort?.postMessage(`[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`);
+    parentPort?.postMessage(
+      `[proxy] Upstream response: ${upRes.statusCode} for ${target.href}`,
+    );
 
     const inject = needsInjection(target.pathname);
 
     if (!inject) {
       // Add CORS headers to proxied responses
       const headers = { ...upRes.headers };
-      headers['access-control-allow-origin'] = '*';
+      headers["access-control-allow-origin"] = "*";
       if (!responseSent) {
         clientRes.writeHead(upRes.statusCode, headers);
         responseSent = true;
@@ -287,23 +297,27 @@ const server = http.createServer((clientReq, clientRes) => {
     if (!responseSent) {
       clientRes.writeHead(504, { "content-type": "text/plain" });
       responseSent = true;
-      clientRes.end("Gateway timeout: upstream server took too long to respond");
+      clientRes.end(
+        "Gateway timeout: upstream server took too long to respond",
+      );
     }
   });
 
   clientReq.pipe(upReq);
   upReq.on("error", (e) => {
-    parentPort?.postMessage(`[proxy] Upstream error: ${e.message} for ${target?.href || 'unknown'}`);
+    parentPort?.postMessage(
+      `[proxy] Upstream error: ${e.message} for ${target?.href || "unknown"}`,
+    );
     // Prevent writing headers if response has already been sent
     if (responseSent) {
       return;
     }
     // Check if this is a connection refused error (server not running on that port)
-    if (e.code === 'ECONNREFUSED') {
+    if (e.code === "ECONNREFUSED") {
       clientRes.writeHead(503, {
         "content-type": "text/html",
         "retry-after": "5",
-        "access-control-allow-origin": "*"
+        "access-control-allow-origin": "*",
       });
       responseSent = true;
       clientRes.end(`
@@ -313,7 +327,7 @@ const server = http.createServer((clientReq, clientRes) => {
         <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
           <h1>🚀 App is starting up...</h1>
           <p>The development server is still starting. Please refresh in a few seconds.</p>
-          <p><small>Upstream: ${rememberedOrigin || 'unknown'}</small></p>
+          <p><small>Upstream: ${rememberedOrigin || "unknown"}</small></p>
           <p><small>Error: ${e.message}</small></p>
           <p><small>Request: ${clientReq.method} ${clientReq.url}</small></p>
           <script>
@@ -326,7 +340,7 @@ const server = http.createServer((clientReq, clientRes) => {
     } else {
       clientRes.writeHead(502, {
         "content-type": "text/plain",
-        "access-control-allow-origin": "*"
+        "access-control-allow-origin": "*",
       });
       responseSent = true;
       clientRes.end("Upstream error: " + e.message);
@@ -380,7 +394,9 @@ server.on("upgrade", (req, socket, _head) => {
 
   // Add timeout to WebSocket upgrade requests
   upReq.setTimeout(10000, () => {
-    parentPort?.postMessage(`[proxy] WebSocket upgrade timeout for ${target.href}`);
+    parentPort?.postMessage(
+      `[proxy] WebSocket upgrade timeout for ${target.href}`,
+    );
     upReq.destroy();
     socket.destroy();
   });
@@ -394,5 +410,7 @@ server.listen(LISTEN_PORT, LISTEN_HOST, () => {
   parentPort?.postMessage(
     `proxy-server-start url=http://${LISTEN_HOST}:${LISTEN_PORT}`,
   );
-  console.log(`[PROXY] Server listening on http://${LISTEN_HOST}:${LISTEN_PORT}, proxying to ${rememberedOrigin}`);
+  console.log(
+    `[PROXY] Server listening on http://${LISTEN_HOST}:${LISTEN_PORT}, proxying to ${rememberedOrigin}`,
+  );
 });

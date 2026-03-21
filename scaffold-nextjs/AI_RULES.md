@@ -1,4 +1,5 @@
 # Tech Stack
+
 - You are building a Next.js application.
 - Use TypeScript.
 - Use Next.js App Router (app directory).
@@ -14,6 +15,7 @@
 - Tailwind CSS: always use Tailwind CSS for styling components. Utilize Tailwind classes extensively for layout, spacing, colors, and other design aspects.
 
 ## Project Structure
+
 - `app/`: Next.js App Router directory
   - `layout.tsx`: Root layout component
   - `page.tsx`: Home page component
@@ -26,6 +28,7 @@
 - `components.json`: shadcn/ui configuration
 
 ## Development Guidelines
+
 - Use Next.js App Router for routing and layouts
 - Implement proper TypeScript types throughout the codebase
 - Use Server Components when possible, Client Components when needed
@@ -36,6 +39,7 @@
 - Follow REST API conventions or GraphQL for data fetching
 
 ## Available packages and libraries
+
 - The lucide-react package is installed for icons
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
 - You have ALL the necessary Radix UI components installed.
@@ -43,6 +47,7 @@
 - @tanstack/react-query is available for data fetching and caching
 
 ## Next.js Specific Guidelines
+
 - Use `app/` directory for App Router (not `pages/`)
 - Create route groups with parentheses: `(group-name)`
 - Use `loading.tsx` for loading states
@@ -55,6 +60,7 @@
 - Use `next/link` for client-side navigation
 
 ## Best Practices
+
 - Use TypeScript interfaces for API responses and component props
 - Implement proper error handling with try-catch blocks
 - Use React hooks appropriately (useState, useEffect, useContext, etc.)

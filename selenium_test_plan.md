@@ -64,12 +64,14 @@ src/test/java/tests/
 ## 4. Test Suites
 
 ### 4.1 Navigation Suite
+
 - Sidebar navigation
 - Page routing
 - Breadcrumb functionality
 - Deep linking
 
 ### 4.2 Chat Interface Suite
+
 - Message input and display
 - Code highlighting
 - File attachments
@@ -77,12 +79,14 @@ src/test/java/tests/
 - Chat history
 
 ### 4.3 App Management Suite
+
 - App creation dialogs
 - App listing and search
 - App deletion
 - Import/export functionality
 
 ### 4.4 Preview Panel Suite
+
 - Code editor
 - Live preview iframe
 - Console output
@@ -90,22 +94,26 @@ src/test/java/tests/
 - Problems panel
 
 ### 4.5 Settings Suite
+
 - Provider configurations
 - Model settings
 - Theme preferences
 - Telemetry controls
 
 ### 4.6 Responsive Design Suite
+
 - Mobile layout adaptation
 - Tablet breakpoints
 - Desktop scaling
 
 ### 4.7 Theme Switching Suite
+
 - Dark/light mode toggle
 - Theme persistence
 - Component styling verification
 
 ### 4.8 Visual Elements Suite
+
 - Button states and animations
 - Loading indicators
 - Error states
@@ -116,7 +124,9 @@ src/test/java/tests/
 ### 5.1 Navigation Tests
 
 #### TC-NAV-001: Sidebar Navigation
+
 **Steps**:
+
 1. Launch application
 2. Verify sidebar is visible
 3. Click on "Home" menu item
@@ -127,13 +137,16 @@ src/test/java/tests/
 8. Assert Settings page loads
 
 **Assertions**:
+
 - Sidebar elements are clickable
 - URL changes correctly
 - Page titles update
 - Active menu item is highlighted
 
 #### TC-NAV-002: Responsive Sidebar
+
 **Steps**:
+
 1. Resize window to mobile width (< 768px)
 2. Verify sidebar collapses/hides
 3. Click hamburger menu
@@ -142,6 +155,7 @@ src/test/java/tests/
 6. Assert sidebar remains visible
 
 **Assertions**:
+
 - Sidebar visibility based on screen size
 - Smooth animations
 - No layout breaks
@@ -149,7 +163,9 @@ src/test/java/tests/
 ### 5.2 Chat Interface Tests
 
 #### TC-CHAT-001: Message Input and Display
+
 **Steps**:
+
 1. Navigate to Chat page
 2. Type message in input field
 3. Click send button
@@ -157,19 +173,23 @@ src/test/java/tests/
 5. Verify message appears in chat history
 
 **Assertions**:
+
 - Input field accepts text
 - Send button enables when text present
 - Message displays with correct formatting
 - Scroll behavior for long conversations
 
 #### TC-CHAT-002: Code Highlighting
+
 **Steps**:
+
 1. Send message containing code block
 2. Verify syntax highlighting applied
 3. Test different languages (JS, Python, etc.)
 4. Copy code button functionality
 
 **Assertions**:
+
 - Code blocks have proper highlighting
 - Language detection works
 - Copy functionality preserves formatting
@@ -177,7 +197,9 @@ src/test/java/tests/
 ### 5.3 App Management Tests
 
 #### TC-APP-001: Create New App
+
 **Steps**:
+
 1. Click "New App" button
 2. Select framework (React, Next.js, etc.)
 3. Enter app name
@@ -186,13 +208,16 @@ src/test/java/tests/
 6. Verify app appears in list
 
 **Assertions**:
+
 - Dialog opens correctly
 - Form validation works
 - Progress indicators show
 - App appears in sidebar/list
 
 #### TC-APP-002: App Search and Filter
+
 **Steps**:
+
 1. Navigate to app list
 2. Type search query
 3. Verify filtered results
@@ -200,6 +225,7 @@ src/test/java/tests/
 5. Verify all apps visible
 
 **Assertions**:
+
 - Real-time filtering
 - Case-insensitive search
 - No results state handling
@@ -207,7 +233,9 @@ src/test/java/tests/
 ### 5.4 Responsive Design Tests
 
 #### TC-RESP-001: Mobile Layout
+
 **Steps**:
+
 1. Resize browser to 375px width
 2. Verify chat input adapts
 3. Check sidebar behavior
@@ -215,18 +243,22 @@ src/test/java/tests/
 5. Verify text readability
 
 **Assertions**:
+
 - No horizontal scroll
 - Touch targets meet minimum size
 - Text scales appropriately
 
 #### TC-RESP-002: Tablet Layout
+
 **Steps**:
+
 1. Resize to 768px width
 2. Verify two-column layout
 3. Check component positioning
 4. Test interactions
 
 **Assertions**:
+
 - Proper grid layout
 - Component spacing
 - Interaction usability
@@ -234,7 +266,9 @@ src/test/java/tests/
 ### 5.5 Theme Switching Tests
 
 #### TC-THEME-001: Dark/Light Mode Toggle
+
 **Steps**:
+
 1. Locate theme toggle
 2. Click to switch to dark mode
 3. Verify color scheme changes
@@ -242,13 +276,16 @@ src/test/java/tests/
 5. Verify persistence across sessions
 
 **Assertions**:
+
 - Background colors change
 - Text colors adjust for contrast
 - Icons and buttons update
 - Setting saves correctly
 
 #### TC-THEME-002: Component Theming
+
 **Steps**:
+
 1. Switch theme
 2. Check various components:
    - Buttons
@@ -257,6 +294,7 @@ src/test/java/tests/
    - Dialogs
 
 **Assertions**:
+
 - All components follow theme
 - No unthemed elements
 - Consistent color palette
@@ -264,7 +302,9 @@ src/test/java/tests/
 ### 5.6 Visual Elements Tests
 
 #### TC-VISUAL-001: Button States
+
 **Steps**:
+
 1. Locate various buttons
 2. Hover over button
 3. Verify hover state
@@ -274,18 +314,22 @@ src/test/java/tests/
 7. Verify disabled state
 
 **Assertions**:
+
 - Visual feedback for all states
 - Smooth transitions
 - Accessibility compliance
 
 #### TC-VISUAL-002: Loading Animations
+
 **Steps**:
+
 1. Trigger loading state (send chat message)
 2. Verify loading indicator appears
 3. Wait for completion
 4. Verify indicator disappears
 
 **Assertions**:
+
 - Loading states are visible
 - Animations are smooth
 - No layout shifts
@@ -316,21 +360,25 @@ src/test/java/tests/
 ## 7. Reporting Strategy
 
 ### TestNG Reports
+
 - HTML reports with screenshots
 - XML reports for CI integration
 - ExtentReports for detailed reporting
 
 ### Visual Regression
+
 - Baseline screenshots for components
 - Automated comparison using tools like Percy or Applitools
 - Difference highlighting
 
 ### Coverage Reports
+
 - UI interaction coverage
 - Page coverage metrics
 - Cross-browser compatibility matrix
 
 ### CI/CD Integration
+
 - Test results published to dashboard
 - Failure notifications
 - Trend analysis over time
@@ -338,17 +386,20 @@ src/test/java/tests/
 ## 8. Execution Strategy
 
 ### Test Execution Order
+
 1. Smoke tests (critical UI flows)
 2. Regression tests (full suite)
 3. Visual regression tests
 4. Cross-browser tests
 
 ### Parallel Execution
+
 - Tests run in parallel using TestNG
 - Browser instances isolated
 - Resource management for Electron apps
 
 ### Environment Management
+
 - Local development environment
 - Staging environment for integration tests
 - Production smoke tests
@@ -356,12 +407,14 @@ src/test/java/tests/
 ## 9. Maintenance and Updates
 
 ### Test Maintenance
+
 - Regular review of test stability
 - Update selectors after UI changes
 - Refactor page objects as needed
 - Keep test data current
 
 ### Continuous Improvement
+
 - Add new tests for features
 - Performance monitoring
 - Flakiness reduction strategies
@@ -370,12 +423,14 @@ src/test/java/tests/
 ## 10. Risk Assessment
 
 ### High Risk Areas
+
 - Electron-specific functionality
 - Real-time chat features
 - File system operations
 - Network-dependent features
 
 ### Mitigation Strategies
+
 - Robust waits and timeouts
 - Mock external dependencies
 - Isolated test environments

@@ -25,10 +25,14 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
   const [editDescription, setEditDescription] = useState("");
 
   // Debug logging
-  console.log("TodoListPanel render:", { isOpen, chatId, todosCount: todos.length });
+  console.log("TodoListPanel render:", {
+    isOpen,
+    chatId,
+    todosCount: todos.length,
+  });
 
   // Filter todos for current chat
-  const currentChatTodos = todos.filter(todo => todo.chatId === chatId);
+  const currentChatTodos = todos.filter((todo) => todo.chatId === chatId);
   console.log("Current chat todos:", currentChatTodos.length);
 
   const addTodo = () => {
@@ -45,21 +49,21 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
       updatedAt: new Date(),
     };
 
-    setTodos(prev => [...prev, newTodo]);
+    setTodos((prev) => [...prev, newTodo]);
     setNewTodoTitle("");
     setNewTodoDescription("");
   };
 
   const updateTodoStatus = (todoId: string, status: TodoItem["status"]) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === todoId ? { ...todo, status, updatedAt: new Date() } : todo
-      )
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === todoId ? { ...todo, status, updatedAt: new Date() } : todo,
+      ),
     );
   };
 
   const deleteTodo = (todoId: string) => {
-    setTodos(prev => prev.filter(todo => todo.id !== todoId));
+    setTodos((prev) => prev.filter((todo) => todo.id !== todoId));
   };
 
   const startEdit = (todo: TodoItem) => {
@@ -70,12 +74,17 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
 
   const saveEdit = () => {
     if (!editingTodo) return;
-    setTodos(prev =>
-      prev.map(todo =>
+    setTodos((prev) =>
+      prev.map((todo) =>
         todo.id === editingTodo
-          ? { ...todo, title: editTitle, description: editDescription, updatedAt: new Date() }
-          : todo
-      )
+          ? {
+              ...todo,
+              title: editTitle,
+              description: editDescription,
+              updatedAt: new Date(),
+            }
+          : todo,
+      ),
     );
     setEditingTodo(null);
   };
@@ -94,44 +103,48 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
       updatedAt: new Date(),
     };
 
-    setTodos(prev =>
-      prev.map(todo =>
+    setTodos((prev) =>
+      prev.map((todo) =>
         todo.id === todoId
-          ? { ...todo, subtasks: [...todo.subtasks, newSubtask], updatedAt: new Date() }
-          : todo
-      )
+          ? {
+              ...todo,
+              subtasks: [...todo.subtasks, newSubtask],
+              updatedAt: new Date(),
+            }
+          : todo,
+      ),
     );
   };
 
   const toggleSubtask = (todoId: string, subtaskId: string) => {
-    setTodos(prev =>
-      prev.map(todo =>
+    setTodos((prev) =>
+      prev.map((todo) =>
         todo.id === todoId
           ? {
               ...todo,
-              subtasks: todo.subtasks.map(sub =>
+              subtasks: todo.subtasks.map((sub) =>
                 sub.id === subtaskId
                   ? { ...sub, completed: !sub.completed, updatedAt: new Date() }
-                  : sub
+                  : sub,
               ),
               updatedAt: new Date(),
             }
-          : todo
-      )
+          : todo,
+      ),
     );
   };
 
   const deleteSubtask = (todoId: string, subtaskId: string) => {
-    setTodos(prev =>
-      prev.map(todo =>
+    setTodos((prev) =>
+      prev.map((todo) =>
         todo.id === todoId
           ? {
               ...todo,
-              subtasks: todo.subtasks.filter(sub => sub.id !== subtaskId),
+              subtasks: todo.subtasks.filter((sub) => sub.id !== subtaskId),
               updatedAt: new Date(),
             }
-          : todo
-      )
+          : todo,
+      ),
     );
   };
 
@@ -190,8 +203,16 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
                           rows={2}
                         />
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={saveEdit}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={cancelEdit}>Cancel</Button>
+                          <Button size="sm" onClick={saveEdit}>
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={cancelEdit}
+                          >
+                            Cancel
+                          </Button>
                         </div>
                       </div>
                     ) : (
@@ -200,15 +221,26 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
                           <Checkbox
                             checked={todo.status === "completed"}
                             onCheckedChange={(checked) =>
-                              updateTodoStatus(todo.id, checked ? "completed" : "pending")
+                              updateTodoStatus(
+                                todo.id,
+                                checked ? "completed" : "pending",
+                              )
                             }
                           />
-                          <span className={todo.status === "completed" ? "line-through text-muted-foreground" : ""}>
+                          <span
+                            className={
+                              todo.status === "completed"
+                                ? "line-through text-muted-foreground"
+                                : ""
+                            }
+                          >
                             {todo.title}
                           </span>
                         </CardTitle>
                         {todo.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{todo.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {todo.description}
+                          </p>
                         )}
                       </div>
                     )}
@@ -222,7 +254,11 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
                     >
                       <Edit2 className="w-3 h-3" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => deleteTodo(todo.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteTodo(todo.id)}
+                    >
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
@@ -233,12 +269,23 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
                 {/* Subtasks */}
                 <div className="space-y-1 mb-2">
                   {todo.subtasks.map((subtask) => (
-                    <div key={subtask.id} className="flex items-center gap-2 text-sm">
+                    <div
+                      key={subtask.id}
+                      className="flex items-center gap-2 text-sm"
+                    >
                       <Checkbox
                         checked={subtask.completed}
-                        onCheckedChange={() => toggleSubtask(todo.id, subtask.id)}
+                        onCheckedChange={() =>
+                          toggleSubtask(todo.id, subtask.id)
+                        }
                       />
-                      <span className={subtask.completed ? "line-through text-muted-foreground" : ""}>
+                      <span
+                        className={
+                          subtask.completed
+                            ? "line-through text-muted-foreground"
+                            : ""
+                        }
+                      >
                         {subtask.title}
                       </span>
                       <Button
@@ -254,7 +301,9 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
                 </div>
 
                 {/* Add subtask */}
-                <AddSubtaskInput onAdd={(title) => addSubtask(todo.id, title)} />
+                <AddSubtaskInput
+                  onAdd={(title) => addSubtask(todo.id, title)}
+                />
               </CardContent>
             </Card>
           ))

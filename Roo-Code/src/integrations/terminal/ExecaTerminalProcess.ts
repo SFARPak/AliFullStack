@@ -185,7 +185,9 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 				await fs.unlink(scriptPath)
 				console.log(`[ExecaTerminalProcess#run] Cleaned up temporary script: ${scriptPath}`)
 			} catch (cleanupError) {
-				console.warn(`[ExecaTerminalProcess#run] Failed to clean up temporary script ${scriptPath}: ${cleanupError}`)
+				console.warn(
+					`[ExecaTerminalProcess#run] Failed to clean up temporary script ${scriptPath}: ${cleanupError}`,
+				)
 			}
 		}
 	}

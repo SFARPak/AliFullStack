@@ -373,15 +373,15 @@ export function getShell(): string {
 }
 
 /**
-	* Executes a complex multi-line command by writing it to a temporary script file
-	* and then executing the script. This is useful for commands that contain shell
-	* operators like '&&', '||', ';', or 'source', which might not be handled
-	* correctly when passed directly to execa with `shell: true` on all platforms.
-	*
-	* @param command The multi-line command string to execute.
-	* @param cwd The current working directory for the command.
-	* @returns The path to the temporary script file.
-	*/
+ * Executes a complex multi-line command by writing it to a temporary script file
+ * and then executing the script. This is useful for commands that contain shell
+ * operators like '&&', '||', ';', or 'source', which might not be handled
+ * correctly when passed directly to execa with `shell: true` on all platforms.
+ *
+ * @param command The multi-line command string to execute.
+ * @param cwd The current working directory for the command.
+ * @returns The path to the temporary script file.
+ */
 export async function createAndExecuteScript(command: string, cwd: string): Promise<string> {
 	const tempDir = path.join(os.tmpdir(), "roo-code-scripts")
 	await fs.mkdir(tempDir, { recursive: true })

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+
 # Scaffold Vue
 
 A basic Vue 3 + Vite setup with TypeScript and Tailwind CSS.
@@ -6,11 +7,13 @@ A basic Vue 3 + Vite setup with TypeScript and Tailwind CSS.
 ## Getting Started
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Run the development server:
+
    ```bash
    npm run dev
    ```
@@ -25,7 +28,7 @@ npm run build
 
 ## Preview
 
-```bash
+````bash
 npm run preview
 =======
 # scaffold-vue
@@ -39,7 +42,7 @@ This template should help get you started developing with Vue 3 in Vite.
 ## Recommended Browser Setup
 
 - Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
   - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
 - Firefox:
   - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
@@ -57,7 +60,7 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 
 ```sh
 npm install
-```
+````
 
 ### Compile and Hot-Reload for Development
 
@@ -70,4 +73,5 @@ npm run dev
 ```sh
 npm run build
 ```
->>>>>>> release/v0.0.5
+
+> > > > > > > release/v0.0.5

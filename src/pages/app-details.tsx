@@ -16,6 +16,8 @@ import {
   Server,
   Pencil,
   Folder,
+  Map,
+  KanbanSquare,
 } from "lucide-react";
 import {
   Popover,
@@ -384,6 +386,34 @@ export default function AppDetailsPage() {
             Backend Development
             <Server className="h-4 w-4" />
           </Button>
+          <div className="grid grid-cols-2 gap-2 w-full">
+            <Button
+              onClick={() => {
+                if (appId) {
+                  navigate({ to: "/sitemap", search: { appId } });
+                }
+              }}
+              className="cursor-pointer py-5 flex justify-center items-center gap-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+              size="lg"
+              variant="outline"
+            >
+              Visual Sitemap
+              <Map className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => {
+                if (appId) {
+                  navigate({ to: "/kanban", search: { appId } });
+                }
+              }}
+              className="cursor-pointer py-5 flex justify-center items-center gap-2 bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/40 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800"
+              size="lg"
+              variant="outline"
+            >
+              Kanban Board
+              <KanbanSquare className="h-4 w-4" />
+            </Button>
+          </div>
           <div className="border border-gray-200 rounded-md p-4">
             <GitHubConnector appId={appId} folderName={selectedApp.path} />
           </div>

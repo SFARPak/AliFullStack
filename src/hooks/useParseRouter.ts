@@ -61,9 +61,17 @@ export function useParseRouter(appId: number | null) {
   }, [app?.files]);
 
   // Use frontend router content if available, otherwise fallback to root or Vue specific
-  const finalRouterContent = isVueApp ? vueAppContent : (frontendRouterContent || routerContent);
-  const finalRouterLoading = frontendRouterFileLoading || routerFileLoading || (isVueApp ? vueAppLoading : false);
-  const finalRouterError = frontendRouterFileError || routerFileError || (isVueApp ? vueAppError : false);
+  const finalRouterContent = isVueApp
+    ? vueAppContent
+    : frontendRouterContent || routerContent;
+  const finalRouterLoading =
+    frontendRouterFileLoading ||
+    routerFileLoading ||
+    (isVueApp ? vueAppLoading : false);
+  const finalRouterError =
+    frontendRouterFileError ||
+    routerFileError ||
+    (isVueApp ? vueAppError : false);
 
   // Parse routes either from Next.js file-based routing or from router file
   useEffect(() => {
@@ -209,8 +217,10 @@ export function useParseRouter(appId: number | null) {
     }
   }, [isVueApp, isNextApp, app?.files, finalRouterContent, vueRouterContent]);
 
-  const combinedLoading = appLoading || finalRouterLoading || vueRouterLoading || vueAppLoading;
-  const combinedError = appError || finalRouterError || vueRouterError || vueAppError || null;
+  const combinedLoading =
+    appLoading || finalRouterLoading || vueRouterLoading || vueAppLoading;
+  const combinedError =
+    appError || finalRouterError || vueRouterError || vueAppError || null;
   const refresh = async () => {
     await Promise.allSettled([refreshApp(), refreshFile()]);
     // Also refresh frontend router file if it exists

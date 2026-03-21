@@ -12,16 +12,24 @@ const logger = log.scope("createFromTemplate");
 /**
  * Create essential files immediately to ensure basic functionality
  */
-async function createEssentialFilesImmediately(frontendPath: string): Promise<void> {
+async function createEssentialFilesImmediately(
+  frontendPath: string,
+): Promise<void> {
   logger.info(`🔧 Creating essential files immediately in ${frontendPath}`);
 
   // Debug: Confirm function was called
   try {
     const functionDebugContent = `DEBUG: createEssentialFilesImmediately called at ${new Date().toISOString()}\nfrontendPath: ${frontendPath}`;
-    await fs.writeFile(path.join(frontendPath, 'DEBUG_FUNCTION_CALLED.txt'), functionDebugContent);
+    await fs.writeFile(
+      path.join(frontendPath, "DEBUG_FUNCTION_CALLED.txt"),
+      functionDebugContent,
+    );
     logger.info(`✅ DEBUG: Function called debug file created`);
   } catch (debugError) {
-    logger.error('❌ DEBUG: Failed to create function called debug file:', debugError);
+    logger.error(
+      "❌ DEBUG: Failed to create function called debug file:",
+      debugError,
+    );
   }
 
   // Create package.json first (most critical)
@@ -51,18 +59,24 @@ async function createEssentialFilesImmediately(frontendPath: string): Promise<vo
 }`;
 
   try {
-    await fs.writeFile(path.join(frontendPath, 'package.json'), packageJson);
+    await fs.writeFile(path.join(frontendPath, "package.json"), packageJson);
     logger.info(`✅ package.json created successfully`);
 
     // Debug: Confirm package.json was written
     try {
       const packageDebugContent = `DEBUG: package.json created at ${new Date().toISOString()}`;
-      await fs.writeFile(path.join(frontendPath, 'DEBUG_PACKAGE_JSON.txt'), packageDebugContent);
+      await fs.writeFile(
+        path.join(frontendPath, "DEBUG_PACKAGE_JSON.txt"),
+        packageDebugContent,
+      );
     } catch (debugError) {
-      logger.warn('⚠️ Failed to create package.json debug file');
+      logger.warn("⚠️ Failed to create package.json debug file");
     }
   } catch (error) {
-    logger.error(`❌ Failed to create package.json:`, error instanceof Error ? error.message : String(error));
+    logger.error(
+      `❌ Failed to create package.json:`,
+      error instanceof Error ? error.message : String(error),
+    );
     throw error;
   }
 
@@ -85,7 +99,7 @@ Available packages and libraries:
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.`;
-  await fs.writeFile(path.join(frontendPath, 'AI_RULES.md'), aiRulesContent);
+  await fs.writeFile(path.join(frontendPath, "AI_RULES.md"), aiRulesContent);
 
   // Create vite.config.ts
   const viteConfig = `import { defineConfig } from 'vite'
@@ -96,10 +110,16 @@ export default defineConfig({
 })`;
 
   try {
-    await fs.writeFile(path.join(frontendPath, 'vite.config.ts'), viteConfig.trim());
+    await fs.writeFile(
+      path.join(frontendPath, "vite.config.ts"),
+      viteConfig.trim(),
+    );
     logger.info(`✅ vite.config.ts created successfully`);
   } catch (error) {
-    logger.error(`❌ Failed to create vite.config.ts:`, error instanceof Error ? error.message : String(error));
+    logger.error(
+      `❌ Failed to create vite.config.ts:`,
+      error instanceof Error ? error.message : String(error),
+    );
     throw error;
   }
 
@@ -118,7 +138,7 @@ export default defineConfig({
   </body>
 </html>`;
 
-  await fs.writeFile(path.join(frontendPath, 'index.html'), indexHtml);
+  await fs.writeFile(path.join(frontendPath, "index.html"), indexHtml);
 
   logger.info(`✅ Essential files created successfully`);
 }
@@ -126,31 +146,38 @@ export default defineConfig({
 /**
  * Copy critical files individually as fallback when bulk copy fails
  */
-async function copyCriticalFilesIndividually(scaffoldPath: string, frontendPath: string): Promise<void> {
-  logger.info(`📋 Starting individual file copy fallback from ${scaffoldPath} to ${frontendPath}`);
+async function copyCriticalFilesIndividually(
+  scaffoldPath: string,
+  frontendPath: string,
+): Promise<void> {
+  logger.info(
+    `📋 Starting individual file copy fallback from ${scaffoldPath} to ${frontendPath}`,
+  );
 
   // First ensure frontend directory structure exists
   await fs.ensureDir(frontendPath);
 
   const criticalFiles = [
-    'AI_RULES.md',
-    'package.json',
-    'vite.config.ts',
-    'tailwind.config.ts',
-    'tsconfig.json',
-    'tsconfig.app.json',
-    'tsconfig.node.json',
-    'eslint.config.js',
-    'postcss.config.js',
-    'components.json',
-    'index.html',
-    'README.md',
-    'vercel.json'
+    "AI_RULES.md",
+    "package.json",
+    "vite.config.ts",
+    "tailwind.config.ts",
+    "tsconfig.json",
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "eslint.config.js",
+    "postcss.config.js",
+    "components.json",
+    "index.html",
+    "README.md",
+    "vercel.json",
   ];
 
   // Copy critical files and directories using robust approach
   // Get all files and directories from scaffold
-  const scaffoldContents = await fs.readdir(scaffoldPath, { withFileTypes: true });
+  const scaffoldContents = await fs.readdir(scaffoldPath, {
+    withFileTypes: true,
+  });
 
   // Copy each item individually for better control and error handling
   for (const item of scaffoldContents) {
@@ -158,7 +185,7 @@ async function copyCriticalFilesIndividually(scaffoldPath: string, frontendPath:
     const destPath = path.join(frontendPath, item.name);
 
     // Skip node_modules and .git directories
-    if (item.name === 'node_modules' || item.name === '.git') {
+    if (item.name === "node_modules" || item.name === ".git") {
       logger.debug(`Skipping ${item.name} directory`);
       continue;
     }
@@ -173,8 +200,12 @@ async function copyCriticalFilesIndividually(scaffoldPath: string, frontendPath:
           filter: (src, dest) => {
             // Exclude .git and node_modules from subdirectories too
             const relativePath = path.relative(srcPath, src);
-            return !relativePath.includes('.git') && !relativePath.includes('node_modules') && !relativePath.includes('.DS_Store');
-          }
+            return (
+              !relativePath.includes(".git") &&
+              !relativePath.includes("node_modules") &&
+              !relativePath.includes(".DS_Store")
+            );
+          },
         });
         logger.info(`✅ Copied directory ${item.name}`);
       } else {
@@ -183,7 +214,10 @@ async function copyCriticalFilesIndividually(scaffoldPath: string, frontendPath:
         logger.info(`✅ Copied file ${item.name}`);
       }
     } catch (itemError) {
-      logger.warn(`⚠️ Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+      logger.warn(
+        `⚠️ Failed to copy ${item.name}:`,
+        itemError instanceof Error ? itemError.message : String(itemError),
+      );
       // Continue with other files
     }
   }
@@ -198,9 +232,9 @@ async function createMinimalReactFiles(frontendPath: string): Promise<void> {
   logger.info(`🔧 Creating minimal React files in ${frontendPath}`);
 
   // Ensure directories exist
-  const srcPath = path.join(frontendPath, 'src');
-  const pagesPath = path.join(srcPath, 'pages');
-  const publicPath = path.join(frontendPath, 'public');
+  const srcPath = path.join(frontendPath, "src");
+  const pagesPath = path.join(srcPath, "pages");
+  const publicPath = path.join(frontendPath, "public");
 
   await fs.ensureDir(srcPath);
   await fs.ensureDir(pagesPath);
@@ -226,18 +260,24 @@ Available packages and libraries:
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.`;
   try {
-    await fs.writeFile(path.join(frontendPath, 'AI_RULES.md'), aiRulesContent);
+    await fs.writeFile(path.join(frontendPath, "AI_RULES.md"), aiRulesContent);
     logger.info(`✅ AI_RULES.md created successfully`);
 
     // Debug: Confirm AI_RULES.md was written
     try {
       const aiRulesDebugContent = `DEBUG: AI_RULES.md created at ${new Date().toISOString()}`;
-      await fs.writeFile(path.join(frontendPath, 'DEBUG_AI_RULES.txt'), aiRulesDebugContent);
+      await fs.writeFile(
+        path.join(frontendPath, "DEBUG_AI_RULES.txt"),
+        aiRulesDebugContent,
+      );
     } catch (debugError) {
-      logger.warn('⚠️ Failed to create AI_RULES.md debug file');
+      logger.warn("⚠️ Failed to create AI_RULES.md debug file");
     }
   } catch (error) {
-    logger.error(`❌ Failed to create AI_RULES.md:`, error instanceof Error ? error.message : String(error));
+    logger.error(
+      `❌ Failed to create AI_RULES.md:`,
+      error instanceof Error ? error.message : String(error),
+    );
     throw error;
   }
 
@@ -265,7 +305,7 @@ Available packages and libraries:
     "preview": "vite preview"
   }
 }`;
-  await fs.writeFile(path.join(frontendPath, 'package.json'), packageJson);
+  await fs.writeFile(path.join(frontendPath, "package.json"), packageJson);
 
   // Create index.html
   const indexHtml = `<!doctype html>
@@ -281,7 +321,7 @@ Available packages and libraries:
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>`;
-  await fs.writeFile(path.join(frontendPath, 'index.html'), indexHtml);
+  await fs.writeFile(path.join(frontendPath, "index.html"), indexHtml);
 
   // Create main.tsx
   const mainTsx = `import { StrictMode } from 'react'
@@ -293,7 +333,7 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )`;
-  await fs.writeFile(path.join(srcPath, 'main.tsx'), mainTsx);
+  await fs.writeFile(path.join(srcPath, "main.tsx"), mainTsx);
 
   // Create App.tsx
   const appTsx = `import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -312,7 +352,7 @@ function App() {
 }
 
 export default App;`;
-  await fs.writeFile(path.join(srcPath, 'App.tsx'), appTsx);
+  await fs.writeFile(path.join(srcPath, "App.tsx"), appTsx);
 
   // Create Index.tsx
   const indexTsx = `const Index = () => {
@@ -329,7 +369,7 @@ export default App;`;
 };
 
 export default Index;`;
-  await fs.writeFile(path.join(pagesPath, 'Index.tsx'), indexTsx);
+  await fs.writeFile(path.join(pagesPath, "Index.tsx"), indexTsx);
 
   // Create NotFound.tsx
   const notFoundTsx = `const NotFound = () => {
@@ -347,7 +387,7 @@ export default Index;`;
 };
 
 export default NotFound;`;
-  await fs.writeFile(path.join(pagesPath, 'NotFound.tsx'), notFoundTsx);
+  await fs.writeFile(path.join(pagesPath, "NotFound.tsx"), notFoundTsx);
 
   // Create vite.config.ts
   const viteConfig = `import { defineConfig } from 'vite'
@@ -356,16 +396,21 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 })`;
-  await fs.writeFile(path.join(frontendPath, 'vite.config.ts'), viteConfig);
+  await fs.writeFile(path.join(frontendPath, "vite.config.ts"), viteConfig);
 
-  logger.info('✅ Minimal React files created successfully');
+  logger.info("✅ Minimal React files created successfully");
 }
 
 /**
  * Synchronously verify that scaffold files were copied correctly
  */
-function verifyScaffoldCopySync(frontendPath: string, scaffoldPath: string): boolean {
-  logger.info(`🔍 Starting synchronous scaffold copy verification for ${frontendPath}`);
+function verifyScaffoldCopySync(
+  frontendPath: string,
+  scaffoldPath: string,
+): boolean {
+  logger.info(
+    `🔍 Starting synchronous scaffold copy verification for ${frontendPath}`,
+  );
 
   try {
     // Check if frontend directory exists
@@ -376,10 +421,10 @@ function verifyScaffoldCopySync(frontendPath: string, scaffoldPath: string): boo
 
     // Check critical files
     const criticalFiles = [
-      'AI_RULES.md',
-      'package.json',
-      'src',
-      'vite.config.ts'
+      "AI_RULES.md",
+      "package.json",
+      "src",
+      "vite.config.ts",
     ];
 
     let allCriticalFilesPresent = true;
@@ -397,7 +442,9 @@ function verifyScaffoldCopySync(frontendPath: string, scaffoldPath: string): boo
             logger.warn(`⚠️ ${file} is empty`);
           }
         } catch (statError) {
-          logger.warn(`⚠️ Could not stat ${file}: ${statError instanceof Error ? statError.message : String(statError)}`);
+          logger.warn(
+            `⚠️ Could not stat ${file}: ${statError instanceof Error ? statError.message : String(statError)}`,
+          );
         }
       } else {
         logger.error(`❌ Critical file missing: ${file}`);
@@ -406,12 +453,12 @@ function verifyScaffoldCopySync(frontendPath: string, scaffoldPath: string): boo
     }
 
     // Check src directory structure
-    const srcPath = path.join(frontendPath, 'src');
+    const srcPath = path.join(frontendPath, "src");
     if (fs.existsSync(srcPath)) {
       const srcContents = fs.readdirSync(srcPath);
-      logger.info(`📁 src contents: ${srcContents.join(', ')}`);
+      logger.info(`📁 src contents: ${srcContents.join(", ")}`);
 
-      const expectedSrcFiles = ['App.tsx', 'main.tsx'];
+      const expectedSrcFiles = ["App.tsx", "main.tsx"];
       for (const file of expectedSrcFiles) {
         if (!srcContents.includes(file)) {
           logger.error(`❌ Missing src file: ${file}`);
@@ -422,12 +469,12 @@ function verifyScaffoldCopySync(frontendPath: string, scaffoldPath: string): boo
       }
 
       // Check pages directory
-      const pagesPath = path.join(srcPath, 'pages');
+      const pagesPath = path.join(srcPath, "pages");
       if (fs.existsSync(pagesPath)) {
         const pagesContents = fs.readdirSync(pagesPath);
-        logger.info(`📁 pages contents: ${pagesContents.join(', ')}`);
+        logger.info(`📁 pages contents: ${pagesContents.join(", ")}`);
 
-        const expectedPages = ['Index.tsx', 'NotFound.tsx'];
+        const expectedPages = ["Index.tsx", "NotFound.tsx"];
         for (const page of expectedPages) {
           if (!pagesContents.includes(page)) {
             logger.error(`❌ Missing page: ${page}`);
@@ -435,25 +482,24 @@ function verifyScaffoldCopySync(frontendPath: string, scaffoldPath: string): boo
           }
         }
       } else {
-        logger.error('❌ pages directory not found');
+        logger.error("❌ pages directory not found");
         allCriticalFilesPresent = false;
       }
     } else {
-      logger.error('❌ src directory not found');
+      logger.error("❌ src directory not found");
       allCriticalFilesPresent = false;
     }
 
     // Final verification
     if (allCriticalFilesPresent) {
-      logger.info('✅ Scaffold copy verification PASSED');
+      logger.info("✅ Scaffold copy verification PASSED");
       return true;
     } else {
-      logger.error('❌ Scaffold copy verification FAILED');
+      logger.error("❌ Scaffold copy verification FAILED");
       return false;
     }
-
   } catch (error) {
-    logger.error('❌ Error during scaffold copy verification:', error);
+    logger.error("❌ Error during scaffold copy verification:", error);
     return false;
   }
 }
@@ -470,7 +516,9 @@ export async function createFromTemplate({
   isFullStack?: boolean;
 }) {
   const templateId = selectedTemplateId || readSettings().selectedTemplateId;
-  logger.info(`Creating app with template: ${templateId}, backend: ${selectedBackendFramework}, isFullStack: ${isFullStack}`);
+  logger.info(
+    `Creating app with template: ${templateId}, backend: ${selectedBackendFramework}, isFullStack: ${isFullStack}`,
+  );
 
   // Create frontend directory
   const frontendPath = path.join(fullAppPath, "frontend");
@@ -479,11 +527,14 @@ export async function createFromTemplate({
 
   // Set proper permissions for frontend directory (755 - rwxr-xr-x)
   try {
-    const { execSync } = require('child_process');
-    execSync(`chmod 755 "${frontendPath}"`, { stdio: 'ignore' });
+    const { execSync } = require("child_process");
+    execSync(`chmod 755 "${frontendPath}"`, { stdio: "ignore" });
     logger.info(`Set permissions 755 for frontend directory: ${frontendPath}`);
   } catch (permError) {
-    logger.warn(`Failed to set permissions for frontend directory:`, permError instanceof Error ? permError.message : String(permError));
+    logger.warn(
+      `Failed to set permissions for frontend directory:`,
+      permError instanceof Error ? permError.message : String(permError),
+    );
   }
 
   // For full stack, always create both frontend and backend
@@ -498,11 +549,14 @@ export async function createFromTemplate({
 
     // Set proper permissions for backend directory (755 - rwxr-xr-x)
     try {
-      const { execSync } = require('child_process');
-      execSync(`chmod 755 "${backendPath}"`, { stdio: 'ignore' });
+      const { execSync } = require("child_process");
+      execSync(`chmod 755 "${backendPath}"`, { stdio: "ignore" });
       logger.info(`Set permissions 755 for backend directory: ${backendPath}`);
     } catch (permError) {
-      logger.warn(`Failed to set permissions for backend directory:`, permError instanceof Error ? permError.message : String(permError));
+      logger.warn(
+        `Failed to set permissions for backend directory:`,
+        permError instanceof Error ? permError.message : String(permError),
+      );
     }
   }
 
@@ -513,22 +567,35 @@ export async function createFromTemplate({
 
     // Set proper permissions for all backend subdirectories after setup
     try {
-      const { execSync } = require('child_process');
-      execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
-      execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
-      logger.info(`Set proper permissions for all backend subdirectories and files`);
+      const { execSync } = require("child_process");
+      execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, {
+        stdio: "ignore",
+      });
+      execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, {
+        stdio: "ignore",
+      });
+      logger.info(
+        `Set proper permissions for all backend subdirectories and files`,
+      );
     } catch (permError) {
-      logger.warn(`Failed to set permissions for backend subdirectories:`, permError instanceof Error ? permError.message : String(permError));
+      logger.warn(
+        `Failed to set permissions for backend subdirectories:`,
+        permError instanceof Error ? permError.message : String(permError),
+      );
     }
   }
 
   // For full stack, skip template processing and use scaffold copying directly
   if (isFullStack) {
     if (!selectedBackendFramework) {
-      throw new Error("Backend framework must be selected for Full Stack app creation. Please select a backend framework in the Hub first.");
+      throw new Error(
+        "Backend framework must be selected for Full Stack app creation. Please select a backend framework in the Hub first.",
+      );
     }
     // Use scaffold copying for frontend (React/Vue) and backend framework setup
-    logger.info(`Full stack mode: Using scaffold for frontend and ${selectedBackendFramework} for backend`);
+    logger.info(
+      `Full stack mode: Using scaffold for frontend and ${selectedBackendFramework} for backend`,
+    );
 
     // Determine which scaffold to use based on templateId
     // Use Electron's app.getAppPath() to get the correct app directory
@@ -545,10 +612,13 @@ export async function createFromTemplate({
     // EMERGENCY DEBUG: Create a debug file immediately
     try {
       const debugContent = `DEBUG: Full stack scaffold section reached at ${new Date().toISOString()}\nBackend Framework: ${selectedBackendFramework}\nTemplate: ${templateId}\nScaffold Path: ${scaffoldPath}`;
-      await fs.writeFile(path.join(frontendPath, 'DEBUG_FULL_STACK.txt'), debugContent);
-      logger.info('✅ DEBUG: Full stack debug file created');
+      await fs.writeFile(
+        path.join(frontendPath, "DEBUG_FULL_STACK.txt"),
+        debugContent,
+      );
+      logger.info("✅ DEBUG: Full stack debug file created");
     } catch (debugError) {
-      logger.error('❌ DEBUG: Failed to create debug file:', debugError);
+      logger.error("❌ DEBUG: Failed to create debug file:", debugError);
     }
 
     logger.info(`Using scaffold path: ${scaffoldPath}`);
@@ -565,10 +635,10 @@ export async function createFromTemplate({
     // Verify scaffold contents before copying
     try {
       const scaffoldContents = fs.readdirSync(scaffoldPath);
-      logger.info(`Scaffold contents: ${scaffoldContents.join(', ')}`);
+      logger.info(`Scaffold contents: ${scaffoldContents.join(", ")}`);
 
       // Check for critical scaffold files
-      const criticalFiles = ['AI_RULES.md', 'package.json', 'src'];
+      const criticalFiles = ["AI_RULES.md", "package.json", "src"];
       for (const file of criticalFiles) {
         const filePath = path.join(scaffoldPath, file);
         if (!fs.existsSync(filePath)) {
@@ -579,7 +649,9 @@ export async function createFromTemplate({
           const stats = fs.statSync(filePath);
           logger.info(`${file} size: ${stats.size} bytes`);
         } catch (statError) {
-          logger.warn(`Could not stat ${file}: ${statError instanceof Error ? statError.message : String(statError)}`);
+          logger.warn(
+            `Could not stat ${file}: ${statError instanceof Error ? statError.message : String(statError)}`,
+          );
         }
       }
     } catch (scaffoldError) {
@@ -595,10 +667,16 @@ export async function createFromTemplate({
     // Add debug file to confirm we reached this point
     try {
       const immediateDebugContent = `DEBUG: Immediate fallback reached at ${new Date().toISOString()}\nFrontend path: ${frontendPath}`;
-      await fs.writeFile(path.join(frontendPath, 'DEBUG_IMMEDIATE_FALLBACK.txt'), immediateDebugContent);
+      await fs.writeFile(
+        path.join(frontendPath, "DEBUG_IMMEDIATE_FALLBACK.txt"),
+        immediateDebugContent,
+      );
       logger.info(`✅ DEBUG: Immediate fallback debug file created`);
     } catch (debugError) {
-      logger.error('❌ DEBUG: Failed to create immediate fallback debug file:', debugError);
+      logger.error(
+        "❌ DEBUG: Failed to create immediate fallback debug file:",
+        debugError,
+      );
     }
 
     try {
@@ -608,32 +686,53 @@ export async function createFromTemplate({
       // Add debug file to confirm immediate creation worked
       try {
         const successDebugContent = `DEBUG: Immediate file creation successful at ${new Date().toISOString()}`;
-        await fs.writeFile(path.join(frontendPath, 'DEBUG_IMMEDIATE_SUCCESS.txt'), successDebugContent);
+        await fs.writeFile(
+          path.join(frontendPath, "DEBUG_IMMEDIATE_SUCCESS.txt"),
+          successDebugContent,
+        );
         logger.info(`✅ DEBUG: Immediate success debug file created`);
       } catch (debugError) {
-        logger.error('❌ DEBUG: Failed to create success debug file:', debugError);
+        logger.error(
+          "❌ DEBUG: Failed to create success debug file:",
+          debugError,
+        );
       }
     } catch (immediateError) {
-      logger.warn(`⚠️ Immediate file creation failed:`, immediateError instanceof Error ? immediateError.message : String(immediateError));
+      logger.warn(
+        `⚠️ Immediate file creation failed:`,
+        immediateError instanceof Error
+          ? immediateError.message
+          : String(immediateError),
+      );
 
       // Add debug file to show failure
       try {
         const failDebugContent = `DEBUG: Immediate file creation FAILED at ${new Date().toISOString()}\nError: ${immediateError instanceof Error ? immediateError.message : String(immediateError)}`;
-        await fs.writeFile(path.join(frontendPath, 'DEBUG_IMMEDIATE_FAILED.txt'), failDebugContent);
+        await fs.writeFile(
+          path.join(frontendPath, "DEBUG_IMMEDIATE_FAILED.txt"),
+          failDebugContent,
+        );
         logger.info(`✅ DEBUG: Immediate failure debug file created`);
       } catch (debugError) {
-        logger.error('❌ DEBUG: Failed to create failure debug file:', debugError);
+        logger.error(
+          "❌ DEBUG: Failed to create failure debug file:",
+          debugError,
+        );
       }
     }
 
     try {
-      logger.info(`Starting scaffold copy from ${actualScaffoldPath} to ${frontendPath}`);
+      logger.info(
+        `Starting scaffold copy from ${actualScaffoldPath} to ${frontendPath}`,
+      );
 
       // Use a more robust copying approach - copy entire directory contents
       await fs.ensureDir(frontendPath);
 
       // Get all files and directories from scaffold
-      const scaffoldContents = await fs.readdir(actualScaffoldPath, { withFileTypes: true });
+      const scaffoldContents = await fs.readdir(actualScaffoldPath, {
+        withFileTypes: true,
+      });
 
       // Copy each item individually for better control and error handling
       for (const item of scaffoldContents) {
@@ -641,7 +740,7 @@ export async function createFromTemplate({
         const destPath = path.join(frontendPath, item.name);
 
         // Skip node_modules and .git directories
-        if (item.name === 'node_modules' || item.name === '.git') {
+        if (item.name === "node_modules" || item.name === ".git") {
           logger.debug(`Skipping ${item.name} directory`);
           continue;
         }
@@ -655,15 +754,21 @@ export async function createFromTemplate({
               filter: (src, dest) => {
                 // Exclude .git and node_modules from subdirectories too
                 const relativePath = path.relative(srcPath, src);
-                return !relativePath.includes('.git') && !relativePath.includes('node_modules');
-              }
+                return (
+                  !relativePath.includes(".git") &&
+                  !relativePath.includes("node_modules")
+                );
+              },
             });
           } else {
             logger.debug(`Copying file: ${item.name}`);
             await fs.copy(srcPath, destPath, { overwrite: true });
           }
         } catch (itemError) {
-          logger.warn(`Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+          logger.warn(
+            `Failed to copy ${item.name}:`,
+            itemError instanceof Error ? itemError.message : String(itemError),
+          );
           // Continue with other files
         }
       }
@@ -673,7 +778,7 @@ export async function createFromTemplate({
       logger.info(`Successfully completed scaffold copy operation`);
 
       // Add a small delay to ensure file system operations are complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Comprehensive verification of the copy operation
       logger.info(`Starting comprehensive copy verification...`);
@@ -682,12 +787,14 @@ export async function createFromTemplate({
         frontendDir: false,
         criticalFiles: [] as string[],
         srcStructure: false,
-        fileSizes: {} as Record<string, number>
+        fileSizes: {} as Record<string, number>,
       };
 
       // 1. Verify frontend directory exists
       verificationResults.frontendDir = fs.existsSync(frontendPath);
-      logger.info(`Frontend directory exists: ${verificationResults.frontendDir}`);
+      logger.info(
+        `Frontend directory exists: ${verificationResults.frontendDir}`,
+      );
 
       if (!verificationResults.frontendDir) {
         throw new Error(`Frontend directory not created: ${frontendPath}`);
@@ -695,11 +802,11 @@ export async function createFromTemplate({
 
       // 2. Check critical files
       const criticalFiles = [
-        'AI_RULES.md',
-        'package.json',
-        'src',
-        'vite.config.ts',
-        'tailwind.config.ts'
+        "AI_RULES.md",
+        "package.json",
+        "src",
+        "vite.config.ts",
+        "tailwind.config.ts",
       ];
 
       for (const file of criticalFiles) {
@@ -713,7 +820,9 @@ export async function createFromTemplate({
             verificationResults.fileSizes[file] = stats.size;
             logger.info(`${file} exists (${stats.size} bytes)`);
           } catch (statError) {
-            logger.warn(`Could not stat ${file}: ${statError instanceof Error ? statError.message : String(statError)}`);
+            logger.warn(
+              `Could not stat ${file}: ${statError instanceof Error ? statError.message : String(statError)}`,
+            );
           }
         } else {
           logger.error(`Critical file missing: ${file}`);
@@ -721,28 +830,30 @@ export async function createFromTemplate({
       }
 
       // 3. Verify src structure
-      const srcPath = path.join(frontendPath, 'src');
+      const srcPath = path.join(frontendPath, "src");
       if (fs.existsSync(srcPath)) {
         const srcContents = fs.readdirSync(srcPath);
-        logger.info(`src directory contents: ${srcContents.join(', ')}`);
+        logger.info(`src directory contents: ${srcContents.join(", ")}`);
 
-        const expectedSrcFiles = ['App.tsx', 'main.tsx', 'pages', 'components'];
-        const missingSrcFiles = expectedSrcFiles.filter(file => !srcContents.includes(file));
+        const expectedSrcFiles = ["App.tsx", "main.tsx", "pages", "components"];
+        const missingSrcFiles = expectedSrcFiles.filter(
+          (file) => !srcContents.includes(file),
+        );
 
         if (missingSrcFiles.length === 0) {
           verificationResults.srcStructure = true;
-          logger.info('✅ src structure verification passed');
+          logger.info("✅ src structure verification passed");
         } else {
-          logger.error(`Missing src files: ${missingSrcFiles.join(', ')}`);
+          logger.error(`Missing src files: ${missingSrcFiles.join(", ")}`);
         }
       } else {
-        logger.error('src directory not found');
+        logger.error("src directory not found");
       }
 
       // 4. List all files in frontend directory
       try {
         const allFiles = fs.readdirSync(frontendPath);
-        logger.info(`All files in frontend directory: ${allFiles.join(', ')}`);
+        logger.info(`All files in frontend directory: ${allFiles.join(", ")}`);
       } catch (listError) {
         logger.error(`Could not list files in frontend directory:`, listError);
       }
@@ -752,68 +863,102 @@ export async function createFromTemplate({
       const hasBasicStructure = verificationResults.srcStructure;
 
       if (!hasMinimumFiles || !hasBasicStructure) {
-        logger.error('Copy verification failed - missing critical files or structure');
-        logger.error(`Verification results:`, JSON.stringify(verificationResults, null, 2));
-        throw new Error('Scaffold copy verification failed - missing critical files or structure');
+        logger.error(
+          "Copy verification failed - missing critical files or structure",
+        );
+        logger.error(
+          `Verification results:`,
+          JSON.stringify(verificationResults, null, 2),
+        );
+        throw new Error(
+          "Scaffold copy verification failed - missing critical files or structure",
+        );
       }
 
       // Run synchronous verification
-      const verificationPassed = verifyScaffoldCopySync(frontendPath, actualScaffoldPath);
+      const verificationPassed = verifyScaffoldCopySync(
+        frontendPath,
+        actualScaffoldPath,
+      );
 
       if (!verificationPassed) {
-        logger.warn('Scaffold copy verification failed, attempting individual file copy fallback');
+        logger.warn(
+          "Scaffold copy verification failed, attempting individual file copy fallback",
+        );
 
         // Try to copy critical files individually as fallback
         try {
           await copyCriticalFilesIndividually(actualScaffoldPath, frontendPath);
-          logger.info('✅ Fallback individual file copy completed');
+          logger.info("✅ Fallback individual file copy completed");
 
           // Verify again after fallback
-          const fallbackVerification = verifyScaffoldCopySync(frontendPath, actualScaffoldPath);
+          const fallbackVerification = verifyScaffoldCopySync(
+            frontendPath,
+            actualScaffoldPath,
+          );
           if (!fallbackVerification) {
-            throw new Error('Fallback copy verification also failed');
+            throw new Error("Fallback copy verification also failed");
           }
         } catch (fallbackError) {
-          logger.error('Fallback copy also failed:', fallbackError);
-          throw new Error(`Both primary and fallback copy methods failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+          logger.error("Fallback copy also failed:", fallbackError);
+          throw new Error(
+            `Both primary and fallback copy methods failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
+          );
         }
       }
 
-      logger.info('✅ Scaffold copy verification PASSED');
-      logger.info(`Successfully copied scaffold from ${actualScaffoldPath} to ${frontendPath}`);
+      logger.info("✅ Scaffold copy verification PASSED");
+      logger.info(
+        `Successfully copied scaffold from ${actualScaffoldPath} to ${frontendPath}`,
+      );
 
       // Set proper permissions for all subdirectories in frontend
       try {
-        const { execSync } = require('child_process');
-        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
-        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
-        logger.info(`Set proper permissions for all frontend subdirectories and files`);
+        const { execSync } = require("child_process");
+        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, {
+          stdio: "ignore",
+        });
+        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, {
+          stdio: "ignore",
+        });
+        logger.info(
+          `Set proper permissions for all frontend subdirectories and files`,
+        );
       } catch (permError) {
-        logger.warn(`Failed to set permissions for frontend subdirectories:`, permError instanceof Error ? permError.message : String(permError));
+        logger.warn(
+          `Failed to set permissions for frontend subdirectories:`,
+          permError instanceof Error ? permError.message : String(permError),
+        );
       }
-
     } catch (copyError) {
       logger.error(`Failed to copy scaffold directory:`, copyError);
       logger.error(`Copy error details:`, JSON.stringify(copyError, null, 2));
 
       // Try to provide more context about what went wrong
-      if (copyError && typeof copyError === 'object' && 'code' in copyError) {
+      if (copyError && typeof copyError === "object" && "code" in copyError) {
         logger.error(`Error code: ${copyError.code}`);
       }
-      if (copyError && typeof copyError === 'object' && 'errno' in copyError) {
+      if (copyError && typeof copyError === "object" && "errno" in copyError) {
         logger.error(`Error number: ${copyError.errno}`);
       }
 
       // Last resort: try to create basic files manually
-      logger.warn('Attempting manual file creation as last resort');
+      logger.warn("Attempting manual file creation as last resort");
       try {
         await createMinimalReactFiles(frontendPath);
-        logger.info('✅ Manual file creation completed');
+        logger.info("✅ Manual file creation completed");
       } catch (manualError) {
-        logger.error('Manual file creation also failed:', manualError instanceof Error ? manualError.message : String(manualError));
+        logger.error(
+          "Manual file creation also failed:",
+          manualError instanceof Error
+            ? manualError.message
+            : String(manualError),
+        );
       }
 
-      throw new Error(`Failed to copy scaffold: ${copyError instanceof Error ? copyError.message : String(copyError)}`);
+      throw new Error(
+        `Failed to copy scaffold: ${copyError instanceof Error ? copyError.message : String(copyError)}`,
+      );
     }
 
     // Install npm dependencies for React scaffold
@@ -821,16 +966,23 @@ export async function createFromTemplate({
       const packageJsonPath = path.join(frontendPath, "package.json");
       logger.info(`Checking for package.json at: ${packageJsonPath}`);
       if (fs.existsSync(packageJsonPath)) {
-        logger.info(`Found package.json, installing React scaffold dependencies in ${frontendPath}`);
+        logger.info(
+          `Found package.json, installing React scaffold dependencies in ${frontendPath}`,
+        );
         await installDependenciesForFramework(frontendPath, "nodejs");
       } else {
-        logger.error(`package.json not found at ${packageJsonPath} after copying scaffold`);
+        logger.error(
+          `package.json not found at ${packageJsonPath} after copying scaffold`,
+        );
         // List files in frontend directory to debug
         try {
           const files = fs.readdirSync(frontendPath);
-          logger.info(`Files in frontend directory: ${files.join(', ')}`);
+          logger.info(`Files in frontend directory: ${files.join(", ")}`);
         } catch (listError) {
-          logger.error(`Could not list files in frontend directory:`, listError);
+          logger.error(
+            `Could not list files in frontend directory:`,
+            listError,
+          );
         }
 
         // Create a fallback package.json if the copy failed
@@ -941,7 +1093,10 @@ Available packages and libraries:
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.`;
-          await fs.writeFile(path.join(frontendPath, "AI_RULES.md"), aiRulesContent);
+          await fs.writeFile(
+            path.join(frontendPath, "AI_RULES.md"),
+            aiRulesContent,
+          );
           logger.info(`Created AI_RULES.md file`);
 
           // Create basic React files
@@ -954,7 +1109,10 @@ Available packages and libraries:
         }
       }
     } catch (installError) {
-      logger.warn(`Failed to install React scaffold dependencies:`, installError);
+      logger.warn(
+        `Failed to install React scaffold dependencies:`,
+        installError,
+      );
       // Continue even if installation fails
     }
 
@@ -962,12 +1120,20 @@ Available packages and libraries:
   }
 
   const template = await getTemplateOrThrow(templateId);
-  logger.info(`Template found: ${template.title}, isFrontend: ${template.isFrontend}, githubUrl: ${template.githubUrl}`);
+  logger.info(
+    `Template found: ${template.title}, isFrontend: ${template.isFrontend}, githubUrl: ${template.githubUrl}`,
+  );
 
   // For templates without GitHub URL (like "react", "vue", "next"), use scaffold copying
   if (!template.githubUrl) {
-    if (templateId === "react" || templateId === "vue" || templateId === "next") {
-      logger.info(`Template ${templateId} has no GitHub URL, using scaffold copying`);
+    if (
+      templateId === "react" ||
+      templateId === "vue" ||
+      templateId === "next"
+    ) {
+      logger.info(
+        `Template ${templateId} has no GitHub URL, using scaffold copying`,
+      );
       // Use scaffold copying for React/Vue/Next.js templates
       // Use Electron's app.getAppPath() to get the correct app directory
       const appPath = app.getAppPath();
@@ -990,7 +1156,9 @@ Available packages and libraries:
       await fs.ensureDir(frontendPath);
 
       // Get all files and directories from scaffold
-      const scaffoldContents = await fs.readdir(scaffoldPath, { withFileTypes: true });
+      const scaffoldContents = await fs.readdir(scaffoldPath, {
+        withFileTypes: true,
+      });
 
       // Copy each item individually for better control and error handling
       for (const item of scaffoldContents) {
@@ -998,7 +1166,7 @@ Available packages and libraries:
         const destPath = path.join(frontendPath, item.name);
 
         // Skip node_modules and .git directories
-        if (item.name === 'node_modules' || item.name === '.git') {
+        if (item.name === "node_modules" || item.name === ".git") {
           logger.debug(`Skipping ${item.name} directory`);
           continue;
         }
@@ -1012,15 +1180,21 @@ Available packages and libraries:
               filter: (src, dest) => {
                 // Exclude .git and node_modules from subdirectories too
                 const relativePath = path.relative(srcPath, src);
-                return !relativePath.includes('.git') && !relativePath.includes('node_modules');
-              }
+                return (
+                  !relativePath.includes(".git") &&
+                  !relativePath.includes("node_modules")
+                );
+              },
             });
           } else {
             logger.debug(`Copying file: ${item.name}`);
             await fs.copy(srcPath, destPath, { overwrite: true });
           }
         } catch (itemError) {
-          logger.warn(`Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+          logger.warn(
+            `Failed to copy ${item.name}:`,
+            itemError instanceof Error ? itemError.message : String(itemError),
+          );
           // Continue with other files
         }
       }
@@ -1031,11 +1205,16 @@ Available packages and libraries:
       try {
         const packageJsonPath = path.join(frontendPath, "package.json");
         if (fs.existsSync(packageJsonPath)) {
-          logger.info(`Installing React scaffold dependencies in ${frontendPath}`);
+          logger.info(
+            `Installing React scaffold dependencies in ${frontendPath}`,
+          );
           await installDependenciesForFramework(frontendPath, "nodejs");
         }
       } catch (installError) {
-        logger.warn(`Failed to install React scaffold dependencies:`, installError);
+        logger.warn(
+          `Failed to install React scaffold dependencies:`,
+          installError,
+        );
       }
 
       return;
@@ -1049,21 +1228,30 @@ Available packages and libraries:
 
   if (template.isFrontend) {
     // For frontend templates (like Next.js), put code in frontend folder
-    logger.info(`Copying frontend template to frontend folder: ${frontendPath}`);
+    logger.info(
+      `Copying frontend template to frontend folder: ${frontendPath}`,
+    );
 
     // Add debug information for Next.js template issues
-    if (templateId === 'next') {
+    if (templateId === "next") {
       logger.info(`🔍 DEBUG: Processing Next.js template`);
       logger.info(`🔍 DEBUG: Repo cache path: ${repoCachePath}`);
       logger.info(`🔍 DEBUG: Frontend path: ${frontendPath}`);
-      logger.info(`🔍 DEBUG: Repo cache exists: ${fs.existsSync(repoCachePath)}`);
+      logger.info(
+        `🔍 DEBUG: Repo cache exists: ${fs.existsSync(repoCachePath)}`,
+      );
 
       if (fs.existsSync(repoCachePath)) {
         try {
           const repoContents = fs.readdirSync(repoCachePath).slice(0, 10); // First 10 items
-          logger.info(`🔍 DEBUG: Repo cache contents (first 10): ${repoContents.join(', ')}`);
+          logger.info(
+            `🔍 DEBUG: Repo cache contents (first 10): ${repoContents.join(", ")}`,
+          );
         } catch (listError) {
-          logger.error(`🔍 DEBUG: Could not list repo cache contents:`, listError);
+          logger.error(
+            `🔍 DEBUG: Could not list repo cache contents:`,
+            listError,
+          );
         }
       }
     }
@@ -1073,42 +1261,64 @@ Available packages and libraries:
 
       // Set proper permissions for frontend template subdirectories
       try {
-        const { execSync } = require('child_process');
-        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
-        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
-        logger.info(`Set proper permissions for frontend template subdirectories and files`);
+        const { execSync } = require("child_process");
+        execSync(`find "${frontendPath}" -type d -exec chmod 755 {} +`, {
+          stdio: "ignore",
+        });
+        execSync(`find "${frontendPath}" -type f -exec chmod 644 {} +`, {
+          stdio: "ignore",
+        });
+        logger.info(
+          `Set proper permissions for frontend template subdirectories and files`,
+        );
       } catch (permError) {
-        logger.warn(`Failed to set permissions for frontend template:`, permError instanceof Error ? permError.message : String(permError));
+        logger.warn(
+          `Failed to set permissions for frontend template:`,
+          permError instanceof Error ? permError.message : String(permError),
+        );
       }
 
       // Verify the copy worked
       if (fs.existsSync(frontendPath)) {
         const destContents = fs.readdirSync(frontendPath);
-        logger.info(`Frontend template copied successfully, ${destContents.length} items in destination`);
+        logger.info(
+          `Frontend template copied successfully, ${destContents.length} items in destination`,
+        );
 
-        if (templateId === 'next') {
-          logger.info(`🔍 DEBUG: Next.js template copied successfully, contents: ${destContents.join(', ')}`);
+        if (templateId === "next") {
+          logger.info(
+            `🔍 DEBUG: Next.js template copied successfully, contents: ${destContents.join(", ")}`,
+          );
         }
 
         // Check for package.json
         const packageJsonPath = path.join(frontendPath, "package.json");
         if (!fs.existsSync(packageJsonPath)) {
-          logger.warn(`WARNING: Frontend template ${template.title} does not have package.json`);
+          logger.warn(
+            `WARNING: Frontend template ${template.title} does not have package.json`,
+          );
         } else {
           logger.info(`Found package.json in frontend template`);
         }
       } else {
-        throw new Error(`Frontend directory ${frontendPath} not found after copy`);
+        throw new Error(
+          `Frontend directory ${frontendPath} not found after copy`,
+        );
       }
     } catch (copyError) {
       logger.error(`Failed to copy frontend template:`, copyError);
 
-      if (templateId === 'next') {
-        logger.error(`🔍 DEBUG: Next.js template copy failed:`, copyError instanceof Error ? copyError.message : String(copyError));
+      if (templateId === "next") {
+        logger.error(
+          `🔍 DEBUG: Next.js template copy failed:`,
+          copyError instanceof Error ? copyError.message : String(copyError),
+        );
       }
 
       // As fallback, create basic React files (since this is frontend development)
-      logger.warn(`Falling back to basic React scaffold for frontend template ${template.title}`);
+      logger.warn(
+        `Falling back to basic React scaffold for frontend template ${template.title}`,
+      );
       await createBasicReactFiles(frontendPath);
     }
 
@@ -1116,29 +1326,47 @@ Available packages and libraries:
     try {
       const packageJsonPath = path.join(frontendPath, "package.json");
       if (fs.existsSync(packageJsonPath)) {
-        logger.info(`Installing frontend template dependencies in ${frontendPath}`);
+        logger.info(
+          `Installing frontend template dependencies in ${frontendPath}`,
+        );
         await installDependenciesForFramework(frontendPath, "nodejs");
       } else {
-        logger.warn(`No package.json found for frontend template ${template.title}, skipping dependency installation`);
+        logger.warn(
+          `No package.json found for frontend template ${template.title}, skipping dependency installation`,
+        );
       }
     } catch (installError) {
-      logger.warn(`Failed to install frontend template dependencies:`, installError);
+      logger.warn(
+        `Failed to install frontend template dependencies:`,
+        installError,
+      );
       // Continue even if installation fails
     }
   } else {
     // For backend/fullstack templates, put code in backend folder
     if (backendPath) {
-      logger.info(`Copying backend/fullstack template to backend folder: ${backendPath}`);
+      logger.info(
+        `Copying backend/fullstack template to backend folder: ${backendPath}`,
+      );
       await copyRepoToApp(repoCachePath, backendPath);
 
       // Set proper permissions for backend template subdirectories
       try {
-        const { execSync } = require('child_process');
-        execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, { stdio: 'ignore' });
-        execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, { stdio: 'ignore' });
-        logger.info(`Set proper permissions for backend template subdirectories and files`);
+        const { execSync } = require("child_process");
+        execSync(`find "${backendPath}" -type d -exec chmod 755 {} +`, {
+          stdio: "ignore",
+        });
+        execSync(`find "${backendPath}" -type f -exec chmod 644 {} +`, {
+          stdio: "ignore",
+        });
+        logger.info(
+          `Set proper permissions for backend template subdirectories and files`,
+        );
       } catch (permError) {
-        logger.warn(`Failed to set permissions for backend template:`, permError instanceof Error ? permError.message : String(permError));
+        logger.warn(
+          `Failed to set permissions for backend template:`,
+          permError instanceof Error ? permError.message : String(permError),
+        );
       }
 
       // Install backend dependencies if requirements.txt or package.json exists
@@ -1147,18 +1375,27 @@ Available packages and libraries:
         const packageJsonPath = path.join(backendPath, "package.json");
 
         if (fs.existsSync(packageJsonPath)) {
-          logger.info(`Installing backend Node.js dependencies in ${backendPath}`);
+          logger.info(
+            `Installing backend Node.js dependencies in ${backendPath}`,
+          );
           await installDependenciesForFramework(backendPath, "nodejs");
         } else if (fs.existsSync(requirementsPath)) {
-          logger.info(`Installing backend Python dependencies in ${backendPath}`);
+          logger.info(
+            `Installing backend Python dependencies in ${backendPath}`,
+          );
           await installDependenciesForFramework(backendPath, "python");
         }
       } catch (installError) {
-        logger.warn(`Failed to install backend template dependencies:`, installError);
+        logger.warn(
+          `Failed to install backend template dependencies:`,
+          installError,
+        );
         // Continue even if installation fails
       }
     } else {
-      logger.warn(`Backend template selected but no backend framework chosen. Skipping backend setup.`);
+      logger.warn(
+        `Backend template selected but no backend framework chosen. Skipping backend setup.`,
+      );
     }
   }
 }
@@ -1238,18 +1475,26 @@ async function cloneRepo(repoUrl: string): Promise<string> {
         logger.info(`Successfully fetched remote SHA: ${remoteSha}`);
       } else if (response.statusCode === 401) {
         // GitHub API returns 401 for unauthenticated requests or rate limiting
-        logger.warn(`GitHub API authentication failed (401). Skipping update check for ${repoName}.`);
+        logger.warn(
+          `GitHub API authentication failed (401). Skipping update check for ${repoName}.`,
+        );
         return cachePath; // Use cached version
       } else if (response.statusCode === 403) {
         // Rate limiting or other access issues
-        logger.warn(`GitHub API access denied (403). Skipping update check for ${repoName}.`);
+        logger.warn(
+          `GitHub API access denied (403). Skipping update check for ${repoName}.`,
+        );
         return cachePath; // Use cached version
       } else if (response.statusCode === 404) {
         // Repository not found
-        logger.warn(`GitHub repository not found (404). Skipping update check for ${repoName}.`);
+        logger.warn(
+          `GitHub repository not found (404). Skipping update check for ${repoName}.`,
+        );
         return cachePath; // Use cached version
       } else {
-        logger.warn(`GitHub API request failed with status ${response.statusCode}. Skipping update check for ${repoName}.`);
+        logger.warn(
+          `GitHub API request failed with status ${response.statusCode}. Skipping update check for ${repoName}.`,
+        );
         return cachePath; // Use cached version as fallback
       }
 
@@ -1285,10 +1530,14 @@ async function cloneRepo(repoUrl: string): Promise<string> {
   logger.info(`Cloning ${repoUrl} to ${cachePath}`);
 
   // Add special debug for Next.js template
-  if (repoUrl.includes('nextjs-template')) {
+  if (repoUrl.includes("nextjs-template")) {
     logger.info(`🔍 DEBUG: Cloning Next.js template`);
-    logger.info(`🔍 DEBUG: Cache path exists before clone: ${fs.existsSync(cachePath)}`);
-    logger.info(`🔍 DEBUG: Cache directory exists: ${fs.existsSync(path.dirname(cachePath))}`);
+    logger.info(
+      `🔍 DEBUG: Cache path exists before clone: ${fs.existsSync(cachePath)}`,
+    );
+    logger.info(
+      `🔍 DEBUG: Cache directory exists: ${fs.existsSync(path.dirname(cachePath))}`,
+    );
   }
 
   try {
@@ -1303,13 +1552,15 @@ async function cloneRepo(repoUrl: string): Promise<string> {
     logger.info(`Successfully cloned ${repoUrl} to ${cachePath}`);
 
     // Debug: Check what was cloned
-    if (repoUrl.includes('nextjs-template')) {
+    if (repoUrl.includes("nextjs-template")) {
       try {
         const clonedContents = fs.readdirSync(cachePath);
-        logger.info(`🔍 DEBUG: Next.js template cloned contents: ${clonedContents.join(', ')}`);
+        logger.info(
+          `🔍 DEBUG: Next.js template cloned contents: ${clonedContents.join(", ")}`,
+        );
 
         // Check for critical files
-        const criticalFiles = ['package.json', 'next.config.js', 'src', 'app'];
+        const criticalFiles = ["package.json", "next.config.js", "src", "app"];
         for (const file of criticalFiles) {
           const filePath = path.join(cachePath, file);
           const exists = fs.existsSync(filePath);
@@ -1319,12 +1570,14 @@ async function cloneRepo(repoUrl: string): Promise<string> {
         logger.error(`🔍 DEBUG: Error checking cloned contents:`, debugError);
       }
     }
-
   } catch (err) {
     logger.error(`Failed to clone ${repoUrl} to ${cachePath}: `, err);
 
-    if (repoUrl.includes('nextjs-template')) {
-      logger.error(`🔍 DEBUG: Next.js template cloning failed:`, err instanceof Error ? err.message : String(err));
+    if (repoUrl.includes("nextjs-template")) {
+      logger.error(
+        `🔍 DEBUG: Next.js template cloning failed:`,
+        err instanceof Error ? err.message : String(err),
+      );
     }
 
     throw err; // Re-throw the error after logging
@@ -1332,7 +1585,10 @@ async function cloneRepo(repoUrl: string): Promise<string> {
   return cachePath;
 }
 
-export async function setupBackendFramework(backendPath: string, framework: string) {
+export async function setupBackendFramework(
+  backendPath: string,
+  framework: string,
+) {
   logger.info(`Setting up ${framework} framework in ${backendPath}`);
 
   try {
@@ -1342,7 +1598,9 @@ export async function setupBackendFramework(backendPath: string, framework: stri
     const scaffoldPath = path.join(appPath, "scaffold-backend", framework);
 
     if (fs.existsSync(scaffoldPath)) {
-      logger.info(`Found scaffold for ${framework} at ${scaffoldPath}, copying to ${backendPath}`);
+      logger.info(
+        `Found scaffold for ${framework} at ${scaffoldPath}, copying to ${backendPath}`,
+      );
 
       // Copy the scaffold-backend directory to backendPath
       await fs.copy(scaffoldPath, backendPath, {
@@ -1350,30 +1608,35 @@ export async function setupBackendFramework(backendPath: string, framework: stri
         filter: (src, dest) => {
           // Exclude .DS_Store and other unwanted files
           const relativePath = path.relative(scaffoldPath, src);
-          const shouldExclude = relativePath === '.DS_Store' || relativePath.includes('.git');
+          const shouldExclude =
+            relativePath === ".DS_Store" || relativePath.includes(".git");
           if (shouldExclude) {
             logger.debug(`Excluding ${src} from copy`);
           }
           return !shouldExclude;
-        }
+        },
       });
 
-      logger.info(`Successfully copied ${framework} scaffold from ${scaffoldPath} to ${backendPath}`);
+      logger.info(
+        `Successfully copied ${framework} scaffold from ${scaffoldPath} to ${backendPath}`,
+      );
     } else {
-      logger.warn(`Scaffold not found for ${framework} at ${scaffoldPath}, falling back to programmatic setup`);
+      logger.warn(
+        `Scaffold not found for ${framework} at ${scaffoldPath}, falling back to programmatic setup`,
+      );
 
       // Fallback to programmatic setup if scaffold doesn't exist
       switch (framework) {
-        case 'django':
+        case "django":
           await setupDjango(backendPath);
           break;
-        case 'fastapi':
+        case "fastapi":
           await setupFastAPI(backendPath);
           break;
-        case 'flask':
+        case "flask":
           await setupFlask(backendPath);
           break;
-        case 'nodejs':
+        case "nodejs":
           await setupNodeJS(backendPath);
           break;
         default:
@@ -1386,7 +1649,10 @@ export async function setupBackendFramework(backendPath: string, framework: stri
       logger.info(`Installing dependencies for ${framework} in ${backendPath}`);
       await installDependenciesForFramework(backendPath, framework);
     } catch (installError) {
-      logger.warn(`Failed to install dependencies for ${framework}:`, installError);
+      logger.warn(
+        `Failed to install dependencies for ${framework}:`,
+        installError,
+      );
       // Continue even if installation fails
     }
 
@@ -1401,12 +1667,17 @@ export async function setupBackendFramework(backendPath: string, framework: stri
 
     // Auto-start the backend server after dependency installation
     try {
-      logger.info(`Auto-starting ${framework} backend server in ${backendPath}`);
+      logger.info(
+        `Auto-starting ${framework} backend server in ${backendPath}`,
+      );
       // Note: appId is not available in this context, so terminal output won't be shown
       // This is called during app creation, before the app is fully set up
       await startBackendServer(backendPath, framework);
     } catch (startError) {
-      logger.warn(`Failed to auto-start ${framework} backend server:`, startError);
+      logger.warn(
+        `Failed to auto-start ${framework} backend server:`,
+        startError,
+      );
       // Continue even if server start fails - user can start manually
     }
   } catch (error) {
@@ -1414,15 +1685,18 @@ export async function setupBackendFramework(backendPath: string, framework: stri
   }
 }
 async function setupDjango(backendPath: string) {
-  const requirementsPath = path.join(backendPath, 'requirements.txt');
-  const managePath = path.join(backendPath, 'manage.py');
-  const settingsPath = path.join(backendPath, 'mysite', 'settings.py');
-  const urlsPath = path.join(backendPath, 'mysite', 'urls.py');
-  const viewsPath = path.join(backendPath, 'mysite', 'views.py');
-  const modelsPath = path.join(backendPath, 'mysite', 'models.py');
+  const requirementsPath = path.join(backendPath, "requirements.txt");
+  const managePath = path.join(backendPath, "manage.py");
+  const settingsPath = path.join(backendPath, "mysite", "settings.py");
+  const urlsPath = path.join(backendPath, "mysite", "urls.py");
+  const viewsPath = path.join(backendPath, "mysite", "views.py");
+  const modelsPath = path.join(backendPath, "mysite", "models.py");
 
   // Create requirements.txt
-  await fs.writeFile(requirementsPath, 'Django==4.2.7\ndjango-cors-headers==4.3.1\n');
+  await fs.writeFile(
+    requirementsPath,
+    "Django==4.2.7\ndjango-cors-headers==4.3.1\n",
+  );
 
   // Create manage.py
   const manageContent = `#!/usr/bin/env python
@@ -1445,24 +1719,30 @@ if __name__ == "__main__":
   await fs.writeFile(managePath, manageContent);
 
   // Create directory structure
-  await fs.ensureDir(path.join(backendPath, 'mysite'));
+  await fs.ensureDir(path.join(backendPath, "mysite"));
 
   // Create __init__.py files
-  await fs.writeFile(path.join(backendPath, 'mysite', '__init__.py'), '');
-  await fs.writeFile(path.join(backendPath, 'mysite', 'wsgi.py'), `import os
+  await fs.writeFile(path.join(backendPath, "mysite", "__init__.py"), "");
+  await fs.writeFile(
+    path.join(backendPath, "mysite", "wsgi.py"),
+    `import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 application = get_wsgi_application()
-`);
-  await fs.writeFile(path.join(backendPath, 'mysite', 'asgi.py'), `import os
+`,
+  );
+  await fs.writeFile(
+    path.join(backendPath, "mysite", "asgi.py"),
+    `import os
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 application = get_asgi_application()
-`);
+`,
+  );
 
   // Create settings.py
   const settingsContent = `import os
@@ -1601,7 +1881,7 @@ def create_item(request):
   await fs.writeFile(viewsPath, viewsContent);
 
   // Create separate URLs for items API
-  const itemsUrlsPath = path.join(backendPath, 'mysite', 'urls_items.py');
+  const itemsUrlsPath = path.join(backendPath, "mysite", "urls_items.py");
   const itemsUrlsContent = `from django.urls import path
 from . import views
 
@@ -1645,18 +1925,21 @@ urlpatterns = [
 - Implement proper security measures (CSRF protection, authentication, authorization)
 - Write comprehensive tests in tests.py files
 - Use Django's caching framework for performance optimization`;
-  await fs.writeFile(path.join(backendPath, 'AI_RULES.md'), aiRulesContent);
+  await fs.writeFile(path.join(backendPath, "AI_RULES.md"), aiRulesContent);
 }
 
 async function setupFastAPI(backendPath: string) {
-  const requirementsPath = path.join(backendPath, 'requirements.txt');
-  const mainPath = path.join(backendPath, 'main.py');
-  const modelsPath = path.join(backendPath, 'models.py');
-  const databasePath = path.join(backendPath, 'database.py');
-  const crudPath = path.join(backendPath, 'crud.py');
+  const requirementsPath = path.join(backendPath, "requirements.txt");
+  const mainPath = path.join(backendPath, "main.py");
+  const modelsPath = path.join(backendPath, "models.py");
+  const databasePath = path.join(backendPath, "database.py");
+  const crudPath = path.join(backendPath, "crud.py");
 
   // Create requirements.txt
-  await fs.writeFile(requirementsPath, 'fastapi==0.104.1\nuvicorn==0.24.0\nsqlalchemy==2.0.23\nalembic==1.12.1\n');
+  await fs.writeFile(
+    requirementsPath,
+    "fastapi==0.104.1\nuvicorn==0.24.0\nsqlalchemy==2.0.23\nalembic==1.12.1\n",
+  );
 
   // Create database.py
   const databaseContent = `from sqlalchemy import create_engine
@@ -1715,7 +1998,7 @@ def create_item(db: Session, item: schemas.ItemCreate):
   await fs.writeFile(crudPath, crudContent);
 
   // Create schemas.py
-  const schemasPath = path.join(backendPath, 'schemas.py');
+  const schemasPath = path.join(backendPath, "schemas.py");
   const schemasContent = `from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
@@ -1779,7 +2062,7 @@ async def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
   await fs.writeFile(mainPath, mainContent);
 
   // Create alembic configuration for migrations
-  const alembicIni = path.join(backendPath, 'alembic.ini');
+  const alembicIni = path.join(backendPath, "alembic.ini");
   const alembicContent = `[alembic]
 script_location = alembic
 sqlalchemy.url = sqlite:///./app.db
@@ -1863,16 +2146,19 @@ datefmt = %H:%M:%S
 - Implement CORS middleware for frontend integration
 - Use background tasks for long-running operations
 - Implement rate limiting and security measures`;
-  await fs.writeFile(path.join(backendPath, 'AI_RULES.md'), aiRulesContent);
+  await fs.writeFile(path.join(backendPath, "AI_RULES.md"), aiRulesContent);
 }
 
 async function setupFlask(backendPath: string) {
-  const requirementsPath = path.join(backendPath, 'requirements.txt');
-  const appPath = path.join(backendPath, 'app.py');
-  const modelsPath = path.join(backendPath, 'models.py');
+  const requirementsPath = path.join(backendPath, "requirements.txt");
+  const appPath = path.join(backendPath, "app.py");
+  const modelsPath = path.join(backendPath, "models.py");
 
   // Create requirements.txt
-  await fs.writeFile(requirementsPath, 'Flask==3.0.0\nFlask-SQLAlchemy==3.0.5\nFlask-CORS==4.0.0\n');
+  await fs.writeFile(
+    requirementsPath,
+    "Flask==3.0.0\nFlask-SQLAlchemy==3.0.5\nFlask-CORS==4.0.0\n",
+  );
 
   // Create models.py
   const modelsContent = `from flask_sqlalchemy import SQLAlchemy
@@ -2021,15 +2307,15 @@ if __name__ == '__main__':
 - Implement CORS handling for frontend integration
 - Use Flask's session management for user sessions
 - Implement security measures (input validation, XSS protection, CSRF protection)`;
-  await fs.writeFile(path.join(backendPath, 'AI_RULES.md'), aiRulesContent);
+  await fs.writeFile(path.join(backendPath, "AI_RULES.md"), aiRulesContent);
 }
 
 async function setupNodeJS(backendPath: string) {
-  const packagePath = path.join(backendPath, 'package.json');
-  const serverPath = path.join(backendPath, 'server.js');
-  const dbPath = path.join(backendPath, 'db.js');
-  const modelsPath = path.join(backendPath, 'models.js');
-  const routesPath = path.join(backendPath, 'routes.js');
+  const packagePath = path.join(backendPath, "package.json");
+  const serverPath = path.join(backendPath, "server.js");
+  const dbPath = path.join(backendPath, "db.js");
+  const modelsPath = path.join(backendPath, "models.js");
+  const routesPath = path.join(backendPath, "routes.js");
 
   // Create package.json
   const packageContent = `{
@@ -2343,7 +2629,7 @@ app.listen(port, '0.0.0.0', () => {
 - Use environment-specific configurations
 - Implement rate limiting and other security measures
 - Use clustering or PM2 for production deployment`;
-  await fs.writeFile(path.join(backendPath, 'AI_RULES.md'), aiRulesContent);
+  await fs.writeFile(path.join(backendPath, "AI_RULES.md"), aiRulesContent);
 }
 
 async function copyRepoToApp(repoCachePath: string, appPath: string) {
@@ -2353,7 +2639,9 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
     await fs.ensureDir(appPath);
 
     // Get all files and directories from repository cache
-    const repoContents = await fs.readdir(repoCachePath, { withFileTypes: true });
+    const repoContents = await fs.readdir(repoCachePath, {
+      withFileTypes: true,
+    });
 
     logger.info(`Found ${repoContents.length} items in repository cache`);
 
@@ -2363,7 +2651,7 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
       const destPath = path.join(appPath, item.name);
 
       // Skip node_modules and .git directories
-      if (item.name === 'node_modules' || item.name === '.git') {
+      if (item.name === "node_modules" || item.name === ".git") {
         logger.debug(`Skipping ${item.name} directory`);
         continue;
       }
@@ -2377,8 +2665,12 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
             filter: (src, dest) => {
               // Exclude .git and node_modules from subdirectories too
               const relativePath = path.relative(srcPath, src);
-              return !relativePath.includes('.git') && !relativePath.includes('node_modules') && !relativePath.includes('.DS_Store');
-            }
+              return (
+                !relativePath.includes(".git") &&
+                !relativePath.includes("node_modules") &&
+                !relativePath.includes(".DS_Store")
+              );
+            },
           });
           logger.info(`✅ Copied directory ${item.name}`);
         } else {
@@ -2387,21 +2679,32 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
           logger.info(`✅ Copied file ${item.name}`);
         }
       } catch (itemError) {
-        logger.warn(`⚠️ Failed to copy ${item.name}:`, itemError instanceof Error ? itemError.message : String(itemError));
+        logger.warn(
+          `⚠️ Failed to copy ${item.name}:`,
+          itemError instanceof Error ? itemError.message : String(itemError),
+        );
         // Continue with other files - don't fail the entire operation
       }
     }
 
-    logger.info(`✅ Finished copying repository contents from ${repoCachePath} to ${appPath}`);
+    logger.info(
+      `✅ Finished copying repository contents from ${repoCachePath} to ${appPath}`,
+    );
 
     // Verify the copy worked
     try {
       const copiedContents = fs.readdirSync(appPath);
-      logger.info(`✅ Verification: ${copiedContents.length} items copied successfully`);
+      logger.info(
+        `✅ Verification: ${copiedContents.length} items copied successfully`,
+      );
     } catch (verifyError) {
-      logger.warn(`⚠️ Could not verify copied contents:`, verifyError instanceof Error ? verifyError.message : String(verifyError));
+      logger.warn(
+        `⚠️ Could not verify copied contents:`,
+        verifyError instanceof Error
+          ? verifyError.message
+          : String(verifyError),
+      );
     }
-
   } catch (err) {
     logger.error(
       `Error copying repository from ${repoCachePath} to ${appPath}: `,
@@ -2411,11 +2714,14 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
   }
 }
 
-async function installDependenciesForFramework(projectPath: string, framework: string) {
+async function installDependenciesForFramework(
+  projectPath: string,
+  framework: string,
+) {
   const installCommand = getInstallCommandForFramework(framework);
 
   return new Promise<void>((resolve, reject) => {
-    const { spawn } = require('child_process');
+    const { spawn } = require("child_process");
     const installProcess = spawn(installCommand, [], {
       cwd: projectPath,
       shell: true,
@@ -2440,7 +2746,9 @@ async function installDependenciesForFramework(projectPath: string, framework: s
         logger.info(`Successfully installed dependencies for ${framework}`);
         resolve();
       } else {
-        logger.warn(`Dependency installation failed for ${framework} (code: ${code}): ${installError}`);
+        logger.warn(
+          `Dependency installation failed for ${framework} (code: ${code}): ${installError}`,
+        );
         // Don't reject here - we want to continue even if installation fails
         // as the framework files are still created and user can install manually
         resolve();
@@ -2448,18 +2756,25 @@ async function installDependenciesForFramework(projectPath: string, framework: s
     });
 
     installProcess.on("error", (err: Error) => {
-      logger.error(`Failed to start dependency installation for ${framework}:`, err);
+      logger.error(
+        `Failed to start dependency installation for ${framework}:`,
+        err,
+      );
       // Don't reject here for the same reason as above
       resolve();
     });
   });
 }
 
-export async function startBackendServer(projectPath: string, framework: string, appId?: number) {
+export async function startBackendServer(
+  projectPath: string,
+  framework: string,
+  appId?: number,
+) {
   const startCommand = getStartCommandForFramework(framework);
 
   return new Promise<void>((resolve, reject) => {
-    const { spawn } = require('child_process');
+    const { spawn } = require("child_process");
     const serverProcess = spawn(startCommand, [], {
       cwd: projectPath,
       shell: true,
@@ -2467,7 +2782,9 @@ export async function startBackendServer(projectPath: string, framework: string,
       detached: true, // Allow the process to run independently
     });
 
-    logger.info(`Starting ${framework} server with command: ${startCommand} in ${projectPath}`);
+    logger.info(
+      `Starting ${framework} server with command: ${startCommand} in ${projectPath}`,
+    );
 
     let serverOutput = "";
     let serverError = "";
@@ -2487,7 +2804,9 @@ export async function startBackendServer(projectPath: string, framework: string,
         logger.info(`Successfully started ${framework} server`);
         resolve();
       } else {
-        logger.warn(`${framework} server exited with code: ${code}. Error: ${serverError}`);
+        logger.warn(
+          `${framework} server exited with code: ${code}. Error: ${serverError}`,
+        );
         // Don't reject here - server might have started successfully and exited normally
         resolve();
       }
@@ -2506,15 +2825,25 @@ export async function startBackendServer(projectPath: string, framework: string,
 
       // If appId is provided, add startup message to backend terminal
       if (appId) {
-        const { addTerminalOutput } = require('../handlers/terminal_handlers');
-        addTerminalOutput(appId, "backend", `🚀 Starting ${framework} server...`, "command");
+        const { addTerminalOutput } = require("../handlers/terminal_handlers");
+        addTerminalOutput(
+          appId,
+          "backend",
+          `🚀 Starting ${framework} server...`,
+          "command",
+        );
 
         // Add server output to terminal if any
         if (serverOutput.trim()) {
           addTerminalOutput(appId, "backend", serverOutput.trim(), "output");
         }
 
-        addTerminalOutput(appId, "backend", `✅ ${framework} server started successfully (${startCommand})`, "success");
+        addTerminalOutput(
+          appId,
+          "backend",
+          `✅ ${framework} server started successfully (${startCommand})`,
+          "success",
+        );
       }
 
       resolve();
@@ -2532,7 +2861,9 @@ function getInstallCommandForFramework(framework: string): string {
     case "flask":
       return "pip install -r requirements.txt";
     default:
-      logger.warn(`Unknown framework for dependency installation: ${framework}`);
+      logger.warn(
+        `Unknown framework for dependency installation: ${framework}`,
+      );
       return "";
   }
 }
@@ -2541,7 +2872,7 @@ export async function startFrontendServer(projectPath: string, appId?: number) {
   const startCommand = "npm run dev";
 
   return new Promise<void>((resolve, reject) => {
-    const { spawn } = require('child_process');
+    const { spawn } = require("child_process");
     const serverProcess = spawn(startCommand, [], {
       cwd: projectPath,
       shell: true,
@@ -2549,7 +2880,9 @@ export async function startFrontendServer(projectPath: string, appId?: number) {
       detached: true, // Allow the process to run independently
     });
 
-    logger.info(`Starting frontend server with command: ${startCommand} in ${projectPath}`);
+    logger.info(
+      `Starting frontend server with command: ${startCommand} in ${projectPath}`,
+    );
 
     let serverOutput = "";
     let serverError = "";
@@ -2569,7 +2902,9 @@ export async function startFrontendServer(projectPath: string, appId?: number) {
         logger.info("Successfully started frontend server");
         resolve();
       } else {
-        logger.warn(`Frontend server exited with code: ${code}. Error: ${serverError}`);
+        logger.warn(
+          `Frontend server exited with code: ${code}. Error: ${serverError}`,
+        );
         // Don't reject here - server might have started successfully and exited normally
         resolve();
       }
@@ -2588,15 +2923,25 @@ export async function startFrontendServer(projectPath: string, appId?: number) {
 
       // If appId is provided, add startup message to frontend terminal
       if (appId) {
-        const { addTerminalOutput } = require('../handlers/terminal_handlers');
-        addTerminalOutput(appId, "frontend", `🚀 Starting frontend development server...`, "command");
+        const { addTerminalOutput } = require("../handlers/terminal_handlers");
+        addTerminalOutput(
+          appId,
+          "frontend",
+          `🚀 Starting frontend development server...`,
+          "command",
+        );
 
         // Add server output to terminal if any
         if (serverOutput.trim()) {
           addTerminalOutput(appId, "frontend", serverOutput.trim(), "output");
         }
 
-        addTerminalOutput(appId, "frontend", `✅ Frontend server started successfully (npm run dev)`, "success");
+        addTerminalOutput(
+          appId,
+          "frontend",
+          `✅ Frontend server started successfully (npm run dev)`,
+          "success",
+        );
       }
 
       resolve();
@@ -2607,7 +2952,7 @@ export async function startFrontendServer(projectPath: string, appId?: number) {
 // Function to find an available port starting from a preferred port
 async function findAvailablePort(preferredPort: number): Promise<number> {
   return new Promise((resolve, reject) => {
-    const net = require('net');
+    const net = require("net");
 
     const server = net.createServer();
 
@@ -2616,11 +2961,13 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
       server.close(() => resolve(port));
     });
 
-    server.on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE') {
+    server.on("error", (err: any) => {
+      if (err.code === "EADDRINUSE") {
         // Port is in use, try the next port
         logger.info(`Port ${preferredPort} is in use, trying next port...`);
-        findAvailablePort(preferredPort + 1).then(resolve).catch(reject);
+        findAvailablePort(preferredPort + 1)
+          .then(resolve)
+          .catch(reject);
       } else {
         reject(err);
       }
@@ -2628,13 +2975,19 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
   });
 }
 
-async function initializeDatabaseForFramework(backendPath: string, framework: string): Promise<void> {
+async function initializeDatabaseForFramework(
+  backendPath: string,
+  framework: string,
+): Promise<void> {
   switch (framework) {
     case "django":
       // For Django, run migrations to create database tables
       try {
         logger.info(`Running Django migrations in ${backendPath}`);
-        await runCommandInDirectory(backendPath, "python manage.py makemigrations");
+        await runCommandInDirectory(
+          backendPath,
+          "python manage.py makemigrations",
+        );
         await runCommandInDirectory(backendPath, "python manage.py migrate");
         logger.info(`Django database initialized successfully`);
       } catch (error) {
@@ -2658,17 +3011,24 @@ async function initializeDatabaseForFramework(backendPath: string, framework: st
     case "nodejs":
       // For Node.js, the database tables are created automatically when the server starts
       // due to the CREATE TABLE IF NOT EXISTS statement in db.js
-      logger.info(`Node.js SQLite database will be initialized when server starts`);
+      logger.info(
+        `Node.js SQLite database will be initialized when server starts`,
+      );
       break;
 
     default:
-      logger.warn(`Unknown framework for database initialization: ${framework}`);
+      logger.warn(
+        `Unknown framework for database initialization: ${framework}`,
+      );
   }
 }
 
-async function runCommandInDirectory(directory: string, command: string): Promise<void> {
+async function runCommandInDirectory(
+  directory: string,
+  command: string,
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    const { spawn } = require('child_process');
+    const { spawn } = require("child_process");
     const process = spawn(command, [], {
       cwd: directory,
       shell: true,
@@ -2706,7 +3066,9 @@ async function runCommandInDirectory(directory: string, command: string): Promis
   });
 }
 
-export async function getStartCommandForFramework(framework: string): Promise<string> {
+export async function getStartCommandForFramework(
+  framework: string,
+): Promise<string> {
   switch (framework) {
     case "nodejs":
       const nodePort = await findAvailablePort(3000);

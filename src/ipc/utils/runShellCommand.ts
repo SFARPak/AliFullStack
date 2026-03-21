@@ -4,7 +4,10 @@ import { executeComplexCommand, getShellEnv } from "../handlers/app_handlers";
 
 const logger = log.scope("runShellCommand");
 
-export function runShellCommand(command: string, workingDir?: string): Promise<string | null> {
+export function runShellCommand(
+  command: string,
+  workingDir?: string,
+): Promise<string | null> {
   logger.log(`Running command: ${command}`);
   return new Promise(async (resolve) => {
     let output = "";
@@ -15,7 +18,9 @@ export function runShellCommand(command: string, workingDir?: string): Promise<s
 
     let childProcess;
     if (hasShellOperators) {
-      logger.debug(`Using executeComplexCommand for complex command: ${command}`);
+      logger.debug(
+        `Using executeComplexCommand for complex command: ${command}`,
+      );
       childProcess = await executeComplexCommand(command, cwd, getShellEnv());
     } else {
       logger.debug(`Using spawn for simple command: ${command}`);

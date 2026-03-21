@@ -7,6 +7,8 @@ import { providerSettingsRoute } from "./routes/settings/providers/$provider";
 import { appDetailsRoute } from "./routes/app-details";
 import { hubRoute } from "./routes/hub";
 import { libraryRoute } from "./routes/library";
+import { sitemapRoute } from "./routes/sitemap";
+import { kanbanRoute } from "./routes/kanban";
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -14,6 +16,8 @@ const routeTree = rootRoute.addChildren([
   libraryRoute,
   chatRoute,
   appDetailsRoute,
+  sitemapRoute,
+  kanbanRoute,
   settingsRoute.addChildren([providerSettingsRoute]),
 ]);
 

@@ -3,8 +3,10 @@ name: Build Binaries
 on:
   workflow_dispatch:
   push:
+    branches:
+      - v0.1.0
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -15,7 +17,8 @@ jobs:
       # Prevent race conditions with multiple releases
       max-parallel: 1
       matrix:
-        os: [
+        os:
+          [
             { name: "windows", image: "windows-latest" },
             { name: "linux", image: "ubuntu-22.04" },
             { name: "macos-intel", image: "macos-13" },
