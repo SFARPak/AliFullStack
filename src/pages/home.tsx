@@ -48,7 +48,7 @@ export default function HomePage() {
   const { settings, updateSettings } = useSettings();
   const setIsPreviewOpen = useSetAtom(isPreviewOpenAtom);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingSteps, setLoadingSteps] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState<string>("");
   const { streamMessage } = useStreamChat({ hasChatId: false });
   const posthog = usePostHog();
   const appVersion = useAppVersion();
@@ -59,7 +59,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleProgress = (data: { message: string }) => {
-      setLoadingSteps((prev) => [...prev, data.message]);
+      setCurrentStep(data.message);
     };
 
     const ipc = (window as any).electron.ipcRenderer;
@@ -133,7 +133,7 @@ export default function HomePage() {
 
     try {
       setIsLoading(true);
-      setLoadingSteps(["Starting app creation..."]);
+      setCurrentStep("Starting app creation...");
       // Create the chat and navigate
       const result = await IpcClient.getInstance().createApp({
         name: generateCuteAppName(),
@@ -177,29 +177,32 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center max-w-3xl m-auto p-8">
+        <style>{`
+          @keyframes stepFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          .step-fade-in {
+            animation: stepFadeIn 0.35s ease forwards;
+          }
+        `}</style>
         <div className="w-full flex flex-col items-center">
           {/* Loading Spinner */}
           <div className="relative w-24 h-24 mb-8">
             <div className="absolute top-0 left-0 w-full h-full border-8 border-gray-200 dark:border-gray-700 rounded-full"></div>
             <div className="absolute top-0 left-0 w-full h-full border-8 border-t-primary rounded-full animate-spin"></div>
           </div>
-          <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-gray-200">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">
             Building your app
           </h2>
-          <div className="text-gray-600 dark:text-gray-400 text-center max-w-md mb-8 min-h-[4rem]">
-            {loadingSteps.map((step, idx) => (
-              <p
-                key={idx}
-                className={`text-sm ${idx === loadingSteps.length - 1 ? "font-medium text-primary animate-pulse" : "opacity-60"}`}
-              >
-                {step}
-              </p>
-            ))}
-            {loadingSteps.length === 1 && (
-              <p className="text-xs mt-2 opacity-50 italic">
-                This might take a moment...
-              </p>
-            )}
+          <div className="text-center max-w-md mb-8 min-h-[3rem] flex items-center justify-center">
+            {/* Key on the step text so React remounts it and reruns the animation */}
+            <p
+              key={currentStep}
+              className="step-fade-in text-sm font-medium text-primary"
+            >
+              {currentStep}
+            </p>
           </div>
         </div>
       </div>

@@ -124,10 +124,11 @@ export function ChatInput({ chatId }: { chatId?: number }) {
       chatId &&
       proposal.actions.some((a) => a.id === "keep-going")
     ) {
-      console.log("Auto-triggering 'Keep going' in Autonomous mode");
+      console.log("Auto-triggering continue in Autonomous mode");
       setRetryCount(0); // Reset retry count on success
       streamMessage({
-        prompt: "Keep going",
+        prompt:
+          "Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done.",
         chatId,
         redo: false,
       });
@@ -155,10 +156,9 @@ export function ChatInput({ chatId }: { chatId?: number }) {
         );
         const timer = setTimeout(() => {
           setRetryCount((prev) => prev + 1);
-          // Redo the last Turn
-          // Note: We don't easily have access to 'messages' here in the same way, so we tell the AI to retry.
           streamMessage({
-            prompt: "Please retry your last task. It failed with an error.",
+            prompt:
+              "There was a transient error. Please continue from where you left off — do NOT restart or redo work already completed. Fix just the failed step and carry on.",
             chatId,
             redo: false,
           });
@@ -597,13 +597,14 @@ function KeepGoingButton() {
       return;
     }
     streamMessage({
-      prompt: "Keep going",
+      prompt:
+        "Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done.",
       chatId,
     });
   };
   return (
-    <SuggestionButton onClick={onClick} tooltipText="Keep going">
-      Keep going
+    <SuggestionButton onClick={onClick} tooltipText="Continue building">
+      Continue
     </SuggestionButton>
   );
 }

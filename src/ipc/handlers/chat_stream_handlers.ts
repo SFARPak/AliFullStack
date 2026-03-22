@@ -249,7 +249,7 @@ export function registerChatStreamHandlers() {
 
           if (attachment.attachmentType === "upload-to-codebase") {
             // For upload-to-codebase, create a unique file ID and store the mapping
-            const fileId = `DYAD_ATTACHMENT_${index}`;
+            const fileId = `ALIFULLSTACK_ATTACHMENT_${index}`;
 
             fileUploadsState.addFileUpload(fileId, {
               filePath,
@@ -574,12 +574,12 @@ ${componentSnippet}
 When files are attached to this conversation, upload them to the codebase using this exact format:
 
 <alifullstack-write path="path/to/destination/filename.ext" description="Upload file to codebase">
-DYAD_ATTACHMENT_X
+ALIFULLSTACK_ATTACHMENT_X
 </alifullstack-write>
 
-Example for file with id of DYAD_ATTACHMENT_0:
+Example for file with id of ALIFULLSTACK_ATTACHMENT_0:
 <alifullstack-write path="src/components/Button.jsx" description="Upload file to codebase">
-DYAD_ATTACHMENT_0
+ALIFULLSTACK_ATTACHMENT_0
 </alifullstack-write>
 
   `;

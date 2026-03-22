@@ -79,7 +79,7 @@ export function createAliFullStackEngine(
   const getHeaders = () => ({
     Authorization: `Bearer ${loadApiKey({
       apiKey: options.apiKey,
-      environmentVariableName: "DYAD_PRO_API_KEY",
+      environmentVariableName: "ALIFULLSTACK_PRO_API_KEY",
       description: "Example API key",
     })}`,
     ...options.headers,
