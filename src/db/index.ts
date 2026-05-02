@@ -50,8 +50,33 @@ export function initializeDatabase(): BetterSQLite3Database<typeof schema> & {
   fs.mkdirSync(getUserDataPath(), { recursive: true });
   fs.mkdirSync(getAliFullStackAppPath("."), { recursive: true });
 
-  const sqlite = new Database(dbPath, { timeout: 10000 });
-  sqlite.pragma("foreign_keys = ON");
+  let sqlite: Database.Database;
+  try {
+    sqlite = new Database(dbPath, { timeout: 10000 });
+    sqlite.pragma("foreign_keys = ON");
+
+    // Verify integrity to prevent "malformed database" errors from stalling the app
+    const check = sqlite.prepare("PRAGMA integrity_check").get() as any;
+    if (check.integrity_check !== "ok") {
+      throw new Error(`Integrity check failed: ${check.integrity_check}`);
+    }
+  } catch (error) {
+    logger.error(
+      "Database corruption detected or failed to open. Moving to .corrupt and starting fresh...",
+      error,
+    );
+    try {
+      // @ts-ignore
+      if (sqlite!) sqlite.close();
+      const corruptPath = `${dbPath}.corrupt-${Date.now()}`;
+      fs.renameSync(dbPath, corruptPath);
+      logger.log(`Corrupted database moved to: ${corruptPath}`);
+    } catch (renameError) {
+      logger.error("Failed to rename corrupted database:", renameError);
+    }
+    // Re-initialize a fresh database
+    return initializeDatabase();
+  }
 
   _db = drizzle(sqlite, { schema });
 

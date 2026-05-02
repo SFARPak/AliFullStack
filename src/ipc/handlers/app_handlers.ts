@@ -59,10 +59,10 @@ export function getExtendedPath(): string {
 
     if (process.platform === "darwin") {
       // On macOS, a login shell is crucial for tools like Homebrew, pyenv, nvm
-      command = `login -il ${shell} -c "env"`;
+      command = `${shell} -lic "env"`;
     } else {
-      // For Linux/Windows, a non-login shell might be sufficient, but -l ensures full environment
-      command = `${shell} -lc "env"`;
+      // For Linux/Windows, a non-login shell might be sufficient, but -lic ensures full environment
+      command = `${shell} -lic "env"`;
     }
 
     logger.info(

@@ -160,6 +160,7 @@ async function copyCriticalFilesIndividually(
   const criticalFiles = [
     "AI_RULES.md",
     "package.json",
+    "package-lock.json",
     "vite.config.ts",
     "tailwind.config.ts",
     "tsconfig.json",
@@ -638,7 +639,7 @@ export async function createFromTemplate({
       logger.info(`Scaffold contents: ${scaffoldContents.join(", ")}`);
 
       // Check for critical scaffold files
-      const criticalFiles = ["AI_RULES.md", "package.json", "src"];
+      const criticalFiles = ["AI_RULES.md", "package.json", "package-lock.json", "src"];
       for (const file of criticalFiles) {
         const filePath = path.join(scaffoldPath, file);
         if (!fs.existsSync(filePath)) {
@@ -804,6 +805,7 @@ export async function createFromTemplate({
       const criticalFiles = [
         "AI_RULES.md",
         "package.json",
+        "package-lock.json",
         "src",
         "vite.config.ts",
         "tailwind.config.ts",

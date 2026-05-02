@@ -293,7 +293,8 @@ export type SuggestedAction =
   | RebuildAction
   | RestartAction
   | RefreshAction
-  | KeepGoingAction;
+  | KeepGoingAction
+  | OptimizeAction;
 
 export interface RestartAppAction {
   id: "restart-app";
@@ -328,9 +329,14 @@ export interface KeepGoingAction {
   id: "keep-going";
 }
 
+export interface OptimizeAction {
+  id: "optimize";
+}
+
 export interface ActionProposal {
   type: "action-proposal";
   actions: SuggestedAction[];
+  summary?: string;
 }
 
 export interface TipProposal {

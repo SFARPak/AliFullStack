@@ -18,7 +18,7 @@ import {
   SendHorizontalIcon,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 import { useSettings } from "@/hooks/useSettings";
 import { IpcClient } from "@/ipc/ipc_client";
@@ -115,6 +115,13 @@ export function ChatInput({ chatId }: { chatId?: number }) {
     }
   }, [error]);
 
+  const lastProcessedMessageId = useRef<number | null>(null);
+
+  // Reset the processed message tracker when switching chats
+  useEffect(() => {
+    lastProcessedMessageId.current = null;
+  }, [chatId]);
+
   // Auto-continue logic for Autonomous mode
   useEffect(() => {
     if (
@@ -122,18 +129,43 @@ export function ChatInput({ chatId }: { chatId?: number }) {
       proposal?.type === "action-proposal" &&
       !isStreaming &&
       chatId &&
+      messageId &&
+      messageId !== lastProcessedMessageId.current &&
       proposal.actions.some((a) => a.id === "keep-going")
     ) {
-      console.log("Auto-triggering continue in Autonomous mode");
-      setRetryCount(0); // Reset retry count on success
-      streamMessage({
-        prompt:
-          "Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done.",
-        chatId,
-        redo: false,
-      });
+      const summaryStr =
+        proposal.type === "action-proposal" && proposal.summary
+          ? `You just: ${proposal.summary}. `
+          : "";
+
+      console.log(
+        "Scheduling auto-continue for messageId:",
+        messageId,
+      );
+
+      // Mark immediately to prevent duplicate scheduling
+      lastProcessedMessageId.current = messageId;
+
+      // Small debounce to let the proposal & streaming state fully settle
+      const timer = setTimeout(() => {
+        setRetryCount(0);
+        streamMessage({
+          prompt: `${summaryStr}Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done. If development is completed, clearly state that you are done and ask if there are any further optimizations or enhancements needed.`,
+          chatId,
+          redo: false,
+        });
+      }, 1500);
+
+      return () => clearTimeout(timer);
     }
-  }, [proposal, settings?.executionMode, isStreaming, chatId, streamMessage]);
+  }, [
+    proposal,
+    messageId,
+    settings?.executionMode,
+    isStreaming,
+    chatId,
+    streamMessage,
+  ]);
 
   // Auto-retry logic for Autonomous mode on transient errors
   useEffect(() => {
@@ -588,19 +620,14 @@ function RefreshButton() {
   );
 }
 
-function KeepGoingButton() {
-  const { streamMessage } = useStreamChat();
-  const chatId = useAtomValue(selectedChatIdAtom);
+function KeepGoingButton({ summary }: { summary?: string }) {
+  const setInputValue = useSetAtom(chatInputValueAtom);
   const onClick = () => {
-    if (!chatId) {
-      console.error("No chat id found");
-      return;
-    }
-    streamMessage({
-      prompt:
-        "Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done.",
-      chatId,
-    });
+    const summaryStr = summary ? `You just: ${summary}. ` : "";
+    setInputValue(
+      `${summaryStr}Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done.`,
+    );
+     // Focus the input if possible (usually standard behavior)
   };
   return (
     <SuggestionButton onClick={onClick} tooltipText="Continue building">
@@ -609,7 +636,25 @@ function KeepGoingButton() {
   );
 }
 
-function mapActionToButton(action: SuggestedAction) {
+function OptimizeButton({ summary }: { summary?: string }) {
+  const setInputValue = useSetAtom(chatInputValueAtom);
+  const onClick = () => {
+    const summaryStr = summary ? `You just completed: ${summary}. ` : "";
+    setInputValue(
+      `${summaryStr}The initial development is done. Please look at the code and suggest any performance optimizations, UI enhancements, or code quality improvements that would make this app feel more premium and robust.`,
+    );
+  };
+  return (
+    <SuggestionButton
+      onClick={onClick}
+      tooltipText="Optimize and enhance the application"
+    >
+      Optimize & Enhance
+    </SuggestionButton>
+  );
+}
+
+function mapActionToButton(action: SuggestedAction, summary?: string) {
   switch (action.id) {
     case "summarize-in-new-chat":
       return <SummarizeInNewChatButton />;
@@ -624,7 +669,9 @@ function mapActionToButton(action: SuggestedAction) {
     case "refresh":
       return <RefreshButton />;
     case "keep-going":
-      return <KeepGoingButton />;
+      return <KeepGoingButton summary={summary} />;
+    case "optimize":
+      return <OptimizeButton summary={summary} />;
     default:
       console.error(`Unsupported action: ${action.id}`);
       return (
@@ -640,7 +687,7 @@ function ActionProposalActions({ proposal }: { proposal: ActionProposal }) {
     <div className="border-b border-border p-2 pb-0 flex items-center justify-between">
       <div className="flex items-center space-x-2 overflow-x-auto pb-2">
         {proposal.actions.map((action) => (
-          <div key={action.id}>{mapActionToButton(action)}</div>
+          <div key={action.id}>{mapActionToButton(action, proposal.summary)}</div>
         ))}
       </div>
     </div>

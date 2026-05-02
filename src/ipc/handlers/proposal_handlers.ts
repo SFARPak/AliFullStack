@@ -299,7 +299,7 @@ const getProposalHandler = async (
         );
 
         // If we're using more than 80% of the context window, suggest summarizing
-        if (totalTokens > contextWindow * 0.8 || chat.messages.length > 10) {
+        if (totalTokens > contextWindow * 0.8 || chat.messages.length > 30) {
           logger.log(
             `Token usage is high (${totalTokens}/${contextWindow}) OR long chat history (${chat.messages.length} messages), suggesting summarize action`,
           );
@@ -309,13 +309,31 @@ const getProposalHandler = async (
         }
       }
       if (latestAssistantMessage) {
-        actions.push({
-          id: "keep-going",
-        });
+        const summary = getAliFullStackChatSummaryTag(
+          latestAssistantMessage.content,
+        );
+
+        const isDone =
+          summary?.toLowerCase().includes("done") ||
+          summary?.toLowerCase().includes("complete") ||
+          latestAssistantMessage.content.includes("DEVELOPMENT COMPLETED") ||
+          latestAssistantMessage.content.includes("<alifullstack-done />");
+
+        if (isDone) {
+          actions.push({
+            id: "optimize",
+          });
+        } else {
+          actions.push({
+            id: "keep-going",
+          });
+        }
+
         return {
           proposal: {
             type: "action-proposal",
             actions: actions,
+            summary: summary || undefined,
           },
           chatId,
           messageId: latestAssistantMessage.id,

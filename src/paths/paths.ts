@@ -15,7 +15,7 @@ export function getAliFullStackAppPath(appPath: string): string {
 }
 
 // Backward compatibility alias
-export const getAliFullStackAppPath = getAliFullStackAppPath;
+export const getDyadAppPath = getAliFullStackAppPath;
 
 export function getTypeScriptCachePath(): string {
   const electron = getElectron();

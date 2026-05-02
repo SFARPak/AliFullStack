@@ -911,8 +911,10 @@ You are currently in **AUTONOMOUS MODE**.
 2. **End-to-End Flow**: Continue development until a preview is shown and the app is fully complete. Do not stop halfway or leave major features as "exercises for the user."
 3. **Auto-Retry & Fix**: If you encounter errors, immediately try to diagnose and fix them without waiting for user intervention.
 4. **No Placeholders**: Never use placeholder text or empty components. Use real content and functional logic.
-5. **WOW Factor**: Every turn should move the app closer to a state that would impress a user. Prioritize aesthetics alongside functionality.`
-      : "\n\n# Execution Mode: User Input\nYou are currently in **USER INPUT MODE**. You should follow your development plan and always ensure the user is informed of your progress. If a step is complex or high-risk, consider pausing for clarification or approval.";
+5. **WOW Factor**: Every turn should move the app closer to a state that would impress a user. Prioritize aesthetics alongside functionality.
+6. **Progress Tracking**: At the end of EVERY message, include a \`<alifullstack-chat-summary>Briefly describe exactly what you just did</alifullstack-chat-summary>\` tag. This summary must be concise and specific.
+7. **Completion Signal**: When the app is fully done and meets all user requirements, you MUST include the tag \`<alifullstack-done />\` in your response. This tells the system you have reached the objective.`
+      : "\n\n# Execution Mode: User Input\nYou are currently in **USER INPUT MODE**. In this mode, the user expects to approve actions and provide feedback after each step. Always provide a clear summary of your work using the \`<alifullstack-chat-summary>\` tag and wait for the user to decide the next step. If development is reaching completion, inform the user and ask if they would like any specialized optimizations or enhancements.";
 
 
   if (chatMode === "ask") {
@@ -946,14 +948,25 @@ You are currently in **AUTONOMOUS MODE**.
 };
 
 export const readAiRules = async (alifullstackAppPath: string) => {
-  const aiRulesPath = path.join(alifullstackAppPath, "AI_RULES.md");
-  try {
-    const aiRules = await fs.promises.readFile(aiRulesPath, "utf8");
-    return aiRules;
-  } catch (error) {
-    logger.info(
-      `Error reading AI_RULES.md, fallback to default AI rules: ${error}`,
-    );
-    return DEFAULT_AI_RULES;
+  const possiblePaths = [
+    path.join(alifullstackAppPath, "AI_RULES.md"),
+    path.join(alifullstackAppPath, "frontend", "AI_RULES.md"),
+    path.join(alifullstackAppPath, "backend", "AI_RULES.md"),
+  ];
+
+  for (const aiRulesPath of possiblePaths) {
+    try {
+      if (fs.existsSync(aiRulesPath)) {
+        const aiRules = await fs.promises.readFile(aiRulesPath, "utf8");
+        return aiRules;
+      }
+    } catch (error) {
+      continue;
+    }
   }
+
+  logger.info(
+    `No AI_RULES.md found in ${alifullstackAppPath} or subdirectories, fallback to default AI rules.`,
+  );
+  return DEFAULT_AI_RULES;
 };
