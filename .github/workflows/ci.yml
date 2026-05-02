@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - v0.1.0
+      - "**"
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -50,9 +50,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ matrix.os.name }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ matrix.os.name }}-pnpm-store-
+            ${{ runner.os }}-pnpm-store-
       # Not strictly needed but makes the e2e tests faster (and less flaky)
       - name: Install scaffold dependencies
         run: cd scaffold && pnpm install

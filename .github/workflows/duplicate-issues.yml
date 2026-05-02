@@ -37,7 +37,8 @@ jobs:
               "webfetch": "deny"
             }
         run: |
-          opencode run -m anthropic/claude-sonnet-4-20250514 "A new issue has been created:'
+          opencode run -m anthropic/claude-sonnet-4-20250514 "$(cat <<'EOF'
+          A new issue has been created.
 
           Issue number:
           ${{ github.event.issue.number }}
@@ -59,14 +60,16 @@ jobs:
           - A suggestion to check those issues first
 
           Use this format for the comment:
-          'This issue might be a duplicate of existing issues. Please check:
+          This issue might be a duplicate of existing issues. Please check:
           - #[issue_number]: [brief description of similarity] (confidence: [high/medium/low])
 
-          Feel free to ignore if none of these address your specific case.'
+          Feel free to ignore if none of these address your specific case.
 
           Examples:
           - #123: Contains identical error message and affects same component (confidence: high)
           - #124: Similar feature request but slightly different use case (confidence: medium)
           - #125: Mentions a related symptom, but context is unclear (confidence: low)
 
-          If no clear duplicates are found, do not comment."
+          If no clear duplicates are found, do not comment.
+          EOF
+          )"

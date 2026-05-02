@@ -119,21 +119,23 @@ jobs:
 
       - name: Verify expected binaries exist
         run: |
+          set -euo pipefail
+
           # Check for Windows binary
-          if [ ! -f "artifacts/AliFullStack-windows-${{ github.run_number }}/zip/win32/x64/AliFullStack-win32-x64-*.zip" ]; then
+          if ! compgen -G "artifacts/AliFullStack-windows-${{ github.run_number }}/zip/win32/x64/AliFullStack-win32-x64-*.zip" > /dev/null; then
             echo "❌ Windows binary not found"
             exit 1
           fi
 
           # Check for Linux binaries
-          if [ ! -f "artifacts/AliFullStack-linux-${{ github.run_number }}/zip/linux/x64/AliFullStack-linux-x64-*.zip" ]; then
+          if ! compgen -G "artifacts/AliFullStack-linux-${{ github.run_number }}/zip/linux/x64/AliFullStack-linux-x64-*.zip" > /dev/null; then
             echo "❌ Linux ZIP binary not found"
             exit 1
           fi
 
           # Check for macOS binaries
-          if [ ! -f "artifacts/AliFullStack-macos-${{ github.run_number }}/zip/darwin/x64/AliFullStack-darwin-x64-*.zip" ] && \
-             [ ! -f "artifacts/AliFullStack-macos-intel-${{ github.run_number }}/zip/darwin/x64/AliFullStack-darwin-x64-*.zip" ]; then
+          if ! compgen -G "artifacts/AliFullStack-macos-${{ github.run_number }}/zip/darwin/x64/AliFullStack-darwin-x64-*.zip" > /dev/null && \
+             ! compgen -G "artifacts/AliFullStack-macos-intel-${{ github.run_number }}/zip/darwin/x64/AliFullStack-darwin-x64-*.zip" > /dev/null; then
             echo "❌ macOS binary not found"
             exit 1
           fi
