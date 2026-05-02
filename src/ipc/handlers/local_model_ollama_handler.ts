@@ -100,7 +100,15 @@ export function registerOllamaHandlers() {
   ipcMain.handle(
     "local-models:list-ollama",
     async (): Promise<LocalModelListResponse> => {
-      return fetchOllamaModels();
+      try {
+        return await fetchOllamaModels();
+      } catch (error) {
+        logger.warn(
+          "Ollama is unavailable; returning empty model list:",
+          error instanceof Error ? error.message : String(error),
+        );
+        return { models: [] };
+      }
     },
   );
 }

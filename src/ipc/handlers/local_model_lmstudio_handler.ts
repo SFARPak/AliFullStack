@@ -43,7 +43,15 @@ export function registerLMStudioHandlers() {
   ipcMain.handle(
     "local-models:list-lmstudio",
     async (): Promise<LocalModelListResponse> => {
-      return fetchLMStudioModels();
+      try {
+        return await fetchLMStudioModels();
+      } catch (error) {
+        logger.warn(
+          "LM Studio is unavailable; returning empty model list:",
+          error instanceof Error ? error.message : String(error),
+        );
+        return { models: [] };
+      }
     },
   );
 }

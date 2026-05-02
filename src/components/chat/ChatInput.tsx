@@ -108,6 +108,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
   } = useProposal(chatId);
   const [retryCount, setRetryCount] = useState(0);
   const { proposal, messageId } = proposalResult ?? {};
+  const wasManuallyStoppedRef = useRef(false);
 
   useEffect(() => {
     if (error) {
@@ -127,6 +128,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
     if (
       settings?.executionMode === "autonomous" &&
       proposal?.type === "action-proposal" &&
+      !wasManuallyStoppedRef.current &&
       !isStreaming &&
       chatId &&
       messageId &&
@@ -148,6 +150,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
 
       // Small debounce to let the proposal & streaming state fully settle
       const timer = setTimeout(() => {
+        if (wasManuallyStoppedRef.current) return;
         setRetryCount(0);
         streamMessage({
           prompt: `${summaryStr}Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done. If development is completed, clearly state that you are done and ask if there are any further optimizations or enhancements needed.`,
@@ -171,6 +174,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
   useEffect(() => {
     if (
       settings?.executionMode === "autonomous" &&
+      !wasManuallyStoppedRef.current &&
       error &&
       !isStreaming &&
       chatId &&
@@ -187,6 +191,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
           `Auto-retrying error (attempt ${retryCount + 1}) in Autonomous mode: ${error}`,
         );
         const timer = setTimeout(() => {
+          if (wasManuallyStoppedRef.current) return;
           setRetryCount((prev) => prev + 1);
           streamMessage({
             prompt:
@@ -226,6 +231,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
     }
 
     const currentInput = inputValue;
+    wasManuallyStoppedRef.current = false;
     setInputValue("");
     setSelectedComponent(null);
 
@@ -242,9 +248,11 @@ export function ChatInput({ chatId }: { chatId?: number }) {
   };
 
   const handleCancel = () => {
+    wasManuallyStoppedRef.current = true;
     if (chatId) {
       IpcClient.getInstance().cancelChatStream(chatId);
     }
+    setError(null);
     setIsStreaming(false);
   };
 

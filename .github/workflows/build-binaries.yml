@@ -33,8 +33,6 @@ jobs:
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: package-lock.json
 
       - name: Clean up
         run: |
@@ -45,7 +43,7 @@ jobs:
         run: npm ci --no-audit --no-fund --progress=false
 
       - name: Add macOS certificate
-        if: contains(matrix.os.name, 'macos')
+        if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12 != ''
         env:
           MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
           MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
@@ -53,13 +51,13 @@ jobs:
 
       # Windows certificate setup
       - name: Set up certificate (Windows)
-        if: contains(matrix.os.name, 'windows')
+        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
         run: |
           echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
         shell: bash
 
       - name: Set Windows signing variables
-        if: contains(matrix.os.name, 'windows')
+        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
         id: variables
         run: |
           echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
@@ -69,17 +67,18 @@ jobs:
         shell: bash
 
       - name: Code signing with Software Trust Manager (Windows)
-        if: contains(matrix.os.name, 'windows')
+        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
         uses: digicert/ssm-code-signing@v1.1.0
 
       - name: Sync certificate (Windows)
-        if: contains(matrix.os.name, 'windows')
+        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
         run: |
           smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
         shell: bash
 
       - name: Build binaries
         env:
+          E2E_TEST_BUILD: "true"
           NODE_OPTIONS: "--max-old-space-size=4096"
           SM_CODE_SIGNING_CERT_SHA1_HASH: ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

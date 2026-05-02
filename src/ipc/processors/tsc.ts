@@ -22,6 +22,9 @@ export async function generateProblemReport({
   appPath: string;
 }): Promise<ProblemReport> {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    let terminatedByHost = false;
+
     // Determine the worker script path
     const workerPath = path.join(__dirname, "tsc_worker.js");
 
@@ -32,6 +35,9 @@ export async function generateProblemReport({
 
     // Handle worker messages
     worker.on("message", (output: WorkerOutput) => {
+      if (settled) return;
+      settled = true;
+      terminatedByHost = true;
       worker.terminate();
 
       if (output.success && output.data) {
@@ -45,6 +51,8 @@ export async function generateProblemReport({
 
     // Handle worker errors
     worker.on("error", (error) => {
+      if (settled) return;
+      settled = true;
       logger.error(`TSC worker error for app ${appPath}:`, error);
       worker.terminate();
       reject(error);
@@ -52,7 +60,8 @@ export async function generateProblemReport({
 
     // Handle worker exit
     worker.on("exit", (code) => {
-      if (code !== 0) {
+      if (code !== 0 && !terminatedByHost && !settled) {
+        settled = true;
         logger.error(`TSC worker exited with code ${code} for app ${appPath}`);
         reject(new Error(`Worker exited with code ${code}`));
       }
