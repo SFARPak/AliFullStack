@@ -43,23 +43,40 @@ jobs:
         run: npm ci --no-audit --no-fund --progress=false
 
       - name: Add macOS certificate
-        if: contains(matrix.os.name, 'macos') && secrets.MACOS_CERT_P12 != ''
+        if: contains(matrix.os.name, 'macos')
         env:
           MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
           MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
-        run: chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
+        run: |
+          if [ -z "${MACOS_CERT_P12}" ]; then
+            echo "No macOS signing certificate configured; skipping certificate setup."
+            exit 0
+          fi
+          chmod +x tools/add-macos-cert.sh && . ./tools/add-macos-cert.sh
 
       # Windows certificate setup
       - name: Set up certificate (Windows)
-        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
+        if: contains(matrix.os.name, 'windows')
+        env:
+          SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
         run: |
-          echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 --decode > /d/Certificate_pkcs12.p12
+          if [ -z "${SM_CLIENT_CERT_FILE_B64}" ]; then
+            echo "No Windows signing certificate configured; skipping certificate setup."
+            exit 0
+          fi
+          echo "${SM_CLIENT_CERT_FILE_B64}" | base64 --decode > /d/Certificate_pkcs12.p12
         shell: bash
 
       - name: Set Windows signing variables
-        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
+        if: contains(matrix.os.name, 'windows')
+        env:
+          SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
         id: variables
         run: |
+          if [ -z "${SM_CLIENT_CERT_FILE_B64}" ]; then
+            echo "No Windows signing certificate configured; skipping signing env variables."
+            exit 0
+          fi
           echo "SM_HOST=${{ secrets.SM_HOST }}" >> "$GITHUB_ENV"
           echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> "$GITHUB_ENV"
           echo "SM_CLIENT_CERT_FILE=D:\\Certificate_pkcs12.p12" >> "$GITHUB_ENV"
@@ -67,11 +84,11 @@ jobs:
         shell: bash
 
       - name: Code signing with Software Trust Manager (Windows)
-        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
+        if: contains(matrix.os.name, 'windows') && env.SM_CLIENT_CERT_FILE != ''
         uses: digicert/ssm-code-signing@v1.1.0
 
       - name: Sync certificate (Windows)
-        if: contains(matrix.os.name, 'windows') && secrets.SM_CLIENT_CERT_FILE_B64 != ''
+        if: contains(matrix.os.name, 'windows') && env.SM_CLIENT_CERT_FILE != ''
         run: |
           smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
         shell: bash
