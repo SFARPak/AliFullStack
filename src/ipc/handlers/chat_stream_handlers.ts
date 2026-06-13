@@ -631,10 +631,7 @@ This conversation includes one or more image attachments. When the user uploads 
             // Why remove thinking tags?
             // Thinking tags are generally not critical for the context
             // and eats up extra tokens.
-            content:
-              settings.selectedChatMode === "ask"
-                ? removeAliFullStackTags(removeNonEssentialTags(msg.content))
-                : removeNonEssentialTags(msg.content),
+            content: removeAliFullStackTags(removeNonEssentialTags(msg.content)),
           })),
         ];
 
@@ -729,6 +726,7 @@ This conversation includes one or more image attachments. When the user uploads 
             } satisfies GoogleGenerativeAIProviderOptions;
           }
           return streamText({
+            toolChoice: "none",
             headers: isAnthropic
               ? {
                   "anthropic-beta": "context-1m-2025-08-07",
@@ -1110,11 +1108,36 @@ ${problemReport.problems
       return req.chatId;
     } catch (error) {
       logger.error("Error calling LLM:", error);
+
+      // Extract a user-friendly error message
+      let errorMessage: string;
+      if (error instanceof Error) {
+        // Check if this is an AI API error with additional context
+        const apiError = error as any;
+        const message = apiError.error?.message || apiError.message || String(error);
+        const responseBody = apiError.error?.responseBody;
+
+        if (message.includes("Gone")) {
+          errorMessage = `The AI model endpoint returned a "Gone" (HTTP 410) error. This typically means the model or endpoint is no longer available. Please try a different model or check your provider settings.`;
+        } else if (responseBody) {
+          errorMessage = `${message}\n\nDetails: ${responseBody}`;
+        } else {
+          errorMessage = message;
+        }
+      } else {
+        errorMessage = String(error);
+      }
+
       safeSend(
         event.sender,
         "chat:response:error",
-        `Sorry, there was an error processing your request: ${error}`,
+        `Sorry, there was an error processing your request: ${errorMessage}`,
       );
+      // Signal stream end so the UI doesn't stay stuck in loading state
+      safeSend(event.sender, "chat:response:end", {
+        chatId: req.chatId,
+        updatedFiles: false,
+      } satisfies ChatResponseEnd);
       // Clean up the abort controller
       activeStreams.delete(req.chatId);
       // Clean up file uploads state on error
