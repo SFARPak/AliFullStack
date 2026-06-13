@@ -94,6 +94,10 @@ jobs:
           smctl windows certsync --keypair-alias=${{ secrets.DIGICERT_KEYPAIR_ALIAS }}
         shell: bash
 
+      - name: Set up MSVC (Windows)
+        if: contains(matrix.os.name, 'windows')
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build binaries
         env:
           E2E_TEST_BUILD: "true"
