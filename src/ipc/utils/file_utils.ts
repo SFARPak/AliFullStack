@@ -55,7 +55,12 @@ export async function copyDirectoryRecursive(
     const srcPath = path.join(source, entry.name);
     const destPath = path.join(destination, entry.name);
 
-    if (entry.isDirectory()) {
+    if (entry.isSymbolicLink()) {
+      // Preserve symlinks by copying them as symlinks rather than
+      // trying to copy their targets (which may be broken or cross-filesystem).
+      const linkTarget = await fsPromises.readlink(srcPath);
+      await fsPromises.symlink(linkTarget, destPath);
+    } else if (entry.isDirectory()) {
       // Exclude node_modules directories
       if (entry.name !== "node_modules") {
         await copyDirectoryRecursive(srcPath, destPath);

@@ -81,8 +81,11 @@ export async function getModelClient(
     throw new Error(`Configuration not found for provider: ${model.provider}`);
   }
 
+  // Providers that use their own OpenAI-compatible endpoints and must NOT go through the AliFullStack Pro gateway
+  const DIRECT_CONNECT_PROVIDERS = new Set(["nvidia", "ollama", "lmstudio"]);
+
   // Handle AliFullStack Pro override
-  if (alifullstackApiKey && settings.enableAliFullStackPro) {
+  if (alifullstackApiKey && settings.enableAliFullStackPro && !DIRECT_CONNECT_PROVIDERS.has(model.provider)) {
     // Check if the selected provider supports AliFullStack Pro (has a gateway prefix) OR
     // we're using local engine.
     // IMPORTANT: some providers like OpenAI have an empty string gateway prefix,
@@ -231,6 +234,10 @@ async function getRegularModelClient(
       ? getEnvVar(providerConfig.envVarName)
       : undefined);
 
+  if (!apiKey && providerConfig.id !== "ollama" && providerConfig.id !== "lmstudio") {
+    throw new Error(`API key is required for provider: ${model.provider}`);
+  }
+
   const providerId = providerConfig.id;
   // Create client based on provider ID or type
   switch (providerId) {
@@ -373,6 +380,38 @@ async function getRegularModelClient(
     }
     case "ollama": {
       const provider = createOllamaProvider({ baseURL: getOllamaApiUrl() });
+      return {
+        modelClient: {
+          model: provider(model.name),
+          builtinProviderId: providerId,
+        },
+        backupModelClients: [],
+      };
+    }
+    case "nvidia": {
+      // NVIDIA NIM uses OpenAI-compatible API
+      const provider = createOpenAICompatible({
+        name: "nvidia",
+        baseURL: "https://integrate.api.nvidia.com/v1",
+        apiKey,
+        fetch: async (url, options) => {
+          const response = await fetch(url, options);
+          if (!response.ok && response.status === 404) {
+            const clone = response.clone();
+            try {
+              const body = await clone.json();
+              if (body?.detail?.includes("Not found for account")) {
+                throw new Error(
+                  `NVIDIA NIM API Error: The model "${model.name}" is not accessible on your account. Please visit build.nvidia.com, select this model, and accept the terms of use or ensure you have sufficient credits.`,
+                );
+              }
+            } catch (e) {
+              // Ignore JSON parse errors for non-JSON responses
+            }
+          }
+          return response;
+        },
+      });
       return {
         modelClient: {
           model: provider(model.name),
