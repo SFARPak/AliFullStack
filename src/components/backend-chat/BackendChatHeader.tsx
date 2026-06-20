@@ -6,6 +6,7 @@ import {
   Info,
   Server,
   CheckSquare,
+  ListChecks,
 } from "lucide-react";
 import { PanelRightClose } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
@@ -39,6 +40,9 @@ interface BackendChatHeaderProps {
   showTodoToggle?: boolean;
   isTodoPanelOpen?: boolean;
   onToggleTodo?: () => void;
+  showStepsToggle?: boolean;
+  isStepsPanelOpen?: boolean;
+  onToggleSteps?: () => void;
 }
 
 export function BackendChatHeader({
@@ -49,6 +53,9 @@ export function BackendChatHeader({
   showTodoToggle = true,
   isTodoPanelOpen = false,
   onToggleTodo,
+  showStepsToggle = false,
+  isStepsPanelOpen = false,
+  onToggleSteps,
 }: BackendChatHeaderProps) {
   const appId = useAtomValue(selectedAppIdAtom);
   const { versions, loading: versionsLoading } = useVersions(appId);
@@ -244,6 +251,19 @@ export function BackendChatHeader({
         </div>
 
         <div className="flex items-center gap-2">
+          {showStepsToggle && onToggleSteps && (
+            <button
+              data-testid="toggle-steps-panel-button"
+              onClick={onToggleSteps}
+              className="cursor-pointer p-2 hover:bg-(--background-lightest) rounded-md"
+              title="Show steps summary"
+            >
+              <ListChecks
+                size={20}
+                className={isStepsPanelOpen ? "text-primary" : ""}
+              />
+            </button>
+          )}
           {showTodoToggle && onToggleTodo && (
             <button
               data-testid="toggle-todo-panel-button"

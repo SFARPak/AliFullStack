@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { chatMessagesAtom, chatStreamCountAtom } from "../../atoms/chatAtoms";
 import { isTodoPanelOpenAtom } from "../../atoms/todoAtoms";
+import { isStepsSummaryOpenAtom } from "../../atoms/stepsAtoms";
+import { StepsSummaryPanel } from "../StepsSummaryPanel";
 import { IpcClient } from "@/ipc/ipc_client";
 
 import { BackendChatHeader } from "./BackendChatHeader";
@@ -25,11 +27,12 @@ export function BackendChatPanel({
   const [messages, setMessages] = useAtom(chatMessagesAtom);
   const [isVersionPaneOpen, setIsVersionPaneOpen] = useState(false);
   const [isTodoPanelOpen, setIsTodoPanelOpen] = useAtom(isTodoPanelOpenAtom);
+  const [isStepsPanelOpen, setIsStepsPanelOpen] = useAtom(isStepsSummaryOpenAtom);
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
 
   // Debug logging
-  console.log("BackendChatPanel render:", { isTodoPanelOpen });
+  console.log("BackendChatPanel render:", { isTodoPanelOpen, isStepsPanelOpen });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -129,6 +132,9 @@ export function BackendChatPanel({
           onVersionClick={() => setIsVersionPaneOpen(!isVersionPaneOpen)}
           isTodoPanelOpen={isTodoPanelOpen}
           onToggleTodo={() => setIsTodoPanelOpen(!isTodoPanelOpen)}
+          showStepsToggle={true}
+          isStepsPanelOpen={isStepsPanelOpen}
+          onToggleSteps={() => setIsStepsPanelOpen(!isStepsPanelOpen)}
         />
         <div className="flex flex-1 overflow-hidden">
           {!isVersionPaneOpen && (
@@ -148,6 +154,12 @@ export function BackendChatPanel({
           />
         </div>
       </div>
+      {isStepsPanelOpen && (
+        <StepsSummaryPanel
+          isOpen={isStepsPanelOpen}
+          onClose={() => setIsStepsPanelOpen(false)}
+        />
+      )}
       {isTodoPanelOpen && (
         <TodoListPanel
           isOpen={isTodoPanelOpen}

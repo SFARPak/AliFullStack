@@ -4,6 +4,38 @@ import { SqlQuery } from "../../lib/schemas";
 
 const logger = log.scope("alifullstack_tag_parser");
 
+export function cleanCommandString(cmd: string): string {
+  let cleaned = cmd.trim();
+  
+  // Remove markdown code blocks if present
+  if (cleaned.startsWith("```")) {
+    const lines = cleaned.split("\n");
+    if (lines.length > 1) {
+      lines.shift(); // remove opening ```bash
+      if (lines[lines.length - 1]?.trim().startsWith("```")) {
+        lines.pop(); // remove closing ```
+      }
+      cleaned = lines.join("\n").trim();
+    }
+  }
+
+  // Remove <command>...</command> wrapper if AI added it
+  const commandTagRegex = /^<command>([\s\S]*?)<\/command>$/i;
+  let match = cleaned.match(commandTagRegex);
+  if (match) {
+    cleaned = match[1].trim();
+  }
+
+  // Further remove prefixes like "cmd:" or "command:"
+  if (cleaned.toLowerCase().startsWith("cmd:")) {
+    cleaned = cleaned.substring(4).trim();
+  } else if (cleaned.toLowerCase().startsWith("command:")) {
+    cleaned = cleaned.substring(8).trim();
+  }
+
+  return cleaned;
+}
+
 export function getAliFullStackWriteTags(fullResponse: string): {
   path: string;
   content: string;
@@ -13,7 +45,7 @@ export function getAliFullStackWriteTags(fullResponse: string): {
   const pathRegex = /path="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
 
-  let match;
+let match;
   const tags: { path: string; content: string; description?: string }[] = [];
 
   while ((match = alifullstackWriteRegex.exec(fullResponse)) !== null) {
@@ -181,7 +213,7 @@ export function getAliFullStackRunBackendTerminalCmdTags(fullResponse: string): 
 
   while ((match = alifullstackRunBackendTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
-    const command = match[2].trim();
+    const command = cleanCommandString(match[2]);
 
     const cwdMatch = cwdRegex.exec(attributesString);
     const descriptionMatch = descriptionRegex.exec(attributesString);
@@ -213,7 +245,7 @@ export function getAliFullStackRunFrontendTerminalCmdTags(fullResponse: string):
     (match = alifullstackRunFrontendTerminalCmdRegex.exec(fullResponse)) !== null
   ) {
     const attributesString = match[1];
-    const command = match[2].trim();
+    const command = cleanCommandString(match[2]);
 
     const cwdMatch = cwdRegex.exec(attributesString);
     const descriptionMatch = descriptionRegex.exec(attributesString);
@@ -243,7 +275,7 @@ export function getAliFullStackRunTerminalCmdTags(fullResponse: string): {
 
   while ((match = alifullstackRunTerminalCmdRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
-    const command = match[2].trim();
+    const command = cleanCommandString(match[2]);
 
     const cwdMatch = cwdRegex.exec(attributesString);
     const descriptionMatch = descriptionRegex.exec(attributesString);
