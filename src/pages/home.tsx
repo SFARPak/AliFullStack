@@ -223,7 +223,7 @@ export default function HomePage() {
             {randomPrompts.map((item, index) => (
               <button
                 type="button"
-                key={index}
+                key={`${item.label}-${index}`}
                 onClick={() => setInputValue(`Build me a ${item.label}`)}
                 className="flex items-center gap-3 px-4 py-2 rounded-xl border border-gray-200
                            bg-white/50 backdrop-blur-sm

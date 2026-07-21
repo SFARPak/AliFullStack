@@ -44,15 +44,6 @@ export function ChatPanel({
   // State to track system messages for auto-scrolling
   const [systemMessageCount, setSystemMessageCount] = useState(0);
 
-  // Debug logging
-  console.log("ChatPanel render:", {
-    isBackendMode,
-    isFullstackMode,
-    isFrontendMode,
-    isTodoPanelOpen,
-    isStepsPanelOpen,
-    showTodoToggle: isFullstackMode || isFrontendMode,
-  });
   // Reference to store the processed prompt so we don't submit it twice
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -89,7 +80,6 @@ export function ChatPanel({
   };
 
   useEffect(() => {
-    console.log("streamCount", streamCount);
     scrollToBottom();
   }, [streamCount]);
 

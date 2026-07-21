@@ -114,8 +114,6 @@ export function useAttachments() {
 
       if (imageFiles.length > 0) {
         addAttachments(imageFiles, "chat-context");
-        // Show a brief toast or indication that image was pasted
-        console.log(`Pasted ${imageFiles.length} image(s) from clipboard`);
       }
     }
   };

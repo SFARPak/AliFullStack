@@ -6,6 +6,8 @@ import { readSettings } from "../../main/settings";
 import log from "electron-log";
 import path from "path";
 import fs from "fs";
+
+const logger = log.scope("debug_handlers");
 import { runShellCommand } from "../utils/runShellCommand";
 import { extractCodebase } from "../../utils/codebase";
 import { db } from "../../db";
@@ -23,7 +25,7 @@ async function getSystemDebugInfo({
   linesOfLogs: number;
   level: "warn" | "info";
 }): Promise<SystemDebugInfo> {
-  console.log("Getting system debug info");
+  logger.debug("Getting system debug info");
 
   // Get Node.js and pnpm versions
   let nodeVersion: string | null = null;
@@ -32,7 +34,7 @@ async function getSystemDebugInfo({
   try {
     nodeVersion = await runShellCommand("node --version");
   } catch (err) {
-    console.error("Failed to get Node.js version:", err);
+    logger.error("Failed to get Node.js version:", err as any);
   }
 
   try {
@@ -118,7 +120,7 @@ export function registerDebugHandlers() {
   ipcMain.handle(
     "get-system-debug-info",
     async (): Promise<SystemDebugInfo> => {
-      console.log("IPC: get-system-debug-info called");
+      logger.debug("IPC: get-system-debug-info called");
       return getSystemDebugInfo({
         linesOfLogs: 20,
         level: "warn",
@@ -129,7 +131,7 @@ export function registerDebugHandlers() {
   ipcMain.handle(
     "get-chat-logs",
     async (_, chatId: number): Promise<ChatLogsData> => {
-      console.log(`IPC: get-chat-logs called for chat ${chatId}`);
+      logger.debug(`IPC: get-chat-logs called for chat ${chatId}`);
 
       try {
         // We can retrieve a lot more lines here because we're not limited by the
@@ -189,13 +191,13 @@ export function registerDebugHandlers() {
           codebase,
         };
       } catch (error) {
-        console.error(`Error in get-chat-logs:`, error);
+        logger.error(`Error in get-chat-logs:`, error as any);
         throw error;
       }
     },
   );
 
-  console.log("Registered debug IPC handlers");
+  logger.debug("Registered debug IPC handlers");
 }
 
 function serializeModelForDebug(model: LargeLanguageModel): string {

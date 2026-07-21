@@ -1,6 +1,6 @@
 import { test } from "./helpers/test_helper";
 
-test.skip("chat search - basic search dialog functionality", async ({ po }) => {
+test("chat search - basic search dialog functionality", async ({ po }) => {
   await po.setUp({ autoApprove: true });
   await po.importApp("minimal");
 
@@ -41,7 +41,7 @@ test.skip("chat search - basic search dialog functionality", async ({ po }) => {
   await po.page.keyboard.press("Escape");
 });
 
-test.skip("chat search - with named chats for easier testing", async ({
+test("chat search - with named chats for easier testing", async ({
   po,
 }) => {
   await po.setUp({ autoApprove: true });
@@ -85,7 +85,7 @@ test.skip("chat search - with named chats for easier testing", async ({
   await po.page.keyboard.press("Escape");
 });
 
-test.skip("chat search - keyboard shortcut functionality", async ({ po }) => {
+test("chat search - keyboard shortcut functionality", async ({ po }) => {
   await po.setUp({ autoApprove: true });
   await po.importApp("minimal");
 
@@ -102,7 +102,7 @@ test.skip("chat search - keyboard shortcut functionality", async ({ po }) => {
   await po.page.getByTestId("chat-search-dialog").waitFor({ state: "hidden" });
 });
 
-test.skip("chat search - navigation and selection", async ({ po }) => {
+test("chat search - navigation and selection", async ({ po }) => {
   await po.setUp({ autoApprove: true });
   await po.importApp("minimal");
 

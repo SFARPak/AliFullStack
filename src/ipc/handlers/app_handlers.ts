@@ -169,15 +169,12 @@ async function copyDir(
 const logger = log.scope("app_handlers");
 const handle = createLoggedHandler(logger);
 
-// Helper function to log to both electron-log and console
+// Helper function to log to electron-log
 function logToConsole(
   message: string,
   level: "info" | "warn" | "error" | "debug" = "info",
 ) {
   logger[level](message);
-  console.log(
-    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
-  );
 }
 
 let proxyWorker: Worker | null = null;
@@ -1492,7 +1489,13 @@ function listenToProcess({
                 message: `⚠️ Automatic dependency installation failed. Please run 'npm install' manually in the ${terminalType || "app"} directory and restart the app.`,
                 appId,
               });
+            })
+            .catch(() => {
+              // Swallow errors from safeSend to prevent unhandled rejections
             });
+        })
+        .catch(() => {
+          // Swallow errors from safeSend to prevent unhandled rejections
         });
     }
 

@@ -140,11 +140,6 @@ export function ChatInput({ chatId }: { chatId?: number }) {
           ? `You just: ${proposal.summary}. `
           : "";
 
-      console.log(
-        "Scheduling auto-continue for messageId:",
-        messageId,
-      );
-
       // Mark immediately to prevent duplicate scheduling
       lastProcessedMessageId.current = messageId;
 
@@ -187,9 +182,6 @@ export function ChatInput({ chatId }: { chatId?: number }) {
         error.toLowerCase().includes("exhausted");
 
       if (isTransient) {
-        console.log(
-          `Auto-retrying error (attempt ${retryCount + 1}) in Autonomous mode: ${error}`,
-        );
         const timer = setTimeout(() => {
           if (wasManuallyStoppedRef.current) return;
           setRetryCount((prev) => prev + 1);
@@ -263,9 +255,6 @@ export function ChatInput({ chatId }: { chatId?: number }) {
   const handleApprove = async () => {
     if (!chatId || !messageId || isApproving || isRejecting || isStreaming)
       return;
-    console.log(
-      `Approving proposal for chatId: ${chatId}, messageId: ${messageId}`,
-    );
     setIsApproving(true);
     posthog.capture("chat:approve");
     try {
@@ -300,9 +289,6 @@ export function ChatInput({ chatId }: { chatId?: number }) {
   const handleReject = async () => {
     if (!chatId || !messageId || isApproving || isRejecting || isStreaming)
       return;
-    console.log(
-      `Rejecting proposal for chatId: ${chatId}, messageId: ${messageId}`,
-    );
     setIsRejecting(true);
     posthog.capture("chat:reject");
     try {
@@ -399,18 +385,22 @@ export function ChatInput({ chatId }: { chatId?: number }) {
 
             {isStreaming ? (
               <button
+                type="button"
                 onClick={handleCancel}
                 className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg"
                 title="Cancel generation"
+                aria-label="Cancel generation"
               >
                 <StopCircleIcon size={20} />
               </button>
             ) : (
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={!inputValue.trim() && attachments.length === 0}
                 className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg disabled:opacity-50"
                 title="Send message"
+                aria-label="Send message"
               >
                 <SendHorizontalIcon size={20} />
               </button>
@@ -829,7 +819,7 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">Security Risks</h4>
                 <ul className="space-y-1">
                   {proposal.securityRisks.map((risk, index) => (
-                    <li key={index} className="flex items-start space-x-2">
+                    <li key={`${risk.type}-${risk.title}-${index}`} className="flex items-start space-x-2">
                       {risk.type === "warning" ? (
                         <AlertTriangle
                           size={16}
@@ -856,7 +846,7 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">SQL Queries</h4>
                 <ul className="space-y-2">
                   {proposal.sqlQueries.map((query, index) => (
-                    <SqlQueryItem key={index} query={query} />
+                    <SqlQueryItem key={`${query.slice(0, 30)}-${index}`} query={query} />
                   ))}
                 </ul>
               </div>
@@ -868,7 +858,7 @@ function ChatInputActions({
                 <ul className="space-y-1">
                   {proposal.packagesAdded.map((pkg, index) => (
                     <li
-                      key={index}
+                      key={pkg}
                       className="flex items-center space-x-2"
                       onClick={() => {
                         IpcClient.getInstance().openExternalUrl(
@@ -894,7 +884,7 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">Server Functions Changed</h4>
                 <ul className="space-y-1">
                   {serverFunctions.map((file: FileChange, index: number) => (
-                    <li key={index} className="flex items-center space-x-2">
+                    <li key={file.path} className="flex items-center space-x-2">
                       {getIconForFileChange(file)}
                       <span
                         title={file.path}
@@ -916,7 +906,7 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">Files Changed</h4>
                 <ul className="space-y-1">
                   {otherFilesChanged.map((file: FileChange, index: number) => (
-                    <li key={index} className="flex items-center space-x-2">
+                    <li key={file.path} className="flex items-center space-x-2">
                       {getIconForFileChange(file)}
                       <span
                         title={file.path}

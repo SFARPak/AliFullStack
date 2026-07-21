@@ -41,8 +41,8 @@ export const Console = () => {
         {title} ({outputs.length})
       </div>
       <div className="font-mono text-xs px-4 flex-1 overflow-auto">
-        {outputs.map((output, index) => (
-          <div key={index}>{output.message}</div>
+        {outputs.map((output) => (
+          <div key={output.timestamp}>{output.message}</div>
         ))}
       </div>
     </div>

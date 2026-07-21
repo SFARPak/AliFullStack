@@ -31,9 +31,6 @@ export function BackendChatPanel({
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
 
-  // Debug logging
-  console.log("BackendChatPanel render:", { isTodoPanelOpen, isStepsPanelOpen });
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -68,7 +65,6 @@ export function BackendChatPanel({
   };
 
   useEffect(() => {
-    console.log("streamCount", streamCount);
     scrollToBottom();
   }, [streamCount]);
 

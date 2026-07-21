@@ -1104,6 +1104,10 @@ ${problemReport.problems
         }
       }
 
+      // Clean up streams on success
+      activeStreams.delete(req.chatId);
+      partialResponses.delete(req.chatId);
+
       // Return the chat ID for backwards compatibility
       return req.chatId;
     } catch (error) {
@@ -1138,8 +1142,9 @@ ${problemReport.problems
         chatId: req.chatId,
         updatedFiles: false,
       } satisfies ChatResponseEnd);
-      // Clean up the abort controller
+      // Clean up the abort controller and partial response on error
       activeStreams.delete(req.chatId);
+      partialResponses.delete(req.chatId);
       // Clean up file uploads state on error
       FileUploadsState.getInstance().clear();
       return "error";

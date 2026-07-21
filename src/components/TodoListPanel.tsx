@@ -24,16 +24,8 @@ export function TodoListPanel({ isOpen, onClose }: TodoListPanelProps) {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  // Debug logging
-  console.log("TodoListPanel render:", {
-    isOpen,
-    chatId,
-    todosCount: todos.length,
-  });
-
   // Filter todos for current chat
   const currentChatTodos = todos.filter((todo) => todo.chatId === chatId);
-  console.log("Current chat todos:", currentChatTodos.length);
 
   const addTodo = () => {
     if (!newTodoTitle.trim() || !chatId) return;

@@ -72,6 +72,9 @@ import type {
   ProposalResult,
 } from "@/lib/schemas";
 import { showError } from "@/lib/toast";
+import log from "electron-log";
+
+const logger = log.scope("ipc-client");
 
 export interface ChatStreamCallbacks {
   onUpdate: (messages: Message[]) => void;
@@ -701,7 +704,7 @@ export class IpcClient {
     callback: (data: GitHubDeviceFlowUpdateData) => void,
   ): () => void {
     const listener = (data: any) => {
-      console.log("github:flow-update", data);
+      logger.debug("github:flow-update", data);
       callback(data as GitHubDeviceFlowUpdateData);
     };
     this.ipcRenderer.on("github:flow-update", listener);
@@ -715,7 +718,7 @@ export class IpcClient {
     callback: (data: GitHubDeviceFlowSuccessData) => void,
   ): () => void {
     const listener = (data: any) => {
-      console.log("github:flow-success", data);
+      logger.debug("github:flow-success", data);
       callback(data as GitHubDeviceFlowSuccessData);
     };
     this.ipcRenderer.on("github:flow-success", listener);
@@ -728,7 +731,7 @@ export class IpcClient {
     callback: (data: GitHubDeviceFlowErrorData) => void,
   ): () => void {
     const listener = (data: any) => {
-      console.log("github:flow-error", data);
+      logger.debug("github:flow-error", data);
       callback(data as GitHubDeviceFlowErrorData);
     };
     this.ipcRenderer.on("github:flow-error", listener);

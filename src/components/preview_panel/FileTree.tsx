@@ -83,8 +83,8 @@ const sortNodes = (nodes: TreeNode[]): TreeNode[] => {
 // Tree nodes component
 const TreeNodes = ({ nodes, level }: TreeNodesProps) => (
   <ul className="ml-4">
-    {sortNodes(nodes).map((node, index) => (
-      <TreeNode key={index} node={node} level={level} />
+    {sortNodes(nodes).map((node) => (
+      <TreeNode key={node.path} node={node} level={level} />
     ))}
   </ul>
 );

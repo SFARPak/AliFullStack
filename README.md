@@ -81,9 +81,24 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
 - [x] [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 - [x] [xAI](https://x.ai)
 - [x] [AWS Bedrock](https://aws.amazon.com/bedrock/)
-- [ ] [Roo Code Cloud](https://roocode.com)
+- [x] [Roo Code Cloud](https://roocode.com)
 - [ ] Mistral _(planned)_
 - [ ] Cohere _(planned)_
+
+### 🧩 Local & Extended Providers
+
+- [x] [Ollama](https://ollama.ai) (local models)
+- [x] [LM Studio](https://lmstudio.ai) (local models)
+- [x] [NVIDIA NIM](https://build.nvidia.com) (direct OpenAI-compatible)
+- [x] Custom OpenAI-compatible providers
+
+### 🔌 Integrations
+
+- [x] [GitHub](https://github.com) (OAuth + push + repo management)
+- [x] [Vercel](https://vercel.com) (deploy + framework detection)
+- [x] [Supabase](https://supabase.com) (project management + edge functions)
+- [x] [Neon](https://neon.tech) (serverless Postgres)
+- [ ] AWS _(planned)_
 
 ### ✨ In Progress & Planned Features
 
@@ -96,6 +111,7 @@ AliFullStack is evolving rapidly. Here's what’s done and what’s coming soon:
   - [x] Self-improving development pipeline
 - [x] **Danger Zone Features** — Advanced app management tools
   - [x] Delete All Apps functionality
+  - [x] Reset Everything functionality
 - [ ] Drag-and-drop UI builder
 - [ ] Advanced code generation patterns
 - [ ] AI-assisted test and schema generation

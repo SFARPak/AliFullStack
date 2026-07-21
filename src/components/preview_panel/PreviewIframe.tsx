@@ -180,7 +180,6 @@ export const PreviewIframe = ({ loading }: { loading: boolean }) => {
       }
 
       if (event.data?.type === "alifullstack-component-selected") {
-        console.log("Component picked:", event.data);
         setSelectedComponentPreview(parseComponentSelection(event.data));
         setIsPicking(false);
         return;
@@ -558,12 +557,10 @@ export const PreviewIframe = ({ loading }: { loading: boolean }) => {
           </div>
         ) : (
           <>
-            {console.log(`[IFRAME] Rendering with URL: ${appUrl}`)}
             <iframe
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-downloads"
               data-testid="preview-iframe-element"
               onLoad={() => {
-                console.log(`[IFRAME] Successfully loaded URL: ${appUrl}`);
                 setErrorMessage(undefined);
               }}
               onError={(e) => {

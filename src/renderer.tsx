@@ -14,7 +14,9 @@ import {
 import { showError } from "./lib/toast";
 
 // @ts-ignore
-console.log("Running in mode:", import.meta.env.MODE);
+if (import.meta.env.DEV) {
+  console.log("Running in mode:", import.meta.env.MODE);
+}
 
 interface MyMeta extends Record<string, unknown> {
   showErrorToast: boolean;

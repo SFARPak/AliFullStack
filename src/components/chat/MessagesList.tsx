@@ -63,7 +63,7 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
         {safeMessages.length > 0
           ? safeMessages.map((message, index) => (
               <ChatMessage
-                key={index}
+                key={message.id}
                 message={message}
                 isLastMessage={index === safeMessages.length - 1}
               />

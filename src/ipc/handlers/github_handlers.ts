@@ -16,8 +16,14 @@ import { IS_TEST_BUILD } from "../utils/test_utils";
 const logger = log.scope("github_handlers");
 
 // --- GitHub Device Flow Constants ---
-// TODO: Fetch this securely, e.g., from environment variables or a config file
-const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || "Ov23liWV2HdC0RBLecWx";
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+
+if (!GITHUB_CLIENT_ID) {
+  throw new Error(
+    "GITHUB_CLIENT_ID environment variable is required for GitHub integration. " +
+    "Set it in your environment or .env file.",
+  );
+}
 
 // Use test server URLs when in test mode
 

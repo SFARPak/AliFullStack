@@ -9,15 +9,12 @@ import { addTerminalOutput } from "../handlers/terminal_handlers";
 
 const logger = log.scope("start_proxy_server");
 
-// Helper function to log to both electron-log and console
+// Helper function to log to electron-log
 function logToConsole(
   message: string,
   level: "info" | "warn" | "error" | "debug" = "info",
 ) {
   logger[level](message);
-  console.log(
-    `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`,
-  );
 }
 
 export async function startProxy(

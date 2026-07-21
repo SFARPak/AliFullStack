@@ -112,6 +112,7 @@ export function registerHelpBotHandlers() {
             });
           } finally {
             activeHelpStreams.delete(sessionId);
+            helpSessions.delete(sessionId);
           }
         })();
 

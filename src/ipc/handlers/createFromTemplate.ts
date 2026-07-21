@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs-extra";
 import git from "isomorphic-git";
 import http from "isomorphic-git/http/node";
+import crypto from "node:crypto";
 import { app } from "electron";
 import { readSettings } from "@/main/settings";
 import { getTemplateOrThrow } from "../utils/template_utils";
@@ -1763,12 +1764,13 @@ application = get_asgi_application()
   );
 
   // Create settings.py
+  const djangoSecretKey = crypto.randomBytes(64).toString("base64").slice(0, 64);
   const settingsContent = `import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'your-secret-key-here-change-in-production'
+SECRET_KEY = '${djangoSecretKey}'
 
 DEBUG = True
 
@@ -2589,8 +2591,8 @@ app.use((req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(\`🚀 Node.js server with SQLite database running on http://0.0.0.0:\${port}\`);
-  console.log(\`📊 Database file: \${path.join(__dirname, 'app.db')}\`);
+  logger.info(\`🚀 Node.js server with SQLite database running on http://0.0.0.0:\${port}\`);
+  logger.info(\`📊 Database file: \${path.join(__dirname, 'app.db')}\`);
 });`;
   await fs.writeFile(serverPath, serverContent);
 
