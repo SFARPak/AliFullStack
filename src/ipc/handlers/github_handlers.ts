@@ -19,9 +19,9 @@ const logger = log.scope("github_handlers");
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 
 if (!GITHUB_CLIENT_ID) {
-  throw new Error(
-    "GITHUB_CLIENT_ID environment variable is required for GitHub integration. " +
-    "Set it in your environment or .env file.",
+  logger.warn(
+    "GITHUB_CLIENT_ID is not set. GitHub integration will be disabled. " +
+    "Set it in your environment or .env file to enable GitHub features.",
   );
 }
 
@@ -64,6 +64,11 @@ let currentFlowState: DeviceFlowState | null = null;
  * @returns {Promise<string|null>} The GitHub username, or null if not authenticated or on error.
  */
 export async function getGithubUser(): Promise<GithubUser | null> {
+  if (!GITHUB_CLIENT_ID) {
+    logger.debug("GitHub client ID is not configured; skipping getGithubUser.");
+    return null;
+  }
+
   const settings = readSettings();
   const email = settings.githubUser?.email;
   if (email) return { email };
@@ -636,6 +641,13 @@ async function handleDisconnectGithubRepo(
 
 // --- Registration ---
 export function registerGithubHandlers() {
+  if (!GITHUB_CLIENT_ID) {
+    logger.warn(
+      "Skipping GitHub handler registration because GITHUB_CLIENT_ID is missing.",
+    );
+    return;
+  }
+
   ipcMain.handle("github:start-flow", handleStartGithubFlow);
   ipcMain.handle("github:list-repos", handleListGithubRepos);
   ipcMain.handle(

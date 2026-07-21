@@ -71,7 +71,7 @@ export async function streamTestResponse(
   testResponse: string,
   abortController: AbortController,
   updatedChat: any,
-): Promise<string> => {
+): Promise<string> {
   // Simulate streaming by splitting the response into chunks
   const chunks = testResponse.split(" ");
   let fullResponse = "";
