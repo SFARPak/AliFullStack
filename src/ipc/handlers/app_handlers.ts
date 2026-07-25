@@ -968,12 +968,11 @@ async function executeAppLocalNode({
     }
 
     // Start frontend server
+    const frontendCommand = `npx vite --port ${frontendPort} --host`;
+    logger.info(
+      `Starting frontend server with command: ${frontendCommand} in ${frontendPath}`,
+    );
     try {
-      const frontendCommand = `npx vite --port ${frontendPort} --host`;
-      logger.info(
-        `Starting frontend server with command: ${frontendCommand} in ${frontendPath}`,
-      );
-      try {
         const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
