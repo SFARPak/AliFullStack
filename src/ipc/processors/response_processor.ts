@@ -197,10 +197,15 @@ export async function processFullResponseActions(
     if (alifullstackExecuteSqlQueries.length > 0) {
       for (const query of alifullstackExecuteSqlQueries) {
         try {
-          await executeSupabaseSql({
-            supabaseProjectId: chatWithApp.app.supabaseProjectId!,
-            query: query.content,
-          });
+          try {
+            await executeSupabaseSql({
+              supabaseProjectId: chatWithApp.app.supabaseProjectId!,
+              query: query.content,
+            });
+          } catch (error) {
+            console.error('Error executing SQL query:', error);
+            throw new Error('Failed to execute SQL query');
+          }
 
           // Only write migration file if SQL execution succeeded
           if (settings.enableSupabaseWriteSqlMigration) {
@@ -322,12 +327,17 @@ export async function processFullResponseActions(
           const cwd = cmdTag.cwd
             ? path.join(frontendPath, cmdTag.cwd)
             : frontendPath;
-
+    
           logger.log(
             `Executing frontend terminal command: ${cmdTag.command} in ${cwd}`,
           );
-
-          const result = await runShellCommand(cmdTag.command, cwd);
+    
+          try {
+            const result = await runShellCommand(cmdTag.command, cwd);
+          } catch (error) {
+            console.error('Error running frontend terminal command:', error);
+            throw new Error('Failed to run frontend terminal command');
+          }
 
           if (result === null) {
             errors.push({
@@ -508,7 +518,12 @@ export async function processFullResponseActions(
             `Executing general terminal command: ${cleanCommand} in ${cwd} (routing to ${terminalType} terminal)`,
           );
 
-          const result = await runShellCommand(cleanCommand, cwd);
+          try {
+            const result = await runShellCommand(cleanCommand, cwd);
+          } catch (error) {
+            console.error('Error running terminal command:', error);
+            throw new Error('Failed to run terminal command');
+          }
 
           if (result === null) {
             errors.push({

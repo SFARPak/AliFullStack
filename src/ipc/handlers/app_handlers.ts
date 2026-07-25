@@ -568,8 +568,13 @@ async function executeAppLocalNode({
     );
 
     // Find available ports for backend and frontend
-    const backendPort = await findAvailablePort(8000);
-    const frontendPort = await findAvailablePort(32100);
+    try {
+      const backendPort = await findAvailablePort(8000);
+      const frontendPort = await findAvailablePort(32100);
+    } catch (error) {
+      console.error('Error finding available ports for fullstack app:', error);
+      throw new Error('Failed to find available ports for fullstack app');
+    }
 
     // Send mode indication to UI
     safeSend(event.sender, "app:output", {
@@ -579,7 +584,12 @@ async function executeAppLocalNode({
     });
 
     // Ensure backend directory exists and has proper structure
-    await ensureBackendDirectory(backendPath);
+    try {
+      await ensureBackendDirectory(backendPath);
+    } catch (error) {
+      console.error('Error ensuring backend directory exists:', error);
+      throw new Error('Failed to ensure backend directory exists');
+    }
 
     // Create/update environment files for fullstack integration
     try {
@@ -822,8 +832,13 @@ async function executeAppLocalNode({
         logger.info(`Detected Django framework based on manage.py file`);
       } else {
         // Read Python files to detect framework imports
-        backendFramework = await detectPythonFramework(backendPath);
-        logger.info(`Detected Python framework: ${backendFramework}`);
+        try {
+          backendFramework = await detectPythonFramework(backendPath);
+          logger.info(`Detected Python framework: ${backendFramework}`);
+        } catch (error) {
+          console.error('Error detecting Python framework:', error);
+          throw new Error('Failed to detect Python framework');
+        }
       }
     } else if (fs.existsSync(path.join(backendPath, "package.json"))) {
       // Only if no Python files exist, check for Node.js
@@ -849,8 +864,13 @@ async function executeAppLocalNode({
         logger.info(
           `Getting start command for Python framework: ${backendFramework}`,
         );
-        backendCommand = await getStartCommandForFramework(backendFramework);
-        logger.info(`Got command for ${backendFramework}: ${backendCommand}`);
+        try {
+          backendCommand = await getStartCommandForFramework(backendFramework);
+          logger.info(`Got command for ${backendFramework}: ${backendCommand}`);
+        } catch (error) {
+          console.error('Error getting start command for framework:', error);
+          throw new Error('Failed to get start command for framework');
+        }
         if (!backendCommand) {
           // Fallback to default Python command
           backendCommand = "python app.py";
@@ -875,11 +895,16 @@ async function executeAppLocalNode({
       logger.info(`Final backend command: ${backendCommand}`);
 
       // Always use executeComplexCommand for backend commands as they may be complex
-      const backendProcess = await executeComplexCommand(
-        backendCommand,
-        backendPath,
-        getShellEnv(),
-      );
+      try {
+        const backendProcess = await executeComplexCommand(
+          backendCommand,
+          backendPath,
+          getShellEnv(),
+        );
+      } catch (error) {
+        console.error('Error starting backend server for fullstack app:', error);
+        throw new Error('Failed to start backend server for fullstack app');
+      }
 
       if (backendProcess.pid) {
         const backendProcessId = processCounter.increment();
@@ -948,7 +973,8 @@ async function executeAppLocalNode({
       logger.info(
         `Starting frontend server with command: ${frontendCommand} in ${frontendPath}`,
       );
-      const frontendProcess = spawn(frontendCommand, [], {
+      try {
+        const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
         stdio: "pipe",
@@ -1013,16 +1039,8 @@ async function executeAppLocalNode({
         );
       }
     } catch (error) {
-      logger.error(
-        `Failed to start frontend server for fullstack app ${appId}:`,
-        error,
-      );
-      // Send error message to UI
-      safeSend(event.sender, "app:output", {
-        type: "stdout",
-        message: `❌ Failed to start frontend server: ${error instanceof Error ? error.message : String(error)}`,
-        appId,
-      });
+      console.error('Error starting frontend server for fullstack app:', error);
+      throw new Error('Failed to start frontend server for fullstack app');
     }
 
     return;

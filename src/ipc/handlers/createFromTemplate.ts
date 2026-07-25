@@ -1622,7 +1622,8 @@ export async function setupBackendFramework(
       );
 
       // Copy the scaffold-backend directory to backendPath
-      await fs.copy(scaffoldPath, backendPath, {
+      try {
+        await fs.copy(scaffoldPath, backendPath, {
         overwrite: true,
         filter: (src, dest) => {
           // Exclude .DS_Store and other unwanted files
@@ -1639,34 +1640,48 @@ export async function setupBackendFramework(
       logger.info(
         `Successfully copied ${framework} scaffold from ${scaffoldPath} to ${backendPath}`,
       );
-    } else {
+      } catch (error) {
+        console.error('Error copying backend scaffold:', error);
+        throw new Error('Failed to copy backend scaffold');
+      }
+      } else {
       logger.warn(
         `Scaffold not found for ${framework} at ${scaffoldPath}, falling back to programmatic setup`,
       );
 
       // Fallback to programmatic setup if scaffold doesn't exist
-      switch (framework) {
-        case "django":
-          await setupDjango(backendPath);
-          break;
-        case "fastapi":
-          await setupFastAPI(backendPath);
-          break;
-        case "flask":
-          await setupFlask(backendPath);
-          break;
-        case "nodejs":
-          await setupNodeJS(backendPath);
-          break;
-        default:
-          logger.warn(`Unknown backend framework: ${framework}`);
+      try {
+        switch (framework) {
+          case "django":
+            await setupDjango(backendPath);
+            break;
+          case "fastapi":
+            await setupFastAPI(backendPath);
+            break;
+          case "flask":
+            await setupFlask(backendPath);
+            break;
+          case "nodejs":
+            await setupNodeJS(backendPath);
+            break;
+          default:
+            logger.warn(`Unknown backend framework: ${framework}`);
+        }
+      } catch (error) {
+        console.error('Error setting up backend framework:', error);
+        throw new Error('Failed to setup backend framework');
       }
     }
 
     // Install dependencies after setting up the framework
     try {
       logger.info(`Installing dependencies for ${framework} in ${backendPath}`);
-      await installDependenciesForFramework(backendPath, framework);
+      try {
+        await installDependenciesForFramework(backendPath, framework);
+      } catch (error) {
+        console.error('Error installing backend dependencies:', error);
+        throw new Error('Failed to install backend dependencies');
+      }
     } catch (installError) {
       logger.warn(
         `Failed to install dependencies for ${framework}:`,
@@ -1678,7 +1693,12 @@ export async function setupBackendFramework(
     // Initialize database for the framework
     try {
       logger.info(`Initializing database for ${framework} in ${backendPath}`);
-      await initializeDatabaseForFramework(backendPath, framework);
+      try {
+        await initializeDatabaseForFramework(backendPath, framework);
+      } catch (error) {
+        console.error('Error initializing database for framework:', error);
+        throw new Error('Failed to initialize database for framework');
+      }
     } catch (dbError) {
       logger.warn(`Failed to initialize database for ${framework}:`, dbError);
       // Continue even if database initialization fails
@@ -1691,7 +1711,12 @@ export async function setupBackendFramework(
       );
       // Note: appId is not available in this context, so terminal output won't be shown
       // This is called during app creation, before the app is fully set up
-      await startBackendServer(backendPath, framework);
+      try {
+        await startBackendServer(backendPath, framework);
+      } catch (error) {
+        console.error('Error auto-starting backend server:', error);
+        throw new Error('Failed to auto-start backend server');
+      }
     } catch (startError) {
       logger.warn(
         `Failed to auto-start ${framework} backend server:`,

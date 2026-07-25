@@ -200,6 +200,7 @@ export type LanguageModel =
       maxOutputTokens?: number;
       contextWindow?: number;
       temperature?: number;
+      topP?: number;
       dollarSigns?: number;
       type: "custom";
     }
@@ -211,6 +212,7 @@ export type LanguageModel =
       maxOutputTokens?: number;
       contextWindow?: number;
       temperature?: number;
+      topP?: number;
       dollarSigns?: number;
       type: "local" | "cloud";
     };
