@@ -3741,24 +3741,248 @@ async function installSpecificPythonPackage(
     installProcess.stderr?.on("data", (data) => {
       installError += data.toString();
     });
-
-    installProcess.on("close", (code) => {
-      if (code === 0) {
-        logger.info(
-          `Successfully installed Python package ${packageName} in ${projectPath}`,
-        );
-        resolve();
-      } else {
-        const errorMsg = `Failed to install Python package ${packageName} (code: ${code}): ${installError}`;
-        logger.warn(errorMsg);
-        reject(new Error(errorMsg));
+    });
+    }
+    
+    // --- Kanban & Sitemap Handlers ---
+    
+    ipcMain.handle(
+      "get-app-files",
+      async (_, { appId }: { appId: number }): Promise<{ files: string[] }> => {
+        const app = await db.query.apps.findFirst({
+          where: eq(apps.id, appId),
+        });
+    
+        if (!app) {
+          throw new Error("App not found");
+        }
+    
+        const appPath = getAliFullStackAppPath(app.path);
+        const files = getFilesRecursively(appPath, appPath);
+        return { files };
+      },
+    );
+    
+    ipcMain.handle(
+      "get-app-structure",
+      async (_, { appId }: { appId: number }): Promise<{
+        kanbanTasks: any[];
+        sitemap: any[];
+      }> => {
+        const app = await db.query.apps.findFirst({
+          where: eq(apps.id, appId),
+        });
+    
+        if (!app) {
+          throw new Error("App not found");
+        }
+    
+        const appPath = getAliFullStackAppPath(app.path);
+    
+        // Try to load from .alifullstack folder
+        const alifullstackDir = path.join(appPath, ".alifullstack");
+        const kanbanPath = path.join(alifullstackDir, "kanban.json");
+        const sitemapPath = path.join(alifullstackDir, "sitemap.json");
+    
+        let kanbanTasks: any[] = [];
+        let sitemap: any[] = [];
+    
+        try {
+          if (fs.existsSync(kanbanPath)) {
+            const kanbanData = fs.readFileSync(kanbanPath, "utf-8");
+            kanbanTasks = JSON.parse(kanbanData);
+          }
+        } catch (error) {
+          logger.warn(`Failed to load kanban tasks: ${error}`);
+        }
+    
+        try {
+          if (fs.existsSync(sitemapPath)) {
+            const sitemapData = fs.readFileSync(sitemapPath, "utf-8");
+            sitemap = JSON.parse(sitemapData);
+          }
+        } catch (error) {
+          logger.warn(`Failed to load sitemap: ${error}`);
+        }
+    
+        // If no data exists, generate from app files
+        if (kanbanTasks.length === 0 && sitemap.length === 0) {
+          try {
+            const files = getFilesRecursively(appPath, appPath);
+            const structure = generateStructureFromFiles(files);
+            kanbanTasks = structure.kanbanTasks;
+            sitemap = structure.sitemap;
+          } catch (error) {
+            logger.warn(`Failed to generate app structure from files: ${error}`);
+            // Return empty arrays rather than throwing, so the UI can handle gracefully
+            kanbanTasks = [];
+            sitemap = [];
+          }
+        }
+      
+        return { kanbanTasks, sitemap };
+      },
+    );
+    
+    ipcMain.handle(
+      "save-kanban-tasks",
+      async (
+        _,
+        { appId, tasks }: { appId: number; tasks: any[] },
+      ): Promise<void> => {
+        const app = await db.query.apps.findFirst({
+          where: eq(apps.id, appId),
+        });
+    
+        if (!app) {
+          throw new Error("App not found");
+        }
+    
+        const appPath = getAliFullStackAppPath(app.path);
+        const alifullstackDir = path.join(appPath, ".alifullstack");
+    
+        // Create .alifullstack directory if it doesn't exist
+        if (!fs.existsSync(alifullstackDir)) {
+          fs.mkdirSync(alifullstackDir, { recursive: true });
+        }
+    
+        const kanbanPath = path.join(alifullstackDir, "kanban.json");
+        fs.writeFileSync(kanbanPath, JSON.stringify(tasks, null, 2), "utf-8");
+      },
+    );
+    
+    ipcMain.handle(
+      "save-sitemap-structure",
+      async (
+        _,
+        { appId, structure }: { appId: number; structure: any[] },
+      ): Promise<void> => {
+        const app = await db.query.apps.findFirst({
+          where: eq(apps.id, appId),
+        });
+    
+        if (!app) {
+          throw new Error("App not found");
+        }
+    
+        const appPath = getAliFullStackAppPath(app.path);
+        const alifullstackDir = path.join(appPath, ".alifullstack");
+    
+        // Create .alifullstack directory if it doesn't exist
+        if (!fs.existsSync(alifullstackDir)) {
+          fs.mkdirSync(alifullstackDir, { recursive: true });
+        }
+    
+        const sitemapPath = path.join(alifullstackDir, "sitemap.json");
+        fs.writeFileSync(sitemapPath, JSON.stringify(structure, null, 2), "utf-8");
+      },
+    );
+    
+    // Helper function to generate initial structure from app files
+    function generateStructureFromFiles(files: string[]): {
+      kanbanTasks: any[];
+      sitemap: any[];
+    } {
+      // Normalize paths to use forward slashes for consistent matching
+      const normalizedFiles = files.map((f) => f.replace(/\\/g, "/"));
+    
+      const pages = normalizedFiles
+        .filter((f) => f.includes("/pages/") || f.includes("/routes/"))
+        .map((f) => path.basename(f).replace(/\.(tsx?|jsx?)$/, ""))
+        .filter((f) => f && f !== "index" && f !== "app");
+    
+      const components = normalizedFiles
+        .filter((f) => f.includes("/components/"))
+        .map((f) => path.basename(f).replace(/\.(tsx?|jsx?)$/, ""))
+        .filter((f) => f && !f.startsWith("."));
+    
+      const apiRoutes = normalizedFiles
+        .filter((f) => f.includes("/api/") || f.includes("/routes/"))
+        .map((f) => path.basename(f).replace(/\.(ts|js)$/, ""))
+        .filter((f) => f && f !== "index");
+    
+      const kanbanTasks = [
+        {
+          id: `task-${Date.now()}-1`,
+          title: "Initialize project structure",
+          description: "Set up basic project scaffolding",
+          status: "done",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        ...pages.slice(0, 5).map((page, idx) => ({
+          id: `task-${Date.now()}-${idx + 2}`,
+          title: `Implement ${page} page`,
+          description: `Create the ${page} page component`,
+          status: "todo",
+          filePath: `src/pages/${page}.tsx`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })),
+      ];
+    
+      const sitemap = [
+        {
+          id: `node-${Date.now()}-root`,
+          name: "Application",
+          type: "page",
+          children: [
+            {
+              id: `node-${Date.now()}-pages`,
+              name: "Pages",
+              type: "page",
+              children: pages.slice(0, 10).map((page, idx) => ({
+                id: `node-${Date.now()}-page-${idx}`,
+                name: page,
+                type: "page",
+                path: `/${page.toLowerCase()}`,
+                filePath: `src/pages/${page}.tsx`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              })),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            {
+              id: `node-${Date.now()}-components`,
+              name: "Components",
+              type: "component",
+              children: components.slice(0, 10).map((comp, idx) => ({
+                id: `node-${Date.now()}-comp-${idx}`,
+                name: comp,
+                type: "component",
+                filePath: `src/components/${comp}.tsx`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              })),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            ...(apiRoutes.length > 0
+              ? [
+                  {
+                    id: `node-${Date.now()}-api`,
+                    name: "API Routes",
+                    type: "api",
+                    children: apiRoutes.slice(0, 10).map((route, idx) => ({
+                      id: `node-${Date.now()}-route-${idx}`,
+                      name: route,
+                      type: "api",
+                      path: `/api/${route.toLowerCase()}`,
+                      filePath: `src/api/${route}.ts`,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    })),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                  },
+                ]
+              : []),
+          ],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+    
+      return { kanbanTasks, sitemap };
       }
-    });
-
-    installProcess.on("error", (err) => {
-      const errorMsg = `Failed to start installation of Python package ${packageName}: ${err.message}`;
-      logger.error(errorMsg);
-      reject(new Error(errorMsg));
-    });
-  });
-}

@@ -63,6 +63,12 @@ import type {
   PromptDto,
   CreatePromptParamsDto,
   UpdatePromptParamsDto,
+  GetAppFilesParams,
+  GetAppFilesResponse,
+  GetAppStructureParams,
+  GetAppStructureResponse,
+  SaveKanbanTasksParams,
+  SaveSitemapStructureParams,
 } from "./ipc_types";
 import type { Template } from "../shared/templates";
 import type {
@@ -375,6 +381,31 @@ export class IpcClient {
       appId,
       filePath,
       content,
+    });
+  }
+
+  public async getAppFiles(appId: number): Promise<GetAppFilesResponse> {
+    return this.ipcRenderer.invoke("get-app-files", { appId });
+  }
+
+  public async getAppStructure(appId: number): Promise<GetAppStructureResponse> {
+    return this.ipcRenderer.invoke("get-app-structure", { appId });
+  }
+
+  public async saveKanbanTasks(
+    appId: number,
+    tasks: any[],
+  ): Promise<void> {
+    return this.ipcRenderer.invoke("save-kanban-tasks", { appId, tasks });
+  }
+
+  public async saveSitemapStructure(
+    appId: number,
+    structure: any[],
+  ): Promise<void> {
+    return this.ipcRenderer.invoke("save-sitemap-structure", {
+      appId,
+      structure,
     });
   }
 

@@ -463,3 +463,30 @@ export interface HelpChatResponseError {
   sessionId: string;
   error: string;
 }
+
+export interface GetAppFilesParams {
+  appId: number;
+}
+
+export interface GetAppFilesResponse {
+  files: string[];
+}
+
+export interface GetAppStructureParams {
+  appId: number;
+}
+
+export interface GetAppStructureResponse {
+  kanbanTasks: any[];
+  sitemap: any[];
+}
+
+export interface SaveKanbanTasksParams {
+  appId: number;
+  tasks: any[];
+}
+
+export interface SaveSitemapStructureParams {
+  appId: number;
+  structure: any[];
+}

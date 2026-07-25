@@ -27,3 +27,32 @@ export const envVarsAtom = atom<Record<string, string | undefined>>({});
 export const previewPanelKeyAtom = atom<number>(0);
 
 export const previewErrorMessageAtom = atom<string | undefined>(undefined);
+
+// --- Kanban & Sitemap Types & Atoms ---
+
+export interface KanbanTask {
+  id: string;
+  title: string;
+  description?: string;
+  status: "todo" | "in_progress" | "done";
+  filePath?: string;
+  chatId?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SitemapNode {
+  id: string;
+  name: string;
+  type: "page" | "component" | "layout" | "api" | "database" | "feature";
+  path?: string;
+  children?: SitemapNode[];
+  filePath?: string;
+  chatId?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const kanbanTasksAtom = atom<KanbanTask[]>([]);
+export const sitemapStructureAtom = atom<SitemapNode[]>([]);
+export const appStructureLoadedAtom = atom<boolean>(false);
