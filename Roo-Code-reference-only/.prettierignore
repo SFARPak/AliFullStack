@@ -1,8 +1,0 @@
-# Ignore artifacts:
-node_modules
-dist
-build
-out
-.next
-.venv
-pnpm-lock.yaml
