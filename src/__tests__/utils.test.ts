@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateCuteAppName, cn } from "./utils";
+import { generateCuteAppName, cn } from "../lib/utils";
 
 describe("generateCuteAppName", () => {
   it("returns a non-empty string", () => {

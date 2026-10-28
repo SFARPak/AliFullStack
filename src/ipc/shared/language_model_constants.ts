@@ -12,6 +12,7 @@ export interface ModelOption {
   description: string;
   dollarSigns?: number;
   temperature?: number;
+  topP?: number;
   tag?: string;
   maxOutputTokens?: number;
   contextWindow?: number;

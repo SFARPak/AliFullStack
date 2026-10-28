@@ -13,7 +13,14 @@ import {
 } from "@tanstack/react-query";
 import { showError } from "./lib/toast";
 
-// @ts-ignore
+// Augment the global ImportMeta type so `import.meta.env` is typed (Vite provides these at build time)
+interface ImportMeta {
+  env: {
+    DEV: boolean;
+    MODE: string;
+  };
+}
+
 if (import.meta.env.DEV) {
   console.log("Running in mode:", import.meta.env.MODE);
 }

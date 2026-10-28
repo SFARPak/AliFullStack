@@ -568,9 +568,11 @@ async function executeAppLocalNode({
     );
 
     // Find available ports for backend and frontend
+    let backendPort: number;
+    let frontendPort: number;
     try {
-      const backendPort = await findAvailablePort(8000);
-      const frontendPort = await findAvailablePort(32100);
+      backendPort = await findAvailablePort(8000);
+      frontendPort = await findAvailablePort(32100);
     } catch (error) {
       console.error('Error finding available ports for fullstack app:', error);
       throw new Error('Failed to find available ports for fullstack app');
@@ -895,8 +897,9 @@ async function executeAppLocalNode({
       logger.info(`Final backend command: ${backendCommand}`);
 
       // Always use executeComplexCommand for backend commands as they may be complex
+      let backendProcess: ChildProcess;
       try {
-        const backendProcess = await executeComplexCommand(
+        backendProcess = await executeComplexCommand(
           backendCommand,
           backendPath,
           getShellEnv(),
@@ -3488,7 +3491,7 @@ async function installNodejsDependenciesRobust(
 
       // If we get here, the installation succeeded
       return;
-    } catch (error) {
+    } catch {
       logger.warn(
         `Node.js dependency installation strategy "${strategy.description}" failed, trying next approach...`,
       );
@@ -3512,7 +3515,7 @@ async function installNodejsDependenciesRobust(
     for (const cleanupCmd of cleanupCommands) {
       logger.info(`Running cleanup command: ${cleanupCmd} in ${projectPath}`);
 
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve) => {
         const cleanupProcess = spawn(cleanupCmd, [], {
           cwd: projectPath,
           shell: true,
@@ -3719,7 +3722,7 @@ async function installSpecificPythonPackage(
   projectPath: string,
   packageName: string,
 ): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(() => {
     const installProcess = spawn(`pip install ${packageName}`, [], {
       cwd: projectPath,
       shell: true,

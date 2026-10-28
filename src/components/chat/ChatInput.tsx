@@ -846,7 +846,7 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">SQL Queries</h4>
                 <ul className="space-y-2">
                   {proposal.sqlQueries.map((query, index) => (
-                    <SqlQueryItem key={`${query.slice(0, 30)}-${index}`} query={query} />
+                    <SqlQueryItem key={`${query.content.slice(0, 30)}-${index}`} query={query} />
                   ))}
                 </ul>
               </div>

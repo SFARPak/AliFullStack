@@ -332,8 +332,9 @@ export async function processFullResponseActions(
             `Executing frontend terminal command: ${cmdTag.command} in ${cwd}`,
           );
     
+          let result: string | null;
           try {
-            const result = await runShellCommand(cmdTag.command, cwd);
+            result = await runShellCommand(cmdTag.command, cwd);
           } catch (error) {
             console.error('Error running frontend terminal command:', error);
             throw new Error('Failed to run frontend terminal command');
@@ -518,8 +519,9 @@ export async function processFullResponseActions(
             `Executing general terminal command: ${cleanCommand} in ${cwd} (routing to ${terminalType} terminal)`,
           );
 
+          let result: string | null;
           try {
-            const result = await runShellCommand(cleanCommand, cwd);
+            result = await runShellCommand(cleanCommand, cwd);
           } catch (error) {
             console.error('Error running terminal command:', error);
             throw new Error('Failed to run terminal command');

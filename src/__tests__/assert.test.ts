@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { assertExists } from "./assert";
+import { assertExists } from "../lib/assert";
 
 describe("assertExists", () => {
   it("does not throw for a defined value", () => {

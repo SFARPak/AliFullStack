@@ -5,7 +5,7 @@ import {
   hasAliFullStackProKey,
   ChatSummarySchema,
   AppSearchResultSchema,
-} from "./schemas";
+} from "../lib/schemas";
 
 describe("isAliFullStackProEnabled", () => {
   it("returns false when enableAliFullStackPro is false", () => {
