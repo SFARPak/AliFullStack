@@ -1,8 +1,4 @@
-import path from "path";
-import fs from "fs-extra";
 import log from "electron-log";
-import { runShellCommand } from "./runShellCommand";
-import { addTerminalOutput } from "../handlers/terminal_handlers";
 import { getAliFullStackAppPath } from "../../paths/paths";
 import { db } from "../../db";
 import { apps } from "../../db/schema";
@@ -566,7 +562,6 @@ export class DevelopmentOrchestrator {
    */
   private async startFrontendServer(
     appId: number,
-    frontendPath: string,
   ): Promise<void> {
     try {
       logger.info(
@@ -605,25 +600,10 @@ export class DevelopmentOrchestrator {
    */
   private async generateInitialFrontend(
     state: DevelopmentState,
-    frontendPath: string,
   ): Promise<void> {
     const requirements = state.metadata.requirements || [];
 
     // Send initial development prompt to LLM
-    const prompt = `
-You are developing a React frontend application. The user requirements are:
-${requirements.join("\n")}
-
-Please generate a well-structured React application with the following structure:
-- Clean, modern UI using Tailwind CSS and shadcn/ui components
-- Proper TypeScript types
-- Responsive design
-- Good user experience
-
-Focus on creating a solid foundation that can be built upon.
-
-Current AI_RULES.md contains development guidelines. Follow them strictly.
-`;
 
     // This would trigger an LLM call - for now, we'll just log
     logger.info(
@@ -640,31 +620,13 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
    */
   private async generateInitialBackend(
     state: DevelopmentState,
-    backendPath: string,
   ): Promise<void> {
     const requirements = state.metadata.requirements || [];
     const framework = state.metadata.backendFramework;
 
     // Send initial development prompt to LLM
-    const prompt = `
-You are developing a ${framework} backend application. The user requirements are:
-${requirements.join("\n")}
 
-Please generate a well-structured backend application with:
-- Proper API endpoints
-- Database models (if needed)
-- Authentication (if required)
-- Error handling
-- Clean, maintainable code
-
-IMPORTANT: Use proper alifullstack-write tags to create files. Always include the "path" attribute.
-For backend files, use paths like "backend/main.py" or "backend/server.js" etc.
-
-**DO NOT attempt to run backend servers manually.** The system automatically handles server startup when users click the "Run App" button. Focus ONLY on creating code files. The system will automatically detect the framework and start the appropriate server.
-
-Current AI_RULES.md contains development guidelines. Follow them strictly.
-`;
-
+    // This would trigger an LLM call - for now, we'll just log
     logger.info(
       `Generating initial backend for app ${state.appId} with framework ${framework} and requirements: ${requirements.join(", ")}`,
     );
@@ -744,7 +706,6 @@ Current AI_RULES.md contains development guidelines. Follow them strictly.
   private async sendNotification(
     appId: number,
     message: string,
-    type: "info" | "success" | "error" = "info",
   ): Promise<void> {
     // This would send a notification to the UI
     logger.info(`Notification for app ${appId}: ${message}`);

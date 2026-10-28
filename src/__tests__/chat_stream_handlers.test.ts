@@ -1,5 +1,74 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// Global Electron stub — the IPC handler module executes `ipcMain.handle(...)`
+// at module load, and `electron` is not available in the Vitest environment.
+// Without this mock, importing this file crashes at startup.
+vi.mock("electron", () => ({
+  app: {
+    whenReady: vi.fn().mockResolvedValue(true),
+    quit: vi.fn(),
+    relaunch: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+    isPackaged: true,
+    getVersion: vi.fn(() => "0.0.0"),
+    getName: vi.fn(),
+    getPath: vi.fn(),
+  },
+  ipcMain: {
+    handle: vi.fn(),
+    handleOnce: vi.fn(),
+    removeHandler: vi.fn(),
+    removeAllListeners: vi.fn(),
+    removeListener: vi.fn(),
+    send: vi.fn(),
+    sendSync: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+  },
+  BrowserWindow: {
+    getAllWindows: vi.fn(() => []),
+    getFocusedWindow: vi.fn(),
+    fromWebContents: vi.fn(),
+    fromId: vi.fn(),
+  },
+  ipcRenderer: {
+    invoke: vi.fn(),
+    send: vi.fn(),
+    sendSync: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+    removeListener: vi.fn(),
+    removeAllListeners: vi.fn(),
+  },
+  nativeImage: {
+    createFromPath: vi.fn(),
+    createFromBuffer: vi.fn(),
+    createEmpty: vi.fn(),
+  },
+  shell: {
+    openExternal: vi.fn(),
+    openPath: vi.fn(),
+    openFile: vi.fn(),
+  },
+  session: {
+    defaultSession: {
+      setFavoriteDomains: vi.fn(),
+      registerNamedProtocolHandler: vi.fn(),
+    },
+  },
+  dialog: {
+    showOpenDialog: vi.fn(),
+    showSaveDialog: vi.fn(),
+    showMessageBox: vi.fn(),
+  },
+  safeStorage: {
+    isEncryptionAvailable: vi.fn(),
+    decryptString: vi.fn(),
+    encryptString: vi.fn(),
+  },
+}));
+
 import {
   getAliFullStackWriteTags,
   getAliFullStackRenameTags,
@@ -24,6 +93,8 @@ vi.mock("node:fs", async () => {
       mkdirSync: vi.fn(),
       writeFileSync: vi.fn(),
       existsSync: vi.fn().mockReturnValue(false), // Default to false to avoid creating temp directory
+      readFileSync: vi.fn(),
+      readdirSync: vi.fn(),
       renameSync: vi.fn(),
       unlinkSync: vi.fn(),
       lstatSync: vi.fn().mockReturnValue({ isDirectory: () => false }),
@@ -32,6 +103,8 @@ vi.mock("node:fs", async () => {
       },
     },
     existsSync: vi.fn().mockReturnValue(false), // Also mock the named export
+    readFileSync: vi.fn(),
+    readdirSync: vi.fn(),
     mkdirSync: vi.fn(),
     writeFileSync: vi.fn(),
     renameSync: vi.fn(),
@@ -82,7 +155,9 @@ vi.mock("../db", () => ({
 
 describe("getAliFullStackAddDependencyTags", () => {
   it("should return an empty array when no alifullstack-add-dependency tags are found", () => {
-    const result = getAliFullStackAddDependencyTags("No alifullstack-add-dependency tags here");
+    const result = getAliFullStackAddDependencyTags(
+      "No alifullstack-add-dependency tags here",
+    );
     expect(result).toEqual([]);
   });
 
@@ -594,7 +669,9 @@ I've created a complete todo list application with the ability to add, complete,
 
 describe("getAliFullStackRenameTags", () => {
   it("should return an empty array when no alifullstack-rename tags are found", () => {
-    const result = getAliFullStackRenameTags("No alifullstack-rename tags here");
+    const result = getAliFullStackRenameTags(
+      "No alifullstack-rename tags here",
+    );
     expect(result).toEqual([]);
   });
 
@@ -615,7 +692,9 @@ describe("getAliFullStackRenameTags", () => {
 
 describe("getAliFullStackDeleteTags", () => {
   it("should return an empty array when no alifullstack-delete tags are found", () => {
-    const result = getAliFullStackDeleteTags("No alifullstack-delete tags here");
+    const result = getAliFullStackDeleteTags(
+      "No alifullstack-delete tags here",
+    );
     expect(result).toEqual([]);
   });
 
@@ -1040,7 +1119,9 @@ const component = <Component />;
   it("should handle malformed alifullstack tags gracefully", () => {
     const text = `Before <alifullstack-write path="file.js">unclosed tag After`;
     const result = removeAliFullStackTags(text);
-    expect(result).toBe('Before <alifullstack-write path="file.js">unclosed tag After');
+    expect(result).toBe(
+      'Before <alifullstack-write path="file.js">unclosed tag After',
+    );
   });
 
   it("should handle alifullstack tags with special characters in content", () => {

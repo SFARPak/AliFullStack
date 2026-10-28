@@ -1,4 +1,75 @@
 import { formatMessagesForSummary } from "../ipc/handlers/chat_stream_handlers";
+import { describe, expect, it, vi } from "vitest";
+
+// Global Electron stub — importing the handler module pulls in
+// `response_processor.ts` → `runShellCommand.ts` → `app_handlers.ts`, which
+// executes `ipcMain.handle(...)` at module load. Without this mock, the test
+// crashes at collection time because `electron` is not defined in Vitest.
+vi.mock("electron", () => ({
+  app: {
+    whenReady: vi.fn().mockResolvedValue(true),
+    quit: vi.fn(),
+    relaunch: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+    isPackaged: true,
+    getVersion: vi.fn(() => "0.0.0"),
+    getName: vi.fn(),
+    getPath: vi.fn(),
+  },
+  ipcMain: {
+    handle: vi.fn(),
+    handleOnce: vi.fn(),
+    removeHandler: vi.fn(),
+    removeAllListeners: vi.fn(),
+    removeListener: vi.fn(),
+    send: vi.fn(),
+    sendSync: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+  },
+  BrowserWindow: {
+    getAllWindows: vi.fn(() => []),
+    getFocusedWindow: vi.fn(),
+    fromWebContents: vi.fn(),
+    fromId: vi.fn(),
+  },
+  ipcRenderer: {
+    invoke: vi.fn(),
+    send: vi.fn(),
+    sendSync: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+    removeListener: vi.fn(),
+    removeAllListeners: vi.fn(),
+  },
+  nativeImage: {
+    createFromPath: vi.fn(),
+    createFromBuffer: vi.fn(),
+    createEmpty: vi.fn(),
+  },
+  shell: {
+    openExternal: vi.fn(),
+    openPath: vi.fn(),
+    openFile: vi.fn(),
+  },
+  session: {
+    defaultSession: {
+      setFavoriteDomains: vi.fn(),
+      registerNamedProtocolHandler: vi.fn(),
+    },
+  },
+  dialog: {
+    showOpenDialog: vi.fn(),
+    showSaveDialog: vi.fn(),
+    showMessageBox: vi.fn(),
+  },
+  safeStorage: {
+    isEncryptionAvailable: vi.fn(),
+    decryptString: vi.fn(),
+    encryptString: vi.fn(),
+  },
+}));
 
 describe("formatMessagesForSummary", () => {
   it("should return all messages when there are 8 or fewer messages", () => {

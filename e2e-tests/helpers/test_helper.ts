@@ -1041,7 +1041,7 @@ export async function createApp(
   return 0;
 }
 
-export async function deleteApp(page: Page, appId: number): Promise<void> {
+export async function deleteApp(page: Page, _appId: number): Promise<void> {
   await page.getByRole("link", { name: "Apps" }).click();
   const appItems = page.locator('[data-testid^="app-list-item-"]');
   await appItems.nth(appId).click();
@@ -1052,7 +1052,7 @@ export async function deleteApp(page: Page, appId: number): Promise<void> {
 
 export async function startApp(
   page: Page,
-  appId: number,
+  _appId: number,
   mode: string,
 ): Promise<void> {
   await page.getByRole("link", { name: "Chat" }).click();
@@ -1066,7 +1066,7 @@ export async function startApp(
   });
 }
 
-export async function stopApp(page: Page, appId: number): Promise<void> {
+export async function stopApp(page: Page, _appId: number): Promise<void> {
   await page.getByRole("link", { name: "Chat" }).click();
   const prompt = `Stop the app`;
   await page
@@ -1078,22 +1078,22 @@ export async function stopApp(page: Page, appId: number): Promise<void> {
   });
 }
 
-export async function getAppOutput(page: Page, appId: number): Promise<string> {
+export async function getAppOutput(page: Page, _appId: number): Promise<string> {
   const messagesList = page.getByTestId("messages-list");
   return (await messagesList.textContent()) || "";
 }
 
 export async function switchTerminal(
   page: Page,
-  terminal: string,
+  _terminal: string,
 ): Promise<void> {
   await page.getByRole("tab", { name: terminal }).click();
 }
 
 export async function getTerminalOutput(
   page: Page,
-  appId: number,
-  terminal: string,
+  _appId: number,
+  _terminal: string,
 ): Promise<string> {
   // Assume the terminal content is in a locator after switching
   // This might need adjustment based on actual UI
@@ -1103,7 +1103,7 @@ export async function getTerminalOutput(
 
 export async function createBackendFile(
   page: Page,
-  appId: number,
+  _appId: number,
   filePath: string,
   content: string,
 ): Promise<void> {
@@ -1120,7 +1120,7 @@ export async function createBackendFile(
 
 export async function createFrontendFile(
   page: Page,
-  appId: number,
+  _appId: number,
   filePath: string,
   content: string,
 ): Promise<void> {
