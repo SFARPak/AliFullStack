@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/select";
 import { useSettings } from "@/hooks/useSettings";
 import { showError } from "@/lib/toast";
-import { IpcClient } from "@/ipc/ipc_client";
 
 export function RuntimeModeSelector() {
   const { settings, updateSettings } = useSettings();

@@ -23,9 +23,11 @@ pnpm build:linux
 ## Scripts
 
 ### `build.sh` (macOS/Linux)
+
 Bash script for Unix-like systems.
 
 ### `build.bat` (Windows)
+
 Batch script for Windows systems.
 
 ## Usage
@@ -33,6 +35,7 @@ Batch script for Windows systems.
 ### Direct Script Usage
 
 #### macOS/Linux
+
 ```bash
 # Build for current platform (auto-detected)
 ./scripts/build.sh
@@ -54,6 +57,7 @@ Batch script for Windows systems.
 ```
 
 #### Windows
+
 ```cmd
 REM Build for current platform (Windows)
 scripts\build.bat
@@ -94,14 +98,14 @@ pnpm build:linux
 
 ## Command-Line Options
 
-| Option | Description |
-|--------|-------------|
-| `--clean` | Clean previous builds before building |
-| `--help`, `-h` | Show help message |
-| `mac`, `darwin` | Build for macOS |
-| `win`, `windows`, `win32` | Build for Windows |
-| `linux` | Build for Linux |
-| `all` | Build for all platforms |
+| Option                    | Description                           |
+| ------------------------- | ------------------------------------- |
+| `--clean`                 | Clean previous builds before building |
+| `--help`, `-h`            | Show help message                     |
+| `mac`, `darwin`           | Build for macOS                       |
+| `win`, `windows`, `win32` | Build for Windows                     |
+| `linux`                   | Build for Linux                       |
+| `all`                     | Build for all platforms               |
 
 ## Features
 
@@ -115,6 +119,7 @@ pnpm build:linux
 ## Build Output
 
 All build artifacts are placed in the `out/` directory:
+
 - `out/make/` - Platform-specific installers and packages
 - `out/AliFullStack-*.dmg` - macOS disk image
 - `out/AliFullStack Setup *.exe` - Windows installer
@@ -132,21 +137,25 @@ All build artifacts are placed in the `out/` directory:
 ## Examples
 
 ### Build for current platform only
+
 ```bash
 ./scripts/build.sh
 ```
 
 ### Build for macOS and Windows
+
 ```bash
 ./scripts/build.sh mac win
 ```
 
 ### Clean everything and build for all platforms
+
 ```bash
 ./scripts/build.sh --clean --all
 ```
 
 ### CI/CD Usage
+
 ```bash
 # In GitHub Actions or other CI
 ./scripts/build.sh --clean --all
@@ -155,15 +164,19 @@ All build artifacts are placed in the `out/` directory:
 ## Troubleshooting
 
 ### "Node.js not found"
+
 Ensure Node.js is installed and in your PATH.
 
 ### "package.json not found"
+
 Run the script from the project root directory.
 
 ### "node_modules not found"
+
 Install dependencies first: `pnpm install`
 
 ### Build fails for specific platform
+
 - **macOS**: Ensure you have the required signing certificates and environment variables set
 - **Windows**: Run from a machine with Windows, or use Wine for cross-compilation (not recommended)
 - **Linux**: Ensure you have the required packaging tools installed

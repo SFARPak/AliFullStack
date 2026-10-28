@@ -4,7 +4,6 @@ import { ProModeSelector } from "./ProModeSelector";
 import { ChatModeSelector } from "./ChatModeSelector";
 import { ModePicker } from "./ModePicker";
 
-
 export function ChatInputControls({
   showContextFilesPicker = false,
   appId,

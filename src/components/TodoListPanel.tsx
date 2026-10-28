@@ -7,7 +7,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Plus, CheckSquare, Square, Trash2, Edit2 } from "lucide-react";
+import { Plus, Trash2, Edit2 } from "lucide-react";
 import { TodoItem, Subtask } from "@/atoms/todoAtoms";
 
 interface TodoListPanelProps {

@@ -625,7 +625,7 @@ function KeepGoingButton({ summary }: { summary?: string }) {
     setInputValue(
       `${summaryStr}Continue from exactly where you left off. Do NOT restart or rewrite anything already built. Pick up the next incomplete task and keep going until the app is fully done.`,
     );
-     // Focus the input if possible (usually standard behavior)
+    // Focus the input if possible (usually standard behavior)
   };
   return (
     <SuggestionButton onClick={onClick} tooltipText="Continue building">
@@ -685,7 +685,9 @@ function ActionProposalActions({ proposal }: { proposal: ActionProposal }) {
     <div className="border-b border-border p-2 pb-0 flex items-center justify-between">
       <div className="flex items-center space-x-2 overflow-x-auto pb-2">
         {proposal.actions.map((action) => (
-          <div key={action.id}>{mapActionToButton(action, proposal.summary)}</div>
+          <div key={action.id}>
+            {mapActionToButton(action, proposal.summary)}
+          </div>
         ))}
       </div>
     </div>
@@ -819,7 +821,10 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">Security Risks</h4>
                 <ul className="space-y-1">
                   {proposal.securityRisks.map((risk, index) => (
-                    <li key={`${risk.type}-${risk.title}-${index}`} className="flex items-start space-x-2">
+                    <li
+                      key={`${risk.type}-${risk.title}-${index}`}
+                      className="flex items-start space-x-2"
+                    >
                       {risk.type === "warning" ? (
                         <AlertTriangle
                           size={16}
@@ -846,7 +851,10 @@ function ChatInputActions({
                 <h4 className="font-semibold mb-1">SQL Queries</h4>
                 <ul className="space-y-2">
                   {proposal.sqlQueries.map((query, index) => (
-                    <SqlQueryItem key={`${query.content.slice(0, 30)}-${index}`} query={query} />
+                    <SqlQueryItem
+                      key={`${query.content.slice(0, 30)}-${index}`}
+                      query={query}
+                    />
                   ))}
                 </ul>
               </div>

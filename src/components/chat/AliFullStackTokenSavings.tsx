@@ -7,10 +7,9 @@ interface AliFullStackTokenSavingsProps {
   smartContextTokens: number;
 }
 
-export const AliFullStackTokenSavings: React.FC<AliFullStackTokenSavingsProps> = ({
-  originalTokens,
-  smartContextTokens,
-}) => {
+export const AliFullStackTokenSavings: React.FC<
+  AliFullStackTokenSavingsProps
+> = ({ originalTokens, smartContextTokens }) => {
   const tokensSaved = originalTokens - smartContextTokens;
   const percentageSaved = Math.round((tokensSaved / originalTokens) * 100);
 

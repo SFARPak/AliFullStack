@@ -37,7 +37,6 @@ export async function startProxy(
     // host = "localhost",
     // env = {}, // additional env vars to pass to the worker
     onStarted,
-    onError,
     appId,
     terminalType,
   } = opts;
@@ -69,7 +68,7 @@ export async function startProxy(
         require.resolve(testPath);
         foundPath = testPath;
         break;
-      } catch (e) {
+      } catch {
         // Continue to next path
       }
     }

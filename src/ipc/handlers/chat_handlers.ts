@@ -234,7 +234,10 @@ export function registerChatHandlers() {
       throw new Error("App not found");
     }
 
-    const frontendPath = path.join(getAliFullStackAppPath(app.path), "frontend");
+    const frontendPath = path.join(
+      getAliFullStackAppPath(app.path),
+      "frontend",
+    );
 
     // Check if frontend directory exists
     if (!fs.existsSync(frontendPath)) {

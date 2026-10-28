@@ -1,9 +1,9 @@
 import { useVersions } from "@/hooks/useVersions";
 import { useAtomValue } from "jotai";
 import { selectedAppIdAtom } from "@/atoms/appAtoms";
-import { X, GitBranch, GitCommit, Clock } from "lucide-react";
+import { X, GitCommit, Clock } from "lucide-react";
 import { Button } from "../ui/button";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
 interface BackendVersionPaneProps {
   isVisible: boolean;

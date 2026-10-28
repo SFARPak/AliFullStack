@@ -85,7 +85,11 @@ export async function getModelClient(
   const DIRECT_CONNECT_PROVIDERS = new Set(["nvidia", "ollama", "lmstudio"]);
 
   // Handle AliFullStack Pro override
-  if (alifullstackApiKey && settings.enableAliFullStackPro && !DIRECT_CONNECT_PROVIDERS.has(model.provider)) {
+  if (
+    alifullstackApiKey &&
+    settings.enableAliFullStackPro &&
+    !DIRECT_CONNECT_PROVIDERS.has(model.provider)
+  ) {
     // Check if the selected provider supports AliFullStack Pro (has a gateway prefix) OR
     // we're using local engine.
     // IMPORTANT: some providers like OpenAI have an empty string gateway prefix,
@@ -98,7 +102,8 @@ export async function getModelClient(
         ? createAliFullStackEngine({
             apiKey: alifullstackApiKey,
             baseURL:
-              alifullstackEngineUrl ?? "https://engine.alifullstack.alitech.io/v1",
+              alifullstackEngineUrl ??
+              "https://engine.alifullstack.alitech.io/v1",
             originalProviderId: model.provider,
             alifullstackOptions: {
               enableLazyEdits:
@@ -234,7 +239,11 @@ async function getRegularModelClient(
       ? getEnvVar(providerConfig.envVarName)
       : undefined);
 
-  if (!apiKey && providerConfig.id !== "ollama" && providerConfig.id !== "lmstudio") {
+  if (
+    !apiKey &&
+    providerConfig.id !== "ollama" &&
+    providerConfig.id !== "lmstudio"
+  ) {
     throw new Error(`API key is required for provider: ${model.provider}`);
   }
 
@@ -405,7 +414,7 @@ async function getRegularModelClient(
                   `NVIDIA NIM API Error: The model "${model.name}" is not accessible on your account. Please visit build.nvidia.com, select this model, and accept the terms of use or ensure you have sufficient credits.`,
                 );
               }
-            } catch (e) {
+            } catch {
               // Ignore JSON parse errors for non-JSON responses
             }
           }

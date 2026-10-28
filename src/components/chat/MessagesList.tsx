@@ -29,7 +29,7 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
     // Ensure messages is always an array to prevent null reference errors
     const safeMessages = messages || [];
     const appId = useAtomValue(selectedAppIdAtom);
-    const { versions, revertVersion } = useVersions(appId);
+    const { revertVersion } = useVersions(appId);
     const { streamMessage, isStreaming } = useStreamChat();
     const { isAnyProviderSetup, isProviderSetup } = useLanguageModelProviders();
     const { settings } = useSettings();

@@ -12,9 +12,9 @@ interface AliFullStackCodebaseContextProps {
   };
 }
 
-export const AliFullStackCodebaseContext: React.FC<AliFullStackCodebaseContextProps> = ({
-  node,
-}) => {
+export const AliFullStackCodebaseContext: React.FC<
+  AliFullStackCodebaseContextProps
+> = ({ node }) => {
   const state = node?.properties?.state as CustomTagState;
   const inProgress = state === "pending";
   const [isExpanded, setIsExpanded] = useState(inProgress);

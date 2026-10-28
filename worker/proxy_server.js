@@ -116,7 +116,9 @@ function injectHTML(buf) {
     }
   }
   if (alifullstackComponentSelectorClientContent) {
-    scripts.push(`<script>${alifullstackComponentSelectorClientContent}</script>`);
+    scripts.push(
+      `<script>${alifullstackComponentSelectorClientContent}</script>`,
+    );
   } else {
     scripts.push(
       '<script>console.warn("[proxy-worker] alifullstack component selector client was not injected.");</script>',

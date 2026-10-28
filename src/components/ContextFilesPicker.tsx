@@ -152,8 +152,8 @@ export function ContextFilesPicker() {
                   <TooltipContent className="max-w-[300px]">
                     {isSmartContextEnabled ? (
                       <p>
-                        With Smart Context, AliFullStack uses the most relevant files as
-                        context.
+                        With Smart Context, AliFullStack uses the most relevant
+                        files as context.
                       </p>
                     ) : (
                       <p>By default, AliFullStack uses your whole codebase.</p>

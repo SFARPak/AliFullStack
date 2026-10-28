@@ -17,12 +17,14 @@ The project uses **Electron Forge** as the build/packaging tool. The build confi
 Added new build scripts and maker dependencies:
 
 **New Scripts:**
+
 - `make:all` - Build for all platforms (macOS, Windows, Linux)
 - `make:mac` - Build for macOS only (DMG)
 - `make:win` - Build for Windows only (NSIS/EXE)
 - `make:linux` - Build for Linux only (AppImage/DEB/RPM)
 
 **New Dependencies:**
+
 - `@electron-forge/maker-dmg` - macOS DMG maker
 - `@electron-forge/maker-nsis` - Windows NSIS installer maker
 - `@electron-forge/maker-appimage` - Linux AppImage maker
@@ -46,20 +48,24 @@ Before building, ensure you have the following installed:
 3. **Platform-specific build tools:**
 
 #### For macOS builds:
+
 - Xcode Command Line Tools: `xcode-select --install`
 - For notarization (optional): Apple Developer account with valid credentials
 
 #### For Windows builds:
+
 - Visual Studio Build Tools or Visual Studio Community
 - Windows SDK
 
 #### For Linux builds:
+
 - `fakeroot` (for AppImage)
 - `xz-utils` (for AppImage compression)
 - `patchelf` (for AppImage)
 - `libfuse2` (for AppImage runtime)
 
 Install Linux dependencies on Ubuntu/Debian:
+
 ```bash
 sudo apt-get install fakeroot xz-utils patchelf libfuse2
 ```
@@ -83,22 +89,29 @@ This will create binaries for macOS, Windows, and Linux. Note: Cross-platform bu
 ### Build for Specific Platform
 
 **macOS (DMG):**
+
 ```bash
 pnpm make:mac
 ```
+
 Output: `out/AliFullStack-<version>.dmg`
 
 **Windows (NSIS/EXE):**
+
 ```bash
 pnpm make:win
 ```
+
 Output: `out/AliFullStack Setup <version>.exe`
 
 **Linux (AppImage/DEB/RPM):**
+
 ```bash
 pnpm make:linux
 ```
+
 Output:
+
 - `out/AliFullStack-<version>.AppImage`
 - `out/alifullstack_<version>_amd64.deb`
 - `out/alifullstack-<version>.x86_64.rpm`
@@ -169,6 +182,7 @@ export APPLE_TEAM_ID="your-team-id"
 ```
 
 For development or testing builds, set `E2E_TEST_BUILD=true` to skip signing:
+
 ```bash
 E2E_TEST_BUILD=true pnpm make:mac
 ```
@@ -176,6 +190,7 @@ E2E_TEST_BUILD=true pnpm make:mac
 ### Windows Code Signing
 
 Windows code signing is not currently configured. To add code signing, you would need to:
+
 1. Obtain a code signing certificate
 2. Configure signing in `forge.config.ts` using `win32Metadata` or a custom sign tool
 
@@ -188,6 +203,7 @@ For automated builds in CI/CD, consider using:
 - **Cross-platform strategy**: Use separate jobs for each platform
 
 Example GitHub Actions workflow structure:
+
 ```yaml
 jobs:
   build-mac:
@@ -245,15 +261,18 @@ jobs:
 ### Common Issues
 
 1. **"Command not found: electron-forge"**
+
    - Run `pnpm install` to install dependencies
    - Ensure `node_modules/.bin` is in your PATH
 
 2. **macOS build fails with signing errors**
+
    - Set `E2E_TEST_BUILD=true` to skip signing for testing
    - Verify Apple ID credentials are correct
    - Ensure you have a valid Apple Developer account
 
 3. **Linux AppImage fails to run**
+
    - Ensure `libfuse2` is installed on the target system
    - Make the AppImage executable: `chmod +x AliFullStack-*.AppImage`
 
@@ -270,6 +289,7 @@ pnpm publish
 ```
 
 This requires:
+
 1. `GITHUB_TOKEN` environment variable with repo permissions
 2. A git tag matching the version in `package.json`
 

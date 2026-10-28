@@ -54,13 +54,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { useNavigate } from "@tanstack/react-router";
 import { useVersions } from "@/hooks/useVersions";
 import { useAttachments } from "@/hooks/useAttachments";
 import { AttachmentsList } from "../chat/AttachmentsList";
 import { DragDropOverlay } from "../chat/DragDropOverlay";
 import { FileAttachmentDropdown } from "../chat/FileAttachmentDropdown";
-import { showError, showExtraFilesToast } from "@/lib/toast";
+import { showExtraFilesToast } from "@/lib/toast";
 import { ChatInputControls } from "../ChatInputControls";
 import { ChatErrorBox } from "../chat/ChatErrorBox";
 import { selectedComponentPreviewAtom } from "@/atoms/previewAtoms";
@@ -738,7 +737,7 @@ function BackendRestartButton() {
     if (!selectedAppId) return;
 
     posthog.capture("backend:action:restart");
-    await restartApp({}, { terminalType: "backend" });
+    await restartApp({});
   }, [selectedAppId, posthog, restartApp]);
 
   return (

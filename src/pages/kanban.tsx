@@ -38,7 +38,7 @@ export default function KanbanPage() {
 
   const appId = search.appId ? Number(search.appId) : null;
   const selectedApp = appId ? appsList.find((app) => app.id === appId) : null;
-  
+
   // Sync the selected app ID from the URL into the shared atom so the
   // useAppStructureSync hook can trigger the structure load.
   useEffect(() => {
@@ -62,7 +62,9 @@ export default function KanbanPage() {
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newTaskStatus, setNewTaskStatus] = useState<"todo" | "in_progress" | "done">("todo");
+  const [newTaskStatus, setNewTaskStatus] = useState<
+    "todo" | "in_progress" | "done"
+  >("todo");
   const [newTaskFilePath, setNewTaskFilePath] = useState("");
 
   const columns = useMemo(
@@ -172,19 +174,19 @@ export default function KanbanPage() {
       <div className="relative min-h-screen p-4 sm:p-6 md:p-8 flex flex-col bg-gray-50 dark:bg-gray-900">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center px-4">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">No App Selected</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">
+              No App Selected
+            </h2>
             <p className="text-gray-500 mb-6 text-sm sm:text-base">
               Please select an app to view its kanban board
             </p>
-            <Button onClick={() => navigate({ to: "/" })}>
-              Go to Home
-            </Button>
+            <Button onClick={() => navigate({ to: "/" })}>Go to Home</Button>
           </div>
         </div>
       </div>
     );
   }
-  
+
   return (
     <div className="relative min-h-screen p-4 sm:p-6 md:p-8 flex flex-col bg-gray-50 dark:bg-gray-900">
       <Button
@@ -202,7 +204,7 @@ export default function KanbanPage() {
         <span className="hidden sm:inline">Back to App Details</span>
         <span className="sm:hidden">Back</span>
       </Button>
-  
+
       <div className="flex-1">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-4">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
@@ -221,7 +223,9 @@ export default function KanbanPage() {
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Title</label>
+                  <label className="text-sm font-medium mb-1 block">
+                    Title
+                  </label>
                   <Input
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
@@ -229,7 +233,9 @@ export default function KanbanPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Description</label>
+                  <label className="text-sm font-medium mb-1 block">
+                    Description
+                  </label>
                   <Textarea
                     value={newTaskDescription}
                     onChange={(e) => setNewTaskDescription(e.target.value)}
@@ -238,7 +244,9 @@ export default function KanbanPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Status</label>
+                  <label className="text-sm font-medium mb-1 block">
+                    Status
+                  </label>
                   <Select
                     value={newTaskStatus}
                     onValueChange={(value: "todo" | "in_progress" | "done") =>
@@ -307,7 +315,9 @@ export default function KanbanPage() {
                         <div className="flex items-start gap-2 flex-1 min-w-0">
                           <GripVertical className="h-4 w-4 text-gray-400 mt-0.5 cursor-move flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm break-words">{task.title}</h3>
+                            <h3 className="font-medium text-sm break-words">
+                              {task.title}
+                            </h3>
                             {task.description && (
                               <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">
                                 {task.description}
@@ -321,63 +331,59 @@ export default function KanbanPage() {
                           </div>
                         </div>
                         <div className="flex gap-1 sm:gap-2 flex-shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 sm:h-10 sm:w-10 p-0 min-h-[44px] min-w-[44px]"
-                          onClick={() => startEdit(task)}
-                          aria-label="Edit task"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 sm:h-10 sm:w-10 p-0 text-red-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
-                          onClick={() => handleDeleteTask(task.id)}
-                          aria-label="Delete task"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 w-9 sm:h-10 sm:w-10 p-0 min-h-[44px] min-w-[44px]"
+                            onClick={() => startEdit(task)}
+                            aria-label="Edit task"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 w-9 sm:h-10 sm:w-10 p-0 text-red-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
+                            onClick={() => handleDeleteTask(task.id)}
+                            aria-label="Delete task"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                       <div className="mt-2 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2">
-                      {column.id !== "todo" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2 sm:px-3 min-h-[36px]"
-                          onClick={() =>
-                            handleStatusChange(task.id, "todo")
-                          }
-                        >
-                          To Do
-                        </Button>
-                      )}
-                      {column.id !== "in_progress" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2 sm:px-3 min-h-[36px]"
-                          onClick={() =>
-                            handleStatusChange(task.id, "in_progress")
-                          }
-                        >
-                          In Progress
-                        </Button>
-                      )}
-                      {column.id !== "done" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-2 sm:px-3 min-h-[36px]"
-                          onClick={() =>
-                            handleStatusChange(task.id, "done")
-                          }
-                        >
-                          Done
-                        </Button>
-                      )}
+                        {column.id !== "todo" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-8 px-2 sm:px-3 min-h-[36px]"
+                            onClick={() => handleStatusChange(task.id, "todo")}
+                          >
+                            To Do
+                          </Button>
+                        )}
+                        {column.id !== "in_progress" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-8 px-2 sm:px-3 min-h-[36px]"
+                            onClick={() =>
+                              handleStatusChange(task.id, "in_progress")
+                            }
+                          >
+                            In Progress
+                          </Button>
+                        )}
+                        {column.id !== "done" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-8 px-2 sm:px-3 min-h-[36px]"
+                            onClick={() => handleStatusChange(task.id, "done")}
+                          >
+                            Done
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -393,7 +399,10 @@ export default function KanbanPage() {
         )}
 
         {/* Edit Task Dialog */}
-        <Dialog open={!!editingTask} onOpenChange={(open) => !open && cancelEdit()}>
+        <Dialog
+          open={!!editingTask}
+          onOpenChange={(open) => !open && cancelEdit()}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Edit Task</DialogTitle>
@@ -408,7 +417,9 @@ export default function KanbanPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Description</label>
+                <label className="text-sm font-medium mb-1 block">
+                  Description
+                </label>
                 <Textarea
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}

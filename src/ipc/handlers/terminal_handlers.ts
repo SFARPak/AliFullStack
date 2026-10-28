@@ -5,7 +5,6 @@ import {
   activeTerminalAtom,
 } from "../../atoms/appAtoms";
 import { getDefaultStore } from "jotai";
-import { ipcMain } from "electron";
 import log from "electron-log";
 
 const logger = log.scope("terminal_handlers");

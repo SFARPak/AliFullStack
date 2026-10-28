@@ -13,10 +13,9 @@ interface AliFullStackAddDependencyProps {
   packages?: string;
 }
 
-export const AliFullStackAddDependency: React.FC<AliFullStackAddDependencyProps> = ({
-  children,
-  node,
-}) => {
+export const AliFullStackAddDependency: React.FC<
+  AliFullStackAddDependencyProps
+> = ({ children, node }) => {
   // Extract package attribute from the node if available
   const packages = node?.properties?.packages?.split(" ") || "";
   const [isContentVisible, setIsContentVisible] = useState(false);

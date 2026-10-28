@@ -2,7 +2,6 @@ import { ipcMain, shell } from "electron";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
-import { app } from "electron";
 import log from "electron-log";
 import { getUserDataPath } from "../../paths/paths";
 
@@ -16,7 +15,6 @@ const ROO_CODE_API_URL =
 
 // Storage for auth state and credentials
 const AUTH_STATE_KEY = "roocode-auth-state";
-const AUTH_CREDENTIALS_KEY = "roocode-auth-credentials";
 
 interface AuthCredentials {
   clientToken: string;
@@ -35,8 +33,6 @@ interface AuthState {
     organizationName?: string;
   };
 }
-
-let currentAuthState: AuthState = { isAuthenticated: false };
 
 function getAuthStoragePath(): string {
   return path.join(getUserDataPath(), "roocode-auth.json");
@@ -70,11 +66,6 @@ function loadAuthData(): { credentials?: AuthCredentials; state?: AuthState } {
 export function getStoredCredentials(): AuthCredentials | null {
   const data = loadAuthData();
   return data.credentials || null;
-}
-
-function getStoredState(): AuthState {
-  const data = loadAuthData();
-  return data.state || { isAuthenticated: false };
 }
 
 // Clerk API functions (simplified version based on Roo Code's implementation)
@@ -213,13 +204,9 @@ export async function handleRooCodeAuthCallback(
     // Save credentials
     saveAuthData({ credentials });
 
-    // Update auth state
-    currentAuthState = { isAuthenticated: true };
-
     logger.info("Successfully authenticated with Roo Code");
   } catch (error) {
     logger.error("Failed to handle Roo Code callback:", error);
-    currentAuthState = { isAuthenticated: false };
     throw error;
   }
 }
@@ -256,8 +243,6 @@ async function handleRooCodeLogout(): Promise<void> {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-
-    currentAuthState = { isAuthenticated: false };
     logger.info("Logged out from Roo Code");
   } catch (error) {
     logger.error("Failed to logout from Roo Code:", error);
@@ -306,7 +291,6 @@ async function handleRooCodeAuthStatus(): Promise<AuthState> {
       },
     };
 
-    currentAuthState = authState;
     return authState;
   } catch (error) {
     logger.error("Failed to get auth status:", error);

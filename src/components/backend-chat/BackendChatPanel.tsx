@@ -27,7 +27,9 @@ export function BackendChatPanel({
   const [messages, setMessages] = useAtom(chatMessagesAtom);
   const [isVersionPaneOpen, setIsVersionPaneOpen] = useState(false);
   const [isTodoPanelOpen, setIsTodoPanelOpen] = useAtom(isTodoPanelOpenAtom);
-  const [isStepsPanelOpen, setIsStepsPanelOpen] = useAtom(isStepsSummaryOpenAtom);
+  const [isStepsPanelOpen, setIsStepsPanelOpen] = useAtom(
+    isStepsSummaryOpenAtom,
+  );
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
 

@@ -155,7 +155,8 @@ const getProposalHandler = async (
         const proposalWriteFiles = getAliFullStackWriteTags(messageContent);
         const proposalRenameFiles = getAliFullStackRenameTags(messageContent);
         const proposalDeleteFiles = getAliFullStackDeleteTags(messageContent);
-        const proposalExecuteSqlQueries = getAliFullStackExecuteSqlTags(messageContent);
+        const proposalExecuteSqlQueries =
+          getAliFullStackExecuteSqlTags(messageContent);
         const packagesAdded = getAliFullStackAddDependencyTags(messageContent);
 
         const filesChanged = [
@@ -221,7 +222,9 @@ const getProposalHandler = async (
       }
       const actions: ActionProposal["actions"] = [];
       if (latestAssistantMessage?.content) {
-        const writeTags = getAliFullStackWriteTags(latestAssistantMessage.content);
+        const writeTags = getAliFullStackWriteTags(
+          latestAssistantMessage.content,
+        );
         const refactorTarget = writeTags.reduce(
           (largest, tag) => {
             const lineCount = tag.content.split("\n").length;
@@ -248,7 +251,9 @@ const getProposalHandler = async (
         }
 
         // Check for command tags and add corresponding actions
-        const commandTags = getAliFullStackCommandTags(latestAssistantMessage.content);
+        const commandTags = getAliFullStackCommandTags(
+          latestAssistantMessage.content,
+        );
         if (commandTags.includes("rebuild")) {
           actions.push({
             id: "rebuild",
@@ -382,7 +387,6 @@ const approveProposalHandler = async (
     messageToApprove.content,
     chatId,
     {
-      chatSummary: chatSummary ?? undefined,
       messageId,
     }, // Pass summary if found
   );

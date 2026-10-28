@@ -1044,7 +1044,7 @@ export async function createApp(
 export async function deleteApp(page: Page, _appId: number): Promise<void> {
   await page.getByRole("link", { name: "Apps" }).click();
   const appItems = page.locator('[data-testid^="app-list-item-"]');
-  await appItems.nth(appId).click();
+  await appItems.nth(_appId).click();
   await page.getByTestId("app-details-more-options-button").click();
   await page.getByRole("button", { name: "Delete" }).click();
   await page.getByRole("button", { name: "Delete App" }).click();
@@ -1078,7 +1078,10 @@ export async function stopApp(page: Page, _appId: number): Promise<void> {
   });
 }
 
-export async function getAppOutput(page: Page, _appId: number): Promise<string> {
+export async function getAppOutput(
+  page: Page,
+  _appId: number,
+): Promise<string> {
   const messagesList = page.getByTestId("messages-list");
   return (await messagesList.textContent()) || "";
 }
@@ -1087,7 +1090,7 @@ export async function switchTerminal(
   page: Page,
   _terminal: string,
 ): Promise<void> {
-  await page.getByRole("tab", { name: terminal }).click();
+  await page.getByRole("tab", { name: _terminal }).click();
 }
 
 export async function getTerminalOutput(

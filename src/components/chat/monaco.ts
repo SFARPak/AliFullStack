@@ -186,8 +186,8 @@ export function disposeMonacoModel(filePath: string) {
     const uri = monaco.Uri.file(filePath);
     const model = monaco.editor.getModel(uri);
     if (model) {
-       model.dispose();
-     }
+      model.dispose();
+    }
   } catch (error) {
     console.warn(`Failed to dispose Monaco model for ${filePath}:`, error);
   }
@@ -199,9 +199,9 @@ export function invalidateMonacoModelsForDirectory(directoryPath: string) {
     const models = monaco.editor.getModels();
     models.forEach((model) => {
       const modelPath = model.uri.path;
-       if (modelPath.startsWith(directoryPath)) {
-         model.dispose();
-       }
+      if (modelPath.startsWith(directoryPath)) {
+        model.dispose();
+      }
     });
   } catch (error) {
     console.warn(

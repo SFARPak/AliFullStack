@@ -1,6 +1,6 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   appsListAtom,
   selectedAppIdAtom,
@@ -50,7 +50,7 @@ export default function SitemapPage() {
 
   const appId = search.appId ? Number(search.appId) : null;
   const selectedApp = appId ? appsList.find((app) => app.id === appId) : null;
-  
+
   // Sync the selected app ID from the URL into the shared atom so the
   // useAppStructureSync hook can trigger the structure load.
   useEffect(() => {
@@ -181,7 +181,11 @@ export default function SitemapPage() {
 
   const handleDeleteNode = async (nodeId: string) => {
     if (!appId) return;
-    if (!confirm("Are you sure you want to delete this node and all its children?"))
+    if (
+      !confirm(
+        "Are you sure you want to delete this node and all its children?",
+      )
+    )
       return;
 
     try {
@@ -254,7 +258,9 @@ export default function SitemapPage() {
               />
             ) : (
               <>
-                <h3 className="font-semibold text-sm break-words">{node.name}</h3>
+                <h3 className="font-semibold text-sm break-words">
+                  {node.name}
+                </h3>
                 {node.path && (
                   <p className="text-xs text-gray-500 font-mono truncate">
                     {node.path}
@@ -270,24 +276,24 @@ export default function SitemapPage() {
           </div>
 
           <div className="flex gap-1 sm:gap-2 sm:opacity-0 sm:group-hover:opacity-100 md:opacity-100 md:group-hover:opacity-100">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 sm:h-10 sm:w-10 p-0 min-h-[44px] min-w-[44px]"
-            onClick={() => startEdit(node)}
-            aria-label="Edit node"
-          >
-            <Edit2 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 sm:h-10 sm:w-10 p-0 text-red-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
-            onClick={() => handleDeleteNode(node.id)}
-            aria-label="Delete node"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 sm:h-10 sm:w-10 p-0 min-h-[44px] min-w-[44px]"
+              onClick={() => startEdit(node)}
+              aria-label="Edit node"
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 sm:h-10 sm:w-10 p-0 text-red-500 hover:text-red-700 min-h-[44px] min-w-[44px]"
+              onClick={() => handleDeleteNode(node.id)}
+              aria-label="Delete node"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -305,7 +311,9 @@ export default function SitemapPage() {
       <div className="relative min-h-screen p-4 sm:p-6 md:p-8 flex flex-col bg-white dark:bg-gray-900 border-l border-gray-100 dark:border-gray-800">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center px-4">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">No App Selected</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">
+              No App Selected
+            </h2>
             <p className="text-gray-500 mb-6 text-sm sm:text-base">
               Please select an app to view its sitemap
             </p>
@@ -430,7 +438,9 @@ export default function SitemapPage() {
             {sitemapStructure.map((node) => renderNode(node))}
             {sitemapStructure.length === 0 && (
               <div className="text-center text-gray-400 py-8 sm:py-12">
-                <p className="mb-4 text-sm sm:text-base">No sitemap structure yet</p>
+                <p className="mb-4 text-sm sm:text-base">
+                  No sitemap structure yet
+                </p>
                 <Button
                   onClick={() => setIsAddDialogOpen(true)}
                   variant="outline"
@@ -444,7 +454,10 @@ export default function SitemapPage() {
         )}
 
         {/* Edit Node Dialog */}
-        <Dialog open={!!editingNode} onOpenChange={(open) => !open && cancelEdit()}>
+        <Dialog
+          open={!!editingNode}
+          onOpenChange={(open) => !open && cancelEdit()}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Edit Node</DialogTitle>

@@ -49,10 +49,9 @@ const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
   );
 };
 
-export const AliFullStackProblemSummary: React.FC<AliFullStackProblemSummaryProps> = ({
-  summary,
-  children,
-}) => {
+export const AliFullStackProblemSummary: React.FC<
+  AliFullStackProblemSummaryProps
+> = ({ summary, children }) => {
   const [isContentVisible, setIsContentVisible] = useState(false);
 
   // Parse problems from children content if available

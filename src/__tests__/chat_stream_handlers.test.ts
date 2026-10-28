@@ -749,7 +749,6 @@ describe("processFullResponse", () => {
       "No alifullstack-write tags here",
       1,
       {
-        chatSummary: undefined,
         messageId: 1,
       },
     );
@@ -770,7 +769,6 @@ describe("processFullResponse", () => {
     const response = `<alifullstack-write path="src/file1.js">console.log('Hello');</alifullstack-write>`;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -800,7 +798,6 @@ describe("processFullResponse", () => {
     const response = `<alifullstack-write path="src/error-file.js">This will fail</alifullstack-write>`;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -826,7 +823,6 @@ describe("processFullResponse", () => {
     `;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -892,7 +888,6 @@ describe("processFullResponse", () => {
     const response = `<alifullstack-rename from="src/components/OldComponent.jsx" to="src/components/NewComponent.jsx"></alifullstack-rename>`;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -925,7 +920,6 @@ describe("processFullResponse", () => {
     const response = `<alifullstack-rename from="src/components/NonExistent.jsx" to="src/components/NewFile.jsx"></alifullstack-rename>`;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -947,7 +941,6 @@ describe("processFullResponse", () => {
     const response = `<alifullstack-delete path="src/components/Unused.jsx"></alifullstack-delete>`;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -970,7 +963,6 @@ describe("processFullResponse", () => {
     const response = `<alifullstack-delete path="src/components/NonExistent.jsx"></alifullstack-delete>`;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 
@@ -999,7 +991,6 @@ describe("processFullResponse", () => {
     `;
 
     const result = await processFullResponseActions(response, 1, {
-      chatSummary: undefined,
       messageId: 1,
     });
 

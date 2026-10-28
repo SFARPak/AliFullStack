@@ -8,10 +8,9 @@ interface AliFullStackSearchReplaceProps {
   children?: React.ReactNode;
 }
 
-export const AliFullStackSearchReplace: React.FC<AliFullStackSearchReplaceProps> = ({
-  children,
-  node,
-}) => {
+export const AliFullStackSearchReplace: React.FC<
+  AliFullStackSearchReplaceProps
+> = ({ children, node }) => {
   const state = node?.properties?.state as CustomTagState;
   const inProgress = state === "pending";
   const [isExpanded, setIsExpanded] = useState(inProgress);

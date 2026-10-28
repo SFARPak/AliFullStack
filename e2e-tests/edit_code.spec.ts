@@ -4,7 +4,11 @@ import fs from "fs";
 import path from "path";
 
 test("edit code", async ({ po }) => {
-  const editedFilePath = path.join("src", "components", "made-with-alifullstack.tsx");
+  const editedFilePath = path.join(
+    "src",
+    "components",
+    "made-with-alifullstack.tsx",
+  );
   await po.sendPrompt("foo");
   const appPath = await po.getCurrentAppPath();
 
@@ -38,7 +42,11 @@ test("edit code", async ({ po }) => {
 });
 
 test("edit code edits the right file", async ({ po }) => {
-  const editedFilePath = path.join("src", "components", "made-with-alifullstack.tsx");
+  const editedFilePath = path.join(
+    "src",
+    "components",
+    "made-with-alifullstack.tsx",
+  );
   const robotsFilePath = path.join("public", "robots.txt");
   await po.sendPrompt("foo");
   const appPath = await po.getCurrentAppPath();

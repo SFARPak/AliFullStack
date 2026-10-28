@@ -15,10 +15,9 @@ interface AliFullStackAddIntegrationProps {
   children: React.ReactNode;
 }
 
-export const AliFullStackAddIntegration: React.FC<AliFullStackAddIntegrationProps> = ({
-  node,
-  children,
-}) => {
+export const AliFullStackAddIntegration: React.FC<
+  AliFullStackAddIntegrationProps
+> = ({ node, children }) => {
   const navigate = useNavigate();
 
   const { provider } = node.properties;

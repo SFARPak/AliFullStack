@@ -25,7 +25,7 @@ function loadLocalTypeScript(appPath: string): typeof import("typescript") {
       });
       const ts = require(requirePath);
       return ts;
-    } catch (error) {
+    } catch {
       // Continue to next path if this one fails
       continue;
     }

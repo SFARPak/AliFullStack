@@ -99,7 +99,8 @@ export function registerTokenCountHandlers() {
             files
               // It doesn't need to be the exact format but it's just to get a token estimate
               .map(
-                (file) => `<alifullstack-file=${file.path}>${file.content}</alifullstack-file>`,
+                (file) =>
+                  `<alifullstack-file=${file.path}>${file.content}</alifullstack-file>`,
               )
               .join("\n\n"),
           );

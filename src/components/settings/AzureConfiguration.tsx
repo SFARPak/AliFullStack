@@ -95,8 +95,12 @@ export function AzureConfiguration({ envVars }: AzureConfigurationProps) {
                     Find your resource name (the name you gave your Azure OpenAI
                     resource)
                   </li>
-                  <li>Set these environment variables before starting AliFullStack</li>
-                  <li>Restart AliFullStack after setting the environment variables</li>
+                  <li>
+                    Set these environment variables before starting AliFullStack
+                  </li>
+                  <li>
+                    Restart AliFullStack after setting the environment variables
+                  </li>
                 </ol>
               </div>
 

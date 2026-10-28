@@ -631,7 +631,9 @@ This conversation includes one or more image attachments. When the user uploads 
             // Why remove thinking tags?
             // Thinking tags are generally not critical for the context
             // and eats up extra tokens.
-            content: removeAliFullStackTags(removeNonEssentialTags(msg.content)),
+            content: removeAliFullStackTags(
+              removeNonEssentialTags(msg.content),
+            ),
           })),
         ];
 
@@ -854,7 +856,8 @@ This conversation includes one or more image attachments. When the user uploads 
               }
             }
           }
-          const addDependencies = getAliFullStackAddDependencyTags(fullResponse);
+          const addDependencies =
+            getAliFullStackAddDependencyTags(fullResponse);
           if (
             !abortController.signal.aborted &&
             // If there are dependencies, we don't want to auto-fix problems
@@ -1041,7 +1044,6 @@ ${problemReport.problems
             fullResponse,
             req.chatId,
             {
-              chatSummary,
               messageId: placeholderAssistantMessage.id,
             }, // Use placeholder ID
           );
@@ -1118,7 +1120,8 @@ ${problemReport.problems
       if (error instanceof Error) {
         // Check if this is an AI API error with additional context
         const apiError = error as any;
-        const message = apiError.error?.message || apiError.message || String(error);
+        const message =
+          apiError.error?.message || apiError.message || String(error);
         const responseBody = apiError.error?.responseBody;
 
         if (message.includes("Gone")) {
@@ -1315,7 +1318,8 @@ export function removeProblemReportTags(text: string): string {
 }
 
 export function removeAliFullStackTags(text: string): string {
-  const alifullstackRegex = /<alifullstack-[^>]*>[\s\S]*?<\/alifullstack-[^>]*>/g;
+  const alifullstackRegex =
+    /<alifullstack-[^>]*>[\s\S]*?<\/alifullstack-[^>]*>/g;
   return text.replace(alifullstackRegex, "").trim();
 }
 
@@ -1348,7 +1352,9 @@ function escapeAliFullStackTags(text: string): string {
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text.replace(/<alifullstack/g, "＜alifullstack").replace(/<\/alifullstack/g, "＜/alifullstack");
+  return text
+    .replace(/<alifullstack/g, "＜alifullstack")
+    .replace(/<\/alifullstack/g, "＜/alifullstack");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

@@ -3,9 +3,6 @@
  * This script tests that <run_terminal_cmd> tags are properly handled
  */
 
-const fs = require("fs");
-const path = require("path");
-
 // Test content with terminal command tags
 const testContent = `
 This is a test message with a terminal command.
@@ -107,7 +104,10 @@ function testParserLogic() {
   // Test each terminal command tag
   const testTags = [
     { tag: "run_terminal_cmd", content: "ls -la" },
-    { tag: "alifullstack-run-backend-terminal-cmd", content: "npm install express" },
+    {
+      tag: "alifullstack-run-backend-terminal-cmd",
+      content: "npm install express",
+    },
     { tag: "alifullstack-run-frontend-terminal-cmd", content: "npm run build" },
   ];
 
@@ -141,7 +141,7 @@ function testContentSplitting() {
   );
 
   let match;
-  let matches = [];
+
   let lastIndex = 0;
   let contentPieces = [];
 

@@ -36,7 +36,9 @@ export function ChatPanel({
 
   const [messages, setMessages] = useAtom(chatMessagesAtom);
   const [isTodoPanelOpen, setIsTodoPanelOpen] = useAtom(isTodoPanelOpenAtom);
-  const [isStepsPanelOpen, setIsStepsPanelOpen] = useAtom(isStepsSummaryOpenAtom);
+  const [isStepsPanelOpen, setIsStepsPanelOpen] = useAtom(
+    isStepsSummaryOpenAtom,
+  );
   const [isVersionPaneOpen, setIsVersionPaneOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const streamCount = useAtomValue(chatStreamCountAtom);
@@ -85,7 +87,7 @@ export function ChatPanel({
 
   // Set up system message handler for auto-scrolling
   useEffect(() => {
-    const handleAppOutput = (output: AppOutput) => {
+    const handleAppOutput = (_output: AppOutput) => {
       // Increment counter to trigger auto-scroll for system messages
       setSystemMessageCount((prev) => prev + 1);
     };

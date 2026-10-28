@@ -139,7 +139,9 @@ export function registerNeonHandlers() {
         }
 
         const neonClient = await getNeonClient();
-        logger.debug("Neon project ID", { neonProjectId: appData.neonProjectId });
+        logger.debug("Neon project ID", {
+          neonProjectId: appData.neonProjectId,
+        });
 
         // Get project info
         const projectResponse = await neonClient.getProject(

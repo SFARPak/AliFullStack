@@ -9,7 +9,10 @@ interface AliFullStackThinkProps {
   children?: React.ReactNode;
 }
 
-export const AliFullStackThink: React.FC<AliFullStackThinkProps> = ({ children, node }) => {
+export const AliFullStackThink: React.FC<AliFullStackThinkProps> = ({
+  children,
+  node,
+}) => {
   const state = node?.properties?.state as CustomTagState;
   const inProgress = state === "pending";
   const [isExpanded, setIsExpanded] = useState(inProgress);

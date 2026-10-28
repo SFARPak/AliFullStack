@@ -203,7 +203,8 @@
   window.addEventListener("message", (e) => {
     if (e.source !== window.parent) return;
     if (e.data.type === "activate-alifullstack-component-selector") activate();
-    if (e.data.type === "deactivate-alifullstack-component-selector") deactivate();
+    if (e.data.type === "deactivate-alifullstack-component-selector")
+      deactivate();
   });
 
   // Always listen for keyboard shortcuts

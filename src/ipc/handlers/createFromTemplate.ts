@@ -70,7 +70,7 @@ async function createEssentialFilesImmediately(
         path.join(frontendPath, "DEBUG_PACKAGE_JSON.txt"),
         packageDebugContent,
       );
-    } catch (debugError) {
+    } catch {
       logger.warn("⚠️ Failed to create package.json debug file");
     }
   } catch (error) {
@@ -158,23 +158,6 @@ async function copyCriticalFilesIndividually(
   // First ensure frontend directory structure exists
   await fs.ensureDir(frontendPath);
 
-  const criticalFiles = [
-    "AI_RULES.md",
-    "package.json",
-    "package-lock.json",
-    "vite.config.ts",
-    "tailwind.config.ts",
-    "tsconfig.json",
-    "tsconfig.app.json",
-    "tsconfig.node.json",
-    "eslint.config.js",
-    "postcss.config.js",
-    "components.json",
-    "index.html",
-    "README.md",
-    "vercel.json",
-  ];
-
   // Copy critical files and directories using robust approach
   // Get all files and directories from scaffold
   const scaffoldContents = await fs.readdir(scaffoldPath, {
@@ -199,7 +182,7 @@ async function copyCriticalFilesIndividually(
         await fs.copy(srcPath, destPath, {
           overwrite: true,
           recursive: true,
-          filter: (src, dest) => {
+          filter: (src) => {
             // Exclude .git and node_modules from subdirectories too
             const relativePath = path.relative(srcPath, src);
             return (
@@ -272,7 +255,7 @@ Available packages and libraries:
         path.join(frontendPath, "DEBUG_AI_RULES.txt"),
         aiRulesDebugContent,
       );
-    } catch (debugError) {
+    } catch {
       logger.warn("⚠️ Failed to create AI_RULES.md debug file");
     }
   } catch (error) {
@@ -406,10 +389,7 @@ export default defineConfig({
 /**
  * Synchronously verify that scaffold files were copied correctly
  */
-function verifyScaffoldCopySync(
-  frontendPath: string,
-  scaffoldPath: string,
-): boolean {
+function verifyScaffoldCopySync(frontendPath: string): boolean {
   logger.info(
     `🔍 Starting synchronous scaffold copy verification for ${frontendPath}`,
   );
@@ -640,7 +620,12 @@ export async function createFromTemplate({
       logger.info(`Scaffold contents: ${scaffoldContents.join(", ")}`);
 
       // Check for critical scaffold files
-      const criticalFiles = ["AI_RULES.md", "package.json", "package-lock.json", "src"];
+      const criticalFiles = [
+        "AI_RULES.md",
+        "package.json",
+        "package-lock.json",
+        "src",
+      ];
       for (const file of criticalFiles) {
         const filePath = path.join(scaffoldPath, file);
         if (!fs.existsSync(filePath)) {
@@ -753,7 +738,7 @@ export async function createFromTemplate({
             await fs.copy(srcPath, destPath, {
               overwrite: true,
               recursive: true,
-              filter: (src, dest) => {
+              filter: (src) => {
                 // Exclude .git from subdirectories but allow node_modules for speed
                 const relativePath = path.relative(srcPath, src);
                 return (
@@ -879,10 +864,7 @@ export async function createFromTemplate({
       }
 
       // Run synchronous verification
-      const verificationPassed = verifyScaffoldCopySync(
-        frontendPath,
-        actualScaffoldPath,
-      );
+      const verificationPassed = verifyScaffoldCopySync(frontendPath);
 
       if (!verificationPassed) {
         logger.warn(
@@ -895,10 +877,7 @@ export async function createFromTemplate({
           logger.info("✅ Fallback individual file copy completed");
 
           // Verify again after fallback
-          const fallbackVerification = verifyScaffoldCopySync(
-            frontendPath,
-            actualScaffoldPath,
-          );
+          const fallbackVerification = verifyScaffoldCopySync(frontendPath);
           if (!fallbackVerification) {
             throw new Error("Fallback copy verification also failed");
           }
@@ -1188,7 +1167,7 @@ Available packages and libraries:
             await fs.copy(srcPath, destPath, {
               overwrite: true,
               recursive: true,
-              filter: (src, dest) => {
+              filter: (src) => {
                 // Exclude .git from subdirectories but keep node_modules for speed
                 const relativePath = path.relative(srcPath, src);
                 return (
@@ -1624,27 +1603,27 @@ export async function setupBackendFramework(
       // Copy the scaffold-backend directory to backendPath
       try {
         await fs.copy(scaffoldPath, backendPath, {
-        overwrite: true,
-        filter: (src, dest) => {
-          // Exclude .DS_Store and other unwanted files
-          const relativePath = path.relative(scaffoldPath, src);
-          const shouldExclude =
-            relativePath === ".DS_Store" || relativePath.includes(".git");
-          if (shouldExclude) {
-            logger.debug(`Excluding ${src} from copy`);
-          }
-          return !shouldExclude;
-        },
-      });
+          overwrite: true,
+          filter: (src) => {
+            // Exclude .DS_Store and other unwanted files
+            const relativePath = path.relative(scaffoldPath, src);
+            const shouldExclude =
+              relativePath === ".DS_Store" || relativePath.includes(".git");
+            if (shouldExclude) {
+              logger.debug(`Excluding ${src} from copy`);
+            }
+            return !shouldExclude;
+          },
+        });
 
-      logger.info(
-        `Successfully copied ${framework} scaffold from ${scaffoldPath} to ${backendPath}`,
-      );
+        logger.info(
+          `Successfully copied ${framework} scaffold from ${scaffoldPath} to ${backendPath}`,
+        );
       } catch (error) {
-        console.error('Error copying backend scaffold:', error);
-        throw new Error('Failed to copy backend scaffold');
+        console.error("Error copying backend scaffold:", error);
+        throw new Error("Failed to copy backend scaffold");
       }
-      } else {
+    } else {
       logger.warn(
         `Scaffold not found for ${framework} at ${scaffoldPath}, falling back to programmatic setup`,
       );
@@ -1668,8 +1647,8 @@ export async function setupBackendFramework(
             logger.warn(`Unknown backend framework: ${framework}`);
         }
       } catch (error) {
-        console.error('Error setting up backend framework:', error);
-        throw new Error('Failed to setup backend framework');
+        console.error("Error setting up backend framework:", error);
+        throw new Error("Failed to setup backend framework");
       }
     }
 
@@ -1679,8 +1658,8 @@ export async function setupBackendFramework(
       try {
         await installDependenciesForFramework(backendPath, framework);
       } catch (error) {
-        console.error('Error installing backend dependencies:', error);
-        throw new Error('Failed to install backend dependencies');
+        console.error("Error installing backend dependencies:", error);
+        throw new Error("Failed to install backend dependencies");
       }
     } catch (installError) {
       logger.warn(
@@ -1696,8 +1675,8 @@ export async function setupBackendFramework(
       try {
         await initializeDatabaseForFramework(backendPath, framework);
       } catch (error) {
-        console.error('Error initializing database for framework:', error);
-        throw new Error('Failed to initialize database for framework');
+        console.error("Error initializing database for framework:", error);
+        throw new Error("Failed to initialize database for framework");
       }
     } catch (dbError) {
       logger.warn(`Failed to initialize database for ${framework}:`, dbError);
@@ -1714,8 +1693,8 @@ export async function setupBackendFramework(
       try {
         await startBackendServer(backendPath, framework);
       } catch (error) {
-        console.error('Error auto-starting backend server:', error);
-        throw new Error('Failed to auto-start backend server');
+        console.error("Error auto-starting backend server:", error);
+        throw new Error("Failed to auto-start backend server");
       }
     } catch (startError) {
       logger.warn(
@@ -1789,7 +1768,10 @@ application = get_asgi_application()
   );
 
   // Create settings.py
-  const djangoSecretKey = crypto.randomBytes(64).toString("base64").slice(0, 64);
+  const djangoSecretKey = crypto
+    .randomBytes(64)
+    .toString("base64")
+    .slice(0, 64);
   const settingsContent = `import os
 from pathlib import Path
 
@@ -2707,7 +2689,7 @@ async function copyRepoToApp(repoCachePath: string, appPath: string) {
           await fs.copy(srcPath, destPath, {
             overwrite: true,
             recursive: true,
-            filter: (src, dest) => {
+            filter: (src) => {
               // Exclude .git and node_modules from subdirectories too
               const relativePath = path.relative(srcPath, src);
               return (
@@ -2765,7 +2747,7 @@ async function installDependenciesForFramework(
 ) {
   const installCommand = getInstallCommandForFramework(framework);
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     const { spawn } = require("child_process");
     const installProcess = spawn(installCommand, [], {
       cwd: projectPath,
@@ -2818,7 +2800,7 @@ export async function startBackendServer(
 ) {
   const startCommand = getStartCommandForFramework(framework);
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     const { spawn } = require("child_process");
     const serverProcess = spawn(startCommand, [], {
       cwd: projectPath,
@@ -2934,7 +2916,7 @@ function getInstallCommandForFramework(framework: string): string {
 export async function startFrontendServer(projectPath: string, appId?: number) {
   const startCommand = "npm run dev";
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     const { spawn } = require("child_process");
     const serverProcess = spawn(startCommand, [], {
       cwd: projectPath,

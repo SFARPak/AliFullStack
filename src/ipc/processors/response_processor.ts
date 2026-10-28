@@ -8,7 +8,6 @@ import git from "isomorphic-git";
 import { safeJoin } from "../utils/path_utils";
 
 import log from "electron-log";
-import { invalidateAppQuery } from "../../hooks/useLoadApp";
 import { executeAddDependency } from "./executeAddDependency";
 import {
   deleteSupabaseFunction,
@@ -20,7 +19,7 @@ import { UserSettings } from "../../lib/schemas";
 import { gitCommit } from "../utils/git_utils";
 
 // Helper function to handle git operations with timeout
-function createSafeGitOperation(warnings: Output[], errors: Output[]) {
+function createSafeGitOperation(warnings: Output[]) {
   return async function safeGitOperation(
     operation: () => Promise<any>,
     operationName: string,
@@ -93,10 +92,8 @@ export async function processFullResponseActions(
   fullResponse: string,
   chatId: number,
   {
-    chatSummary,
     messageId,
   }: {
-    chatSummary: string | undefined;
     messageId: number;
   },
 ): Promise<{
@@ -149,7 +146,7 @@ export async function processFullResponseActions(
   let errors: Output[] = [];
 
   // Create the safe git operation function with access to warnings/errors
-  const safeGitOperation = createSafeGitOperation(warnings, errors);
+  const safeGitOperation = createSafeGitOperation(warnings);
 
   try {
     // Extract all tags
@@ -158,7 +155,8 @@ export async function processFullResponseActions(
     const searchReplaceTags = getSearchReplaceTags(fullResponse);
     const alifullstackRenameTags = getAliFullStackRenameTags(fullResponse);
     const alifullstackDeletePaths = getAliFullStackDeleteTags(fullResponse);
-    const alifullstackAddDependencyPackages = getAliFullStackAddDependencyTags(fullResponse);
+    const alifullstackAddDependencyPackages =
+      getAliFullStackAddDependencyTags(fullResponse);
     const alifullstackExecuteSqlQueries = chatWithApp.app.supabaseProjectId
       ? getAliFullStackExecuteSqlTags(fullResponse)
       : [];
@@ -166,7 +164,8 @@ export async function processFullResponseActions(
       getAliFullStackRunBackendTerminalCmdTags(fullResponse);
     const alifullstackRunFrontendTerminalCmdTags =
       getAliFullStackRunFrontendTerminalCmdTags(fullResponse);
-    const alifullstackRunTerminalCmdTags = getAliFullStackRunTerminalCmdTags(fullResponse);
+    const alifullstackRunTerminalCmdTags =
+      getAliFullStackRunTerminalCmdTags(fullResponse);
 
     // Determine the chat mode to route general terminal commands appropriately
     let chatMode = settings.selectedChatMode;
@@ -203,8 +202,8 @@ export async function processFullResponseActions(
               query: query.content,
             });
           } catch (error) {
-            console.error('Error executing SQL query:', error);
-            throw new Error('Failed to execute SQL query');
+            console.error("Error executing SQL query:", error);
+            throw new Error("Failed to execute SQL query");
           }
 
           // Only write migration file if SQL execution succeeded
@@ -230,7 +229,9 @@ export async function processFullResponseActions(
           });
         }
       }
-      logger.log(`Executed ${alifullstackExecuteSqlQueries.length} SQL queries`);
+      logger.log(
+        `Executed ${alifullstackExecuteSqlQueries.length} SQL queries`,
+      );
     }
 
     // Handle backend terminal command tags
@@ -327,17 +328,17 @@ export async function processFullResponseActions(
           const cwd = cmdTag.cwd
             ? path.join(frontendPath, cmdTag.cwd)
             : frontendPath;
-    
+
           logger.log(
             `Executing frontend terminal command: ${cmdTag.command} in ${cwd}`,
           );
-    
+
           let result: string | null;
           try {
             result = await runShellCommand(cmdTag.command, cwd);
           } catch (error) {
-            console.error('Error running frontend terminal command:', error);
-            throw new Error('Failed to run frontend terminal command');
+            console.error("Error running frontend terminal command:", error);
+            throw new Error("Failed to run frontend terminal command");
           }
 
           if (result === null) {
@@ -523,8 +524,8 @@ export async function processFullResponseActions(
           try {
             result = await runShellCommand(cleanCommand, cwd);
           } catch (error) {
-            console.error('Error running terminal command:', error);
-            throw new Error('Failed to run terminal command');
+            console.error("Error running terminal command:", error);
+            throw new Error("Failed to run terminal command");
           }
 
           if (result === null) {
@@ -649,7 +650,7 @@ export async function processFullResponseActions(
           deletedFiles.push(filePath);
 
           // Remove the file from git and commit immediately
-          const commitResult = await safeGitOperation(
+          await safeGitOperation(
             async () => {
               await git.remove({
                 fs,
@@ -710,7 +711,7 @@ export async function processFullResponseActions(
           renamedFiles.push(tag.to);
 
           // Add the new file, remove the old one, and commit immediately
-          const renameCommitResult = await safeGitOperation(
+          await safeGitOperation(
             async () => {
               await git.add({
                 fs,
@@ -1113,7 +1114,6 @@ export async function processFullResponseActions(
       searchReplaceTags.length > 0;
 
     const uncommittedFiles: string[] = [];
-    let extraFilesError: string | undefined;
 
     if (hasChanges) {
       // Get the last commit hash from git log to save to the message
@@ -1167,7 +1167,6 @@ export async function processFullResponseActions(
         uncommittedFiles && uncommittedFiles.length > 0
           ? uncommittedFiles
           : undefined,
-      extraFilesError,
     };
   } catch (error: unknown) {
     logger.error("Error processing files:", error);

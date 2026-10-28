@@ -2,9 +2,6 @@
  * Integration test for AliFullStackMarkdownParser to verify terminal command handling
  */
 
-const fs = require("fs");
-const path = require("path");
-
 // Test content that simulates what would come from AI
 const testContent = `
 Let me help you check the current directory structure.
@@ -24,7 +21,9 @@ All commands executed successfully. The directory structure looks good.
 
 // Simulate the parseCustomTags function logic
 function testParseCustomTags(content) {
-  console.log("🧪 Testing AliFullStackMarkdownParser parseCustomTags function...\n");
+  console.log(
+    "🧪 Testing AliFullStackMarkdownParser parseCustomTags function...\n",
+  );
 
   const customTagNames = [
     "alifullstack-write",
@@ -110,7 +109,7 @@ function testParseCustomTags(content) {
 
 // Simulate the renderCustomTag function logic
 function testRenderCustomTag(tagInfo) {
-  const { tag, attributes, content, inProgress } = tagInfo;
+  const { tag, attributes, content } = tagInfo;
 
   switch (tag) {
     case "think":

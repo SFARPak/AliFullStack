@@ -53,10 +53,11 @@ describe("readSettings", () => {
       );
       expect(scrubSettings(result)).toMatchInlineSnapshot(`
         {
-          "enableAutoFixProblems": false,
+          "enableAutoFixProblems": true,
           "enableAutoUpdate": true,
           "enableProLazyEditsMode": true,
           "enableProSmartFilesContextMode": true,
+          "executionMode": "manual",
           "experiments": {},
           "hasRunBefore": false,
           "providerSettings": {},
@@ -299,10 +300,11 @@ describe("readSettings", () => {
 
       expect(scrubSettings(result)).toMatchInlineSnapshot(`
         {
-          "enableAutoFixProblems": false,
+          "enableAutoFixProblems": true,
           "enableAutoUpdate": true,
           "enableProLazyEditsMode": true,
           "enableProSmartFilesContextMode": true,
+          "executionMode": "manual",
           "experiments": {},
           "hasRunBefore": false,
           "providerSettings": {},

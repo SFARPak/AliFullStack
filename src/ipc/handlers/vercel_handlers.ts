@@ -269,7 +269,9 @@ async function handleCreateProject(
     }
 
     // Detect the framework from the app's directory
-    const detectedFramework = await detectFramework(getAliFullStackAppPath(app.path));
+    const detectedFramework = await detectFramework(
+      getAliFullStackAppPath(app.path),
+    );
 
     logger.info(
       `Detected framework: ${detectedFramework || "none detected"} for app at ${app.path}`,

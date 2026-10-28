@@ -1,37 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAtom, useAtomValue } from "jotai";
 import {
   stepsListAtom,
   stepsSummaryAtom,
-  isStepsSummaryOpenAtom,
   type StepItem,
 } from "@/atoms/stepsAtoms";
 import { selectedChatIdAtom } from "@/atoms/chatAtoms";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
 import {
   CheckCircle2,
   Circle,
   Loader2,
   AlertTriangle,
-  AlertCircle,
   XCircle,
-  Play,
   Trash2,
   ListChecks,
-  ChevronDown,
-  ChevronUp,
   Clock,
   Zap,
-  CheckCheck,
   Rocket,
   Sparkles,
   Trophy,
@@ -104,25 +90,49 @@ function formatErrorSummary(summary: string): string {
   const lower = summary.toLowerCase();
 
   // Model/API errors
-  if (lower.includes("quota") || lower.includes("rate limit") || lower.includes("429") || lower.includes("free quota")) {
+  if (
+    lower.includes("quota") ||
+    lower.includes("rate limit") ||
+    lower.includes("429") ||
+    lower.includes("free quota")
+  ) {
     return "Model quota exceeded";
   }
   if (lower.includes("timeout") || lower.includes("timed out")) {
     return "Request timed out";
   }
-  if (lower.includes("api key") || lower.includes("unauthorized") || lower.includes("401") || lower.includes("403")) {
+  if (
+    lower.includes("api key") ||
+    lower.includes("unauthorized") ||
+    lower.includes("401") ||
+    lower.includes("403")
+  ) {
     return "API authentication failed";
   }
-  if (lower.includes("network") || lower.includes("econnrefused") || lower.includes("enotfound") || lower.includes("econnreset")) {
+  if (
+    lower.includes("network") ||
+    lower.includes("econnrefused") ||
+    lower.includes("enotfound") ||
+    lower.includes("econnreset")
+  ) {
     return "Network error";
   }
-  if (lower.includes("token") && (lower.includes("exceed") || lower.includes("limit") || lower.includes("max"))) {
+  if (
+    lower.includes("token") &&
+    (lower.includes("exceed") ||
+      lower.includes("limit") ||
+      lower.includes("max"))
+  ) {
     return "Token limit exceeded";
   }
   if (lower.includes("not found") || lower.includes("enoent")) {
     return "File not found";
   }
-  if (lower.includes("permission") || lower.includes("eacces") || lower.includes("eperm")) {
+  if (
+    lower.includes("permission") ||
+    lower.includes("eacces") ||
+    lower.includes("eperm")
+  ) {
     return "Permission denied";
   }
   if (lower.includes("syntax") || lower.includes("parse")) {
@@ -131,7 +141,9 @@ function formatErrorSummary(summary: string): string {
 
   // Fallback: truncate to first sentence, max 60 chars
   const firstSentence = summary.split(/\.(?:\s|$)/)[0];
-  return firstSentence.length > 60 ? firstSentence.slice(0, 57) + "..." : firstSentence;
+  return firstSentence.length > 60
+    ? firstSentence.slice(0, 57) + "..."
+    : firstSentence;
 }
 
 export function StepsSummaryPanel({ isOpen, onClose }: StepsSummaryPanelProps) {
@@ -160,30 +172,45 @@ export function StepsSummaryPanel({ isOpen, onClose }: StepsSummaryPanelProps) {
 
         {/* Summary badges */}
         <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-1 text-xs"
+          >
             <ListChecks className="w-3 h-3" />
             {summary.total} total
           </Badge>
           {summary.completed > 0 && (
-            <Badge variant="default" className="flex items-center gap-1 text-xs bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20">
+            <Badge
+              variant="default"
+              className="flex items-center gap-1 text-xs bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20"
+            >
               <CheckCircle2 className="w-3 h-3" />
               {summary.completed} done
             </Badge>
           )}
           {summary.inProgress > 0 && (
-            <Badge variant="default" className="flex items-center gap-1 text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20">
+            <Badge
+              variant="default"
+              className="flex items-center gap-1 text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20"
+            >
               <Loader2 className="w-3 h-3 animate-spin" />
               {summary.inProgress} active
             </Badge>
           )}
           {summary.failed > 0 && (
-            <Badge variant="default" className="flex items-center gap-1 text-xs bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20">
+            <Badge
+              variant="default"
+              className="flex items-center gap-1 text-xs bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20"
+            >
               <XCircle className="w-3 h-3" />
               {summary.failed} failed
             </Badge>
           )}
           {summary.pending > 0 && (
-            <Badge variant="outline" className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Badge
+              variant="outline"
+              className="flex items-center gap-1 text-xs text-muted-foreground"
+            >
               <Clock className="w-3 h-3" />
               {summary.pending} pending
             </Badge>
@@ -264,8 +291,6 @@ function StepCard({
   isLatest: boolean;
   onDelete: () => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-
   const statusIcon = () => {
     switch (step.status) {
       case "pending":
@@ -298,20 +323,29 @@ function StepCard({
         );
       case "in_progress":
         return (
-          <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+          <Badge
+            variant="default"
+            className="text-[10px] px-1.5 py-0 h-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+          >
             <Loader2 className="w-2.5 h-2.5 mr-0.5 animate-spin" />
             Running
           </Badge>
         );
       case "completed":
         return (
-          <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4 bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800">
+          <Badge
+            variant="default"
+            className="text-[10px] px-1.5 py-0 h-4 bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800"
+          >
             Done
           </Badge>
         );
       case "failed":
         return (
-          <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4 bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800">
+          <Badge
+            variant="default"
+            className="text-[10px] px-1.5 py-0 h-4 bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
+          >
             Failed
           </Badge>
         );
@@ -419,7 +453,8 @@ function StepCard({
                 (new Date(step.completedAt).getTime() -
                   new Date(step.createdAt).getTime()) /
                   1000,
-              )}s
+              )}
+              s
             </span>
           </div>
         )}

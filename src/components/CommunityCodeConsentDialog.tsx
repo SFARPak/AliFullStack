@@ -26,8 +26,8 @@ export const CommunityCodeConsentDialog: React.FC<
           <AlertDialogTitle>Community Code Notice</AlertDialogTitle>
           <AlertDialogDescription className="space-y-3">
             <p>
-              This code was created by a AliFullStack community member, not our core
-              team.
+              This code was created by a AliFullStack community member, not our
+              core team.
             </p>
             <p>
               Community code can be very helpful, but since it's built

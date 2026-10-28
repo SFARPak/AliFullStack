@@ -9,19 +9,50 @@ export function runShellCommand(
   workingDir?: string,
 ): Promise<string | null> {
   logger.log(`Running command: ${command}`);
-  return new Promise(async (resolve) => {
+  return new Promise((resolve) => {
     let output = "";
     const cwd = workingDir || process.cwd();
 
     // Check if the command contains shell operators that require script execution
     const hasShellOperators = /(&&|\|\||source|\||;|\$\(|`.*`)/.test(command);
 
-    let childProcess;
+    const setupProcessHandlers = (childProcess: any) => {
+      childProcess.stdout?.on("data", (data: Buffer) => {
+        output += data.toString();
+      });
+
+      childProcess.stderr?.on("data", (data: Buffer) => {
+        // Log stderr but don't treat it as a failure unless the exit code is non-zero
+        logger.warn(`Stderr from "${command}": ${data.toString().trim()}`);
+      });
+
+      childProcess.on("error", (error: Error) => {
+        logger.error(`Error executing command "${command}":`, error.message);
+        resolve(null); // Command execution failed
+      });
+
+      childProcess.on("close", (code: number | null) => {
+        if (code === 0) {
+          logger.debug(
+            `Command "${command}" succeeded with code ${code}: ${output.trim()}`,
+          );
+          resolve(output.trim()); // Command succeeded, return trimmed output
+        } else {
+          logger.error(`Command "${command}" failed with code ${code}`);
+          resolve(null); // Command failed
+        }
+      });
+    };
+
+    let childProcess: any;
     if (hasShellOperators) {
       logger.debug(
         `Using executeComplexCommand for complex command: ${command}`,
       );
-      childProcess = await executeComplexCommand(command, cwd, getShellEnv());
+      executeComplexCommand(command, cwd, getShellEnv()).then((cp) => {
+        childProcess = cp;
+        setupProcessHandlers(childProcess);
+      });
     } else {
       logger.debug(`Using spawn for simple command: ${command}`);
       childProcess = spawn(command, {
@@ -30,32 +61,7 @@ export function runShellCommand(
         cwd,
         env: getShellEnv(),
       });
+      setupProcessHandlers(childProcess);
     }
-
-    childProcess.stdout?.on("data", (data) => {
-      output += data.toString();
-    });
-
-    childProcess.stderr?.on("data", (data) => {
-      // Log stderr but don't treat it as a failure unless the exit code is non-zero
-      logger.warn(`Stderr from "${command}": ${data.toString().trim()}`);
-    });
-
-    childProcess.on("error", (error) => {
-      logger.error(`Error executing command "${command}":`, error.message);
-      resolve(null); // Command execution failed
-    });
-
-    childProcess.on("close", (code) => {
-      if (code === 0) {
-        logger.debug(
-          `Command "${command}" succeeded with code ${code}: ${output.trim()}`,
-        );
-        resolve(output.trim()); // Command succeeded, return trimmed output
-      } else {
-        logger.error(`Command "${command}" failed with code ${code}`);
-        resolve(null); // Command failed
-      }
-    });
   });
 }

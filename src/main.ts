@@ -350,7 +350,7 @@ function setupPermissionHandlers() {
           message: `The app is requesting permission for: ${permission}. Do you want to allow this?`,
           checkboxLabel: "Remember my choice",
         })
-        .then(({ response, checkboxChecked }) => {
+        .then(({ response }) => {
           callback(response === 0);
         });
     },

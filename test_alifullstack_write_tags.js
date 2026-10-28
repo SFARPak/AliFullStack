@@ -30,7 +30,8 @@ console.log(testResponse);
 console.log("\n");
 
 // Test the alifullstack-write tag removal logic
-const alifullstackWriteTagRegex = /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi;
+const alifullstackWriteTagRegex =
+  /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi;
 const terminalTagRegex = /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/g;
 
 let cleanedResponse = testResponse;
@@ -50,14 +51,17 @@ console.log(cleanedResponse);
 console.log("\n");
 
 // Check that tags are actually removed
-const hasAliFullStackWriteTags = /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi.test(
-  testResponse,
-);
+const hasAliFullStackWriteTags =
+  /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi.test(
+    testResponse,
+  );
 const hasTerminalTags =
   /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/g.test(testResponse);
 
 const cleanedHasAliFullStackWriteTags =
-  /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi.test(cleanedResponse);
+  /<alifullstack-write[^>]*>[\s\S]*?<\/alifullstack-write>/gi.test(
+    cleanedResponse,
+  );
 const cleanedHasTerminalTags =
   /<run_terminal_cmd[^>]*>[\s\S]*?<\/run_terminal_cmd>/g.test(cleanedResponse);
 

@@ -70,9 +70,9 @@ export const VanillaMarkdownParser = ({ content }: { content: string }) => {
 /**
  * Custom component to parse markdown content with AliFullStack-specific tags
  */
-export const AliFullStackMarkdownParser: React.FC<AliFullStackMarkdownParserProps> = ({
-  content,
-}) => {
+export const AliFullStackMarkdownParser: React.FC<
+  AliFullStackMarkdownParserProps
+> = ({ content }) => {
   const isStreaming = useAtomValue(isStreamingAtom);
   // Extract content pieces (markdown and custom tags)
   const contentPieces = useMemo(() => {

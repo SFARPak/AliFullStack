@@ -26,7 +26,6 @@ import {
   processCounter,
   removeAppIfCurrentProcess,
   stopAppByInfo,
-  removeDockerVolumesForApp,
 } from "../utils/process_manager";
 import { getEnvVar } from "../utils/read_env";
 import { readSettings } from "../../main/settings";
@@ -504,7 +503,7 @@ ${command}
     });
 
     // Clean up the script file after the process exits
-    process.on("exit", async (code, signal) => {
+    process.on("exit", async (_code, _signal) => {
       try {
         await fsPromises.unlink(scriptPath);
         logger.debug(`Cleaned up temporary script: ${scriptPath}`);
@@ -516,7 +515,7 @@ ${command}
       }
     });
 
-    process.on("error", async (error) => {
+    process.on("error", async (_error) => {
       try {
         await fsPromises.unlink(scriptPath);
         logger.debug(`Cleaned up temporary script after error: ${scriptPath}`);
@@ -574,8 +573,8 @@ async function executeAppLocalNode({
       backendPort = await findAvailablePort(8000);
       frontendPort = await findAvailablePort(32100);
     } catch (error) {
-      console.error('Error finding available ports for fullstack app:', error);
-      throw new Error('Failed to find available ports for fullstack app');
+      console.error("Error finding available ports for fullstack app:", error);
+      throw new Error("Failed to find available ports for fullstack app");
     }
 
     // Send mode indication to UI
@@ -589,8 +588,8 @@ async function executeAppLocalNode({
     try {
       await ensureBackendDirectory(backendPath);
     } catch (error) {
-      console.error('Error ensuring backend directory exists:', error);
-      throw new Error('Failed to ensure backend directory exists');
+      console.error("Error ensuring backend directory exists:", error);
+      throw new Error("Failed to ensure backend directory exists");
     }
 
     // Create/update environment files for fullstack integration
@@ -780,7 +779,7 @@ async function executeAppLocalNode({
               // If we get here, the strategy succeeded
               fixSucceeded = true;
               break;
-            } catch (strategyError) {
+            } catch {
               logger.warn(
                 `Auto-fix strategy "${strategy.description}" failed, trying next approach...`,
               );
@@ -838,8 +837,8 @@ async function executeAppLocalNode({
           backendFramework = await detectPythonFramework(backendPath);
           logger.info(`Detected Python framework: ${backendFramework}`);
         } catch (error) {
-          console.error('Error detecting Python framework:', error);
-          throw new Error('Failed to detect Python framework');
+          console.error("Error detecting Python framework:", error);
+          throw new Error("Failed to detect Python framework");
         }
       }
     } else if (fs.existsSync(path.join(backendPath, "package.json"))) {
@@ -870,8 +869,8 @@ async function executeAppLocalNode({
           backendCommand = await getStartCommandForFramework(backendFramework);
           logger.info(`Got command for ${backendFramework}: ${backendCommand}`);
         } catch (error) {
-          console.error('Error getting start command for framework:', error);
-          throw new Error('Failed to get start command for framework');
+          console.error("Error getting start command for framework:", error);
+          throw new Error("Failed to get start command for framework");
         }
         if (!backendCommand) {
           // Fallback to default Python command
@@ -905,8 +904,11 @@ async function executeAppLocalNode({
           getShellEnv(),
         );
       } catch (error) {
-        console.error('Error starting backend server for fullstack app:', error);
-        throw new Error('Failed to start backend server for fullstack app');
+        console.error(
+          "Error starting backend server for fullstack app:",
+          error,
+        );
+        throw new Error("Failed to start backend server for fullstack app");
       }
 
       if (backendProcess.pid) {
@@ -976,7 +978,7 @@ async function executeAppLocalNode({
       `Starting frontend server with command: ${frontendCommand} in ${frontendPath}`,
     );
     try {
-        const frontendProcess = spawn(frontendCommand, [], {
+      const frontendProcess = spawn(frontendCommand, [], {
         cwd: frontendPath,
         shell: true,
         stdio: "pipe",
@@ -1041,8 +1043,8 @@ async function executeAppLocalNode({
         );
       }
     } catch (error) {
-      console.error('Error starting frontend server for fullstack app:', error);
-      throw new Error('Failed to start frontend server for fullstack app');
+      console.error("Error starting frontend server for fullstack app:", error);
+      throw new Error("Failed to start frontend server for fullstack app");
     }
 
     return;
@@ -1659,253 +1661,12 @@ function listenToProcess({
   });
 }
 
-async function executeAppInDocker({
-  appPath,
-  appId,
-  event,
-  isNeon,
-  installCommand,
-  startCommand,
-}: {
-  appPath: string;
-  appId: number;
-  event: Electron.IpcMainInvokeEvent;
-  isNeon: boolean;
-  installCommand?: string | null;
-  startCommand?: string | null;
-}): Promise<void> {
-  const containerName = `alifullstack-app-${appId}`;
-
-  // First, check if Docker is available
-  try {
-    await new Promise<void>((resolve, reject) => {
-      const checkDocker = spawn("docker", ["--version"], {
-        stdio: "pipe",
-        env: getShellEnv(),
-      });
-      checkDocker.on("close", (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error("Docker is not available"));
-        }
-      });
-      checkDocker.on("error", () => {
-        reject(new Error("Docker is not available"));
-      });
-    });
-  } catch {
-    throw new Error(
-      "Docker is required but not available. Please install Docker Desktop and ensure it's running.",
-    );
-  }
-
-  // Stop and remove any existing container with the same name
-  try {
-    await new Promise<void>((resolve) => {
-      const stopContainer = spawn("docker", ["stop", containerName], {
-        stdio: "pipe",
-        env: getShellEnv(),
-      });
-      stopContainer.on("close", () => {
-        const removeContainer = spawn("docker", ["rm", containerName], {
-          stdio: "pipe",
-          env: getShellEnv(),
-        });
-        removeContainer.on("close", () => resolve());
-        removeContainer.on("error", () => resolve()); // Container might not exist
-      });
-      stopContainer.on("error", () => resolve()); // Container might not exist
-    });
-  } catch (error) {
-    logger.info(
-      `Docker container ${containerName} not found. Ignoring error: ${error}`,
-    );
-  }
-
-  // Create a Dockerfile in the app directory if it doesn't exist
-  const dockerfilePath = path.join(appPath, "Dockerfile.alifullstack");
-  if (!fs.existsSync(dockerfilePath)) {
-    const dockerfileContent = `FROM node:22-alpine
-
-# Install pnpm
-RUN npm install -g pnpm
-`;
-
-    try {
-      await fsPromises.writeFile(dockerfilePath, dockerfileContent, "utf-8");
-    } catch (error) {
-      logger.error(`Failed to create Dockerfile for app ${appId}:`, error);
-      throw new Error(`Failed to create Dockerfile: ${error}`);
-    }
-  }
-
-  // Build the Docker image
-  const buildProcess = spawn(
-    "docker",
-    ["build", "-f", "Dockerfile.alifullstack", "-t", `alifullstack-app-${appId}`, "."],
-    {
-      cwd: appPath,
-      stdio: "pipe",
-      env: getShellEnv(),
-    },
-  );
-
-  let buildError = "";
-  buildProcess.stderr?.on("data", (data) => {
-    buildError += data.toString();
-  });
-
-  await new Promise<void>((resolve, reject) => {
-    buildProcess.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`Docker build failed: ${buildError}`));
-      }
-    });
-    buildProcess.on("error", (err) => {
-      reject(new Error(`Docker build process error: ${err.message}`));
-    });
-  });
-
-  // Determine working directory based on available folders
-  const frontendPath = path.join(appPath, "frontend");
-  const backendPath = path.join(appPath, "backend");
-
-  let workingDir = "/app"; // Default to root for backward compatibility
-
-  if (fs.existsSync(frontendPath) && !fs.existsSync(backendPath)) {
-    // Only frontend exists (frontend-only app)
-    workingDir = "/app/frontend";
-  } else if (fs.existsSync(backendPath) && !fs.existsSync(frontendPath)) {
-    // Only backend exists (backend-only app)
-    workingDir = "/app/backend";
-  } else if (fs.existsSync(frontendPath) && fs.existsSync(backendPath)) {
-    // Both exist - prefer frontend since it has the package.json and dev server
-    workingDir = "/app/frontend";
-  } else if (fs.existsSync(frontendPath)) {
-    // Only frontend exists
-    workingDir = "/app/frontend";
-  } else if (fs.existsSync(backendPath)) {
-    // Only backend exists
-    workingDir = "/app/backend";
-  }
-
-  // Run the Docker container
-  const process = spawn(
-    "docker",
-    [
-      "run",
-      "--rm",
-      "--name",
-      containerName,
-      "-p",
-      "32100:32100",
-      "-v",
-      `${appPath}:/app`,
-      "-v",
-      `alifullstack-pnpm-${appId}:/app/.pnpm-store`,
-      "-e",
-      "PNPM_STORE_PATH=/app/.pnpm-store",
-      "-w",
-      workingDir,
-      `alifullstack-app-${appId}`,
-      "sh",
-      "-c",
-      getCommand({ installCommand, startCommand }),
-    ],
-    {
-      stdio: "pipe",
-      detached: false,
-      env: getShellEnv(),
-    },
-  );
-
-  // Check if process spawned correctly
-  if (!process.pid) {
-    // Attempt to capture any immediate errors if possible
-    let errorOutput = "";
-    process.stderr?.on("data", (data) => (errorOutput += data));
-    await new Promise((resolve) => process.on("error", resolve)); // Wait for error event
-    throw new Error(
-      `Failed to spawn Docker container for app ${appId}. Error: ${
-        errorOutput || "Unknown spawn error"
-      }`,
-    );
-  }
-
-  // Increment the counter and store the process reference with its ID
-  const currentProcessId = processCounter.increment();
-  runningApps.set(appId, {
-    process,
-    processId: currentProcessId,
-    isDocker: true,
-    containerName,
-  });
-
-  listenToProcess({
-    process,
-    appId,
-    appPath,
-    isNeon,
-    event,
-  });
-}
-
 // Helper to kill process on a specific port (cross-platform, using kill-port)
 async function killProcessOnPort(port: number): Promise<void> {
   try {
     await killPort(port, "tcp");
   } catch {
     // Ignore if nothing was running on that port
-  }
-}
-
-// Helper to stop any Docker containers publishing a given host port
-async function stopDockerContainersOnPort(port: number): Promise<void> {
-  try {
-    // List container IDs that publish the given port
-    const list = spawn("docker", ["ps", "--filter", `publish=${port}`, "-q"], {
-      stdio: "pipe",
-      env: getShellEnv(),
-    });
-
-    let stdout = "";
-    list.stdout?.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    await new Promise<void>((resolve) => {
-      list.on("close", () => resolve());
-      list.on("error", () => resolve());
-    });
-
-    const containerIds = stdout
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    if (containerIds.length === 0) {
-      return;
-    }
-
-    // Stop each container best-effort
-    await Promise.all(
-      containerIds.map(
-        (id) =>
-          new Promise<void>((resolve) => {
-            const stop = spawn("docker", ["stop", id], {
-              stdio: "pipe",
-              env: getShellEnv(),
-            });
-            stop.on("close", () => resolve());
-            stop.on("error", () => resolve());
-          }),
-      ),
-    );
-  } catch (e) {
-    logger.warn(`Failed stopping Docker containers on port ${port}: ${e}`);
   }
 }
 
@@ -2616,11 +2377,9 @@ export function registerAppHandlers() {
       {
         appId,
         removeNodeModules,
-        terminalType,
       }: {
         appId: number;
         removeNodeModules?: boolean;
-        terminalType?: "frontend" | "backend" | "main";
       },
     ): Promise<void> => {
       logger.log(`Restarting app ${appId}`);
@@ -2848,7 +2607,7 @@ export function registerAppHandlers() {
           if (process.platform === "darwin" || process.platform === "linux") {
             try {
               execSync(`rm -rf "${appPath}"`);
-            } catch (fallbackError: any) {
+            } catch {
               logger.error(`Error deleting app files for app ${appId}:`, error);
               throw new Error(
                 `App deleted from database, but failed to delete app files. Please delete app files from ${appPath} manually.\n\nError: ${error.message}`,
@@ -3100,7 +2859,10 @@ export function registerAppHandlers() {
     logger.log("removing all app files...");
     const alifullstackAppPath = getAliFullStackAppPath(".");
     if (fs.existsSync(alifullstackAppPath)) {
-      await fsPromises.rm(alifullstackAppPath, { recursive: true, force: true });
+      await fsPromises.rm(alifullstackAppPath, {
+        recursive: true,
+        force: true,
+      });
       // Recreate the base directory
       await fsPromises.mkdir(alifullstackAppPath, { recursive: true });
     }
@@ -3744,248 +3506,251 @@ async function installSpecificPythonPackage(
     installProcess.stderr?.on("data", (data) => {
       installError += data.toString();
     });
+  });
+}
+
+// --- Kanban & Sitemap Handlers ---
+
+ipcMain.handle(
+  "get-app-files",
+  async (_, { appId }: { appId: number }): Promise<{ files: string[] }> => {
+    const app = await db.query.apps.findFirst({
+      where: eq(apps.id, appId),
     });
+
+    if (!app) {
+      throw new Error("App not found");
     }
-    
-    // --- Kanban & Sitemap Handlers ---
-    
-    ipcMain.handle(
-      "get-app-files",
-      async (_, { appId }: { appId: number }): Promise<{ files: string[] }> => {
-        const app = await db.query.apps.findFirst({
-          where: eq(apps.id, appId),
-        });
-    
-        if (!app) {
-          throw new Error("App not found");
-        }
-    
-        const appPath = getAliFullStackAppPath(app.path);
-        const files = getFilesRecursively(appPath, appPath);
-        return { files };
-      },
-    );
-    
-    ipcMain.handle(
-      "get-app-structure",
-      async (_, { appId }: { appId: number }): Promise<{
-        kanbanTasks: any[];
-        sitemap: any[];
-      }> => {
-        const app = await db.query.apps.findFirst({
-          where: eq(apps.id, appId),
-        });
-    
-        if (!app) {
-          throw new Error("App not found");
-        }
-    
-        const appPath = getAliFullStackAppPath(app.path);
-    
-        // Try to load from .alifullstack folder
-        const alifullstackDir = path.join(appPath, ".alifullstack");
-        const kanbanPath = path.join(alifullstackDir, "kanban.json");
-        const sitemapPath = path.join(alifullstackDir, "sitemap.json");
-    
-        let kanbanTasks: any[] = [];
-        let sitemap: any[] = [];
-    
-        try {
-          if (fs.existsSync(kanbanPath)) {
-            const kanbanData = fs.readFileSync(kanbanPath, "utf-8");
-            kanbanTasks = JSON.parse(kanbanData);
-          }
-        } catch (error) {
-          logger.warn(`Failed to load kanban tasks: ${error}`);
-        }
-    
-        try {
-          if (fs.existsSync(sitemapPath)) {
-            const sitemapData = fs.readFileSync(sitemapPath, "utf-8");
-            sitemap = JSON.parse(sitemapData);
-          }
-        } catch (error) {
-          logger.warn(`Failed to load sitemap: ${error}`);
-        }
-    
-        // If no data exists, generate from app files
-        if (kanbanTasks.length === 0 && sitemap.length === 0) {
-          try {
-            const files = getFilesRecursively(appPath, appPath);
-            const structure = generateStructureFromFiles(files);
-            kanbanTasks = structure.kanbanTasks;
-            sitemap = structure.sitemap;
-          } catch (error) {
-            logger.warn(`Failed to generate app structure from files: ${error}`);
-            // Return empty arrays rather than throwing, so the UI can handle gracefully
-            kanbanTasks = [];
-            sitemap = [];
-          }
-        }
-      
-        return { kanbanTasks, sitemap };
-      },
-    );
-    
-    ipcMain.handle(
-      "save-kanban-tasks",
-      async (
-        _,
-        { appId, tasks }: { appId: number; tasks: any[] },
-      ): Promise<void> => {
-        const app = await db.query.apps.findFirst({
-          where: eq(apps.id, appId),
-        });
-    
-        if (!app) {
-          throw new Error("App not found");
-        }
-    
-        const appPath = getAliFullStackAppPath(app.path);
-        const alifullstackDir = path.join(appPath, ".alifullstack");
-    
-        // Create .alifullstack directory if it doesn't exist
-        if (!fs.existsSync(alifullstackDir)) {
-          fs.mkdirSync(alifullstackDir, { recursive: true });
-        }
-    
-        const kanbanPath = path.join(alifullstackDir, "kanban.json");
-        fs.writeFileSync(kanbanPath, JSON.stringify(tasks, null, 2), "utf-8");
-      },
-    );
-    
-    ipcMain.handle(
-      "save-sitemap-structure",
-      async (
-        _,
-        { appId, structure }: { appId: number; structure: any[] },
-      ): Promise<void> => {
-        const app = await db.query.apps.findFirst({
-          where: eq(apps.id, appId),
-        });
-    
-        if (!app) {
-          throw new Error("App not found");
-        }
-    
-        const appPath = getAliFullStackAppPath(app.path);
-        const alifullstackDir = path.join(appPath, ".alifullstack");
-    
-        // Create .alifullstack directory if it doesn't exist
-        if (!fs.existsSync(alifullstackDir)) {
-          fs.mkdirSync(alifullstackDir, { recursive: true });
-        }
-    
-        const sitemapPath = path.join(alifullstackDir, "sitemap.json");
-        fs.writeFileSync(sitemapPath, JSON.stringify(structure, null, 2), "utf-8");
-      },
-    );
-    
-    // Helper function to generate initial structure from app files
-    function generateStructureFromFiles(files: string[]): {
-      kanbanTasks: any[];
-      sitemap: any[];
-    } {
-      // Normalize paths to use forward slashes for consistent matching
-      const normalizedFiles = files.map((f) => f.replace(/\\/g, "/"));
-    
-      const pages = normalizedFiles
-        .filter((f) => f.includes("/pages/") || f.includes("/routes/"))
-        .map((f) => path.basename(f).replace(/\.(tsx?|jsx?)$/, ""))
-        .filter((f) => f && f !== "index" && f !== "app");
-    
-      const components = normalizedFiles
-        .filter((f) => f.includes("/components/"))
-        .map((f) => path.basename(f).replace(/\.(tsx?|jsx?)$/, ""))
-        .filter((f) => f && !f.startsWith("."));
-    
-      const apiRoutes = normalizedFiles
-        .filter((f) => f.includes("/api/") || f.includes("/routes/"))
-        .map((f) => path.basename(f).replace(/\.(ts|js)$/, ""))
-        .filter((f) => f && f !== "index");
-    
-      const kanbanTasks = [
-        {
-          id: `task-${Date.now()}-1`,
-          title: "Initialize project structure",
-          description: "Set up basic project scaffolding",
-          status: "done",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        ...pages.slice(0, 5).map((page, idx) => ({
-          id: `task-${Date.now()}-${idx + 2}`,
-          title: `Implement ${page} page`,
-          description: `Create the ${page} page component`,
-          status: "todo",
-          filePath: `src/pages/${page}.tsx`,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        })),
-      ];
-    
-      const sitemap = [
-        {
-          id: `node-${Date.now()}-root`,
-          name: "Application",
-          type: "page",
-          children: [
-            {
-              id: `node-${Date.now()}-pages`,
-              name: "Pages",
-              type: "page",
-              children: pages.slice(0, 10).map((page, idx) => ({
-                id: `node-${Date.now()}-page-${idx}`,
-                name: page,
-                type: "page",
-                path: `/${page.toLowerCase()}`,
-                filePath: `src/pages/${page}.tsx`,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              })),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            {
-              id: `node-${Date.now()}-components`,
-              name: "Components",
-              type: "component",
-              children: components.slice(0, 10).map((comp, idx) => ({
-                id: `node-${Date.now()}-comp-${idx}`,
-                name: comp,
-                type: "component",
-                filePath: `src/components/${comp}.tsx`,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              })),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            ...(apiRoutes.length > 0
-              ? [
-                  {
-                    id: `node-${Date.now()}-api`,
-                    name: "API Routes",
-                    type: "api",
-                    children: apiRoutes.slice(0, 10).map((route, idx) => ({
-                      id: `node-${Date.now()}-route-${idx}`,
-                      name: route,
-                      type: "api",
-                      path: `/api/${route.toLowerCase()}`,
-                      filePath: `src/api/${route}.ts`,
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                    })),
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                  },
-                ]
-              : []),
-          ],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ];
-    
-      return { kanbanTasks, sitemap };
+
+    const appPath = getAliFullStackAppPath(app.path);
+    const files = getFilesRecursively(appPath, appPath);
+    return { files };
+  },
+);
+
+ipcMain.handle(
+  "get-app-structure",
+  async (
+    _,
+    { appId }: { appId: number },
+  ): Promise<{
+    kanbanTasks: any[];
+    sitemap: any[];
+  }> => {
+    const app = await db.query.apps.findFirst({
+      where: eq(apps.id, appId),
+    });
+
+    if (!app) {
+      throw new Error("App not found");
+    }
+
+    const appPath = getAliFullStackAppPath(app.path);
+
+    // Try to load from .alifullstack folder
+    const alifullstackDir = path.join(appPath, ".alifullstack");
+    const kanbanPath = path.join(alifullstackDir, "kanban.json");
+    const sitemapPath = path.join(alifullstackDir, "sitemap.json");
+
+    let kanbanTasks: any[] = [];
+    let sitemap: any[] = [];
+
+    try {
+      if (fs.existsSync(kanbanPath)) {
+        const kanbanData = fs.readFileSync(kanbanPath, "utf-8");
+        kanbanTasks = JSON.parse(kanbanData);
       }
+    } catch (error) {
+      logger.warn(`Failed to load kanban tasks: ${error}`);
+    }
+
+    try {
+      if (fs.existsSync(sitemapPath)) {
+        const sitemapData = fs.readFileSync(sitemapPath, "utf-8");
+        sitemap = JSON.parse(sitemapData);
+      }
+    } catch (error) {
+      logger.warn(`Failed to load sitemap: ${error}`);
+    }
+
+    // If no data exists, generate from app files
+    if (kanbanTasks.length === 0 && sitemap.length === 0) {
+      try {
+        const files = getFilesRecursively(appPath, appPath);
+        const structure = generateStructureFromFiles(files);
+        kanbanTasks = structure.kanbanTasks;
+        sitemap = structure.sitemap;
+      } catch (error) {
+        logger.warn(`Failed to generate app structure from files: ${error}`);
+        // Return empty arrays rather than throwing, so the UI can handle gracefully
+        kanbanTasks = [];
+        sitemap = [];
+      }
+    }
+
+    return { kanbanTasks, sitemap };
+  },
+);
+
+ipcMain.handle(
+  "save-kanban-tasks",
+  async (
+    _,
+    { appId, tasks }: { appId: number; tasks: any[] },
+  ): Promise<void> => {
+    const app = await db.query.apps.findFirst({
+      where: eq(apps.id, appId),
+    });
+
+    if (!app) {
+      throw new Error("App not found");
+    }
+
+    const appPath = getAliFullStackAppPath(app.path);
+    const alifullstackDir = path.join(appPath, ".alifullstack");
+
+    // Create .alifullstack directory if it doesn't exist
+    if (!fs.existsSync(alifullstackDir)) {
+      fs.mkdirSync(alifullstackDir, { recursive: true });
+    }
+
+    const kanbanPath = path.join(alifullstackDir, "kanban.json");
+    fs.writeFileSync(kanbanPath, JSON.stringify(tasks, null, 2), "utf-8");
+  },
+);
+
+ipcMain.handle(
+  "save-sitemap-structure",
+  async (
+    _,
+    { appId, structure }: { appId: number; structure: any[] },
+  ): Promise<void> => {
+    const app = await db.query.apps.findFirst({
+      where: eq(apps.id, appId),
+    });
+
+    if (!app) {
+      throw new Error("App not found");
+    }
+
+    const appPath = getAliFullStackAppPath(app.path);
+    const alifullstackDir = path.join(appPath, ".alifullstack");
+
+    // Create .alifullstack directory if it doesn't exist
+    if (!fs.existsSync(alifullstackDir)) {
+      fs.mkdirSync(alifullstackDir, { recursive: true });
+    }
+
+    const sitemapPath = path.join(alifullstackDir, "sitemap.json");
+    fs.writeFileSync(sitemapPath, JSON.stringify(structure, null, 2), "utf-8");
+  },
+);
+
+// Helper function to generate initial structure from app files
+function generateStructureFromFiles(files: string[]): {
+  kanbanTasks: any[];
+  sitemap: any[];
+} {
+  // Normalize paths to use forward slashes for consistent matching
+  const normalizedFiles = files.map((f) => f.replace(/\\/g, "/"));
+
+  const pages = normalizedFiles
+    .filter((f) => f.includes("/pages/") || f.includes("/routes/"))
+    .map((f) => path.basename(f).replace(/\.(tsx?|jsx?)$/, ""))
+    .filter((f) => f && f !== "index" && f !== "app");
+
+  const components = normalizedFiles
+    .filter((f) => f.includes("/components/"))
+    .map((f) => path.basename(f).replace(/\.(tsx?|jsx?)$/, ""))
+    .filter((f) => f && !f.startsWith("."));
+
+  const apiRoutes = normalizedFiles
+    .filter((f) => f.includes("/api/") || f.includes("/routes/"))
+    .map((f) => path.basename(f).replace(/\.(ts|js)$/, ""))
+    .filter((f) => f && f !== "index");
+
+  const kanbanTasks = [
+    {
+      id: `task-${Date.now()}-1`,
+      title: "Initialize project structure",
+      description: "Set up basic project scaffolding",
+      status: "done",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    ...pages.slice(0, 5).map((page, idx) => ({
+      id: `task-${Date.now()}-${idx + 2}`,
+      title: `Implement ${page} page`,
+      description: `Create the ${page} page component`,
+      status: "todo",
+      filePath: `src/pages/${page}.tsx`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })),
+  ];
+
+  const sitemap = [
+    {
+      id: `node-${Date.now()}-root`,
+      name: "Application",
+      type: "page",
+      children: [
+        {
+          id: `node-${Date.now()}-pages`,
+          name: "Pages",
+          type: "page",
+          children: pages.slice(0, 10).map((page, idx) => ({
+            id: `node-${Date.now()}-page-${idx}`,
+            name: page,
+            type: "page",
+            path: `/${page.toLowerCase()}`,
+            filePath: `src/pages/${page}.tsx`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: `node-${Date.now()}-components`,
+          name: "Components",
+          type: "component",
+          children: components.slice(0, 10).map((comp, idx) => ({
+            id: `node-${Date.now()}-comp-${idx}`,
+            name: comp,
+            type: "component",
+            filePath: `src/components/${comp}.tsx`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        ...(apiRoutes.length > 0
+          ? [
+              {
+                id: `node-${Date.now()}-api`,
+                name: "API Routes",
+                type: "api",
+                children: apiRoutes.slice(0, 10).map((route, idx) => ({
+                  id: `node-${Date.now()}-route-${idx}`,
+                  name: route,
+                  type: "api",
+                  path: `/api/${route.toLowerCase()}`,
+                  filePath: `src/api/${route}.ts`,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                })),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+            ]
+          : []),
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ];
+
+  return { kanbanTasks, sitemap };
+}

@@ -1,3 +1,4 @@
+import path from "path";
 import log from "electron-log";
 import { getAliFullStackAppPath } from "../../paths/paths";
 import { db } from "../../db";
@@ -249,10 +250,10 @@ export class DevelopmentOrchestrator {
       const frontendPath = path.join(appPath, "frontend");
 
       // Start frontend development server
-      await this.startFrontendServer(state.appId, frontendPath);
+      await this.startFrontendServer(state.appId);
 
       // Generate initial frontend code based on requirements
-      await this.generateInitialFrontend(state, frontendPath);
+      await this.generateInitialFrontend(state);
 
       // Wait for initial development to stabilize
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -388,7 +389,7 @@ export class DevelopmentOrchestrator {
       );
 
       // Generate initial backend code based on requirements
-      await this.generateInitialBackend(state, backendPath);
+      await this.generateInitialBackend(state);
 
       // Wait for initial development to stabilize
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -530,7 +531,6 @@ export class DevelopmentOrchestrator {
     await this.sendNotification(
       state.appId,
       "Development completed successfully!",
-      "success",
     );
   }
 
@@ -550,19 +550,13 @@ export class DevelopmentOrchestrator {
     state.humanInterventionRequired = true;
     state.humanInterventionMessage = `Development encountered an error: ${error}. Please review and continue.`;
 
-    await this.sendNotification(
-      state.appId,
-      state.humanInterventionMessage,
-      "error",
-    );
+    await this.sendNotification(state.appId, state.humanInterventionMessage);
   }
 
   /**
    * Start frontend development server
    */
-  private async startFrontendServer(
-    appId: number,
-  ): Promise<void> {
+  private async startFrontendServer(appId: number): Promise<void> {
     try {
       logger.info(
         `Frontend server setup for app ${appId} - will be started when user runs the app`,
@@ -618,9 +612,7 @@ export class DevelopmentOrchestrator {
   /**
    * Generate initial backend code
    */
-  private async generateInitialBackend(
-    state: DevelopmentState,
-  ): Promise<void> {
+  private async generateInitialBackend(state: DevelopmentState): Promise<void> {
     const requirements = state.metadata.requirements || [];
     const framework = state.metadata.backendFramework;
 

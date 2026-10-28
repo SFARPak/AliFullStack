@@ -21,7 +21,7 @@ const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 if (!GITHUB_CLIENT_ID) {
   logger.warn(
     "GITHUB_CLIENT_ID is not set. GitHub integration will be disabled. " +
-    "Set it in your environment or .env file to enable GitHub features.",
+      "Set it in your environment or .env file to enable GitHub features.",
   );
 }
 

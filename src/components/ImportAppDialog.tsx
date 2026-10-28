@@ -281,15 +281,15 @@ export function ImportAppDialog({ isOpen, onClose }: ImportAppDialogProps) {
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>
-                          AI_RULES.md lets AliFullStack know which tech stack to use for
-                          editing the app
+                          AI_RULES.md lets AliFullStack know which tech stack to
+                          use for editing the app
                         </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                   <AlertDescription>
-                    No AI_RULES.md found. AliFullStack will automatically generate one
-                    after importing.
+                    No AI_RULES.md found. AliFullStack will automatically
+                    generate one after importing.
                   </AlertDescription>
                 </Alert>
               )}

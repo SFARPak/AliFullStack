@@ -42,7 +42,8 @@ export function HelpDialog({ isOpen, onClose }: HelpDialogProps) {
   const selectedChatId = useAtomValue(selectedChatIdAtom);
   const { settings } = useSettings();
 
-  const isAliFullStackProUser = settings?.providerSettings?.["auto"]?.apiKey?.value;
+  const isAliFullStackProUser =
+    settings?.providerSettings?.["auto"]?.apiKey?.value;
 
   // Function to reset all dialog state
   const resetDialogState = () => {
@@ -332,7 +333,10 @@ Session ID: ${sessionId}
             <div className="border rounded-md p-3">
               <h3 className="font-medium mb-2">System Information</h3>
               <div className="text-sm bg-slate-50 dark:bg-slate-900 rounded p-2 max-h-32 overflow-y-auto">
-                <p>AliFullStack Version: {chatLogsData.debugInfo.alifullstackVersion}</p>
+                <p>
+                  AliFullStack Version:{" "}
+                  {chatLogsData.debugInfo.alifullstackVersion}
+                </p>
                 <p>Platform: {chatLogsData.debugInfo.platform}</p>
                 <p>Architecture: {chatLogsData.debugInfo.architecture}</p>
                 <p>
@@ -389,12 +393,12 @@ Session ID: ${sessionId}
                 }}
                 className="w-full py-6 border-primary/50 shadow-sm shadow-primary/10 transition-all hover:shadow-md hover:shadow-primary/15"
               >
-                <SparklesIcon className="mr-2 h-5 w-5" /> Chat with AliFullStack help
-                bot (Pro)
+                <SparklesIcon className="mr-2 h-5 w-5" /> Chat with AliFullStack
+                help bot (Pro)
               </Button>
               <p className="text-sm text-muted-foreground px-2">
-                Opens an in-app help chat assistant that searches through AliFullStack's
-                docs.
+                Opens an in-app help chat assistant that searches through
+                AliFullStack's docs.
               </p>
             </div>
           ) : (
