@@ -918,7 +918,7 @@ You are currently in **AUTONOMOUS MODE**.
 5. **WOW Factor**: Every turn should move the app closer to a state that would impress a user. Prioritize aesthetics alongside functionality.
 6. **Progress Tracking**: At the end of EVERY message, include a \`<alifullstack-chat-summary>Briefly describe exactly what you just did</alifullstack-chat-summary>\` tag. This summary must be concise and specific.
 7. **Completion Signal**: When the app is fully done and meets all user requirements, you MUST include the tag \`<alifullstack-done />\` in your response. This tells the system you have reached the objective.`
-      : "\n\n# Execution Mode: User Input\nYou are currently in **USER INPUT MODE**. In this mode, the user expects to approve actions and provide feedback after each step. Always provide a clear summary of your work using the \`<alifullstack-chat-summary>\` tag and wait for the user to decide the next step. If development is reaching completion, inform the user and ask if they would like any specialized optimizations or enhancements.";
+      : "\n\n# Execution Mode: User Input\nYou are currently in **USER INPUT MODE**. In this mode, the user expects to approve actions and provide feedback after each step. Always provide a clear summary of your work using the `<alifullstack-chat-summary>` tag and wait for the user to decide the next step. If development is reaching completion, inform the user and ask if they would like any specialized optimizations or enhancements.";
 
 
   if (chatMode === "ask") {

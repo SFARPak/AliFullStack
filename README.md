@@ -17,7 +17,8 @@ AliFullstack builds on top of other awesome open-source projects:
 - [AliFullStack](https://github.com/alifullstack-sh/alifullstack)
 - [Roo-Code](https://github.com/RooCodeInc/Roo-Code)
 - [React](https://github.com/facebook/react)
-- [NextJS](https://github.com/vercel/next.js) -[Vue](https://github.com/vuejs/core)
+- [NextJS](https://github.com/vercel/next.js)
+- [Vue](https://github.com/vuejs/core)
 - [Django](https://github.com/django/django)
 - [FastAPI](https://github.com/fastapi/fastapi)
 - [Flask](https://github.com/pallets/flask)
@@ -297,6 +298,7 @@ Be the first to know about:
 - 🧑‍💻 [Contribute](./CONTRIBUTING.md)
 - ⭐ [Star on GitHub](https://github.com/SFARPak/AliFullStack)
 - 🧵 [Reddit Community](https://www.reddit.com/r/alifullstackbuilders/)
+- 📋 [Changelog](./CHANGELOG.md)
 
 ---
 

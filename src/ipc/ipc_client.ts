@@ -555,6 +555,7 @@ export class IpcClient {
   // Stop a running app
   public async stopApp(appId: number): Promise<void> {
     await this.ipcRenderer.invoke("stop-app", { appId });
+    this.appStreams.delete(appId);
   }
 
   // Restart a running app

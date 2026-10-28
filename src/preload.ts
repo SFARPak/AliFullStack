@@ -113,6 +113,18 @@ const validInvokeChannels = [
   "restart-alifullstack",
   "get-templates",
   "portal:migrate-create",
+  // App file and server management
+  "get-app-files",
+  "start-backend-server",
+  "start-frontend-server",
+  "create-missing-folder",
+  // Roo Code authentication
+  "roocode:login",
+  "roocode:logout",
+  "roocode:auth-status",
+  "roocode:auth-callback",
+  // Client-side error logging
+  "log-client-error",
   // Help bot
   "help:chat:start",
   "help:chat:cancel",
@@ -131,6 +143,7 @@ const validInvokeChannels = [
   // We can't detect with IS_TEST_BUILD in the preload script because
   // it's a separate process from the main process.
   "supabase:fake-connect-and-set-project",
+  "neon:fake-connect",
 ];
 
 // Add valid receive channels

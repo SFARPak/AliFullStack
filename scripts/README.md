@@ -1,66 +1,175 @@
-# Scripts
+# Build Scripts
 
-This directory contains utility scripts for the project.
+Unified build scripts for creating AliFullStack binaries across all platforms (macOS, Windows, Linux).
 
-## extract-codebase.ts
-
-A script that extracts code files from a directory, respecting `.gitignore` rules, and outputs them in a format suitable for LLM consumption.
-
-### Usage
+## Quick Start
 
 ```bash
-# Make the script executable first
-chmod +x scripts/extract-codebase.ts
+# Build for current platform
+pnpm build
 
-# Run with default options (current directory, output to codebase-extract.md)
-./scripts/extract-codebase.ts
+# Build for all platforms
+pnpm build:all
 
-# Specify a source directory and output file
-./scripts/extract-codebase.ts ./src ./output.md
+# Clean and build for all platforms
+pnpm build:clean
+
+# Build for specific platform
+pnpm build:mac
+pnpm build:win
+pnpm build:linux
 ```
 
-### Features
+## Scripts
 
-- Walks through the specified directory recursively
-- Respects all `.gitignore` rules
-- Extracts files with extensions: .ts, .tsx, .js, .jsx, .css
-- Formats output with markdown code blocks, including file paths
-- Writes all extracted code to a single markdown file
+### `build.sh` (macOS/Linux)
+Bash script for Unix-like systems.
 
-## verify-release-assets.js
+### `build.bat` (Windows)
+Batch script for Windows systems.
 
-A script that verifies all expected binary assets are present in the GitHub release for the current version in `package.json`.
+## Usage
 
-### Usage
+### Direct Script Usage
+
+#### macOS/Linux
+```bash
+# Build for current platform (auto-detected)
+./scripts/build.sh
+
+# Build for all platforms
+./scripts/build.sh --all
+
+# Clean and build for all platforms
+./scripts/build.sh --clean
+
+# Build for specific platform(s)
+./scripts/build.sh mac
+./scripts/build.sh win
+./scripts/build.sh linux
+./scripts/build.sh mac win
+
+# Show help
+./scripts/build.sh --help
+```
+
+#### Windows
+```cmd
+REM Build for current platform (Windows)
+scripts\build.bat
+
+REM Build for all platforms
+scripts\build.bat --all
+
+REM Clean and build for all platforms
+scripts\build.bat --clean
+
+REM Build for specific platform(s)
+scripts\build.bat mac
+scripts\build.bat win
+scripts\build.bat linux
+scripts\build.bat mac win
+
+REM Show help
+scripts\build.bat --help
+```
+
+### Via npm/pnpm Scripts
 
 ```bash
-# Set GITHUB_TOKEN environment variable
-export GITHUB_TOKEN=your_github_token
+# Build for current platform
+pnpm build
 
-# Run the verification script
-npm run verify-release
+# Clean and build
+pnpm build:clean
 
-# Or run directly
-node scripts/verify-release-assets.js
+# Build for all platforms
+pnpm build:all
+
+# Build for specific platform
+pnpm build:mac
+pnpm build:win
+pnpm build:linux
 ```
 
-### Expected Assets
+## Command-Line Options
 
-The script verifies the presence of these 7 assets for each release:
+| Option | Description |
+|--------|-------------|
+| `--clean` | Clean previous builds before building |
+| `--help`, `-h` | Show help message |
+| `mac`, `darwin` | Build for macOS |
+| `win`, `windows`, `win32` | Build for Windows |
+| `linux` | Build for Linux |
+| `all` | Build for all platforms |
 
-1. `alifullstack-{version}-1.x86_64.rpm` (Linux RPM)
-2. `alifullstack-{version}-full.nupkg` (Windows NuGet package)
-3. `alifullstack-{version}.Setup.exe` (Windows installer)
-4. `alifullstack-darwin-arm64-{version}.zip` (macOS Apple Silicon)
-5. `alifullstack-darwin-x64-{version}.zip` (macOS Intel)
-6. `alifullstack_{version}_amd64.deb` (Linux DEB)
-7. `RELEASES` (Windows update manifest)
+## Features
 
-### Features
+- **Platform Detection**: Automatically detects current platform if none specified
+- **Prerequisites Validation**: Checks for Node.js, package manager, and required files
+- **Clean Option**: Removes previous build artifacts before building
+- **Error Handling**: Clear error messages and build status reporting
+- **Progress Indicators**: Colored output showing build progress
+- **Cross-Platform**: Works on macOS, Linux, and Windows
 
-- Reads version from `package.json` automatically
-- Fetches release information from GitHub API
-- Lists all expected vs actual assets
-- Fails with clear error messages if assets are missing
-- Shows warnings for unexpected assets
-- Provides detailed release summary on success
+## Build Output
+
+All build artifacts are placed in the `out/` directory:
+- `out/make/` - Platform-specific installers and packages
+- `out/AliFullStack-*.dmg` - macOS disk image
+- `out/AliFullStack Setup *.exe` - Windows installer
+- `out/AliFullStack-*.AppImage` - Linux AppImage
+- `out/AliFullStack-*.deb` - Debian package
+- `out/AliFullStack-*.rpm` - RPM package
+
+## Prerequisites
+
+- Node.js >= 20
+- pnpm (recommended) or npm
+- All dependencies installed (`pnpm install`)
+- Platform-specific signing certificates (for macOS notarization)
+
+## Examples
+
+### Build for current platform only
+```bash
+./scripts/build.sh
+```
+
+### Build for macOS and Windows
+```bash
+./scripts/build.sh mac win
+```
+
+### Clean everything and build for all platforms
+```bash
+./scripts/build.sh --clean --all
+```
+
+### CI/CD Usage
+```bash
+# In GitHub Actions or other CI
+./scripts/build.sh --clean --all
+```
+
+## Troubleshooting
+
+### "Node.js not found"
+Ensure Node.js is installed and in your PATH.
+
+### "package.json not found"
+Run the script from the project root directory.
+
+### "node_modules not found"
+Install dependencies first: `pnpm install`
+
+### Build fails for specific platform
+- **macOS**: Ensure you have the required signing certificates and environment variables set
+- **Windows**: Run from a machine with Windows, or use Wine for cross-compilation (not recommended)
+- **Linux**: Ensure you have the required packaging tools installed
+
+## Notes
+
+- Cross-platform builds (e.g., building Windows binaries on macOS) are not officially supported by Electron Forge
+- For production releases, build on the target platform or use CI/CD services like GitHub Actions
+- The `--clean` option removes the `out/` and `scaffold/node_modules/` directories

@@ -91,7 +91,7 @@ export function useRunApp() {
     [setAppOutput],
   );
   const runApp = useCallback(
-    async (appId: number) => {
+    async (appId: number | null) => {
       setLoading(true);
       try {
         const ipcClient = IpcClient.getInstance();
@@ -130,7 +130,7 @@ export function useRunApp() {
     [processAppOutput],
   );
 
-  const stopApp = useCallback(async (appId: number) => {
+  const stopApp = useCallback(async (appId: number | null) => {
     if (appId === null) {
       return;
     }

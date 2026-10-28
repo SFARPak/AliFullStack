@@ -1,5 +1,7 @@
 import type { ForgeConfig } from "@electron-forge/shared-types";
 import { MakerZIP } from "@electron-forge/maker-zip";
+import { MakerDMG } from "@electron-forge/maker-dmg";
+import { MakerSquirrel } from "@electron-forge/maker-squirrel";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { VitePlugin } from "@electron-forge/plugin-vite";
@@ -19,6 +21,9 @@ const ignore = (file: string) => {
     return false;
   }
   if (file.startsWith("/scaffold")) {
+    return false;
+  }
+  if (file.startsWith("/scaffold-3d")) {
     return false;
   }
 
@@ -64,18 +69,6 @@ const config: ForgeConfig = {
     icon: "./assets/icon/logo",
 
     executableName: "alifullstack",
-    osxSign: isEndToEndTestBuild
-      ? undefined
-      : {
-          identity: process.env.APPLE_TEAM_ID,
-        },
-    osxNotarize: isEndToEndTestBuild
-      ? undefined
-      : {
-          appleId: process.env.APPLE_ID!,
-          appleIdPassword: process.env.APPLE_PASSWORD!,
-          teamId: process.env.APPLE_TEAM_ID!,
-        },
     asar: true,
     ignore,
     // ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
@@ -85,8 +78,20 @@ const config: ForgeConfig = {
     force: true,
   },
   makers: [
-    new MakerZIP({}, ["darwin"]),
+    new MakerZIP({}, ["darwin", "mas"]),
     new MakerZIP({}, ["win32"]),
+    new MakerDMG({
+      name: "AliFullStack-${version}",
+      title: "AliFullStack ${version}",
+      icon: "./assets/icon/logo.icns",
+      overwrite: true,
+    }),
+    new MakerSquirrel({
+      name: "AliFullStack",
+      authors: "Will Chen",
+      description: "Free, local, open-source AI app builder",
+      setupIcon: "./assets/icon/logo.ico",
+    }),
     new MakerRpm({}),
     new MakerDeb({
       options: {
