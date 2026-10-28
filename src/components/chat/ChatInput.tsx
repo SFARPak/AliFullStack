@@ -856,7 +856,7 @@ function ChatInputActions({
               <div className="mb-3">
                 <h4 className="font-semibold mb-1">Packages Added</h4>
                 <ul className="space-y-1">
-                  {proposal.packagesAdded.map((pkg, index) => (
+                  {proposal.packagesAdded.map((pkg) => (
                     <li
                       key={pkg}
                       className="flex items-center space-x-2"
@@ -883,7 +883,7 @@ function ChatInputActions({
               <div className="mb-3">
                 <h4 className="font-semibold mb-1">Server Functions Changed</h4>
                 <ul className="space-y-1">
-                  {serverFunctions.map((file: FileChange, index: number) => (
+                  {serverFunctions.map((file: FileChange) => (
                     <li key={file.path} className="flex items-center space-x-2">
                       {getIconForFileChange(file)}
                       <span
@@ -905,7 +905,7 @@ function ChatInputActions({
               <div>
                 <h4 className="font-semibold mb-1">Files Changed</h4>
                 <ul className="space-y-1">
-                  {otherFilesChanged.map((file: FileChange, index: number) => (
+                  {otherFilesChanged.map((file: FileChange) => (
                     <li key={file.path} className="flex items-center space-x-2">
                       {getIconForFileChange(file)}
                       <span

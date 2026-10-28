@@ -14,11 +14,13 @@ import {
 import { showError } from "./lib/toast";
 
 // Augment the global ImportMeta type so `import.meta.env` is typed (Vite provides these at build time)
-interface ImportMeta {
-  env: {
-    DEV: boolean;
-    MODE: string;
-  };
+declare global {
+  interface ImportMeta {
+    env: {
+      DEV: boolean;
+      MODE: string;
+    };
+  }
 }
 
 if (import.meta.env.DEV) {

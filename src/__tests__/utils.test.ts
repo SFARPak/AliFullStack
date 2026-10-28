@@ -8,9 +8,9 @@ describe("generateCuteAppName", () => {
     expect(typeof name).toBe("string");
   });
 
-  it("returns a name with at least two words separated by a space", () => {
+  it("returns a name with at least two parts separated by hyphens", () => {
     const name = generateCuteAppName();
-    const parts = name.split(" ");
+    const parts = name.split("-");
     expect(parts.length).toBeGreaterThanOrEqual(2);
   });
 

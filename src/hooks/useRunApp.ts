@@ -92,6 +92,9 @@ export function useRunApp() {
   );
   const runApp = useCallback(
     async (appId: number | null) => {
+      if (appId === null) {
+        return;
+      }
       setLoading(true);
       try {
         const ipcClient = IpcClient.getInstance();

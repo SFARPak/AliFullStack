@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added missing IPC channels to preload whitelist (`get-app-files`, `start-backend-server`, `start-frontend-server`, `create-missing-folder`, `roocode:login`, `roocode:logout`, `roocode:auth-status`, `roocode:auth-callback`, `log-client-error`, `neon:fake-connect`) so renderer IPC calls no longer throw "Invalid channel" errors.
 - Fixed `stopApp` to clean up the `appStreams` listener map, preventing stale callbacks and potential memory leaks.
 - Fixed `useRunApp` type signatures: `runApp` and `stopApp` now accept `number | null` for `appId` to match the `selectedAppIdAtom` type.
+- **TypeScript:** Resolved out-of-scope variable references in `src/ipc/handlers/app_handlers.ts` (`backendPort`, `frontendPort`, `backendProcess` were declared inside `try` blocks but used outside them).
+- **TypeScript:** Resolved out-of-scope `result` references in `src/ipc/processors/response_processor.ts`.
+- **TypeScript:** Added missing `topP` to the `ModelOption` type in `src/ipc/shared/language_model_constants.ts`.
+- **TypeScript:** Fixed `ChatInput.tsx` calling `.slice()` on a `SqlQuery` object — now uses `query.content.slice(...)`.
+- **TypeScript:** Typed `import.meta.env` in `src/renderer.tsx` via `declare global` ImportMeta augmentation.
+- **TypeScript:** Fixed broken module imports in `src/__tests__/{assert,schemas,utils}.test.ts` (pointed at non-existent `./assert`/`./schemas`/`./utils`; now `../lib/*`).
+- **Tests:** Fixed `generateCuteAppName` test to split on `-` (the implementation returns hyphen-separated names).
+- **Lint:** Removed unused imports/params in touched files (`z` in `schemas.test.ts`, unused `index` params in `ChatInput.tsx`).
+- **Reverted:** An over-eager `oxlint --fix` run rewrote `src/ipc/utils/runShellCommand.ts`, dropping the needed `await` on async `executeComplexCommand` and referencing an undefined `setupProcessHandlers`; reverted to keep command execution correct.
 
 ## [0.1.0] - 2026-10-28
 

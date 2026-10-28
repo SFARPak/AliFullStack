@@ -212,6 +212,18 @@ No sign-up. No cloud lock-in. Just download and build.
   npm test
   ```
 
+- **Type-check the codebase:**
+
+  ```sh
+  npm run ts
+  ```
+
+- **Lint the codebase:**
+
+  ```sh
+  npm run lint
+  ```
+
 - **Run E2E tests:**
 
   First, build the app for testing:
