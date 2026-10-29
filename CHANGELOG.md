@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tests:** Fixed `generateCuteAppName` test to split on `-` (the implementation returns hyphen-separated names).
 - **Lint:** Removed unused imports/params in touched files (`z` in `schemas.test.ts`, unused `index` params in `ChatInput.tsx`).
 - **Reverted:** An over-eager `oxlint --fix` run rewrote `src/ipc/utils/runShellCommand.ts`, dropping the needed `await` on async `executeComplexCommand` and referencing an undefined `setupProcessHandlers`; reverted to keep command execution correct.
+- **Error handling:** Added `.catch()` to `executeComplexCommand` in `runShellCommand.ts` to prevent unhandled promise rejections when complex command execution fails.
+- **Error handling:** Added `.catch()` to the `session.on('ask` permission dialog in `main.ts` to deny permission gracefully if the dialog fails.
+- **Dead code removal:** Removed unused `terminalType` parameter from `executeApp` and the `run-app` IPC handler in `app_handlers.ts`.
+- **Dead code removal:** Removed unused `chatSummary` assignments from `chat_stream_handlers.ts` and `proposal_handlers.ts`.
+- **Dead code removal:** Removed unused `appPath` variable and `getAliFullStackAppPath` import from the frontend dev server section of `development_orchestrator.ts`.
+- **Lint:** Suppressed `no-eval` warning in `testing/fake-llm-server/index.ts` (test stub only) with an eslint-disable comment.
 
 ## [0.1.0] - 2026-10-28
 

