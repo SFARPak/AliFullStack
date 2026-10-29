@@ -49,10 +49,15 @@ export function runShellCommand(
       logger.debug(
         `Using executeComplexCommand for complex command: ${command}`,
       );
-      executeComplexCommand(command, cwd, getShellEnv()).then((cp) => {
-        childProcess = cp;
-        setupProcessHandlers(childProcess);
-      });
+      executeComplexCommand(command, cwd, getShellEnv()).then(
+        (cp) => {
+          childProcess = cp;
+          setupProcessHandlers(childProcess);
+        },
+        (err) => {
+          logger.error("Failed to execute complex command:", err);
+        },
+      );
     } else {
       logger.debug(`Using spawn for simple command: ${command}`);
       childProcess = spawn(command, {

@@ -352,6 +352,10 @@ function setupPermissionHandlers() {
         })
         .then(({ response }) => {
           callback(response === 0);
+        })
+        .catch((err) => {
+          logger.error("Permission dialog failed:", err);
+          callback(false);
         });
     },
   );
