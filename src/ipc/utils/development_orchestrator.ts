@@ -246,9 +246,6 @@ export class DevelopmentOrchestrator {
         throw new Error(`App ${state.appId} not found`);
       }
 
-      const appPath = getAliFullStackAppPath(app.path);
-      const frontendPath = path.join(appPath, "frontend");
-
       // Start frontend development server
       await this.startFrontendServer(state.appId);
 

@@ -1027,7 +1027,6 @@ ${problemReport.problems
             .set({ title: chatTitle[1] })
             .where(and(eq(chats.id, req.chatId), isNull(chats.title)));
         }
-        const chatSummary = chatTitle?.[1];
 
         // Update the placeholder assistant message with the full response
         await db

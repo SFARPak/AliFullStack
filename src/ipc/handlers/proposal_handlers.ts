@@ -382,7 +382,6 @@ const approveProposalHandler = async (
   }
 
   // 2. Process the actions defined in the message content
-  const chatSummary = getAliFullStackChatSummaryTag(messageToApprove.content);
   const processResult = await processFullResponseActions(
     messageToApprove.content,
     chatId,

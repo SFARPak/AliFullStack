@@ -305,7 +305,6 @@ async function executeApp({
   isNeon,
   installCommand,
   startCommand,
-  terminalType,
 }: {
   appPath: string;
   appId: number;
@@ -313,7 +312,6 @@ async function executeApp({
   isNeon: boolean;
   installCommand?: string | null;
   startCommand?: string | null;
-  terminalType?: "frontend" | "backend" | "main";
 }): Promise<void> {
   if (proxyWorker) {
     proxyWorker.terminate();
@@ -2255,10 +2253,7 @@ export function registerAppHandlers() {
     "run-app",
     async (
       event: Electron.IpcMainInvokeEvent,
-      {
-        appId,
-        terminalType,
-      }: { appId: number; terminalType?: "frontend" | "backend" | "main" },
+      { appId }: { appId: number },
     ): Promise<void> => {
       return withLock(appId, async () => {
         // Check if app is already running
@@ -2288,7 +2283,6 @@ export function registerAppHandlers() {
             isNeon: !!app.neonProjectId,
             installCommand: app.installCommand,
             startCommand: app.startCommand,
-            terminalType,
           });
 
           return;

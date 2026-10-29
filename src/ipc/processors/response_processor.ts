@@ -649,7 +649,7 @@ export async function processFullResponseActions(
           logger.log(`Successfully deleted file: ${fullFilePath}`);
           deletedFiles.push(filePath);
 
-          // Remove the file from git and commit immediately
+          // Remove the file from git (will be committed in batch at the end)
           await safeGitOperation(
             async () => {
               await git.remove({
@@ -657,16 +657,9 @@ export async function processFullResponseActions(
                 dir: appPath,
                 filepath: filePath,
               });
-              const commitHash = await gitCommit({
-                path: appPath,
-                message: `[alifullstack] Deleted file: ${filePath}`,
-              });
-              logger.log(
-                `Committed file deletion: ${filePath} with hash ${commitHash}`,
-              );
-              return commitHash;
+              logger.log(`Staged file deletion for git: ${filePath}`);
             },
-            "File deletion commit",
+            "File deletion git staging",
             filePath,
           );
         } else {
@@ -710,7 +703,7 @@ export async function processFullResponseActions(
           logger.log(`Successfully renamed file: ${fromPath} -> ${toPath}`);
           renamedFiles.push(tag.to);
 
-          // Add the new file, remove the old one, and commit immediately
+          // Add the new file, remove the old one (will be committed in batch at the end)
           await safeGitOperation(
             async () => {
               await git.add({
@@ -730,16 +723,11 @@ export async function processFullResponseActions(
                   removeError,
                 );
               }
-              const commitHash = await gitCommit({
-                path: appPath,
-                message: `[alifullstack] Renamed file: ${tag.from} -> ${tag.to}`,
-              });
               logger.log(
-                `Committed file rename: ${tag.from} -> ${tag.to} with hash ${commitHash}`,
+                `Staged file rename for git: ${tag.from} -> ${tag.to}`,
               );
-              return commitHash;
             },
-            "File rename commit",
+            "File rename git staging",
             `${tag.from} -> ${tag.to}`,
           );
         } else {
@@ -822,7 +810,7 @@ export async function processFullResponseActions(
                 );
                 writtenFiles.push(filePath);
 
-                // Commit immediately
+                // Stage in git (will be committed in batch at the end)
                 await safeGitOperation(
                   async () => {
                     await git.add({
@@ -830,16 +818,11 @@ export async function processFullResponseActions(
                       dir: appPath,
                       filepath: filePath,
                     });
-                    const commitHash = await gitCommit({
-                      path: appPath,
-                      message: `[alifullstack] Applied search_replace to: ${filePath}`,
-                    });
                     logger.log(
-                      `Committed search_replace operation: ${filePath} with hash ${commitHash}`,
+                      `Staged search_replace operation for git: ${filePath}`,
                     );
-                    return commitHash;
                   },
-                  "Search replace commit",
+                  "Search replace git staging",
                   filePath,
                 );
               } else {
@@ -911,7 +894,7 @@ export async function processFullResponseActions(
             );
           }
 
-          // Commit immediately
+          // Stage in git (will be committed in batch at the end)
           await safeGitOperation(
             async () => {
               await git.add({
@@ -919,16 +902,9 @@ export async function processFullResponseActions(
                 dir: appPath,
                 filepath: filePath,
               });
-              const commitHash = await gitCommit({
-                path: appPath,
-                message: `[alifullstack] Wrote file: ${filePath}`,
-              });
-              logger.log(
-                `Committed file write: ${filePath} with hash ${commitHash}`,
-              );
-              return commitHash;
+              logger.log(`Staged file write for git: ${filePath}`);
             },
-            "File write commit",
+            "File write git staging",
             filePath,
           );
         }
@@ -999,7 +975,7 @@ export async function processFullResponseActions(
           );
         }
 
-        // Commit immediately
+        // Stage in git (will be committed in batch at the end)
         await safeGitOperation(
           async () => {
             await git.add({
@@ -1007,16 +983,9 @@ export async function processFullResponseActions(
               dir: appPath,
               filepath: filePath,
             });
-            const commitHash = await gitCommit({
-              path: appPath,
-              message: `[alifullstack] Wrote file via write_to_file tag: ${filePath}`,
-            });
-            logger.log(
-              `Committed write_to_file tag: ${filePath} with hash ${commitHash}`,
-            );
-            return commitHash;
+            logger.log(`Staged write_to_file tag for git: ${filePath}`);
           },
-          "Write to file commit",
+          "Write to file git staging",
           filePath,
         );
       } catch (error) {
@@ -1056,7 +1025,7 @@ export async function processFullResponseActions(
             );
             writtenFiles.push(filePath);
 
-            // Commit immediately
+            // Stage in git (will be committed in batch at the end)
             await safeGitOperation(
               async () => {
                 await git.add({
@@ -1064,16 +1033,9 @@ export async function processFullResponseActions(
                   dir: appPath,
                   filepath: filePath,
                 });
-                const commitHash = await gitCommit({
-                  path: appPath,
-                  message: `[alifullstack] Applied search_replace to: ${filePath}`,
-                });
-                logger.log(
-                  `Committed search_replace: ${filePath} with hash ${commitHash}`,
-                );
-                return commitHash;
+                logger.log(`Staged search_replace for git: ${filePath}`);
               },
-              "Search replace commit",
+              "Search replace git staging",
               filePath,
             );
           } else {
@@ -1116,6 +1078,30 @@ export async function processFullResponseActions(
     const uncommittedFiles: string[] = [];
 
     if (hasChanges) {
+      // Batch commit all file changes in a single commit
+      if (
+        writtenFiles.length > 0 ||
+        renamedFiles.length > 0 ||
+        deletedFiles.length > 0
+      ) {
+        const commitMessageParts: string[] = [];
+        if (writtenFiles.length > 0) {
+          commitMessageParts.push(`wrote ${writtenFiles.length} file(s)`);
+        }
+        if (renamedFiles.length > 0) {
+          commitMessageParts.push(`renamed ${renamedFiles.length} file(s)`);
+        }
+        if (deletedFiles.length > 0) {
+          commitMessageParts.push(`deleted ${deletedFiles.length} file(s)`);
+        }
+        const commitMessage = `[alifullstack] ${commitMessageParts.join(", ")}`;
+        const commitHash = await gitCommit({
+          path: appPath,
+          message: commitMessage,
+        });
+        logger.log(`Batch committed all file changes with hash ${commitHash}`);
+      }
+
       // Get the last commit hash from git log to save to the message
       try {
         const lastCommitHash = await git.log({
@@ -1163,6 +1149,17 @@ export async function processFullResponseActions(
 
     return {
       updatedFiles: hasChanges,
+      error:
+        errors.length > 0
+          ? errors
+              .map(
+                (e) =>
+                  (e.error instanceof Error
+                    ? e.error.message
+                    : e.error?.toString()) || e.message,
+              )
+              .join("; ")
+          : undefined,
       extraFiles:
         uncommittedFiles && uncommittedFiles.length > 0
           ? uncommittedFiles
